@@ -160,8 +160,7 @@ class Flight {
      * Executes a chain of method filters.
      *
      * @param array $filters Chain of filters
-     * @param array $params Method parameters
-     * @param mixed $data Method output
+     * @param reference $data Method parameters or method output
      */
     public static function filter($filters, &$data) {
         foreach ($filters as $callback) {
