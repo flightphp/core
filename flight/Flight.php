@@ -198,8 +198,8 @@ class Flight {
     /**
      * Invokes a method.
      *
-     * @param mixed $func Class method as either an array or string
-     * @param array $params Class initialization parameters
+     * @param mixed $func Class method
+     * @param array $params Class method parameters
      */
     public static function invokeMethod($func, array &$params = array()) {
         list($class, $method) = $func;
@@ -282,14 +282,8 @@ class Flight {
      */
     public static function set($key, $value = null) {
         // If key is an array, save each key value pair
-        if (is_array($key)) {
+        if (is_array($key) || is_object($key)) {
             foreach ($key as $k => $v) {
-                self::$vars[$k] = $v;
-            }
-        }
-        // If key is an object, save each property
-        else if (is_object($key)) {
-            foreach (get_object_vars($key) as $k => $v) {
                 self::$vars[$k] = $v;
             }
         }
