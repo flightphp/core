@@ -1,6 +1,6 @@
 <?php
 /**
- * Flight: an extensible PHP micro-framework.
+ * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
@@ -72,10 +72,10 @@ class Router {
      */
     public function route(&$request) {
         $params = array();
-        $routes = $this->routes[$request->method] + ($this->routes['*'] ?: array());
+        $routes = ($this->routes[$request->method] ?: array()) + ($this->routes['*'] ?: array());
 
         foreach ($routes as $pattern => $callback) {
-            if ($request->url === $pattern || self::match($pattern, $request->url, $params)) {
+            if ($pattern === '*' || $request->url === $pattern || self::match($pattern, $request->url, $params)) {
                 $request->matched = $pattern;
                 return array($callback, array($params));
             }
