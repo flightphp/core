@@ -61,7 +61,7 @@ Routes are matched in the order they are defined. The first route to match a req
         echo 'hello world!';
     });
 
-The callback can be any object that is callable. So we can use a regular function:
+The callback can be any object that is callable. So you can use a regular function:
 
     function hello(){
         echo 'hello world!';
@@ -77,7 +77,7 @@ Or a class method:
     }
     Flight::route('/', array('Greeting','hello'));
 
-### Request Method Routing
+### Method Routing
 
 By default, route patterns are matched against all request methods. You can respond to specific
 methods by placing an identifier before the URL.
@@ -89,10 +89,10 @@ methods by placing an identifier before the URL.
         echo 'I received a POST request.';
     });
 
-You can also map multiple methods to a single callback:
+You can also map multiple methods to a single callback by using a `|` delimiter:
 
     Flight::route('GET|POST /', function(){
-        echo 'I received either a GET or POST request.';
+        echo 'I received either a GET or a POST request.';
     });
 
 Method specific routes have precedence over global routes.
@@ -101,16 +101,14 @@ Method specific routes have precedence over global routes.
 
 You can use regular expressions in your routes:
 
-    // This will match /user/1234
     Flight::route('/user/[0-9]+', function(){
-        echo 'hello world!';
+        // This will match /user/1234
     });
 
 You can also user the wildcard character `*` for matching:
 
-    // This will match /blog/2000/02/01
     Flight::route('/blog/*', function(){
-        echo 'hello world!';
+        // This will match /blog/2000/02/01
     });
 
 ### Named Parameters
@@ -126,11 +124,11 @@ You can specify named parameters in routes which will be passed along to your ca
         }
     });
 
-You can also include regular expressions to with your named parameters:
+You can also include regular expressions with your named parameters:
 
     // This will match /bob/123
     // But will not match /bob/12345
-    Flight::route('/@name/@id:[0-9]{3}', function(){
+    Flight::route('/@name/@id:[0-9]{3}', function($params){
         echo 'hello, '.$params['name'];
     });
 
@@ -141,7 +139,7 @@ Note that named parameters only match URL segments. If you want to match multipl
 
 Flight is extensible. You can map your own methods, register your own classes, or even override existing classes and methods.
 
-## Mapping Methods
+### Mapping Methods
 
 To map your own custom method, you use the `map` function:
 
@@ -153,7 +151,7 @@ To map your own custom method, you use the `map` function:
     // Call your custom method
     Flight::hello('Bob');
 
-## Registering Classes
+### Registering Classes
 
 To register your own class, you use the `register` function:
 
@@ -163,12 +161,12 @@ To register your own class, you use the `register` function:
     // Get an instance of your class
     $user = Flight::user();
 
-If the *User* class is not defined, Flight will look in it's local folder for a file called `User.php` and autoload it.
+If the `User` class is not defined, Flight will look in it's local folder for a file called `User.php` and autoload it.
 This is how Flight loads its default classes like Response, Request, and Router.
 
 You can define the constructor parameters for your class by passing in an additional array:
 
-    // Register class with construct parameters
+    // Register class with constructor parameters
     Flight::register('db', 'Database', array('localhost','test','user','password'));
 
     // Get an instance of your class
@@ -178,13 +176,13 @@ You can define the constructor parameters for your class by passing in an additi
 
 You can also define a callback that will be executed immediately after class construction.
 
+    // The callback will be passed the object that was constructed
     Flight::register('auth', 'Auth', array($uid), function($auth){
-        // The callback will be passed the object that was constructed
         $auth->checkLogin();
     });
 
 By default, every time you load your class you will get a shared instance.
-To get a new instance of a class, simply pass in false:
+To get a new instance of a class, simply pass in *false* as a parameter:
 
     // Shared instance of User
     $shared = Flight::user();
@@ -222,7 +220,7 @@ For example you can replace the default Router class with your own custom class:
     // When Flight loads the Router instance, it will load your class
     $myrouter = Flight::router();
 
-You can replace any of the default components:
+You can replace any of the default Flight components:
 
     Flight::request();
     Flight::response();
@@ -241,15 +239,13 @@ you've mapped.
 You can have a filter run before a method by doing:
 
     Flight::before('start', function(&$params){
-        // Check for valid login
-        check_login();
+        // Do something
     });
 
 You can have a filter run after a method by doing:
 
     Flight::after('start', function(&$output){
-        // Clean up resources
-        clean_up();
+        // Do something
     });
 
 You can add as many filters as you want to any method. They will be called in the order
