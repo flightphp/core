@@ -1,16 +1,16 @@
 <?php
 /**
- * Flight: an extensible PHP micro-framework.
+ * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
  * @version     0.1
  */
 class View {
-    protected $templatePath;
+    public $path;
 
-    public function __construct($templatePath = null) {
-        $this->templatePath = $templatePath ?: './views';
+    public function __construct($path = null) {
+        $this->path = $path ?: (Flight::get('flight.view.path') ?: './views');
     }
 
     /**
@@ -35,7 +35,7 @@ class View {
         }
 
         // Display template
-        include $this->templatePath.'/'.((substr($file,-4) == '.php') ? $file : $file.'.php');
+        include $this->path.'/'.((substr($file,-4) == '.php') ? $file : $file.'.php');
     }
 
     /**
