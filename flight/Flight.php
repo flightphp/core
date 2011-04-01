@@ -102,10 +102,12 @@ class Flight {
     /**
      * Loads a registered class.
      *
-     * @param string $class Class name
-     * @param array $method List of methods to load
+     * @param string $name Method name
+     * @param bool $shared Shared instance
      */
     public static function load($name, $shared = true) {
+        static $loaded = array();
+
         if (isset(self::$classes[$name])) {
             list($class, $params, $callback) = self::$classes[$name];
 
@@ -113,14 +115,19 @@ class Flight {
                 self::getInstance($class, $params) :
                 self::getClass($class, $params);
 
-            if ($callback) self::execute($callback, $ref = array($obj));
+            if (!$shared || !isset($loaded[$name])) {
+                if ($callback) self::execute($callback, $ref = array($obj));
+                $loaded[$name] = true;
+            }
 
             return $obj;
         }
 
+        $class = ucfirst($name);
+
         return ($shared) ?
-            self::getInstance(ucfirst($name)) :
-            self::getClass(ucfirst($name));
+            self::getInstance($class) :
+            self::getClass($class);
     }
 
     /**
