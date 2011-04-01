@@ -1,6 +1,6 @@
 <?php
 /**
- * Flight: an extensible PHP micro-framework.
+ * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
