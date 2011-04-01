@@ -1,6 +1,6 @@
 <?php
 /**
- * Flight: an extensible PHP micro-framework.
+ * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
@@ -68,7 +68,7 @@ class Flight {
         }
 
         // Otherwise try to autoload class
-        return self::load($name, (bool)$params[0]);
+        return self::load($name, (!empty($params)) ? (bool)$params[0] : true);
     }
 
     /**
@@ -118,7 +118,9 @@ class Flight {
             return $obj;
         }
 
-        return self::getInstance(ucfirst($name));
+        return ($shared) ?
+            self::getInstance(ucfirst($name)) :
+            self::getClass(ucfirst($name));
     }
 
     /**
