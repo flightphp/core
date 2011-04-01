@@ -167,18 +167,20 @@ This is how Flight loads its default classes like Response, Request, and Router.
 You can define the constructor parameters for your class by passing in an additional array:
 
     // Register class with constructor parameters
-    Flight::register('db', 'Database', array('localhost','test','user','password'));
+    Flight::register('db', 'Database', array('localhost','mydb','user','pass'));
 
     // Get an instance of your class
     // This will create an object with the defined parameters
-    //     new Database('localhost', 'test', 'user', 'password');
+    //
+    //     new Database('localhost', 'test', 'user', 'pass');
+    //
     $db = Flight::db();
 
 You can also define a callback that will be executed immediately after class construction.
 
     // The callback will be passed the object that was constructed
-    Flight::register('auth', 'Auth', array($uid), function($auth){
-        $auth->checkLogin();
+    Flight::register('db', 'Database', array('localhost', 'mydb', 'user', 'pass'), function($db){
+        $db->connect();
     });
 
 By default, every time you load your class you will get a shared instance.
@@ -190,6 +192,8 @@ To get a new instance of a class, simply pass in *false* as a parameter:
     // New instance of User
     $new = Flight::user(false);
 
+Keep in mind that mapped methods have precedence over registered classes. If you declare both
+for the same method name, only the mapped method will be invoked.
 
 ## Overriding
 
@@ -311,6 +315,58 @@ You can clear a variable by doing:
 Flight also uses variables for configuration purposes.
 
     Flight::set('flight.lib.path', '/path/to/library');
+
+
+## Views
+
+Flight provides you with some basic templating functionality. To display a view call the `render` method with the
+name of the template file and the optional template data:
+
+    Flight::render('hello.php', array('name', 'Bob'));
+
+The template data you pass in is automatically injected into the template and can be accessed using the `$this` variable. Template files
+are simply PHP files. If the template file has the following content:
+
+    Hello, <?php echo $this->name; ?>!
+
+The output would be:
+
+    Hello, Bob!
+
+By default Flight will look in the current working directory for template files. You can set an alternate path for view templates
+by setting the following config:
+
+    Flight::set('flight.view.path', '/path/to/views');
+
+### Custom Views
+
+Flight allows you to swap out the default view engine simply by registering your own view class.
+Here's how you would use Smarty for your templates:
+
+    // Load Smarty library
+    require_once './Smarty/libs/Smarty.class.php';
+
+    // Register Smarty as the view class
+    // Also pass a callback function to configure Smarty on startup
+    Flight::register('view', 'Smarty', array(), function($smarty){
+        $smarty->template_dir = './templates/';
+        $smarty->compile_dir = './templates_c/';
+        $smarty->config_dir = './config/';
+        $smarty->cache_dir = './cache/';
+    });
+
+    // Assign template data
+    Flight::view()->assign('name', 'Bob');
+
+    // Display the template
+    Flight::view()->display('hello.tpl');
+
+For completeness, you should also override Flight's default render method:
+
+    Flight::map('render', function($template, $data){
+        Flight::view()->assign($data);
+        Flight::view()->display($template);
+    });
 
 
 ## Error Handling
