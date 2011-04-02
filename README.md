@@ -25,7 +25,7 @@ For **Apache**, edit your `.htaccess` file with the following:
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [QSA,L]
 
-For **Nginx**, add the following to your _server_ declaration:
+For **Nginx**, add the following to your server declaration:
 
     server {
         location / {
@@ -55,7 +55,6 @@ Finally, start the framework.
 ### The Basics
 
 Routing in Flight is done by matching a URL pattern with a callback function.
-Routes are matched in the order they are defined. The first route to match a request is invoked.
 
     Flight::route('/', function(){
         echo 'hello world!';
@@ -76,6 +75,8 @@ Or a class method:
         }
     }
     Flight::route('/', array('Greeting','hello'));
+
+Routes are matched in the order they are defined. The first route to match a request is invoked.
 
 ### Method Routing
 
@@ -124,12 +125,11 @@ You can specify named parameters in routes which will be passed along to your ca
         }
     });
 
-You can also include regular expressions with your named parameters:
+You can also include regular expressions with your named parameters by using the `:` delimiter:
 
-    // This will match /bob/123
-    // But will not match /bob/12345
     Flight::route('/@name/@id:[0-9]{3}', function($params){
-        echo 'hello, '.$params['name'];
+        // This will match /bob/123
+        // But will not match /bob/12345
     });
 
 Note that named parameters only match URL segments. If you want to match multiple segments use the `*` wildcard.
@@ -284,7 +284,22 @@ This should display:
 
     Hello BOB! Have a nice day! 
 
-Note that core framework methods like `map` and `register` cannot be filtered because they are called
+### Framework Methods
+
+You can apply filters to any of these existing framework methods:
+
+    start
+    stop
+    route
+    halt
+    error
+    notFound
+    redirect
+    render
+    etag
+    lastModified
+
+Core framework methods like `map` and `register` cannot be filtered because they are called
 directly and not invoked dynamically.
 
 
@@ -320,12 +335,12 @@ Flight also uses variables for configuration purposes.
 ## Views
 
 Flight provides you with some basic templating functionality. To display a view call the `render` method with the
-name of the template file and the optional template data:
+name of the template file and optional template data:
 
     Flight::render('hello.php', array('name', 'Bob'));
 
 The template data you pass in is automatically injected into the template and can be accessed using the `$this` variable. Template files
-are simply PHP files. If the template file has the following content:
+are simply PHP files. If the content of the `hello.php` template file is:
 
     Hello, <?php echo $this->name; ?>!
 
@@ -333,7 +348,7 @@ The output would be:
 
     Hello, Bob!
 
-By default Flight will look in the current working directory for template files. You can set an alternate path for view templates
+By default Flight will look for a `views` directory for template files. You can set an alternate path for your templates
 by setting the following config:
 
     Flight::set('flight.view.path', '/path/to/views');
@@ -341,13 +356,13 @@ by setting the following config:
 ### Custom Views
 
 Flight allows you to swap out the default view engine simply by registering your own view class.
-Here's how you would use Smarty for your templates:
+Here's how you would use the Smarty template engine for your views:
 
     // Load Smarty library
-    require_once './Smarty/libs/Smarty.class.php';
+    require './Smarty/libs/Smarty.class.php';
 
-    // Register Smarty as the view class
-    // Also pass a callback function to configure Smarty on startup
+    // Register Smarty as the view class and pass
+    // a callback function to configure Smarty on load
     Flight::register('view', 'Smarty', array(), function($smarty){
         $smarty->template_dir = './templates/';
         $smarty->compile_dir = './templates_c/';
@@ -412,4 +427,4 @@ Flight requires PHP 5.3 or later.
 
 ## License
 
-Flight licensed under the [MIT](http://www.opensource.org/licenses/mit-license.php) license.
+Flight is licensed under the [MIT](http://www.opensource.org/licenses/mit-license.php) license.
