@@ -22,13 +22,8 @@ class View {
     public function render($file, $data = null) {
         // Bind template data to view
         if (!is_null($data)) {
-            if (is_array($data)) {
+            if (is_array($data) || is_object($data)) {
                 foreach ($data as $key => $value) {
-                    $this->{$key} = $value;
-                }
-            }
-            else if (is_object($data)) {
-                foreach (get_object_vars($data) as $key => $value) {
                     $this->{$key} = $value;
                 }
             }
