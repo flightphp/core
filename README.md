@@ -106,7 +106,7 @@ You can use regular expressions in your routes:
         // This will match /user/1234
     });
 
-You can also user the wildcard character `*` for matching:
+You can also use the wildcard character `*` for matching:
 
     Flight::route('/blog/*', function(){
         // This will match /blog/2000/02/01
@@ -116,13 +116,8 @@ You can also user the wildcard character `*` for matching:
 
 You can specify named parameters in routes which will be passed along to your callback function.
 
-    // For the URL /bob/123, this will display
-    //    name = bob
-    //    id = 123
-    Flight::route('/@name/@id', function($params){
-        foreach ($params as $key => $value) {
-            echo "$key = $value\n";
-        }
+    Flight::route('/@name/@id', function($name, $id){
+        echo "hello, {$name} - {$id}!"
     });
 
 You can also include regular expressions with your named parameters by using the `:` delimiter:

@@ -43,7 +43,7 @@ class Router {
                 if ($str == '*') {
                     $str = '(.*)';
                 }
-                else if (@$str{0} == '@') {
+                else if ($str{0} == '@') {
                     if (preg_match('/@(\w+)(\:([^\/]*))?/', $str, $matches)) {
                         $ids[$matches[1]] = true;
                         return '(?P<'.$matches[1].'>'.(isset($matches[3]) ? $matches[3] : '[^(\/|\?)]*').')';
@@ -77,7 +77,7 @@ class Router {
         foreach ($routes as $pattern => $callback) {
             if ($pattern === '*' || $request->url === $pattern || self::match($pattern, $request->url, $params)) {
                 $request->matched = $pattern;
-                return array($callback, array($params));
+                return array($callback, $params);
             }
         }
 

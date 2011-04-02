@@ -430,7 +430,7 @@ class Flight {
         if ($result !== false) {
             list($callback, $params) = $result;
 
-            self::execute($callback, $params);
+            self::execute($callback, array_values($params));
         }
         else {
             self::notFound();
