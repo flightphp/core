@@ -35,6 +35,13 @@ class Flight {
      */
     protected static $filters = array();
 
+    /**
+     * Class instances.
+     *
+     * @var array
+     */
+    protected static $instances = array();
+
     // Don't allow object instantiation
     private function __construct() {}
     private function __destruct() {}
@@ -81,6 +88,7 @@ class Flight {
         if (method_exists(__CLASS__, $name)) {
             throw new Exception('Cannot override an existing framework method.');
         }
+
         self::$methods[$name] = $callback;
     }
 
@@ -96,6 +104,9 @@ class Flight {
         if (method_exists(__CLASS__, $name)) {
             throw new Exception('Cannot override an existing framework method.');
         }
+
+        unset(self::$instances[$class]);
+
         self::$classes[$name] = array($class, $params, $callback);
     }
 
@@ -106,8 +117,6 @@ class Flight {
      * @param bool $shared Shared instance
      */
     public static function load($name, $shared = true) {
-        static $loaded = array();
-
         if (isset(self::$classes[$name])) {
             list($class, $params, $callback) = self::$classes[$name];
 
@@ -115,9 +124,9 @@ class Flight {
                 self::getInstance($class, $params) :
                 self::getClass($class, $params);
 
-            if (!$shared || !isset($loaded[$name])) {
-                if ($callback) self::execute($callback, $ref = array($obj));
-                $loaded[$name] = true;
+            if (!$shared || !isset(self::$instances[$class])) {
+                $ref = array(&$obj);
+                if ($callback) self::execute($callback, $ref);
             }
 
             return $obj;
@@ -157,7 +166,7 @@ class Flight {
      * @param array $params Function parameters
      * @return mixed Function results
      */
-    public static function execute($callback, &$params) {
+    public static function execute($callback, array &$params = array()) {
         if (is_callable($callback)) {
             return is_array($callback) ?
                 self::invokeMethod($callback, $params) :
@@ -172,8 +181,9 @@ class Flight {
      * @param reference $data Method parameters or method output
      */
     public static function filter($filters, &$data) {
+        $params = array(&$data);
         foreach ($filters as $callback) {
-            $continue = self::execute($callback, $params = array(&$data));
+            $continue = self::execute($callback, $params);
             if ($continue === false) break;
         }
     }
@@ -237,13 +247,11 @@ class Flight {
      * @param array $params Class initialization parameters
      */
     public static function getInstance($class, array $params = array()) {
-        static $instances = array();
-
-        if (!isset($instances[$class])) {
-            $instances[$class] = self::getClass($class, $params);
+        if (!isset(self::$instances[$class])) {
+            self::$instances[$class] = self::getClass($class, $params);
         }
 
-        return $instances[$class];
+        return self::$instances[$class];
     }
 
     /**
@@ -267,8 +275,8 @@ class Flight {
             case 5:
                 return new $class($params[0], $params[1], $params[2], $params[3], $params[4]);
             default:
-                $ref_class = new ReflectionClass($class);
-                return $ref_class->newInstanceArgs($params);
+                $refClass = new ReflectionClass($class);
+                return $refClass->newInstanceArgs($params);
         }
     }  
 
