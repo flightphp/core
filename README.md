@@ -122,7 +122,7 @@ You can specify named parameters in routes which will be passed along to your ca
 
 You can also include regular expressions with your named parameters by using the `:` delimiter:
 
-    Flight::route('/@name/@id:[0-9]{3}', function($params){
+    Flight::route('/@name/@id:[0-9]{3}', function($name, $id){
         // This will match /bob/123
         // But will not match /bob/12345
     });
