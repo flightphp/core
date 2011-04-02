@@ -117,7 +117,7 @@ You can also use the wildcard character `*` for matching:
 You can specify named parameters in routes which will be passed along to your callback function.
 
     Flight::route('/@name/@id', function($name, $id){
-        echo "hello, {$name} - {$id}!"
+        echo "hello, {$name} - {$id}!";
     });
 
 You can also include regular expressions with your named parameters by using the `:` delimiter:
@@ -255,6 +255,8 @@ are passed an array of the method parameters. All *after* filters are passed the
 the method being filtered. The arguments are passed by reference so your filter simply needs
 to modify the contents.
 
+Here's an example the filtering process:
+
     // Map a custom method
     Flight::map('hello', function($name){
         return "Hello, {$name}!";
@@ -294,7 +296,7 @@ You can apply filters to any of these existing framework methods:
     etag
     lastModified
 
-Core framework methods like `map` and `register` cannot be filtered because they are called
+Core framework methods like `map` and `register` however cannot be filtered because they are called
 directly and not invoked dynamically.
 
 
@@ -383,13 +385,14 @@ For completeness, you should also override Flight's default render method:
 
 ### Errors and Exceptions
 
-All errors and exceptions are caught Flight and passed to the `error` method. The default behavior is to send an HTTP 500
-response with some the error information. You can override this for your own needs.
+All errors and exceptions are caught by Flight and passed to the `error` method.
+The default behavior is to send an HTTP `500 Internal Server Error` response with some error information.
+You can override this behavior for your own needs.
 
 ### Not Found
 
 When a URL can't be found, Flight calls the `notFound` method. The default behavior is to
-send an HTTP 404 response with a simple message. You can override this for your own needs.
+send an HTTP `404 Not Found` response with a simple message. You can override this behavior for your own needs.
 
 
 ## Redirects
@@ -397,6 +400,36 @@ send an HTTP 404 response with a simple message. You can override this for your 
 You can redirect the current request by using the `redirect` method and passing in a new URL:
 
     Flight::redirect('/new/location');
+
+
+## HTTP Caching
+
+Flight provides built-in support for HTTP level caching. If the caching condition is met,
+Flight will return an HTTP `304 Not Modified` response. The next time the client requests the same resource,
+they will be prompted to use their locally cached version.
+
+### Last-Modified
+
+You can use the `lastModified` method and pass in a UNIX timestamp to set the date and time a page was last modified.
+The client will continue to use their cache until the last modified value is changed.
+
+    Flight::route('/news', function(){
+        Flight::lastModified(1234567890);
+        echo 'This content will be cached.';
+    });
+
+### ETag
+
+ETag caching is similar to Last-Modified, except you can specify any id you want for the resource:
+
+    Flight::route('/news', function(){
+        Flight::etag('my-unique-id');
+        echo 'This content will be cached.';
+    });
+
+Keep in mind that calling either `lastModified` or `etag` will both set and check the cache value.
+If the cache value is the same between requests, Flight will immediately send the `304` response and stop
+processing.
 
 
 ## Stopping
