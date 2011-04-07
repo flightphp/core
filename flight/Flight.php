@@ -437,7 +437,7 @@ class Flight {
         }
 
         // Disable caching for AJAX requests
-        if (self::request()->isAjax) {
+        if (self::request()->ajax) {
             self::response()->cache(false);
         }
 
