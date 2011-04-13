@@ -120,13 +120,15 @@ class Flight {
         if (isset(self::$classes[$name])) {
             list($class, $params, $callback) = self::$classes[$name];
 
+            $do_callback = ($callback && (!$shared || !isset(self::$instances[$class])));
+
             $obj = ($shared) ?
                 self::getInstance($class, $params) :
                 self::getClass($class, $params);
 
-            if (!$shared || !isset(self::$instances[$class])) {
+            if ($do_callback) {
                 $ref = array(&$obj);
-                if ($callback) self::execute($callback, $ref);
+                self::execute($callback, $ref);
             }
 
             return $obj;
