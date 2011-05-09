@@ -340,7 +340,7 @@ name of the template file and optional template data:
 The template data you pass in is automatically injected into the template and can be accessed using the `$this` variable. Template files
 are simply PHP files. If the content of the `hello.php` template file is:
 
-    Hello, <?php echo $this->name; ?>!
+    Hello, <?php echo $name; ?>!
 
 The output would be:
 
@@ -349,7 +349,7 @@ The output would be:
 By default Flight will look for a `views` directory for template files. You can set an alternate path for your templates
 by setting the following config:
 
-    Flight::set('flight.view.path', '/path/to/views');
+    Flight::set('flight.views.path', '/path/to/views');
 
 ### Custom Views
 
