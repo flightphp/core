@@ -337,8 +337,8 @@ name of the template file and optional template data:
 
     Flight::render('hello.php', array('name', 'Bob'));
 
-The template data you pass in is automatically injected into the template and can be accessed using the `$this` variable. Template files
-are simply PHP files. If the content of the `hello.php` template file is:
+The template data you pass in is automatically injected into the template and can be reference like a local variable.
+Template files are simply PHP files. If the content of the `hello.php` template file is:
 
     Hello, <?php echo $name; ?>!
 
