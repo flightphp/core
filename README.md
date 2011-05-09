@@ -1,6 +1,6 @@
 # Flight
 
-Flight is an extensible micro-framework for PHP.
+Flight is a fast, simple, and extensible framework for PHP.
 It allows you to quickly build RESTful web applications with minimal effort:
 
     require 'flight/Flight.php';
@@ -132,7 +132,8 @@ Note that named parameters only match URL segments. If you want to match multipl
 
 ## Extending
 
-Flight is extensible. You can map your own methods, register your own classes, or even override existing classes and methods.
+Flight is an extensible framework. Flight's features are individual components that can extended or overridden.
+You can map your own methods, register your own classes, or even override existing classes and methods.
 
 ### Mapping Methods
 
