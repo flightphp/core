@@ -8,9 +8,10 @@
  */
 class View {
     public $path;
+    public $template;
 
     public function __construct($path = null) {
-        $this->path = $path ?: (Flight::get('flight.view.path') ?: './views');
+        $this->path = $path ?: (Flight::get('flight.views.path') ?: './views');
     }
 
     /**
@@ -20,17 +21,11 @@ class View {
      * @param array $data Template data
      */
     public function render($file, $data = null) {
-        // Bind template data to view
-        if (!is_null($data)) {
-            if (is_array($data) || is_object($data)) {
-                foreach ($data as $key => $value) {
-                    $this->{$key} = $value;
-                }
-            }
-        }
+        $this->template = (substr($file, -4) == '.php') ? $file : $file.'.php';
 
-        // Display template
-        include $this->path.'/'.((substr($file,-4) == '.php') ? $file : $file.'.php');
+        extract($data);
+
+        include $this->path.'/'.$this->template;
     }
 
     /**
@@ -48,6 +43,16 @@ class View {
         ob_end_clean();
 
         return $output;
+    }
+
+    /**
+     * Loads and executes view helper functions.
+     *
+     * @param string $name Function name
+     * @param array $params Function parameters
+     */
+    public function __call($name, $params) {
+        return Flight::invokeMethod(array('Flight', $name), $params);
     }
 
     /**
