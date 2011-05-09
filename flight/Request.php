@@ -51,7 +51,12 @@ class Request {
             $this->url = substr($this->url, strlen($this->base));
         }
 
-        $this->query = self::parseQuery($this->url);
+        if (empty($this->url)) {
+            $this->url = '/';
+        }
+        else {
+            $this->query = self::parseQuery($this->url);
+        }
     }
 
     /**
