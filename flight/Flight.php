@@ -518,9 +518,15 @@ class Flight {
      *
      * @param string $file Template file
      * @param array $data Template data
+     * @param string $key Key name
      */
-    public static function _render($file, $data = null) {
-        self::view()->render($file, $data);
+    public static function _render($file, $data = null, $key = null) {
+        if ($key !== null) {
+            self::set($key, self::view()->fetch($file, $data));
+        }
+        else {
+            self::view()->render($file, $data);
+        }
     }
 
     /**
