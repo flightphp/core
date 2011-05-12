@@ -451,9 +451,9 @@ class Flight {
      * Stops the framework and outputs the current response.
      */
     public static function _stop() {
-        self::response()->
-            write(ob_get_clean())->
-            send();
+        self::response()
+            ->write(ob_get_clean())
+            ->send();
     }
 
     /**
@@ -463,11 +463,11 @@ class Flight {
      * @param int $msg Response text
      */
     public static function _halt($code = 200, $text = '') {
-        self::response(false)->
-            status($code)->
-            write($text)->
-            cache(false)->
-            send();
+        self::response(false)
+            ->status($code)
+            ->write($text)
+            ->cache(false)
+            ->send();
     }
 
     /**
@@ -476,28 +476,28 @@ class Flight {
      * @param object $ex Exception
      */
     public static function _error(Exception $e) {
-        self::response(false)->
-            status(500)->
-            write(
+        self::response(false)
+            ->status(500)
+            ->write(
                 '<h1>500 Internal Server Error</h1>'.
                 '<h3>'.$e->getMessage().'</h3>'.
                 '<pre>'.$e->getTraceAsString().'</pre>'
-            )->
-            send();
+            )
+            ->send();
     }
 
     /**
      * Sends an HTTP 404 response when a URL is not found.
      */
     public static function _notFound() {
-        self::response(false)->
-            status(404)->
-            write(
+        self::response(false)
+            ->status(404)
+            ->write(
                 '<h1>404 Not Found</h1>'.
                 '<h3>The page you have requested could not be found.</h3>'.
                 str_repeat(' ', 512)
-            )->
-            send();
+            )
+            ->send();
     }
 
     /**
@@ -506,11 +506,11 @@ class Flight {
      * @param string $url URL
      */
     public static function _redirect($url, $code = 303) {
-        self::response(false)->
-            status($code)->
-            header('Location', $url)->
-            write($url)->
-            send();
+        self::response(false)
+            ->status($code)
+            ->header('Location', $url)
+            ->write($url)
+            ->send();
     }
 
     /**
@@ -556,6 +556,19 @@ class Flight {
         if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
             self::halt(304);
         }
+    }
+
+    /**
+     * Sends a JSON response.
+     *
+     * @param mixed $data Data to JSON encode
+     */
+    public static function _json($data) {
+        self::response(false)
+            ->status(200)
+            ->header('Content-Type', 'application/json')
+            ->write(json_encode($data))
+            ->send();
     }
 }
 
