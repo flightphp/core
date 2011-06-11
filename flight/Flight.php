@@ -383,7 +383,11 @@ class Flight {
             require $base.'/'.$file;
         }
         else {
-            throw new Exception('Unable to load file: '.$base.'/'.$file);
+            $loaders = spl_autoload_functions();
+            $last = array_pop($loaders);
+            if (is_array($last) && $last[0] == __CLASS__ && $last[1] == __FUNCTION__) {
+                throw new Exception('Unable to load file: '.$base.'/'.$file);
+            }
         }
     }
 
