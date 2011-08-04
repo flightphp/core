@@ -77,7 +77,13 @@ class View {
 
         extract($this->data);
 
-        include $this->path.'/'.$this->template;
+        $file = $this->path.'/'.$this->template;
+
+        if (!file_exists($file)) {
+            throw new Exception("Template file not found: $file.");
+        }
+
+        include $file;
     }
 
     /**
