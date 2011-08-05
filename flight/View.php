@@ -4,7 +4,6 @@
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
- * @version     0.1
  */
 class View {
     public $path;
@@ -104,6 +103,15 @@ class View {
     }
 
     /**
+     * Displays escaped output.
+     *
+     * @param string $str String to escape
+     */
+    public function e($str) {
+        echo htmlentities($str);
+    }
+
+    /**
      * Loads and executes view helper functions.
      *
      * @param string $name Function name
@@ -114,12 +122,13 @@ class View {
     }
 
     /**
-     * Displays escaped output.
+     * Loads view helper classes.
      *
-     * @param string $str String to escape
+     * @param string $name Class name
+     * @return object Class instance
      */
-    public function e($str) {
-        echo htmlentities($str);
+    public function __get($name) {
+        return Flight::load($name);
     }
 }
 ?>
