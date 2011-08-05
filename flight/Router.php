@@ -4,9 +4,13 @@
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
- * @version     0.1
  */
 class Router {
+    /**
+     * Mapped routes.
+     *
+     * @var array
+     */
     protected $routes = array();
 
     /**
