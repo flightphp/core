@@ -36,7 +36,8 @@ class Router {
      * Tries to match a requst to a route. Also parses named parameters in the url.
      *
      * @param string $pattern URL pattern
-     * @param object $request Request object
+     * @param string $url Request URL
+     * @param array $params Named URL parameters
      */
     public function match($pattern, $url, array &$params = array()) {
         $ids = array();
@@ -50,7 +51,7 @@ class Router {
                 else if ($str{0} == '@') {
                     if (preg_match('/@(\w+)(\:([^\/]*))?/', $str, $matches)) {
                         $ids[$matches[1]] = true;
-                        return '(?P<'.$matches[1].'>'.(isset($matches[3]) ? $matches[3] : '[^(\/|\?)]*').')';
+                        return '(?P<'.$matches[1].'>'.(isset($matches[3]) ? $matches[3] : '[^(\/|\?)]+').')';
                     }
                 }
                 return $str; 
