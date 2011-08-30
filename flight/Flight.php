@@ -41,6 +41,13 @@ class Flight {
      */
     protected static $instances = array();
 
+    /**
+     * Autoload directories.
+     *
+     * @var array
+     */
+    protected static $dirs = array();
+
     // Don't allow object instantiation
     private function __construct() {}
     private function __destruct() {}
@@ -521,11 +528,14 @@ class Flight {
      *
      * @param string $file Template file
      * @param array $data Template data
-     * @param string $key Key name
+     * @param string $layout Layout file
+     * @param string $key Content variable name
      */
-    public static function _render($file, $data = null, $key = null) {
-        if ($key !== null) {
-            self::set($key, self::view()->fetch($file, $data));
+    public static function _render($file, $data = null, $layout = null, $key = 'content') {
+        if ($layout !== null) {
+            $content = self::view()->fetch($file, $data);
+
+            self::view()->render($layout, array($key => $content));
         }
         else {
             self::view()->render($file, $data);
