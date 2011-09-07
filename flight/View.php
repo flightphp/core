@@ -106,9 +106,20 @@ class View {
      * Displays escaped output.
      *
      * @param string $str String to escape
+     * @return string Escaped string
      */
     public function e($str) {
         echo htmlentities($str);
+    }
+
+    /**
+     * Checks if a template file exists.
+     *
+     * @param string $file Template file
+     * @return bool Template file exists
+     */
+    public function exists($file) {
+        return file_exists($this->path.'/'.((substr($file, -4) == '.php') ? $file : $file.'.php'));
     }
 
     /**
