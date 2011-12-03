@@ -117,7 +117,7 @@ You can also use the wildcard character `*` for matching:
 You can specify named parameters in routes which will be passed along to your callback function.
 
     Flight::route('/@name/@id', function($name, $id){
-        echo "hello, {$name} - {$id}!";
+        echo "hello, $name ($id)!";
     });
 
 You can also include regular expressions with your named parameters by using the `:` delimiter:
@@ -141,7 +141,7 @@ To map your own custom method, you use the `map` function:
 
     // Map your method
     Flight::map('hello', function($name){
-        echo "hello {$name}!";
+        echo "hello $name!";
     });
 
     // Call your custom method
@@ -260,7 +260,7 @@ Here's an example the filtering process:
 
     // Map a custom method
     Flight::map('hello', function($name){
-        return "Hello, {$name}!";
+        return "Hello, $name!";
     });
 
     // Add a before filter
@@ -332,7 +332,7 @@ Flight also uses variables for configuration purposes.
 
 ## Views
 
-Flight provides you with some basic templating functionality. To display a view call the `render` method with the
+Flight provides some basic templating functionality by default. To display a view call the `render` method with the
 name of the template file and optional template data:
 
     Flight::render('hello.php', array('name', 'Bob'));
@@ -346,10 +346,41 @@ The output would be:
 
     Hello, Bob!
 
+You can manually set view variables at any time by using the `set` method:
+
+    Flight::view()->set('name', 'Bob');
+
+Set variables will be automatically be included when you render a view. So you can simply do:
+
+    Flight::render('hello');
+
+Note that when specifying the name of the template in the `render` method, you can leave out the `.php` extension.
+
 By default Flight will look for a `views` directory for template files. You can set an alternate path for your templates
 by setting the following config:
 
     Flight::set('flight.views.path', '/path/to/views');
+
+### Layouts
+
+It is common to have a single layout template file with interchanging content. To render content for a layout you need
+to pass in a variable name to the render method.
+
+    Flight::render('hello', array('name' => 'Bob'), 'body_content');
+
+Your view will have a saved variable called `body_content`. You can then render your layout by doing:
+
+    Flight::render('layout');
+
+Your layout template file could look like this:
+
+    <html>
+    <head>
+    </head>
+    <body>
+    <?php echo $body_content; ?>
+    </body>
+    </html>
 
 ### Custom Views
 

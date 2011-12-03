@@ -48,6 +48,15 @@ class View {
     }
 
     /**
+     * Checks if a template variable is set.
+     *
+     * @param string $key Key
+     */
+    public function has($key) {
+        return !empty($this->data[$key]);
+    }
+
+    /**
      * Unsets a template variable. If no key is passed in, clear all variables.
      *
      * @param string $key Key

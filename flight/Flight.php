@@ -414,6 +414,7 @@ class Flight {
             static::error($e);
         }
         catch (Exception $ex) {
+            error_log($ex->getMessage());
             exit(
                 '<h1>500 Internal Server Error</h1>'.
                 '<h3>'.$ex->getMessage().'</h3>'.
@@ -486,6 +487,7 @@ class Flight {
      * @param object $ex Exception
      */
     public static function _error(Exception $e) {
+        error_log($e->getMessage());
         self::response(false)
             ->status(500)
             ->write(
@@ -528,14 +530,11 @@ class Flight {
      *
      * @param string $file Template file
      * @param array $data Template data
-     * @param string $layout Layout file
-     * @param string $key Content variable name
+     * @param string $key View variable name
      */
-    public static function _render($file, $data = null, $layout = null, $key = 'content') {
-        if ($layout !== null) {
-            $content = self::view()->fetch($file, $data);
-
-            self::view()->render($layout, array($key => $content));
+    public static function _render($file, $data = null, $key = null) {
+        if ($key !== null) {
+            self::view()->set($key, self::view()->fetch($file, $data));
         }
         else {
             self::view()->render($file, $data);
