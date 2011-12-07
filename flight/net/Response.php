@@ -5,6 +5,14 @@
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
+
+namespace flight\net;
+
+/**
+ * The Response class represents an HTTP response. The object
+ * contains the response headers, HTTP status code, and response
+ * body.
+ */
 class Response {
     protected $headers = array();
     protected $status = 200;
@@ -68,7 +76,7 @@ class Response {
             }
         }
         else {
-            throw new Exception('Invalid status code.');
+            throw new \Exception('Invalid status code.');
         }
 
         return $this;

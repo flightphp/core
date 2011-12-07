@@ -5,6 +5,14 @@
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
+
+namespace flight\net;
+
+/**
+ * The Router class is responsible for routing an HTTP request to
+ * an assigned callback function. The Router tries to match the
+ * requested URL against a series of URL patterns. 
+ */
 class Router {
     /**
      * Mapped routes.
@@ -12,6 +20,22 @@ class Router {
      * @var array
      */
     protected $routes = array();
+
+    /**
+     * Gets mapped routes.
+     *
+     * @return array Array of routes
+     */
+    public function getRoutes() {
+        return $this->routes;
+    }
+
+    /**
+     * Resets the router.
+     */
+    public function clear() {
+        $this->routes = array();
+    }
 
     /**
      * Maps a URL pattern to a callback function.
@@ -36,10 +60,9 @@ class Router {
      * Tries to match a requst to a route. Also parses named parameters in the url.
      *
      * @param string $pattern URL pattern
-     * @param string $url Request URL
-     * @param array $params Named URL parameters
+     * @param object $request Request object
      */
-    public function match($pattern, $url, array &$params = array()) {
+    public function match($pattern, $request) {
         $ids = array();
 
         // Build the regex for matching
@@ -60,10 +83,13 @@ class Router {
         )).'\/?(?:\?.*)?$/i';
 
         // Attempt to match route and named parameters
-        if (preg_match($regex, $url, $matches)) {
+        if (preg_match($regex, $request->url, $matches)) {
             if (!empty($ids)) {
-                $params = array_intersect_key($matches, $ids);
+                $request->params = array_intersect_key($matches, $ids);
             }
+
+            $request->matched = $pattern;
+
             return true;
         }
 
@@ -74,35 +100,21 @@ class Router {
      * Routes the current request.
      *
      * @param object $request Request object
+     * @return callable Matched callback function
      */
-    public function route(&$request) {
-        $params = array();
+    public function route(Request $request) {
+        $request->matched = null;
+        $request->params = array();
+
         $routes = ($this->routes[$request->method] ?: array()) + ($this->routes['*'] ?: array());
 
         foreach ($routes as $pattern => $callback) {
-            if ($pattern === '*' || $request->url === $pattern || self::match($pattern, $request->url, $params)) {
-                $request->matched = $pattern;
-                return array($callback, $params);
+            if ($pattern === '*' || $request->url === $pattern || self::match($pattern, $request)) {
+                return $callback;
             }
         }
 
         return false;
-    }
-
-    /**
-     * Gets mapped routes.
-     *
-     * @return array Array of routes
-     */
-    public function getRoutes() {
-        return $this->routes;
-    }
-
-    /**
-     * Resets the router.
-     */
-    public function clear() {
-        $this->routes = array();
     }
 }
 ?>

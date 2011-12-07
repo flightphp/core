@@ -5,18 +5,36 @@
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
+
+namespace flight\template;
+
+/**
+ * The View class represents output to be displayed. It provides
+ * methods for managing view data and inserts the data into
+ * view templates upon rendering.
+ */
 class View {
+    /**
+     * Locaton of view templates.
+     *
+     * @var string
+     */
     public $path;
-    public $template;
-    public $data = array();
+
+    /**
+     * View variables.
+     *
+     * @var array
+     */
+    protected $data = array();
 
     /**
      * Constructor.
      *
      * @param string $path Path to templates directory
      */
-    public function __construct($path = null) {
-        $this->path = $path ?: (Flight::get('flight.views.path') ?: './views');
+    public function __construct($path = '.') {
+        $this->path = $path;
     }
 
     /**
@@ -53,7 +71,7 @@ class View {
      * @param string $key Key
      */
     public function has($key) {
-        return !empty($this->data[$key]);
+        return !isset($this->data[$key]);
     }
 
     /**
@@ -77,7 +95,7 @@ class View {
      * @param array $data Template data
      */
     public function render($file, $data = null) {
-        $this->template = (substr($file, -4) == '.php') ? $file : $file.'.php';
+        $template = $this->getTemplate($file);
 
         if (is_array($data)) {
             $this->data = array_merge($this->data, $data);
@@ -85,13 +103,11 @@ class View {
 
         extract($this->data);
 
-        $file = $this->path.'/'.$this->template;
-
-        if (!file_exists($file)) {
-            throw new Exception("Template file not found: $file.");
+        if (!file_exists($template)) {
+            throw new \Exception("Template file not found: $template.");
         }
 
-        include $file;
+        include $template;
     }
 
     /**
@@ -112,6 +128,26 @@ class View {
     }
 
     /**
+     * Checks if a template file exists.
+     *
+     * @param string $file Template file
+     * @return bool Template file exists
+     */
+    public function exists($file) {
+        return file_exists($this->getTemplate($file));
+    }
+
+    /**
+     * Gets the full path to a template file.
+     *
+     * @param string $file Template file
+     * @return string Template file location
+     */
+    public function getTemplate($file) {
+        return $this->path.'/'.((substr($file, -4) == '.php') ? $file : $file.'.php');
+    }
+
+    /**
      * Displays escaped output.
      *
      * @param string $str String to escape
@@ -119,36 +155,6 @@ class View {
      */
     public function e($str) {
         echo htmlentities($str);
-    }
-
-    /**
-     * Checks if a template file exists.
-     *
-     * @param string $file Template file
-     * @return bool Template file exists
-     */
-    public function exists($file) {
-        return file_exists($this->path.'/'.((substr($file, -4) == '.php') ? $file : $file.'.php'));
-    }
-
-    /**
-     * Loads and executes view helper functions.
-     *
-     * @param string $name Function name
-     * @param array $params Function parameters
-     */
-    public function __call($name, $params) {
-        return Flight::invokeMethod(array('Flight', $name), $params);
-    }
-
-    /**
-     * Loads view helper classes.
-     *
-     * @param string $name Class name
-     * @return object Class instance
-     */
-    public function __get($name) {
-        return Flight::load($name);
     }
 }
 ?>

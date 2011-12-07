@@ -5,6 +5,15 @@
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
+
+include __DIR__.'/core/Loader.php';
+include __DIR__.'/core/Dispatcher.php';
+
+/**
+ * The Flight class represents the framework itself. It is responsible
+ * loading an HTTP request, running the assigned services, and generating
+ * an HTTP response. 
+ */
 class Flight {
     /**
      * Stored variables.
@@ -14,39 +23,18 @@ class Flight {
     protected static $vars = array();
 
     /**
-     * Registered classes.
+     * Class loader.
      *
-     * @var array
+     * @var object
      */
-    protected static $classes = array();
+    protected static $loader;
 
     /**
-     * Mapped methods.
+     * Event dispatcher.
      *
-     * @var array
+     * @var object
      */
-    protected static $methods = array();
-
-    /**
-     * Method filters.
-     *
-     * @var array
-     */
-    protected static $filters = array();
-
-    /**
-     * Class instances.
-     *
-     * @var array
-     */
-    protected static $instances = array();
-
-    /**
-     * Autoload directories.
-     *
-     * @var array
-     */
-    protected static $dirs = array();
+    protected static $dispatcher;
 
     // Don't allow object instantiation
     private function __construct() {}
@@ -60,28 +48,15 @@ class Flight {
      * @param array $args Method parameters
      */
     public static function __callStatic($name, $params) {
-        // Check if call is mapped to a method
-        if (isset(self::$methods[$name]) || method_exists(__CLASS__, '_'.$name)) {
-            $method = self::$methods[$name] ?: array(__CLASS__, '_'.$name);
+        $callback = self::$dispatcher->get($name);
 
-            // Run pre-filters
-            if (!empty(self::$filters['before'][$name])) {
-                self::filter(self::$filters['before'][$name], $params);
-            }
-
-            // Run requested method
-            $output = self::execute($method, $params);
-
-            // Run post-filters
-            if (!empty(self::$filters['after'][$name])) {
-                self::filter(self::$filters['after'][$name], $output);
-            }
-
-            return $output;
+        if (is_callable($callback)) {
+            return self::$dispatcher->run($name, $params);
         }
 
-        // Otherwise try to autoload class
-        return self::load($name, (!empty($params)) ? (bool)$params[0] : true);
+        $shared = (!empty($params)) ? (bool)$params[0] : true; 
+
+        return self::$loader->load($name, $shared);
     }
 
     /**
@@ -95,7 +70,7 @@ class Flight {
             throw new Exception('Cannot override an existing framework method.');
         }
 
-        self::$methods[$name] = $callback;
+        self::$dispatcher->set($name, $callback);
     }
 
     /**
@@ -111,40 +86,7 @@ class Flight {
             throw new Exception('Cannot override an existing framework method.');
         }
 
-        unset(self::$instances[$class]);
-
-        self::$classes[$name] = array($class, $params, $callback);
-    }
-
-    /**
-     * Loads a registered class.
-     *
-     * @param string $name Method name
-     * @param bool $shared Shared instance
-     */
-    public static function load($name, $shared = true) {
-        if (isset(self::$classes[$name])) {
-            list($class, $params, $callback) = self::$classes[$name];
-
-            $do_callback = ($callback && (!$shared || !isset(self::$instances[$class])));
-
-            $obj = ($shared) ?
-                self::getInstance($class, $params) :
-                self::getClass($class, $params);
-
-            if ($do_callback) {
-                $ref = array(&$obj);
-                self::execute($callback, $ref);
-            }
-
-            return $obj;
-        }
-
-        $class = ucfirst($name);
-
-        return ($shared) ?
-            self::getInstance($class) :
-            self::getClass($class);
+        self::$loader->register($name, $class, $params, $callback);
     }
 
     /**
@@ -154,7 +96,7 @@ class Flight {
      * @param callback $callback Callback function
      */
     public static function before($name, $callback) {
-        self::$filters['before'][$name][] = $callback;
+        self::$dispatcher->hook($name, 'before', $callback);
     }
 
     /**
@@ -164,129 +106,17 @@ class Flight {
      * @param callback $callback Callback function
      */
     public static function after($name, $callback) {
-        self::$filters['after'][$name][] = $callback;
+        self::$dispatcher->hook($name, 'after', $callback);
     }
 
     /**
-     * Executes a callback function.
+     * Adds a path for class autoloading.
      *
-     * @param callback $callback Callback function
-     * @param array $params Function parameters
-     * @return mixed Function results
+     * @param string $dir Directory path
      */
-    public static function execute($callback, array &$params = array()) {
-        if (is_callable($callback)) {
-            return is_array($callback) ?
-                self::invokeMethod($callback, $params) :
-                self::callFunction($callback, $params);
-        }
+    public static function path($dir) {
+        self::$loader->addDirectory($dir);
     }
-
-    /**
-     * Executes a chain of method filters.
-     *
-     * @param array $filters Chain of filters
-     * @param reference $data Method parameters or method output
-     */
-    public static function filter($filters, &$data) {
-        $params = array(&$data);
-        foreach ($filters as $callback) {
-            $continue = self::execute($callback, $params);
-            if ($continue === false) break;
-        }
-    }
-
-    /**
-     * Calls a function.
-     *
-     * @param string $func Name of function to call
-     * @param array $params Function parameters 
-     */
-    public static function callFunction($func, array &$params = array()) {
-        switch (count($params)) {
-            case 0:
-                return $func();
-            case 1:
-                return $func($params[0]);
-            case 2:
-                return $func($params[0], $params[1]);
-            case 3:
-                return $func($params[0], $params[1], $params[2]);
-            case 4:
-                return $func($params[0], $params[1], $params[2], $params[3]);
-            case 5:
-                return $func($params[0], $params[1], $params[2], $params[3], $params[4]);
-            default:
-                return call_user_func_array($func, $params);
-        }
-    }
-
-    /**
-     * Invokes a method.
-     *
-     * @param mixed $func Class method
-     * @param array $params Class method parameters
-     */
-    public static function invokeMethod($func, array &$params = array()) {
-        list($class, $method) = $func;
-
-        switch (count($params)) {
-            case 0:
-                return $class::$method();
-            case 1:
-                return $class::$method($params[0]);
-            case 2:
-                return $class::$method($params[0], $params[1]);
-            case 3:
-                return $class::$method($params[0], $params[1], $params[2]);
-            case 4:
-                return $class::$method($params[0], $params[1], $params[2], $params[3]);
-            case 5:
-                return $class::$method($params[0], $params[1], $params[2], $params[3], $params[4]);
-            default:
-                return call_user_func_array($func, $params);
-        }
-    }
-
-    /**
-     * Gets a single instance of a class.
-     *
-     * @param string $class Class name
-     * @param array $params Class initialization parameters
-     */
-    public static function getInstance($class, array $params = array()) {
-        if (!isset(self::$instances[$class])) {
-            self::$instances[$class] = self::getClass($class, $params);
-        }
-
-        return self::$instances[$class];
-    }
-
-    /**
-     * Gets a class object.
-     *
-     * @param string $class Class name
-     * @param array $params Class initialization parameters
-     */
-    public static function getClass($class, array $params = array()) {
-        switch (count($params)) {
-            case 0:
-                return new $class();
-            case 1:
-                return new $class($params[0]);
-            case 2:
-                return new $class($params[0], $params[1]);
-            case 3:
-                return new $class($params[0], $params[1], $params[2]);
-            case 4:
-                return new $class($params[0], $params[1], $params[2], $params[3]);
-            case 5:
-                return new $class($params[0], $params[1], $params[2], $params[3], $params[4]);
-            default:
-                $refClass = new ReflectionClass($class);
-                return $refClass->newInstanceArgs($params);
-        }
-    }  
 
     /**
      * Gets a variable.
@@ -317,12 +147,12 @@ class Flight {
     }
 
     /**
-     * Checks if a variable exists.
+     * Checks if a variable has been set.
      *
      * @param string $key Key
      * @return bool Variable status
      */
-    public static function exists($key) {
+    public static function has($key) {
         return isset(self::$vars[$key]);
     }
 
@@ -347,9 +177,6 @@ class Flight {
         static $initialized = false;
 
         if (!$initialized) {
-            // Register autoloader
-            spl_autoload_register(array(__CLASS__, 'autoload'));
-
             // Handle errors internally
             set_error_handler(array(__CLASS__, 'handleError'));
 
@@ -369,31 +196,33 @@ class Flight {
                 $_COOKIE = array_map($func, $_COOKIE);
             }
 
+            // Load core components
+            self::$loader = new \flight\core\Loader();
+            self::$dispatcher = new \flight\core\Dispatcher();
+
+            // Register default components
+            self::$loader->addDirectory(dirname(__DIR__));
+            self::$loader->register('request', '\flight\net\Request');
+            self::$loader->register('response', '\flight\net\Response');
+            self::$loader->register('router', '\flight\net\Router');
+            self::$loader->register('view', '\flight\template\View', array(), function($view){
+                $view->path = Flight::get('flight.views.path') ?: './views';
+            });
+
+            // Register framework methods
+            $methods = array(
+                'start','stop','route','halt','error','notFound',
+                'render','redirect','etag','lastModified','json'
+            );
+
+            foreach ($methods as $name) {
+                self::$dispatcher->set($name, array(__CLASS__, '_'.$name));
+            }
+
             // Enable output buffering
             ob_start();
 
             $initialized = true;
-        }
-    }
-
-    /**
-     * Autoloads classes.
-     *
-     * @param string $class Class name
-     */
-    public static function autoload($class) {
-        $file = str_replace('\\', '/', str_replace('_', '/', $class)).'.php';
-        $base = (strpos($file, '/') === false) ? __DIR__ : (self::get('flight.lib.path') ?: '.');
-
-        if (file_exists($base.'/'.$file)) {
-            require $base.'/'.$file;
-        }
-        else {
-            $loaders = spl_autoload_functions();
-            $last = array_pop($loaders);
-            if (is_array($last) && $last[0] == __CLASS__ && $last[1] == __FUNCTION__) {
-                throw new Exception('Unable to load file: '.$base.'/'.$file);
-            }
         }
     }
 
@@ -414,7 +243,6 @@ class Flight {
             static::error($e);
         }
         catch (Exception $ex) {
-            error_log($ex->getMessage());
             exit(
                 '<h1>500 Internal Server Error</h1>'.
                 '<h3>'.$ex->getMessage().'</h3>'.
@@ -424,26 +252,17 @@ class Flight {
     }
 
     /**
-     * Routes a URL to a callback function.
-     *
-     * @param string $pattern URL pattern to match
-     * @param callback $callback Callback function
-     */
-    public static function _route($pattern, $callback) {
-        self::router()->map($pattern, $callback);
-    }
-
-    /**
-     * Start the framework.
+     * Starts the framework.
      */
     public static function _start() {
         // Route the request
-        $result = self::router()->route(self::request());
+        $callback = self::router()->route(self::request());
 
-        if ($result !== false) {
-            list($callback, $params) = $result;
-
-            self::execute($callback, array_values($params));
+        if ($callback !== false) {
+            self::$dispatcher->execute(
+                $callback,
+                array_values(self::request()->params)
+            );
         }
         else {
             self::notFound();
@@ -468,6 +287,16 @@ class Flight {
     }
 
     /**
+     * Routes a URL to a callback function.
+     *
+     * @param string $pattern URL pattern to match
+     * @param callback $callback Callback function
+     */
+    public static function _route($pattern, $callback) {
+        self::router()->map($pattern, $callback);
+    }
+
+    /**
      * Stops processing and returns a given response.
      *
      * @param int $code HTTP status code
@@ -487,7 +316,6 @@ class Flight {
      * @param object $ex Exception
      */
     public static function _error(Exception $e) {
-        error_log($e->getMessage());
         self::response(false)
             ->status(500)
             ->write(
@@ -584,6 +412,6 @@ class Flight {
     }
 }
 
-// Initialize framework on include
+// Initialize the framework on include
 Flight::init();
 ?>

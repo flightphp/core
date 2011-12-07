@@ -5,6 +5,33 @@
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
+
+namespace flight\net;
+
+/**
+ * The Request class represents an HTTP request. Data from
+ * all the super globals $_GET, $_POST, $_COOKIE, and $_FILES
+ * are stored and accessible via the Request object.
+ *
+ * The default request properties are:
+ *   url - The URL being requested
+ *   base - The parent subdirectory of the URL
+ *   method - The request method (GET, POST, PUT, DELETE)
+ *   referrer - The referrer URL
+ *   ip - IP address of the client
+ *   ajax - Whether the request is an AJAX request
+ *   scheme - The server protocol (http, https)
+ *   user_agent - Browser information
+ *   body - Raw data from the request body
+ *   type - The content type
+ *   length - The content length
+ *   query - Query string parameters
+ *   data - Post parameters 
+ *   cookies - Cookie parameters
+ *   files - Uploaded files
+ *   params - Matched URL parameters from the router
+ *   matched - Matched URL patter from the router
+ */
 class Request {
     /**
      * Constructor.
@@ -26,14 +53,16 @@ class Request {
                 'body' => file_get_contents('php://input'),
                 'type' => $_SERVER['CONTENT_TYPE'],
                 'length' => $_SERVER['CONTENT_LENGTH'],
-                'query' => array(),
-                'data' => $_POST,
-                'cookies' => $_COOKIE,
-                'files' => $_FILES
+                'query' => (object)$_GET,
+                'data' => (object)$_POST,
+                'cookies' => (object)$_COOKIE,
+                'files' => (object)$_FILES,
+                'params' => array(),
+                'matched' => null
             );
         }
 
-        self::init($config);
+        $this->init($config);
     }
 
     /**
@@ -43,7 +72,7 @@ class Request {
      */
     public function init($properties) {
         foreach ($properties as $name => $value) {
-            $this->{$name} = $value;
+            $this->$name = $value;
         }
 
         if ($this->base != '/' && strpos($this->url, $this->base) === 0) {
@@ -54,14 +83,19 @@ class Request {
             $this->url = '/';
         }
         else {
-            $this->query = self::parseQuery($this->url);
+            $query = self::parseQuery($this->url);
+            $this->query = (object)$query;
+            $_GET = $query;
         }
     }
 
     /**
      * Parse query parameters from a URL.
+     *
+     * @param string $url URL string
+     * @return array Query parameters
      */
-    public function parseQuery($url) {
+    public static function parseQuery($url) {
         $params = array();
 
         $args = parse_url($url);
