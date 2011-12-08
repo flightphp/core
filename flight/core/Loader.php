@@ -37,13 +37,6 @@ class Loader {
     protected $dirs = array();
 
     /**
-     * Constructor. Enables autoloading.
-     */
-    public function __construct() {
-        spl_autoload_register(array(__CLASS__, 'autoload'));
-    }
-
-    /**
      * Registers a class.
      *
      * @param string $name Registry name
@@ -140,10 +133,30 @@ class Loader {
     /**
      * Adds a directory for autoloading classes.
      *
-     * @param string $dir Directory path
+     * @param mixed $dir Directory path
      */
     public function addDirectory($dir) {
-        $this->dirs[] = $dir;
+        if (is_array($dir) || is_object($dir)) {
+            foreach ($dir as $value) {
+                $this->dirs[] = $value;
+            }
+        }
+        else if (is_string($dir)) {
+            $this->dirs[] = $dir;
+        }
+    }
+
+    /**
+     * Initializes the autoloader.
+     */
+    public function init() {
+        static $initialized = false;
+
+        if (!$initialized) {
+            spl_autoload_register(array(__CLASS__, 'autoload'));
+
+            $initialized = true;
+        }
     }
 
     /**

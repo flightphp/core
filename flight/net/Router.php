@@ -22,6 +22,20 @@ class Router {
     protected $routes = array();
 
     /**
+     * Matched route.
+     *
+     * @var string
+     */
+    public $matched = null;
+
+    /**
+     * Matched URL parameters.
+     *
+     * @var array
+     */
+    public $params = array();
+
+    /**
      * Gets mapped routes.
      *
      * @return array Array of routes
@@ -60,9 +74,9 @@ class Router {
      * Tries to match a requst to a route. Also parses named parameters in the url.
      *
      * @param string $pattern URL pattern
-     * @param object $request Request object
+     * @param string $url Requested URL
      */
-    public function match($pattern, $request) {
+    public function match($pattern, $url) {
         $ids = array();
 
         // Build the regex for matching
@@ -83,12 +97,12 @@ class Router {
         )).'\/?(?:\?.*)?$/i';
 
         // Attempt to match route and named parameters
-        if (preg_match($regex, $request->url, $matches)) {
+        if (preg_match($regex, $url, $matches)) {
             if (!empty($ids)) {
-                $request->params = array_intersect_key($matches, $ids);
+                $this->params = array_intersect_key($matches, $ids);
             }
 
-            $request->matched = $pattern;
+            $this->matched = $pattern;
 
             return true;
         }
@@ -103,13 +117,13 @@ class Router {
      * @return callable Matched callback function
      */
     public function route(Request $request) {
-        $request->matched = null;
-        $request->params = array();
+        $this->matched = null;
+        $this->params = array();
 
         $routes = ($this->routes[$request->method] ?: array()) + ($this->routes['*'] ?: array());
 
         foreach ($routes as $pattern => $callback) {
-            if ($pattern === '*' || $request->url === $pattern || self::match($pattern, $request)) {
+            if ($pattern === '*' || $request->url === $pattern || self::match($pattern, $request->url)) {
                 return $callback;
             }
         }

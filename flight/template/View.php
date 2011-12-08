@@ -71,7 +71,7 @@ class View {
      * @param string $key Key
      */
     public function has($key) {
-        return !isset($this->data[$key]);
+        return isset($this->data[$key]);
     }
 
     /**

@@ -11,7 +11,7 @@ namespace flight\core;
 /**
  * The Dispatcher class is responsible for dispatching events. Events
  * are simply aliases for class methods or functions. The Dispatcher
- * allows you to hook other function to an event that can modify the
+ * allows you to hook other functions to an event that can modify the
  * input parameters and/or the output.
  */
 class Dispatcher {
@@ -29,8 +29,6 @@ class Dispatcher {
      */
     protected $filters = array();
 
-    public function __construct() {}
-
     /**
      * Dispatches an event.
      *
@@ -42,7 +40,7 @@ class Dispatcher {
 
         // Run pre-filters
         if (!empty($this->filters[$name]['before'])) {
-            $this->filter($this->filters[$name]['before'], $params, $output);
+            $this->filter($this->filters[$name]['before'], $params, null);
         }
 
         // Run requested method
@@ -77,6 +75,33 @@ class Dispatcher {
     }
 
     /**
+     * Checks if an event has been set.
+     *
+     * @param string $name Event name
+     * @return bool Event status
+     */
+    public function has($name) {
+        return isset($this->events[$name]);
+    }
+
+    /**
+     * Clears an event. If no name is given,
+     * all events are removed.
+     *
+     * @param string $name Event name
+     */
+    public function clear($name = null) {
+        if ($name !== null) {
+            unset($this->events[$name]);
+            unset($this->filters[$name]);
+        }
+        else {
+            $this->events = array();
+            $this->filters = array();
+        }
+    }
+
+    /**
      * Hooks a callback to an event.
      *
      * @param string $event Event name
@@ -91,7 +116,8 @@ class Dispatcher {
      * Executes a chain of method filters.
      *
      * @param array $filters Chain of filters
-     * @param reference $data Method parameters or method output
+     * @param reference $params Method parameters
+     * @param reference $output Method output
      */
     public function filter($filters, &$params, &$output) {
         $args = array(&$params, &$output);

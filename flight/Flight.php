@@ -200,13 +200,16 @@ class Flight {
             self::$loader = new \flight\core\Loader();
             self::$dispatcher = new \flight\core\Dispatcher();
 
-            // Register default components
+            // Initialize autoloading
+            self::$loader->init();
             self::$loader->addDirectory(dirname(__DIR__));
+
+            // Register default components
             self::$loader->register('request', '\flight\net\Request');
             self::$loader->register('response', '\flight\net\Response');
             self::$loader->register('router', '\flight\net\Router');
             self::$loader->register('view', '\flight\template\View', array(), function($view){
-                $view->path = Flight::get('flight.views.path') ?: './views';
+                $view->path = Flight::get('flight.views.path');
             });
 
             // Register framework methods
@@ -214,10 +217,13 @@ class Flight {
                 'start','stop','route','halt','error','notFound',
                 'render','redirect','etag','lastModified','json'
             );
-
             foreach ($methods as $name) {
                 self::$dispatcher->set($name, array(__CLASS__, '_'.$name));
             }
+
+            // Default settings
+            self::set('flight.views.path', './views');
+            self::set('flight.log_errors', false);
 
             // Enable output buffering
             ob_start();
@@ -255,13 +261,16 @@ class Flight {
      * Starts the framework.
      */
     public static function _start() {
+        $router = self::router();
+        $request = self::request();
+
         // Route the request
-        $callback = self::router()->route(self::request());
+        $callback = $router->route($request);
 
         if ($callback !== false) {
             self::$dispatcher->execute(
                 $callback,
-                array_values(self::request()->params)
+                array_values($router->params)
             );
         }
         else {
@@ -269,7 +278,7 @@ class Flight {
         }
 
         // Disable caching for AJAX requests
-        if (self::request()->ajax) {
+        if ($request->ajax) {
             self::response()->cache(false);
         }
 
@@ -316,6 +325,9 @@ class Flight {
      * @param object $ex Exception
      */
     public static function _error(Exception $e) {
+        if (self::get('flight.log_errors')) {
+            error_log($e->getMessage());
+        }
         self::response(false)
             ->status(500)
             ->write(

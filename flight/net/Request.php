@@ -29,8 +29,6 @@ namespace flight\net;
  *   data - Post parameters 
  *   cookies - Cookie parameters
  *   files - Uploaded files
- *   params - Matched URL parameters from the router
- *   matched - Matched URL patter from the router
  */
 class Request {
     /**
@@ -53,12 +51,10 @@ class Request {
                 'body' => file_get_contents('php://input'),
                 'type' => $_SERVER['CONTENT_TYPE'],
                 'length' => $_SERVER['CONTENT_LENGTH'],
-                'query' => (object)$_GET,
-                'data' => (object)$_POST,
-                'cookies' => (object)$_COOKIE,
-                'files' => (object)$_FILES,
-                'params' => array(),
-                'matched' => null
+                'query' => $_GET,
+                'data' => $_POST,
+                'cookies' => $_COOKIE,
+                'files' => $_FILES
             );
         }
 
@@ -83,9 +79,8 @@ class Request {
             $this->url = '/';
         }
         else {
-            $query = self::parseQuery($this->url);
-            $this->query = (object)$query;
-            $_GET = $query;
+            $this->query = self::parseQuery($this->url);
+            $_GET = $this->query;
         }
     }
 
