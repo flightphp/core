@@ -40,7 +40,7 @@ class Dispatcher {
 
         // Run pre-filters
         if (!empty($this->filters[$name]['before'])) {
-            $this->filter($this->filters[$name]['before'], $params, null);
+            $this->filter($this->filters[$name]['before'], $params, $output);
         }
 
         // Run requested method
