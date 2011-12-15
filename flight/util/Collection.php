@@ -164,9 +164,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable {
      * @return int Collection size
      */
     public function count() {
-        $count = iterator_count($this);
-        $this->rewind();
-        return $count;
+        return sizeof($this->data);
     }
 
     /**
