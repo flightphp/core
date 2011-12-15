@@ -178,7 +178,7 @@ The register method also allows you to pass along parameters to your class const
     // Get an instance of your class
     // This will create an object with the defined parameters
     //
-    //     new Database('localhost', 'test', 'user', 'pass');
+    //     new Database('localhost', 'mydb', 'user', 'pass');
     //
     $db = Flight::db();
 
@@ -192,11 +192,11 @@ If you pass in an additional callback parameter, it will be executed immediately
 By default, every time you load your class you will get a shared instance.
 To get a new instance of a class, simply pass in `false` as a parameter:
 
-    // Shared instance of User
-    $shared = Flight::user();
+    // Shared instance of Database class
+    $shared = Flight::db();
 
-    // New instance of User
-    $new = Flight::user(false);
+    // New instance of Database class
+    $new = Flight::db(false);
 
 Keep in mind that mapped methods have precedence over registered classes. If you declare both
 using the same name, only the mapped method will be invoked.
@@ -211,13 +211,6 @@ You can override this behavior by using the `map` method:
     Flight::map('notFound', function(){
         // Display custom 404 page
         include 'errors/404.html';
-    });
-
-Flight also has custom error handling which you can override:
-
-    Flight::map('error', function($e){
-        // Log error somewhere
-        log_error($e);
     });
 
 Flight also allows you to replace core components of the framework.
@@ -286,7 +279,7 @@ This should display:
 
     Hello Fred! Have a nice day! 
 
-If you have defined multiple filters, you can break the chain by returning `false`:
+If you have defined multiple filters, you can break the chain by returning `false` in any of your filter functions:
 
     Flight::before('start', function(&$params, &$output){
         echo 'one';
@@ -372,9 +365,9 @@ It is common for websites to have a single layout template file with interchangi
 
 Your view will then have saved variables called `header_content` and `body_content`. You can then render your layout by doing:
 
-    Flight::render('layout', array('title' => 'Home');
+    Flight::render('layout', array('title' => 'Home'));
 
-If the template file looks like this:
+If the template files looks like this:
 
 header.php:
 
@@ -460,7 +453,7 @@ When a URL can't be found, Flight calls the `notFound` method. The default behav
 send an HTTP `404 Not Found` response with a simple message. You can override this behavior for your own needs:
 
     Flight::map('notFound', function(){
-        // Display custom error page
+        // Handle not found
     });
 
 # Redirects 
@@ -468,6 +461,38 @@ send an HTTP `404 Not Found` response with a simple message. You can override th
 You can redirect the current request by using the `redirect` method and passing in a new URL:
 
     Flight::redirect('/new/location');
+
+# Requests
+
+Flight encapsulates the HTTP request into a single object, which can be accessed by doing:
+
+    $request = Flight::request();
+
+The request object provides the following properties:
+
+    url - The URL being requested
+    base - The parent subdirectory of the URL
+    method - The request method (GET, POST, PUT, DELETE)
+    referrer - The referrer URL
+    ip - IP address of the client
+    ajax - Whether the request is an AJAX request
+    scheme - The server protocol (http, https)
+    user_agent - Browser information
+    body - Raw data from the request body
+    type - The content type
+    length - The content length
+    query - Query string parameters
+    data - Post parameters
+    cookies - Cookie parameters
+    files - Uploaded files
+
+To access query string parameters, you can do:
+
+    $id = Flight::request()->query['id'];
+
+You can also get the data using object notation:
+
+    $id = Flight::request()->query->id;
 
 # HTTP Caching 
 
@@ -512,3 +537,55 @@ Calling `halt` will discard any response content up to that point.
 If you want to stop the framework and output the current response, use the `stop` method:
 
     Flight::stop();
+
+# Framework Methods
+
+## Core Methods
+
+The following are Flight's core methods:
+
+    Flight::map($name, $callback) - Creates a custom framework method.
+
+    Flight::register($name, $class, [$params], [$callback]) - Registers a class to a framework method.
+
+    Flight::before($name, $callback) - Adds a filter before a framework method.
+
+    Flight::after($name, $callback) - Adds a filter after a framework method.
+
+    Flight::path($path) - Adds a path for autoloading classes.
+
+    Flight::get($key) - Gets a variable.
+
+    Flight::set($key, $value) - Sets a variable.
+
+    Flight::has($key) - Checks if a variable is set.
+
+    Flight::clear([$key]) - Clears a variable.
+
+## Extensible Methods
+
+The following methods are extensible, meaning you can filter and override them:
+
+    Flight::start() - Starts the framework.
+
+    Flight::stop() - Stops the framework and sends a response.
+
+    Flight::halt([$code], [$message]) - Stop the framework with an optional status code and message.
+
+    Flight::route($pattern, $callback) - Maps a URL pattern to a callback.
+
+    Flight::redirect($url, [$code]) - Redirects to another URL.
+
+    Flight::render($file, [$data], [$key]) - Renders a template file.
+
+    Flight::error($exception) - Sends an HTTP 500 response.
+
+    Flight::notFound() - Sends an HTTP 400 response.
+
+    Flight::etag($id, [$type]) - Performs ETag HTTP caching.
+
+    Flight::lastModified($time) - Performs last modified HTTP caching.
+
+    Flight::json($data) - Sends a JSON response.
+
+All custom methods added with `map` and `register` can also be filtered.

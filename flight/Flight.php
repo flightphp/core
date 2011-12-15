@@ -181,7 +181,7 @@ class Flight {
             set_error_handler(array(__CLASS__, 'handleError'));
 
             // Handle exceptions internally
-            set_exception_handler(array(__CLASS__, 'handleException'));
+            set_exception_handler(array(__CLASS__, 'error'));
 
             // Turn off notices
             error_reporting (E_ALL ^ E_NOTICE);
@@ -242,22 +242,6 @@ class Flight {
     }
 
     /**
-     * Custom exception handler.
-     */
-    public static function handleException(Exception $e) {
-        try {
-            static::error($e);
-        }
-        catch (Exception $ex) {
-            exit(
-                '<h1>500 Internal Server Error</h1>'.
-                '<h3>'.$ex->getMessage().'</h3>'.
-                '<pre>'.$ex->getTraceAsString().'</pre>'
-            );
-        }
-    }
-
-    /**
      * Starts the framework.
      */
     public static function _start() {
@@ -296,25 +280,15 @@ class Flight {
     }
 
     /**
-     * Routes a URL to a callback function.
-     *
-     * @param string $pattern URL pattern to match
-     * @param callback $callback Callback function
-     */
-    public static function _route($pattern, $callback) {
-        self::router()->map($pattern, $callback);
-    }
-
-    /**
      * Stops processing and returns a given response.
      *
      * @param int $code HTTP status code
-     * @param int $msg Response text
+     * @param int $message Response message
      */
-    public static function _halt($code = 200, $text = '') {
+    public static function _halt($code = 200, $message = '') {
         self::response(false)
             ->status($code)
-            ->write($text)
+            ->write($message)
             ->cache(false)
             ->send();
     }
@@ -322,20 +296,25 @@ class Flight {
     /**
      * Sends an HTTP 500 response for any errors.
      *
-     * @param object $ex Exception
+     * @param object $e Exception
      */
     public static function _error(Exception $e) {
-        if (self::get('flight.log_errors')) {
-            error_log($e->getMessage());
+        $msg = '<h1>500 Internal Server Error</h1>'.
+            '<h3>'.$e->getMessage().'</h3>'.
+            '<pre>'.$e->getTraceAsString().'</pre>';
+
+        try {
+            if (self::get('flight.log_errors')) {
+                error_log($e->getMessage());
+            }
+            self::response(false)
+                ->status(500)
+                ->write($msg)
+                ->send();
         }
-        self::response(false)
-            ->status(500)
-            ->write(
-                '<h1>500 Internal Server Error</h1>'.
-                '<h3>'.$e->getMessage().'</h3>'.
-                '<pre>'.$e->getTraceAsString().'</pre>'
-            )
-            ->send();
+        catch (Exception $ex) {
+            exit($msg);
+        }
     }
 
     /**
@@ -350,6 +329,16 @@ class Flight {
                 str_repeat(' ', 512)
             )
             ->send();
+    }
+
+    /**
+     * Routes a URL to a callback function.
+     *
+     * @param string $pattern URL pattern to match
+     * @param callback $callback Callback function
+     */
+    public static function _route($pattern, $callback) {
+        self::router()->map($pattern, $callback);
     }
 
     /**
@@ -382,6 +371,19 @@ class Flight {
     }
 
     /**
+     * Sends a JSON response.
+     *
+     * @param mixed $data Data to JSON encode
+     */
+    public static function _json($data) {
+        self::response(false)
+            ->status(200)
+            ->header('Content-Type', 'application/json')
+            ->write(json_encode($data))
+            ->send();
+    }
+
+    /**
      * Handles ETag HTTP caching.
      *
      * @param string $id ETag identifier
@@ -408,19 +410,6 @@ class Flight {
         if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
             self::halt(304);
         }
-    }
-
-    /**
-     * Sends a JSON response.
-     *
-     * @param mixed $data Data to JSON encode
-     */
-    public static function _json($data) {
-        self::response(false)
-            ->status(200)
-            ->header('Content-Type', 'application/json')
-            ->write(json_encode($data))
-            ->send();
     }
 }
 
