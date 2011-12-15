@@ -486,13 +486,15 @@ The request object provides the following properties:
     cookies - Cookie parameters
     files - Uploaded files
 
-To access query string parameters, you can do:
+You can access the `query`, `data`, `cookies`, and `files` properties as arrays or objects.
+So, to get a query string parameter, you can do:
 
     $id = Flight::request()->query['id'];
 
-You can also get the data using object notation:
+Or you can do:
 
     $id = Flight::request()->query->id;
+
 
 # HTTP Caching 
 
@@ -520,7 +522,7 @@ ETag caching is similar to Last-Modified, except you can specify any id you want
     });
 
 Keep in mind that calling either `lastModified` or `etag` will both set and check the cache value.
-If the cache value is the same between requests, Flight will immediately send the `304` response and stop
+If the cache value is the same between requests, Flight will immediately send an HTTP 304 response and stop
 processing.
 
 # Stopping 
