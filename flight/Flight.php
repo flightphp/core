@@ -59,116 +59,7 @@ class Flight {
         return self::$loader->load($name, $shared);
     }
 
-    /**
-     * Maps a callback to a framework method.
-     *
-     * @param string $name Method name
-     * @param callback $callback Callback function
-     */
-    public static function map($name, $callback) {
-        if (method_exists(__CLASS__, $name)) {
-            throw new Exception('Cannot override an existing framework method.');
-        }
-
-        self::$dispatcher->set($name, $callback);
-    }
-
-    /**
-     * Registers a class to a framework method.
-     *
-     * @param string $name Method name
-     * @param string $class Class name
-     * @param array $params Class initialization parameters
-     * @param callback $callback Function to call after object instantiation
-     */
-    public static function register($name, $class, array $params = array(), $callback = null) {
-        if (method_exists(__CLASS__, $name)) {
-            throw new Exception('Cannot override an existing framework method.');
-        }
-
-        self::$loader->register($name, $class, $params, $callback);
-    }
-
-    /**
-     * Adds a pre-filter to a method.
-     *
-     * @param string $name Method name
-     * @param callback $callback Callback function
-     */
-    public static function before($name, $callback) {
-        self::$dispatcher->hook($name, 'before', $callback);
-    }
-
-    /**
-     * Adds a post-filter to a method.
-     *
-     * @param string $name Method name
-     * @param callback $callback Callback function
-     */
-    public static function after($name, $callback) {
-        self::$dispatcher->hook($name, 'after', $callback);
-    }
-
-    /**
-     * Adds a path for class autoloading.
-     *
-     * @param string $dir Directory path
-     */
-    public static function path($dir) {
-        self::$loader->addDirectory($dir);
-    }
-
-    /**
-     * Gets a variable.
-     *
-     * @param string $key Key
-     * @return mixed
-     */
-    public static function get($key) {
-        return self::$vars[$key];
-    }
-
-    /**
-     * Sets a variable.
-     *
-     * @param mixed $key Key
-     * @param string $value Value
-     */
-    public static function set($key, $value = null) {
-        // If key is an array, save each key value pair
-        if (is_array($key) || is_object($key)) {
-            foreach ($key as $k => $v) {
-                self::$vars[$k] = $v;
-            }
-        }
-        else if (is_string($key)) {
-            self::$vars[$key] = $value;
-        }
-    }
-
-    /**
-     * Checks if a variable has been set.
-     *
-     * @param string $key Key
-     * @return bool Variable status
-     */
-    public static function has($key) {
-        return isset(self::$vars[$key]);
-    }
-
-    /**
-     * Unsets a variable. If no key is passed in, clear all variables.
-     *
-     * @param string $key Key
-     */
-    public static function clear($key = null) {
-        if (is_null($key)) {
-            self::$vars = array();
-        }
-        else {
-            unset(self::$vars[$key]);
-        }
-    }
+    /*** Core Methods ***/
 
     /**
      * Initializes the framework.
@@ -181,7 +72,7 @@ class Flight {
             set_error_handler(array(__CLASS__, 'handleError'));
 
             // Handle exceptions internally
-            set_exception_handler(array(__CLASS__, 'error'));
+            set_exception_handler(array(__CLASS__, 'handleException'));
 
             // Turn off notices
             error_reporting (E_ALL ^ E_NOTICE);
@@ -233,13 +124,143 @@ class Flight {
     }
 
     /**
-     * Custom error handler.
+     * Custom error handler. Converts errors into exceptions.
+     *
+     * @param int $errno Error number
+     * @param int $errstr Error string
+     * @param int $errfile Error file name
+     * @param int $errline Error file line number
      */
     public static function handleError($errno, $errstr, $errfile, $errline) {
         if (in_array($errno, array(E_USER_ERROR, E_RECOVERABLE_ERROR))) {
-            static::error(new ErrorException($errstr, 0, $errno, $errfile, $errline));
+            static::handleException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
         }
     }
+
+    /**
+     * Custom exception handler. Logs exceptions.
+     *
+     * @param object $e Exception
+     */
+    public static function handleException(Exception $e) {
+        if (self::get('flight.log_errors')) {
+            error_log($e->getMessage());
+        }
+        static::error($e);
+    }
+
+    /**
+     * Maps a callback to a framework method.
+     *
+     * @param string $name Method name
+     * @param callback $callback Callback function
+     */
+    public static function map($name, $callback) {
+        if (method_exists(__CLASS__, $name)) {
+            throw new Exception('Cannot override an existing framework method.');
+        }
+
+        self::$dispatcher->set($name, $callback);
+    }
+
+    /**
+     * Registers a class to a framework method.
+     *
+     * @param string $name Method name
+     * @param string $class Class name
+     * @param array $params Class initialization parameters
+     * @param callback $callback Function to call after object instantiation
+     */
+    public static function register($name, $class, array $params = array(), $callback = null) {
+        if (method_exists(__CLASS__, $name)) {
+            throw new Exception('Cannot override an existing framework method.');
+        }
+
+        self::$loader->register($name, $class, $params, $callback);
+    }
+
+    /**
+     * Adds a pre-filter to a method.
+     *
+     * @param string $name Method name
+     * @param callback $callback Callback function
+     */
+    public static function before($name, $callback) {
+        self::$dispatcher->hook($name, 'before', $callback);
+    }
+
+    /**
+     * Adds a post-filter to a method.
+     *
+     * @param string $name Method name
+     * @param callback $callback Callback function
+     */
+    public static function after($name, $callback) {
+        self::$dispatcher->hook($name, 'after', $callback);
+    }
+
+    /**
+     * Gets a variable.
+     *
+     * @param string $key Key
+     * @return mixed
+     */
+    public static function get($key) {
+        return self::$vars[$key];
+    }
+
+    /**
+     * Sets a variable.
+     *
+     * @param mixed $key Key
+     * @param string $value Value
+     */
+    public static function set($key, $value = null) {
+        // If key is an array, save each key value pair
+        if (is_array($key) || is_object($key)) {
+            foreach ($key as $k => $v) {
+                self::$vars[$k] = $v;
+            }
+        }
+        else {
+            self::$vars[$key] = $value;
+        }
+    }
+
+    /**
+     * Checks if a variable has been set.
+     *
+     * @param string $key Key
+     * @return bool Variable status
+     */
+    public static function has($key) {
+        return isset(self::$vars[$key]);
+    }
+
+    /**
+     * Unsets a variable. If no key is passed in, clear all variables.
+     *
+     * @param string $key Key
+     */
+    public static function clear($key = null) {
+        if (is_null($key)) {
+            self::$vars = array();
+        }
+        else {
+            unset(self::$vars[$key]);
+        }
+    }
+
+    /**
+     * Adds a path for class autoloading.
+     *
+     * @param string $dir Directory path
+     */
+    public static function path($dir) {
+        self::$loader->addDirectory($dir);
+    }
+
+    /*** Extensible Methods ***/
 
     /**
      * Starts the framework.
@@ -304,9 +325,6 @@ class Flight {
             '<pre>'.$e->getTraceAsString().'</pre>';
 
         try {
-            if (self::get('flight.log_errors')) {
-                error_log($e->getMessage());
-            }
             self::response(false)
                 ->status(500)
                 ->write($msg)

@@ -26,7 +26,7 @@ class View {
      *
      * @var array
      */
-    protected $data = array();
+    protected $vars = array();
 
     /**
      * Constructor.
@@ -44,7 +44,7 @@ class View {
      * @return mixed
      */
     public function get($key) {
-        return $this->data[$key];
+        return $this->vars[$key];
     }
 
     /**
@@ -54,14 +54,13 @@ class View {
      * @param string $value Value
      */
     public function set($key, $value = null) {
-        // If key is an array, save each key value pair
         if (is_array($key) || is_object($key)) {
             foreach ($key as $k => $v) {
-                $this->data[$k] = $v;
+                $this->vars[$k] = $v;
             }
         }
-        else if (is_string($key)) {
-            $this->data[$key] = $value;
+        else {
+            $this->vars[$key] = $value;
         }
     }
 
@@ -71,7 +70,7 @@ class View {
      * @param string $key Key
      */
     public function has($key) {
-        return isset($this->data[$key]);
+        return isset($this->vars[$key]);
     }
 
     /**
@@ -81,10 +80,10 @@ class View {
      */
     public function clear($key = null) {
         if (is_null($key)) {
-            $this->data = array();
+            $this->vars = array();
         }
         else {
-            unset($this->data[$key]);
+            unset($this->vars[$key]);
         }
     }
 
@@ -97,15 +96,15 @@ class View {
     public function render($file, $data = null) {
         $template = $this->getTemplate($file);
 
-        if (is_array($data)) {
-            $this->data = array_merge($this->data, $data);
-        }
-
-        extract($this->data);
-
         if (!file_exists($template)) {
             throw new \Exception("Template file not found: $template.");
         }
+
+        if (is_array($data)) {
+            $this->vars = array_merge($this->vars, $data);
+        }
+
+        extract($this->vars);
 
         include $template;
     }
