@@ -71,7 +71,7 @@ class Dispatcher {
      * @param callback $callback Callback function
      */
     public function get($name) {
-        return $this->events[$name];
+        return isset($this->events[$name]) ? $this->events[$name] : null;
     }
 
     /**

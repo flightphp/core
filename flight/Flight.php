@@ -206,7 +206,7 @@ class Flight {
      * @return mixed
      */
     public static function get($key) {
-        return self::$vars[$key];
+        return isset(self::$vars[$key]) ? self::$vars[$key] : null;
     }
 
     /**
@@ -216,7 +216,6 @@ class Flight {
      * @param string $value Value
      */
     public static function set($key, $value = null) {
-        // If key is an array, save each key value pair
         if (is_array($key) || is_object($key)) {
             foreach ($key as $k => $v) {
                 self::$vars[$k] = $v;
@@ -273,9 +272,10 @@ class Flight {
         $callback = $router->route($request);
 
         if ($callback !== false) {
+            $params = array_values($router->params);
             self::$dispatcher->execute(
                 $callback,
-                array_values($router->params)
+                $params
             );
         }
         else {

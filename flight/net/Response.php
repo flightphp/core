@@ -151,7 +151,9 @@ class Response {
      * Sends the response and exits the program.
      */
     public function send() {
-        ob_end_clean();
+        if (ob_get_length() > 0) {
+            ob_end_clean();
+        }
 
         if (!headers_sent()) {
             foreach ($this->headers as $field => $value) {

@@ -58,9 +58,9 @@ class Router {
      * @param callback $callback Callback function
      */
     public function map($pattern, $callback) {
-        list($method, $url) = explode(' ', trim($pattern), 2);
+        if (strpos($pattern, ' ') !== false) {
+            list($method, $url) = explode(' ', trim($pattern), 2);
 
-        if (!is_null($url)) {
             foreach (explode('|', $method) as $value) {
                 $this->routes[$value][$url] = $callback;
             }
@@ -85,7 +85,7 @@ class Router {
                 if ($str == '*') {
                     $str = '(.*)';
                 }
-                else if ($str{0} == '@') {
+                else if ($str != null && $str{0} == '@') {
                     if (preg_match('/@(\w+)(\:([^\/]*))?/', $str, $matches)) {
                         $ids[$matches[1]] = true;
                         return '(?P<'.$matches[1].'>'.(isset($matches[3]) ? $matches[3] : '[^(\/|\?)]+').')';
@@ -120,7 +120,8 @@ class Router {
         $this->matched = null;
         $this->params = array();
 
-        $routes = ($this->routes[$request->method] ?: array()) + ($this->routes['*'] ?: array());
+        $routes = isset($this->routes[$request->method]) ? $this->routes[$request->method] : array();
+        if (isset($this->routes['*'])) $routes += $this->routes['*'];
 
         foreach ($routes as $pattern => $callback) {
             if ($pattern === '*' || $request->url === $pattern || self::match($pattern, $request->url)) {

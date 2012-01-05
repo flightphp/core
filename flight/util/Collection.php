@@ -36,7 +36,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable {
      * @return mixed Value
      */
     public function __get($key) {
-        return $this->data[$key];
+        return isset($this->data[$key]) ? $this->data[$key] : null;
     }
 
     /**
