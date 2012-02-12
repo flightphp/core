@@ -146,7 +146,7 @@ To route all requests to a single callback, you can do:
 
 # Extending
 
-Flight designed to be an extensible framework. The framework comes with a set of default methods and components, but it allows you to map your own methods, register your own classes, or even override existing classes and methods.
+Flight is designed to be an extensible framework. The framework comes with a set of default methods and components, but it allows you to map your own methods, register your own classes, or even override existing classes and methods.
 
 ## Mapping Methods
 
@@ -203,7 +203,7 @@ using the same name, only the mapped method will be invoked.
 
 # Overriding
 
-Flight allows you to override its default functionality to suit your own needs without having to modify any code.
+Flight allows you to override its default functionality to suit your own needs, without having to modify any code.
 
 For example, when Flight cannot match a URL to a route, it invokes the `notFound` method which sends a generic HTTP 404 response.
 You can override this behavior by using the `map` method:
@@ -358,14 +358,14 @@ By default Flight will look for a `views` directory for template files. You can 
 
 ## Layouts
 
-It is common for websites to have a single layout template file with interchanging content. To render content for a layout you need to pass in a variable name to the `render` method.
+It is common for websites to have a single layout template file with interchanging content. To render content to be used in a layout, you can pass in an optional parameter to the `render` method.
 
     Flight::render('header', array('heading' => 'Hello'), 'header_content');
     Flight::render('body', array('message' => 'World'), 'body_content');
 
 Your view will then have saved variables called `header_content` and `body_content`. You can then render your layout by doing:
 
-    Flight::render('layout', array('title' => 'Home'));
+    Flight::render('layout', array('title' => 'Home Page'));
 
 If the template files looks like this:
 
@@ -393,7 +393,7 @@ The output would be:
 
     <html>
     <head>
-    <title>My Page</title>
+    <title>Home Page</title>
     </head>
     <body>
     <h1>Hello</h1>
@@ -542,9 +542,11 @@ If you want to stop the framework and output the current response, use the `stop
 
 # Framework Methods
 
-## Core Methods
+Flight is designed to be easy to use and understand. The following is the complete set of methods
+for the framework. It consists of core methods, which are regular static methods, and
+extensible methods, which can be filtered or overridden.
 
-The following are Flight's core methods:
+## Core Methods
 
     Flight::map($name, $callback) - Creates a custom framework method.
 
@@ -565,8 +567,6 @@ The following are Flight's core methods:
     Flight::clear([$key]) - Clears a variable.
 
 ## Extensible Methods
-
-The following methods are extensible, meaning you can filter and override them:
 
     Flight::start() - Starts the framework.
 
@@ -590,4 +590,4 @@ The following methods are extensible, meaning you can filter and override them:
 
     Flight::json($data) - Sends a JSON response.
 
-All custom methods added with `map` and `register` can also be filtered.
+Any custom methods added with `map` and `register` can also be filtered.
