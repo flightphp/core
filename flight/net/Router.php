@@ -80,7 +80,7 @@ class Router {
         $ids = array();
 
         // Build the regex for matching
-        $regex = '/^'.implode('\/', array_map(
+        $regex = implode('\/', array_map(
             function($str) use (&$ids){
                 if ($str == '*') {
                     $str = '(.*)';
