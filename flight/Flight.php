@@ -365,6 +365,11 @@ class Flight {
      * @param string $url URL
      */
     public static function _redirect($url, $code = 303) {
+        $base = self::request()->base;
+        if ($base != '/' && strpos($url, '://') === false) {
+            $url = $base.(($url[0] == '/') ? '' : '/').$url;
+        }
+
         self::response(false)
             ->status($code)
             ->header('Location', $url)
