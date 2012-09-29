@@ -72,7 +72,7 @@ class Response {
                 header('Status: '.$code.' '.self::$codes[$code], true);
             }
             else {
-                header(($_SERVER['SERVER_PROTOCOL'] ?: 'HTTP/1.1').' '.self::$codes[$code], true, $code);
+                header(($_SERVER['SERVER_PROTOCOL'] ?: 'HTTP/1.1').' '.$code.' '.self::$codes[$code], true, $code);
             }
         }
         else {
