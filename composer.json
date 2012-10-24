@@ -1,0 +1,19 @@
+{
+    "name": "mikecao/flight",
+    "autoload": {
+        "files": ["flight/Flight.php"]
+    },
+    "license": "MIT",
+    "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
+    "authors": [
+        {
+            "name": "Mike Cao",
+            "email": "mike@mikecao.com",
+            "homepage": "http://www.mikecao.com/",
+            "role": "Original Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
