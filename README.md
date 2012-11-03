@@ -332,7 +332,7 @@ Flight also uses variables for configuration purposes.
 
 Flight provides some basic templating functionality by default. To display a view template call the `render` method with the name of the template file and optional template data:
 
-    Flight::render('hello.php', array('name', 'Bob'));
+    Flight::render('hello.php', array('name' => 'Bob'));
 
 The template data you pass in is automatically injected into the template and can be reference like a local variable. Template files are simply PHP files. If the content of the `hello.php` template file is:
 
