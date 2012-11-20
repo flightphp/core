@@ -399,7 +399,7 @@ class Flight {
      * @param mixed $data Data to JSON encode
      */
     public static function _json($data) {
-        self::response(false)
+        self::response()
             ->status(200)
             ->header('Content-Type', 'application/json')
             ->write(json_encode($data))
