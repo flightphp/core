@@ -86,7 +86,7 @@ class Router {
                     $str = '(.*)';
                 }
                 else if ($str != null && $str{0} == '@') {
-                    if (preg_match('/@(\w+)(\:([^\/]*))?([\(|\)]+)?/', $str, $matches)) {
+                    if (preg_match('/@(\w+)(\:([^\/|\(]*))?([\(|\)]+)?/', $str, $matches)) {
                         $ids[$matches[1]] = null;
                         return '(?P<'.$matches[1].'>'
                             .(!empty($matches[3]) ? $matches[3] : '[^(\/|\?)]+')
@@ -101,10 +101,8 @@ class Router {
 
         // Attempt to match route and named parameters
         if (preg_match($regex, $url, $matches)) {
-            if (!empty($ids)) {
-                foreach ($ids as $k => $v) {
-                    $this->params[$k] = (array_key_exists($k, $matches)) ? $matches[$k] : null;
-                }
+            foreach ($ids as $k => $v) {
+                $this->params[$k] = (array_key_exists($k, $matches)) ? $matches[$k] : null;
             }
 
             $this->matched = $pattern;
