@@ -130,6 +130,20 @@ You can also include regular expressions with your named parameters by using the
         // But will not match /bob/12345
     });
 
+## Optional Parameters
+
+You can specify named parameters that are optional for matching by wrapping segments in parentheses.
+
+    Flight::route('/blog(/@year(/@month(/@day)))', function($year, $month, $day){
+        // This will match the following URLS:
+        // /blog/2012/12/10
+        // /blog/2012/12
+        // /blog/2012
+        // /blog
+    });
+
+Any optional parameters that are not matched will be passed in as NULL.
+
 ## Wildcards
 
 Matching is only done on individual URL segments. If you want to match multiple segments you can use the `*` wildcard.
