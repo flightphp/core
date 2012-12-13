@@ -102,7 +102,7 @@ class Router {
         // Attempt to match route and named parameters
         if (preg_match($regex, $url, $matches)) {
             foreach ($ids as $k => $v) {
-                $this->params[$k] = (array_key_exists($k, $matches)) ? $matches[$k] : null;
+                $this->params[$k] = (array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
             }
 
             $this->matched = $pattern;
