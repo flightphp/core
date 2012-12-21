@@ -34,7 +34,7 @@ class Loader {
      *
      * @var array
      */
-    protected $dirs = array();
+    protected $dirs = array('.', __DIR__);
 
     /**
      * Registers a class.
@@ -164,9 +164,8 @@ class Loader {
      */
     public function autoload($class) {
         $class_file = str_replace('\\', '/', str_replace('_', '/', $class)).'.php';
-        $dirs = array_merge($this->dirs, array(__DIR__, '.'));
 
-        foreach ($dirs as $dir) {
+        foreach ($this->dirs as $dir) {
             $file = $dir.'/'.$class_file;
             if (file_exists($file)) {
                 require $file;
@@ -175,7 +174,8 @@ class Loader {
         }
 
         // Allow other autoloaders to run before raising an error
-        $loader = array_pop(spl_autoload_functions());
+        $loaders = spl_autoload_functions();
+        $loader = array_pop($loaders);
         if (is_array($loader) && $loader[0] == __CLASS__ && $loader[1] == __FUNCTION__) {
             throw new Exception('Unable to load file: '.$class_file);
         }

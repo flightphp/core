@@ -74,9 +74,6 @@ class Flight {
             // Handle exceptions internally
             set_exception_handler(array(__CLASS__, 'handleException'));
 
-            // Turn off notices
-            error_reporting (E_ALL ^ E_NOTICE);
-
             // Fix magic quotes
             if (get_magic_quotes_gpc()) {
                 $func = function ($value) use (&$func) {
@@ -132,9 +129,7 @@ class Flight {
      * @param int $errline Error file line number
      */
     public static function handleError($errno, $errstr, $errfile, $errline) {
-        if (in_array($errno, array(E_USER_ERROR, E_RECOVERABLE_ERROR))) {
-            static::handleException(new ErrorException($errstr, 0, $errno, $errfile, $errline));
-        }
+        static::handleException(new ErrorException($errstr, $errno, 0, $errfile, $errline));
     }
 
     /**
@@ -320,9 +315,13 @@ class Flight {
      * @param object $e Exception
      */
     public static function _error(Exception $e) {
-        $msg = '<h1>500 Internal Server Error</h1>'.
-            '<h3>'.$e->getMessage().'</h3>'.
-            '<pre>'.$e->getTraceAsString().'</pre>';
+        $msg = sprintf('<h1>500 Internal Server Error</h1>'.
+            '<h3>%s (%s)</h3>'.
+            '<pre>%s</pre>',
+            $e->getMessage(),
+            $e->getCode(),
+            $e->getTraceAsString()
+        ); 
 
         try {
             self::response(false)
@@ -417,7 +416,8 @@ class Flight {
 
         self::response()->header('ETag', $id);
         
-        if ($_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
+            $_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
             self::halt(304);
         }
     }
@@ -430,7 +430,8 @@ class Flight {
     public static function _lastModified($time) {
         self::response()->header('Last-Modified', date(DATE_RFC1123, $time));
 
-        if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
+            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
             self::halt(304);
         }
     }
