@@ -129,7 +129,9 @@ class Flight {
      * @param int $errline Error file line number
      */
     public static function handleError($errno, $errstr, $errfile, $errline) {
-        static::handleException(new ErrorException($errstr, $errno, 0, $errfile, $errline));
+        if ($errno & error_reporting()) {
+            static::handleException(new ErrorException($errstr, $errno, 0, $errfile, $errline));
+        }
     }
 
     /**
