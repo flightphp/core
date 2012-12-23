@@ -69,10 +69,25 @@ class Response {
     public function status($code) {
         if (array_key_exists($code, self::$codes)) {
             if (strpos(php_sapi_name(), 'cgi') !== false) {
-                header('Status: '.$code.' '.self::$codes[$code], true);
+                header(
+                    sprintf(
+                        'Status: %d %s',
+                        $code,
+                        self::$codes[$code]
+                    ),
+                    true
+                );
             }
             else {
-                header(($_SERVER['SERVER_PROTOCOL'] ?: 'HTTP/1.1').' '.$code.' '.self::$codes[$code], true, $code);
+                header(
+                    sprintf(
+                        '%s %d %s',
+                        (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'),
+                        $code,
+                        self::$codes[$code]),
+                    true,
+                    $code
+                );
             }
         }
         else {
