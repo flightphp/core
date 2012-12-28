@@ -45,7 +45,7 @@ class Flight {
      * Handles calls to static methods.
      *
      * @param string $name Method name
-     * @param array $args Method parameters
+     * @param array $params Method parameters
      */
     public static function __callStatic($name, $params) {
         $callback = self::$dispatcher->get($name);
@@ -137,7 +137,7 @@ class Flight {
     /**
      * Custom exception handler. Logs exceptions.
      *
-     * @param object $e Exception
+     * @param Exception $e Thrown exception
      */
     public static function handleException(Exception $e) {
         if (self::get('flight.log_errors')) {
@@ -151,6 +151,7 @@ class Flight {
      *
      * @param string $name Method name
      * @param callback $callback Callback function
+     * @throws Exception If trying to map over a framework method
      */
     public static function map($name, $callback) {
         if (method_exists(__CLASS__, $name)) {
@@ -167,6 +168,7 @@ class Flight {
      * @param string $class Class name
      * @param array $params Class initialization parameters
      * @param callback $callback Function to call after object instantiation
+     * @throws Exception If trying to map over a framework method
      */
     public static function register($name, $class, array $params = array(), $callback = null) {
         if (method_exists(__CLASS__, $name)) {
@@ -301,7 +303,7 @@ class Flight {
      * Stops processing and returns a given response.
      *
      * @param int $code HTTP status code
-     * @param int $message Response message
+     * @param string $message Response message
      */
     public static function _halt($code = 200, $message = '') {
         self::response(false)
@@ -314,7 +316,7 @@ class Flight {
     /**
      * Sends an HTTP 500 response for any errors.
      *
-     * @param object $e Exception
+     * @param \Exception Thrown exception
      */
     public static function _error(Exception $e) {
         $msg = sprintf('<h1>500 Internal Server Error</h1>'.
@@ -364,6 +366,7 @@ class Flight {
      * Redirects the current request to another URL.
      *
      * @param string $url URL
+     * @param int $code HTTP status code
      */
     public static function _redirect($url, $code = 303) {
         $base = self::request()->base;
@@ -418,8 +421,7 @@ class Flight {
 
         self::response()->header('ETag', $id);
         
-        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
-            $_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
+        if ($id === getenv('HTTP_IF_NONE_MATCH')) {
             self::halt(304);
         }
     }
@@ -432,8 +434,7 @@ class Flight {
     public static function _lastModified($time) {
         self::response()->header('Last-Modified', date(DATE_RFC1123, $time));
 
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
-            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
+        if ($time === strtotime(getenv('HTTP_IF_MODIFIED_SINCE'))) {
             self::halt(304);
         }
     }
