@@ -34,7 +34,7 @@ class Loader {
      *
      * @var array
      */
-    protected $dirs = array('.', __DIR__);
+    protected $dirs = array();
 
     /**
      * Registers a class.
@@ -147,16 +147,17 @@ class Loader {
     }
 
     /**
-     * Initializes the autoloader.
+     * Starts autoloader.
      */
-    public function init() {
-        static $initialized = false;
+    public function start() {
+        spl_autoload_register(array($this, 'autoload'));
+    }
 
-        if (!$initialized) {
-            spl_autoload_register(array(__CLASS__, 'autoload'));
-
-            $initialized = true;
-        }
+    /**
+     * Stops autoloading.
+     */
+    public function stop() {
+        spl_autoload_unregister(array($this, 'autoload'));
     }
 
     /**
@@ -182,6 +183,15 @@ class Loader {
         if (is_array($loader) && $loader[0] == __CLASS__ && $loader[1] == __FUNCTION__) {
             throw new \Exception('Unable to load file: '.$class_file);
         }
+    }
+
+    /**
+     * Resets the object to the initial state.
+     */
+    public function reset() {
+        $this->classes = array();
+        $this->instances = array();
+        $this->dirs = array();
     }
 }
 ?>

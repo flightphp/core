@@ -65,59 +65,54 @@ class Flight {
      * Initializes the framework.
      */
     public static function init() {
-        static $initialized = false;
+        // Handle errors internally
+        set_error_handler(array(__CLASS__, 'handleError'));
 
-        if (!$initialized) {
-            // Handle errors internally
-            set_error_handler(array(__CLASS__, 'handleError'));
+        // Handle exceptions internally
+        set_exception_handler(array(__CLASS__, 'handleException'));
 
-            // Handle exceptions internally
-            set_exception_handler(array(__CLASS__, 'handleException'));
-
-            // Fix magic quotes
-            if (get_magic_quotes_gpc()) {
-                $func = function ($value) use (&$func) {
-                    return is_array($value) ? array_map($func, $value) : stripslashes($value);
-                };
-                $_GET = array_map($func, $_GET);
-                $_POST = array_map($func, $_POST);
-                $_COOKIE = array_map($func, $_COOKIE);
-            }
-
-            // Load core components
+        // Load core components
+        if (self::$loader == null) {
             self::$loader = new \flight\core\Loader();
-            self::$dispatcher = new \flight\core\Dispatcher();
-
-            // Initialize autoloading
-            self::$loader->init();
-            self::$loader->addDirectory(dirname(__DIR__));
-
-            // Register default components
-            self::$loader->register('request', '\flight\net\Request');
-            self::$loader->register('response', '\flight\net\Response');
-            self::$loader->register('router', '\flight\net\Router');
-            self::$loader->register('view', '\flight\template\View', array(), function($view){
-                $view->path = Flight::get('flight.views.path');
-            });
-
-            // Register framework methods
-            $methods = array(
-                'start','stop','route','halt','error','notFound',
-                'render','redirect','etag','lastModified','json'
-            );
-            foreach ($methods as $name) {
-                self::$dispatcher->set($name, array(__CLASS__, '_'.$name));
-            }
-
-            // Default settings
-            self::set('flight.views.path', './views');
-            self::set('flight.log_errors', false);
-
-            // Enable output buffering
-            ob_start();
-
-            $initialized = true;
+            self::$loader->start();
         }
+        else {
+            self::$loader->reset();
+        }
+
+        if (self::$dispatcher == null) {
+            self::$dispatcher = new \flight\core\Dispatcher();
+        }
+        else {
+            self::$dispatcher->reset();
+        }
+
+        // Register framework directory
+        self::$loader->addDirectory(dirname(__DIR__));
+
+        // Register default components
+        self::$loader->register('request', '\flight\net\Request');
+        self::$loader->register('response', '\flight\net\Response');
+        self::$loader->register('router', '\flight\net\Router');
+        self::$loader->register('view', '\flight\template\View', array(), function($view){
+            $view->path = Flight::get('flight.views.path');
+        });
+
+        // Register framework methods
+        $methods = array(
+            'start','stop','route','halt','error','notFound',
+            'render','redirect','etag','lastModified','json'
+        );
+        foreach ($methods as $name) {
+            self::$dispatcher->set($name, array(__CLASS__, '_'.$name));
+        }
+
+        // Default settings
+        self::set('flight.views.path', './views');
+        self::set('flight.log_errors', false);
+
+        // Enable output buffering
+        ob_start();
     }
 
     /**

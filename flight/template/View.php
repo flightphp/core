@@ -41,10 +41,10 @@ class View {
      * Gets a template variable.
      *
      * @param string $key Key
-     * @return mixed
+     * @return mixed Value
      */
     public function get($key) {
-        return $this->vars[$key];
+        return isset($this->vars[$key]) ? $this->vars[$key] : null;
     }
 
     /**

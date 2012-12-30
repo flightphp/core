@@ -73,7 +73,7 @@ class Request {
             $this->$name = $value;
         }
 
-        if ($this->base != '/' && strpos($this->url, $this->base) === 0) {
+        if ($this->base != '/' && strlen($this->base) > 0 && strpos($this->url, $this->base) === 0) {
             $this->url = substr($this->url, strlen($this->base));
         }
 
@@ -130,7 +130,7 @@ class Request {
             }
         }
 
-        return $_SERVER['REMOTE_ADDR'];
+        return '';
     }
 }
 ?>

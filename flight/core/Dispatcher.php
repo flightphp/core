@@ -141,6 +141,7 @@ class Dispatcher {
                 self::invokeMethod($callback, $params) :
                 self::callFunction($callback, $params);
         }
+        return null;
     }
 
     /**
@@ -209,6 +210,14 @@ class Dispatcher {
             default:
                 return call_user_func_array($func, $params);
         }
+    }
+
+    /**
+     * Resets the object to the initial state.
+     */
+    public function reset() {
+        $this->events = array();
+        $this->filters = array();
     }
 }
 ?>
