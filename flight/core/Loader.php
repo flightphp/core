@@ -34,7 +34,7 @@ class Loader {
      *
      * @var array
      */
-    protected $dirs = array('.', __DIR__);
+    protected $dirs = array();
 
     /**
      * Registers a class.
@@ -64,6 +64,7 @@ class Loader {
      *
      * @param string $name Method name
      * @param bool $shared Shared instance
+     * @return object Class instance
      */
     public function load($name, $shared = true) {
         if (isset($this->classes[$name])) {
@@ -107,6 +108,7 @@ class Loader {
      *
      * @param string $class Class name
      * @param array $params Class initialization parameters
+     * @return object Class instance
      */
     public function newInstance($class, array $params = array()) {
         switch (count($params)) {
@@ -123,7 +125,7 @@ class Loader {
             case 5:
                 return new $class($params[0], $params[1], $params[2], $params[3], $params[4]);
             default:
-                $refClass = new ReflectionClass($class);
+                $refClass = new \ReflectionClass($class);
                 return $refClass->newInstanceArgs($params);
         }
     }
@@ -145,22 +147,24 @@ class Loader {
     }
 
     /**
-     * Initializes the autoloader.
+     * Starts autoloader.
      */
-    public function init() {
-        static $initialized = false;
+    public function start() {
+        spl_autoload_register(array($this, 'autoload'));
+    }
 
-        if (!$initialized) {
-            spl_autoload_register(array(__CLASS__, 'autoload'));
-
-            $initialized = true;
-        }
+    /**
+     * Stops autoloading.
+     */
+    public function stop() {
+        spl_autoload_unregister(array($this, 'autoload'));
     }
 
     /**
      * Autoloads classes.
      *
      * @param string $class Class name
+     * @throws \Exception If class not found
      */
     public function autoload($class) {
         $class_file = str_replace('\\', '/', str_replace('_', '/', $class)).'.php';
@@ -177,8 +181,17 @@ class Loader {
         $loaders = spl_autoload_functions();
         $loader = array_pop($loaders);
         if (is_array($loader) && $loader[0] == __CLASS__ && $loader[1] == __FUNCTION__) {
-            throw new Exception('Unable to load file: '.$class_file);
+            throw new \Exception('Unable to load file: '.$class_file);
         }
+    }
+
+    /**
+     * Resets the object to the initial state.
+     */
+    public function reset() {
+        $this->classes = array();
+        $this->instances = array();
+        $this->dirs = array();
     }
 }
 ?>

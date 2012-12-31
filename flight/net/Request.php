@@ -42,17 +42,17 @@ class Request {
         // Default properties
         if (empty($config)) {
             $config = array(
-                'url' => $_SERVER['REQUEST_URI'],
-                'base' => str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])),
-                'method' => $_SERVER['REQUEST_METHOD'],
-                'referrer' => isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '',
+                'url' => getenv('REQUEST_URI') ?: '/',
+                'base' => str_replace('\\', '/', dirname(getenv('SCRIPT_NAME'))),
+                'method' => getenv('REQUEST_METHOD') ?: 'GET',
+                'referrer' => getenv('HTTP_REFERER') ?: '',
                 'ip' => $this->getIpAddress(),
-                'ajax' => isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') : false,
-                'scheme' => $_SERVER['SERVER_PROTOCOL'],
-                'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+                'ajax' => getenv('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
+                'scheme' => getenv('SERVER_PROTOCOL') ?: 'HTTP/1.1',
+                'user_agent' => getenv('HTTP_USER_AGENT') ?: '',
                 'body' => file_get_contents('php://input'),
-                'type' => isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '',
-                'length' => isset($_SERVER['CONTENT_LENGTH']) ? $_SERVER['CONTENT_LENGTH'] : 0,
+                'type' => getenv('CONTENT_TYPE') ?: '',
+                'length' => getenv('CONTENT_LENGTH') ?: 0,
                 'query' => new Collection($_GET),
                 'data' => new Collection($_POST),
                 'cookies' => new Collection($_COOKIE),
@@ -73,7 +73,7 @@ class Request {
             $this->$name = $value;
         }
 
-        if ($this->base != '/' && strpos($this->url, $this->base) === 0) {
+        if ($this->base != '/' && strlen($this->base) > 0 && strpos($this->url, $this->base) === 0) {
             $this->url = substr($this->url, strlen($this->base));
         }
 
@@ -129,6 +129,8 @@ class Request {
                 }
             }
         }
+
+        return '';
     }
 }
 ?>

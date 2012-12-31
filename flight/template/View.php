@@ -41,10 +41,10 @@ class View {
      * Gets a template variable.
      *
      * @param string $key Key
-     * @return mixed
+     * @return mixed Value
      */
     public function get($key) {
-        return $this->vars[$key];
+        return isset($this->vars[$key]) ? $this->vars[$key] : null;
     }
 
     /**
@@ -68,6 +68,7 @@ class View {
      * Checks if a template variable is set.
      *
      * @param string $key Key
+     * @return boolean If key exists
      */
     public function has($key) {
         return isset($this->vars[$key]);
@@ -92,6 +93,7 @@ class View {
      *
      * @param string $file Template file
      * @param array $data Template data
+     * @throws \Exception If template not found
      */
     public function render($file, $data = null) {
         $template = $this->getTemplate($file);
@@ -114,6 +116,7 @@ class View {
      *
      * @param string $file Template file
      * @param array $data Template data
+     * @return string Output of template
      */
     public function fetch($file, $data = null) {
         ob_start();

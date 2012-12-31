@@ -45,7 +45,7 @@ class Flight {
      * Handles calls to static methods.
      *
      * @param string $name Method name
-     * @param array $args Method parameters
+     * @param array $params Method parameters
      */
     public static function __callStatic($name, $params) {
         $callback = self::$dispatcher->get($name);
@@ -65,59 +65,54 @@ class Flight {
      * Initializes the framework.
      */
     public static function init() {
-        static $initialized = false;
+        // Handle errors internally
+        set_error_handler(array(__CLASS__, 'handleError'));
 
-        if (!$initialized) {
-            // Handle errors internally
-            set_error_handler(array(__CLASS__, 'handleError'));
+        // Handle exceptions internally
+        set_exception_handler(array(__CLASS__, 'handleException'));
 
-            // Handle exceptions internally
-            set_exception_handler(array(__CLASS__, 'handleException'));
-
-            // Fix magic quotes
-            if (get_magic_quotes_gpc()) {
-                $func = function ($value) use (&$func) {
-                    return is_array($value) ? array_map($func, $value) : stripslashes($value);
-                };
-                $_GET = array_map($func, $_GET);
-                $_POST = array_map($func, $_POST);
-                $_COOKIE = array_map($func, $_COOKIE);
-            }
-
-            // Load core components
+        // Load core components
+        if (self::$loader == null) {
             self::$loader = new \flight\core\Loader();
-            self::$dispatcher = new \flight\core\Dispatcher();
-
-            // Initialize autoloading
-            self::$loader->init();
-            self::$loader->addDirectory(dirname(__DIR__));
-
-            // Register default components
-            self::$loader->register('request', '\flight\net\Request');
-            self::$loader->register('response', '\flight\net\Response');
-            self::$loader->register('router', '\flight\net\Router');
-            self::$loader->register('view', '\flight\template\View', array(), function($view){
-                $view->path = Flight::get('flight.views.path');
-            });
-
-            // Register framework methods
-            $methods = array(
-                'start','stop','route','halt','error','notFound',
-                'render','redirect','etag','lastModified','json'
-            );
-            foreach ($methods as $name) {
-                self::$dispatcher->set($name, array(__CLASS__, '_'.$name));
-            }
-
-            // Default settings
-            self::set('flight.views.path', './views');
-            self::set('flight.log_errors', false);
-
-            // Enable output buffering
-            ob_start();
-
-            $initialized = true;
+            self::$loader->start();
         }
+        else {
+            self::$loader->reset();
+        }
+
+        if (self::$dispatcher == null) {
+            self::$dispatcher = new \flight\core\Dispatcher();
+        }
+        else {
+            self::$dispatcher->reset();
+        }
+
+        // Register framework directory
+        self::$loader->addDirectory(dirname(__DIR__));
+
+        // Register default components
+        self::$loader->register('request', '\flight\net\Request');
+        self::$loader->register('response', '\flight\net\Response');
+        self::$loader->register('router', '\flight\net\Router');
+        self::$loader->register('view', '\flight\template\View', array(), function($view){
+            $view->path = Flight::get('flight.views.path');
+        });
+
+        // Register framework methods
+        $methods = array(
+            'start','stop','route','halt','error','notFound',
+            'render','redirect','etag','lastModified','json'
+        );
+        foreach ($methods as $name) {
+            self::$dispatcher->set($name, array(__CLASS__, '_'.$name));
+        }
+
+        // Default settings
+        self::set('flight.views.path', './views');
+        self::set('flight.log_errors', false);
+
+        // Enable output buffering
+        ob_start();
     }
 
     /**
@@ -137,7 +132,7 @@ class Flight {
     /**
      * Custom exception handler. Logs exceptions.
      *
-     * @param object $e Exception
+     * @param Exception $e Thrown exception
      */
     public static function handleException(Exception $e) {
         if (self::get('flight.log_errors')) {
@@ -151,6 +146,7 @@ class Flight {
      *
      * @param string $name Method name
      * @param callback $callback Callback function
+     * @throws Exception If trying to map over a framework method
      */
     public static function map($name, $callback) {
         if (method_exists(__CLASS__, $name)) {
@@ -167,6 +163,7 @@ class Flight {
      * @param string $class Class name
      * @param array $params Class initialization parameters
      * @param callback $callback Function to call after object instantiation
+     * @throws Exception If trying to map over a framework method
      */
     public static function register($name, $class, array $params = array(), $callback = null) {
         if (method_exists(__CLASS__, $name)) {
@@ -301,7 +298,7 @@ class Flight {
      * Stops processing and returns a given response.
      *
      * @param int $code HTTP status code
-     * @param int $message Response message
+     * @param string $message Response message
      */
     public static function _halt($code = 200, $message = '') {
         self::response(false)
@@ -314,7 +311,7 @@ class Flight {
     /**
      * Sends an HTTP 500 response for any errors.
      *
-     * @param object $e Exception
+     * @param \Exception Thrown exception
      */
     public static function _error(Exception $e) {
         $msg = sprintf('<h1>500 Internal Server Error</h1>'.
@@ -364,6 +361,7 @@ class Flight {
      * Redirects the current request to another URL.
      *
      * @param string $url URL
+     * @param int $code HTTP status code
      */
     public static function _redirect($url, $code = 303) {
         $base = self::request()->base;
@@ -418,8 +416,7 @@ class Flight {
 
         self::response()->header('ETag', $id);
         
-        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
-            $_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
+        if ($id === getenv('HTTP_IF_NONE_MATCH')) {
             self::halt(304);
         }
     }
@@ -432,8 +429,7 @@ class Flight {
     public static function _lastModified($time) {
         self::response()->header('Last-Modified', date(DATE_RFC1123, $time));
 
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
-            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
+        if ($time === strtotime(getenv('HTTP_IF_MODIFIED_SINCE'))) {
             self::halt(304);
         }
     }
