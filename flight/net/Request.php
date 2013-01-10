@@ -127,7 +127,7 @@ class Request {
             if (array_key_exists($key, $_SERVER)) {
                 sscanf($_SERVER[$key], '%[^,]', $ip);
                 if(filter_var($ip, FILTER_VALIDATE_IP, $flags) !== false) {
-                    $this->proxy = $ip;
+                    return $ip;
                 }
             }
         }
