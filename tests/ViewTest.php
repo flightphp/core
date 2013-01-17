@@ -6,7 +6,7 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit.php';
+require_once 'PHPUnit/Autoload.php';
 require_once __DIR__.'/../flight/template/View.php';
 
 class ViewTest extends PHPUnit_Framework_TestCase
@@ -30,9 +30,9 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->view->has('test'));
         $this->assertTrue(!$this->view->has('unknown'));
 
-        $this->view->clear('tests');
+        $this->view->clear('test');
 
-        $this->assertEquals(null, $this->view->get('tess'));
+        $this->assertEquals(null, $this->view->get('test'));
     }
 
     // Check if template files exist

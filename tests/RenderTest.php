@@ -6,7 +6,7 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit.php';
+require_once 'PHPUnit/Autoload.php';
 require_once __DIR__.'/../flight/Flight.php';
 
 class RenderTest extends PHPUnit_Framework_TestCase
@@ -26,7 +26,7 @@ class RenderTest extends PHPUnit_Framework_TestCase
     // Renders a view into a layout
     function testRenderLayout(){
         Flight::render('hello', array('name' => 'Bob'), 'content');
-        Flight::render('layout');
+        Flight::render('layouts/layout');
 
         $this->expectOutputString('<html>Hello, Bob!</html>');
     }
