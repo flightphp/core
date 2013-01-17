@@ -36,6 +36,13 @@ class Router {
     public $params = array();
 
     /**
+     * Matching regular expression.
+     *
+     * @var string
+     */
+    public $regex = null;
+
+    /**
      * Gets mapped routes.
      *
      * @return array Array of routes
@@ -116,6 +123,7 @@ class Router {
             }
 
             $this->matched = $pattern;
+            $this->regex = $regex;
 
             return true;
         }
