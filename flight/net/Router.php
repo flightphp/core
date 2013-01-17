@@ -87,6 +87,9 @@ class Router {
     public function match($pattern, $url) {
         $ids = array();
 
+        // Convert optional parameters
+        $pattern = str_replace(')', ')?', $pattern);
+
         // Build the regex for matching
         $regex = preg_replace_callback(
             '#@([\w]+)(:([^/\(\)]*))?#',
@@ -100,21 +103,18 @@ class Router {
             $pattern
         );
 
-        // Allow trailing slash
+        // Fix trailing slash
         if (substr($pattern, -1) === '/') {
             $regex .= '?';
         }
+        // Replace wildcard
+        else if (substr($pattern, -1) === '*') {
+            $regex = str_replace('*', '.+?', $pattern);
+        }
+        // Allow trailing slash
         else {
             $regex .= '/?';
         }
-
-        // Replace wildcard
-        if (substr($pattern, -1) === '*') {
-            $regex = str_replace('*', '.+?', $pattern);
-        }
-
-        // Convert optional parameters
-        $regex = str_replace(')', ')?', $regex);
 
         // Attempt to match route and named parameters
         if (preg_match('#^'.$regex.'(?:\?.*)?$#i', $url, $matches)) {
