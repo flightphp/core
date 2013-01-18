@@ -86,8 +86,7 @@ class Router {
      */
     public function match($pattern, $url) {
         $ids = array();
-
-        // Convert optional parameters
+        $char = substr($pattern, -1);
         $pattern = str_replace(')', ')?', $pattern);
 
         // Build the regex for matching
@@ -104,11 +103,11 @@ class Router {
         );
 
         // Fix trailing slash
-        if (substr($pattern, -1) === '/') {
+        if ($char === '/') {
             $regex .= '?';
         }
         // Replace wildcard
-        else if (substr($pattern, -1) === '*') {
+        else if ($char === '*') {
             $regex = str_replace('*', '.+?', $pattern);
         }
         // Allow trailing slash
@@ -139,6 +138,7 @@ class Router {
      */
     public function route(Request $request) {
         $this->matched = null;
+        $this->regex = null;
         $this->params = array();
 
         $routes = isset($this->routes[$request->method]) ? $this->routes[$request->method] : array();
