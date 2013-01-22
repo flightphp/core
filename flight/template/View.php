@@ -146,8 +146,8 @@ class View {
      * @return string Template file location
      */
     public function getTemplate($file) {
-        if ((substr($file, -4) != '.php')) {
-            $file .= '.php';
+        if ((substr($file, -9) != '.html.php')) {
+            $file .= '.html.php';
         }
         return $this->path.'/'.$file;
     }
