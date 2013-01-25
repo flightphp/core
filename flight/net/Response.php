@@ -181,7 +181,7 @@ class Response {
             foreach ($this->headers as $field => $value) {
                 if (is_array($value)) {
                     foreach ($value as $v) {
-                        header($field.': '.$v);
+                        header($field.': '.$v, false);
                     }
                 }
                 else {
