@@ -6,7 +6,7 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit.php';
+require_once 'PHPUnit/Autoload.php';
 require_once __DIR__.'/../flight/net/Router.php';
 require_once __DIR__.'/../flight/net/Request.php';
 
@@ -23,9 +23,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
     private $request;
     
     function setUp(){
-        Flight::init();
         $this->router = new \flight\net\Router();
         $this->request = new \flight\net\Request();
+    }
+
+    // Simple output
+    function ok(){
+        echo 'OK';
     }
 
     // Checks if a route was matched
@@ -42,7 +46,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     // Default route
     function testDefaultRoute(){
-        $this->router->map('/', 'ok');
+        $this->router->map('/', array($this, 'ok'));
         $this->request->url = '/';
 
         $this->check();
@@ -50,7 +54,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     // Simple path
     function testPathRoute() {
-        $this->router->map('/path', 'ok');
+        $this->router->map('/path', array($this, 'ok'));
         $this->request->url = '/path';
 
         $this->check();
@@ -58,7 +62,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     // POST route
     function testPostRoute(){
-        $this->router->map('POST /', 'ok');
+        $this->router->map('POST /', array($this, 'ok'));
         $this->request->url = '/';
         $this->request->method = 'POST';
 
@@ -67,7 +71,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     // Either GET or POST route
     function testGetPostRoute(){
-        $this->router->map('GET|POST /', 'ok');
+        $this->router->map('GET|POST /', array($this, 'ok'));
         $this->request->url = '/';
         $this->request->method = 'GET';
 
@@ -76,7 +80,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     // Test regular expression matching
     function testRegEx(){
-        $this->router->map('/num/[0-9]+', 'ok');
+        $this->router->map('/num/[0-9]+', array($this, 'ok'));
         $this->request->url = '/num/1234';
 
         $this->check();
@@ -114,15 +118,33 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->check('2000,,');
     }
 
+    // Regex in optional parameters
+    function testRegexOptionalParameters(){
+        $this->router->map('/@controller/@method(/@id:[0-9]+)', function($controller, $method, $id){
+            echo "$controller,$method,$id";
+        });
+
+        $this->request->url = '/user/delete/123';
+
+        $this->check('user,delete,123');
+    }
+
+    // Regex in optional parameters
+    function testRegexEmptyOptionalParameters(){
+        $this->router->map('/@controller/@method(/@id:[0-9]+)', function($controller, $method, $id){
+            echo "$controller,$method,$id";
+        });
+
+        $this->request->url = '/user/delete/';
+
+        $this->check('user,delete,');
+    }
+
     // Wildcard matching
     function testWildcard(){
-        $this->router->map('/account/*', 'ok');
+        $this->router->map('/account/*', array($this, 'ok'));
         $this->request->url = '/account/123/abc/xyz';
 
         $this->check();
     }
-}
-
-function ok(){
-    echo 'OK';
 }

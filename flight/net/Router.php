@@ -36,6 +36,13 @@ class Router {
     public $params = array();
 
     /**
+     * Matching regular expression.
+     *
+     * @var string
+     */
+    public $regex = null;
+
+    /**
      * Gets mapped routes.
      *
      * @return array Array of routes
@@ -71,7 +78,7 @@ class Router {
     }
 
     /**
-     * Tries to match a requst to a route. Also parses named parameters in the url.
+     * Tries to match a request to a route. Also parses named parameters in the url.
      *
      * @param string $pattern URL pattern
      * @param string $url Requested URL
@@ -79,34 +86,43 @@ class Router {
      */
     public function match($pattern, $url) {
         $ids = array();
+        $char = substr($pattern, -1);
+        $pattern = str_replace(')', ')?', $pattern);
 
         // Build the regex for matching
-        $regex = '/^'.implode('\/', array_map(
-            function($str) use (&$ids){
-                if ($str == '*') {
-                    $str = '(.*)';
+        $regex = preg_replace_callback(
+            '#@([\w]+)(:([^/\(\)]*))?#',
+            function($matches) use (&$ids) {
+                $ids[$matches[1]] = null;
+                if (isset($matches[3])) {
+                    return '(?P<'.$matches[1].'>'.$matches[3].')';
                 }
-                else if ($str != null && $str{0} == '@') {
-                    if (preg_match('/@(\w+)(\:([^\/|\(]*))?([\(|\)]+)?/', $str, $matches)) {
-                        $ids[$matches[1]] = null;
-                        return '(?P<'.$matches[1].'>'
-                            .(!empty($matches[3]) ? $matches[3] : '[^(\/|\?)]+')
-                            .')'
-                            .(!empty($matches[4]) ? str_replace(')',')?',$matches[4]) : '');
-                    }
-                }
-                return $str; 
+                return '(?P<'.$matches[1].'>[^/\?]+)';
             },
-            explode('/', $pattern)
-        )).'\/?(?:\?.*)?$/i';
+            $pattern
+        );
+
+        // Fix trailing slash
+        if ($char === '/') {
+            $regex .= '?';
+        }
+        // Replace wildcard
+        else if ($char === '*') {
+            $regex = str_replace('*', '.+?', $pattern);
+        }
+        // Allow trailing slash
+        else {
+            $regex .= '/?';
+        }
 
         // Attempt to match route and named parameters
-        if (preg_match($regex, $url, $matches)) {
+        if (preg_match('#^'.$regex.'(?:\?.*)?$#i', $url, $matches)) {
             foreach ($ids as $k => $v) {
                 $this->params[$k] = (array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
             }
 
             $this->matched = $pattern;
+            $this->regex = $regex;
 
             return true;
         }
@@ -122,6 +138,7 @@ class Router {
      */
     public function route(Request $request) {
         $this->matched = null;
+        $this->regex = null;
         $this->params = array();
 
         $routes = isset($this->routes[$request->method]) ? $this->routes[$request->method] : array();

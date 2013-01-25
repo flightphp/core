@@ -6,7 +6,7 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit.php';
+require_once 'PHPUnit/Autoload.php';
 require_once __DIR__.'/../flight/Flight.php';
 
 class AutoloadTest extends PHPUnit_Framework_TestCase
