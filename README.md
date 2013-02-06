@@ -443,7 +443,7 @@ It is common for websites to have a single layout template file with interchangi
 
 ```php
 Flight::render('header', array('heading' => 'Hello'), 'header_content');
-Flight::render('body', array('message' => 'World'), 'body_content');
+Flight::render('body', array('body' => 'World'), 'body_content');
 ```
 
 Your view will then have saved variables called `header_content` and `body_content`. You can then render your layout by doing:
