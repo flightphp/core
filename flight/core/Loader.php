@@ -111,23 +111,8 @@ class Loader {
      * @return object Class instance
      */
     public function newInstance($class, array $params = array()) {
-        switch (count($params)) {
-            case 0:
-                return new $class();
-            case 1:
-                return new $class($params[0]);
-            case 2:
-                return new $class($params[0], $params[1]);
-            case 3:
-                return new $class($params[0], $params[1], $params[2]);
-            case 4:
-                return new $class($params[0], $params[1], $params[2], $params[3]);
-            case 5:
-                return new $class($params[0], $params[1], $params[2], $params[3], $params[4]);
-            default:
-                $refClass = new \ReflectionClass($class);
-                return $refClass->newInstanceArgs($params);
-        }
+        $refClass = new \ReflectionClass($class);
+        return $refClass->newInstanceArgs($params);
     }
 
     /**
