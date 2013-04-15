@@ -324,13 +324,13 @@ Flight::map('hello', function($name){
 
 // Add a before filter
 Flight::before('hello', function(&$params, &$output){
-// Manipulate the parameter
+    // Manipulate the parameter
     $params[0] = 'Fred';
 });
 
 // Add an after filter
 Flight::after('hello', function(&$params, &$output){
-// Manipulate the output
+    // Manipulate the output
     $output .= " Have a nice day!";
 }
 
@@ -535,8 +535,9 @@ The default behavior is to send a generic `HTTP 500 Internal Server Error` respo
 You can override this behavior for your own needs:
 
 ```php
-Flight::map('error', function(){
+Flight::map('error', function(Exception $ex){
     // Handle error
+    echo $ex->getTraceAsString();
 });
 ```
 
@@ -548,7 +549,7 @@ Flight::set('flight.log_errors', true);
 
 ## Not Found
 
-When a URL can't be found, Flight calls the `notFound` method. The default behavior is to send an `HTTP 404 Not Found` response with a simple message. 
+When a URL can't be found, Flight calls the `notFound` method. The default behavior is to send an `HTTP 404 Not Found` response with a simple message.
 
 You can override this behavior for your own needs:
 
