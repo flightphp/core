@@ -124,8 +124,6 @@ Flight::route('GET|POST /', function(){
 });
 ```
 
-Method specific routes have precedence over global routes.
-
 ## Regular Expressions
 
 You can use regular expressions in your routes:
@@ -186,6 +184,24 @@ To route all requests to a single callback, you can do:
 ```php
 Flight::route('*', function(){
     // Do something
+});
+```
+
+## Passing
+
+You can pass execution on to the next matching route by returning `true` from your callback function.
+
+```php
+Flight::route('/user/@name', function($name){
+    // Check some condition
+    if ($name != "Bob") {
+        // Continue to next route
+        return true;
+    }
+});
+
+Flight::route('/user/*', function(){
+    // This will get called
 });
 ```
 
@@ -352,7 +368,7 @@ Flight::before('start', function(&$params, &$output){
 Flight::before('start', function(&$params, &$output){
     echo 'two';
 
-// This will end the chain
+    // This will end the chain
     return false;
 });
 

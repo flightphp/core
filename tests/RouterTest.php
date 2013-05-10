@@ -34,12 +34,12 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     // Checks if a route was matched
     function check($str = 'OK'){
-        $callback = $this->router->route($this->request);
-        $params = array_values($this->router->params);
+        $route = $this->router->route($this->request);
+        $params = array_values($route->params);
 
-        $this->assertTrue(is_callable($callback));
+        $this->assertTrue(is_callable($route->callback));
 
-        call_user_func_array($callback, $params);
+        call_user_func_array($route->callback, $route->params);
 
         $this->expectOutputString($str);
     }
@@ -53,7 +53,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     // Simple path
-    function testPathRoute() {
+    function testPathRoute(){
         $this->router->map('/path', array($this, 'ok'));
         $this->request->url = '/path';
 
