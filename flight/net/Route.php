@@ -65,7 +65,7 @@ class Route {
 
         $ids = array();
         $char = substr($this->pattern, -1);
-        $this->pattern = str_replace(')', ')?', $this->pattern);
+        $this->pattern = str_replace(array(')','*'), array(')?','.*?'), $this->pattern);
 
         // Build the regex for matching
         $regex = preg_replace_callback(
@@ -83,10 +83,6 @@ class Route {
         // Fix trailing slash
         if ($char === '/') {
             $regex .= '?';
-        }
-        // Replace wildcard
-        else if ($char === '*') {
-            $regex = str_replace('*', '.+?', $this->pattern);
         }
         // Allow trailing slash
         else {
