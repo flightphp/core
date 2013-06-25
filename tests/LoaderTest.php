@@ -7,7 +7,13 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/core/Loader.php';
+
+// Mike Cao version
+//require_once __DIR__.'/../flight/Flight.php';
+
+// Jallander version
+require_once '../vendor/autoload.php';
+//use flight\core\Loader;
 
 class LoaderTest extends PHPUnit_Framework_TestCase
 {
@@ -77,5 +83,12 @@ class LoaderTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($user1 === $user2);
         $this->assertTrue($user1 !== $user3);
+    }
+}
+class User {
+    public $name;
+
+    public function User($name = ''){
+        $this->name = $name;
     }
 }

@@ -7,8 +7,12 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/net/Router.php';
-require_once __DIR__.'/../flight/net/Request.php';
+// Mike Cao version
+//require_once __DIR__.'/../flight/Flight.php';
+
+// Jallander version
+require_once '../vendor/autoload.php';
+
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
@@ -34,12 +38,12 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     // Checks if a route was matched
     function check($str = 'OK'){
-        $route = $this->router->route($this->request);
-        $params = array_values($route->params);
+        $callback = $this->router->route($this->request);
+        $params = array_values($this->router->params);
 
-        $this->assertTrue(is_callable($route->callback));
+        $this->assertTrue(is_callable($callback));
 
-        call_user_func_array($route->callback, $route->params);
+        call_user_func_array($callback, $params);
 
         $this->expectOutputString($str);
     }
@@ -53,7 +57,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     // Simple path
-    function testPathRoute(){
+    function testPathRoute() {
         $this->router->map('/path', array($this, 'ok'));
         $this->request->url = '/path';
 

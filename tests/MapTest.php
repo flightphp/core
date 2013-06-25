@@ -7,7 +7,13 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+
+// Mike Cao version
+//require_once __DIR__.'/../flight/Flight.php';
+
+// Jallander version
+require_once '../vendor/autoload.php';
+use flight\Flight;
 require_once __DIR__.'/classes/Hello.php';
 
 class MapTest extends PHPUnit_Framework_TestCase
