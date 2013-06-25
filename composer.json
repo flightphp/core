@@ -1,16 +1,16 @@
 {
-    "name": "mikecao/flight",
+    "name": "jallander/flight",
     "autoload": {
-        "files": ["flight/Flight.php"]
+       "classmap":["flight/"]
     },
     "license": "MIT",
-    "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
+    "description": "A fork of Flight (mikecao/flight) is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
     "authors": [
         {
-            "name": "Mike Cao",
-            "email": "mike@mikecao.com",
-            "homepage": "http://www.mikecao.com/",
-            "role": "Original Developer"
+            "name": "José Antonio López Lorenzo",
+            "email": "jall.vigo@gmail.com",
+            "homepage": "http://jallander.wordpress.com/",
+            "role": "Forker Developer"
         }
     ],
     "require": {

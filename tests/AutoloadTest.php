@@ -7,7 +7,8 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+require_once '../vendor/autoload.php';
+use flight\Flight;
 
 class AutoloadTest extends PHPUnit_Framework_TestCase
 {

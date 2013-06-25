@@ -7,7 +7,11 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/net/Request.php';
+// Mike Cao version
+//require_once __DIR__.'/../flight/Flight.php';
+
+// Jallander version
+require_once '../vendor/autoload.php';
 
 class RequestTest extends PHPUnit_Framework_TestCase
 {

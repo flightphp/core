@@ -6,9 +6,9 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-include __DIR__.'/core/Loader.php';
-include __DIR__.'/core/Dispatcher.php';
-
+//include __DIR__.'/core/Loader.php';
+//include __DIR__.'/core/Dispatcher.php';
+namespace flight;
 /**
  * The Flight class represents the framework itself. It is responsible
  * loading an HTTP request, running the assigned services, and generating
@@ -125,7 +125,7 @@ class Flight {
      */
     public static function handleError($errno, $errstr, $errfile, $errline) {
         if ($errno & error_reporting()) {
-            static::handleException(new ErrorException($errstr, $errno, 0, $errfile, $errline));
+            static::handleException(new \ErrorException($errstr, $errno, 0, $errfile, $errline));
         }
     }
 
@@ -134,7 +134,7 @@ class Flight {
      *
      * @param Exception $e Thrown exception
      */
-    public static function handleException(Exception $e) {
+    public static function handleException(\Exception $e) {
         if (self::get('flight.log_errors')) {
             error_log($e->getMessage());
         }
@@ -319,7 +319,7 @@ class Flight {
      *
      * @param \Exception Thrown exception
      */
-    public static function _error(Exception $e) {
+    public static function _error(\Exception $e) {
         $msg = sprintf('<h1>500 Internal Server Error</h1>'.
             '<h3>%s (%s)</h3>'.
             '<pre>%s</pre>',
