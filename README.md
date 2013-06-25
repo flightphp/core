@@ -3,7 +3,8 @@
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.
 
 ```php
-require 'flight/Flight.php';
+require 'vendor/autoload.php';
+use flight\Flight;
 
 Flight::route('/', function(){
     echo 'hello world!';
@@ -51,7 +52,8 @@ server {
 First include the framework.
 
 ```php
-require 'flight/Flight.php';
+require 'vendor/autoload.php';
+use flight\Flight;
 ```
 
 Then define a route and assign a function to handle the request.
