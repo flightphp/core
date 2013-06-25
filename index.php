@@ -1,9 +1,11 @@
 <?php
-require 'flight/Flight.php';
+//require 'flight/Flight.php';
+require 'vendor/autoload.php';
+use flight\Flight as F;
 
-Flight::route('/', function(){
+F::route('/', function(){
     echo 'hello world!';
 });
 
-Flight::start();
+F::start();
 ?>
