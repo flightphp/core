@@ -259,25 +259,31 @@ class Flight {
      * Starts the framework.
      */
     public static function _start() {
-        $router = self::router();
-        $request = self::request();
+        $dispatched = false;
 
         // Route the request
-        $callback = $router->route($request);
-
-        if ($callback !== false) {
-            $params = array_values($router->params);
-            self::$dispatcher->execute(
-                $callback,
+        while ($route = self::router()->route(self::request())) {
+            $params = array_values($route->params);
+            $continue = self::$dispatcher->execute(
+                $route->callback,
                 $params
             );
+            $dispatched = true;
+
+            if ($continue) {
+                self::router()->next();
+            }
+            else {
+                break;
+            }
         }
-        else {
+
+        if (!$dispatched) {
             self::notFound();
         }
 
         // Disable caching for AJAX requests
-        if ($request->ajax) {
+        if (self::request()->ajax) {
             self::response()->cache(false);
         }
 
