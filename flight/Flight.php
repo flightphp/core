@@ -6,8 +6,8 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-include __DIR__.'/core/Loader.php';
-include __DIR__.'/core/Dispatcher.php';
+require_once __DIR__.'/core/Loader.php';
+require_once __DIR__.'/core/Dispatcher.php';
 
 /**
  * The Flight class represents the framework itself. It is responsible
