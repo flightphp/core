@@ -6,8 +6,6 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/core/Loader.php';
 
 class LoaderTest extends PHPUnit_Framework_TestCase
 {
@@ -34,42 +32,42 @@ class LoaderTest extends PHPUnit_Framework_TestCase
 
     // Register a class
     function testRegister(){
-        $this->loader->register('a', 'User');
+        $this->loader->register('a', 'Staff');
 
         $user = $this->loader->load('a');
 
         $this->assertTrue(is_object($user));
-        $this->assertEquals('User', get_class($user));
+        $this->assertEquals('Staff', get_class($user));
         $this->assertEquals('', $user->name);
     }
 
     // Register a class with constructor parameters
     function testRegisterWithConstructor(){
-        $this->loader->register('b', 'User', array('Bob'));
+        $this->loader->register('b', 'Staff', array('Bob'));
 
         $user = $this->loader->load('b');
 
         $this->assertTrue(is_object($user));
-        $this->assertEquals('User', get_class($user));
+        $this->assertEquals('Staff', get_class($user));
         $this->assertEquals('Bob', $user->name);
     }
 
     // Register a class with initialzation
     function testRegisterWithInitialization(){
-        $this->loader->register('c', 'User', array('Bob'), function($user){
+        $this->loader->register('c', 'Staff', array('Bob'), function($user){
             $user->name = 'Fred';
         });
 
         $user = $this->loader->load('c');
 
         $this->assertTrue(is_object($user));
-        $this->assertEquals('User', get_class($user));
+        $this->assertEquals('Staff', get_class($user));
         $this->assertEquals('Fred', $user->name);
     }
 
     // Get a non-shared instance of a class
     function testSharedInstance() {
-        $this->loader->register('d', 'User');
+        $this->loader->register('d', 'Staff');
 
         $user1 = $this->loader->load('d');
         $user2 = $this->loader->load('d');
@@ -77,5 +75,17 @@ class LoaderTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($user1 === $user2);
         $this->assertTrue($user1 !== $user3);
+    }
+}
+
+class Staff {
+    public $name;
+
+    public function __construct($name='')
+    {
+        $this->name = $name;
+    }
+    public function User($name = ''){
+        $this->name = $name;
     }
 }

@@ -1,7 +1,10 @@
 {
     "name": "mikecao/flight",
     "autoload": {
-        "files": ["flight/Flight.php"]
+        "psr-0": {
+            "Flight": "flight/",
+            "flight": "flight/"
+        }
     },
     "license": "MIT",
     "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
@@ -15,5 +18,8 @@
     ],
     "require": {
         "php": ">=5.3.0"
+    },
+    "require-dev": {
+       "phpunit/phpunit": "3.7.*"
     }
 }

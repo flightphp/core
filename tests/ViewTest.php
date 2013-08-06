@@ -6,8 +6,6 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/template/View.php';
 
 class ViewTest extends PHPUnit_Framework_TestCase
 {
