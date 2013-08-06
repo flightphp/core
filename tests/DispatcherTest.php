@@ -6,8 +6,6 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/core/Dispatcher.php';
 require_once __DIR__.'/classes/Hello.php';
 
 class DispatcherTest extends PHPUnit_Framework_TestCase

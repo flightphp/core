@@ -6,9 +6,6 @@
  * @license     http://www.opensource.org/licenses/mit-license.php
  */
 
-require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/net/Router.php';
-require_once __DIR__.'/../flight/net/Request.php';
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
