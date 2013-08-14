@@ -701,7 +701,7 @@ Flight::route($pattern, $callback) // Maps a URL pattern to a callback.
 Flight::redirect($url, [$code]) // Redirects to another URL.
 Flight::render($file, [$data], [$key]) // Renders a template file.
 Flight::error($exception) // Sends an HTTP 500 response.
-Flight::notFound() // Sends an HTTP 400 response.
+Flight::notFound() // Sends an HTTP 404 response.
 Flight::etag($id, [$type]) // Performs ETag HTTP caching.
 Flight::lastModified($time) // Performs last modified HTTP caching.
 Flight::json($data) // Sends a JSON response.
