@@ -3,7 +3,7 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 require_once 'PHPUnit/Autoload.php';
@@ -12,7 +12,6 @@ require_once __DIR__.'/../flight/Flight.php';
 class AutoloadTest extends PHPUnit_Framework_TestCase
 {
     function setUp() {
-        Flight::init();
     }
 
     // Autoload a class
@@ -25,6 +24,7 @@ class AutoloadTest extends PHPUnit_Framework_TestCase
 
         $test = Flight::test();
 
+        $this->assertTrue(sizeof($loaders) > 0);
         $this->assertTrue(is_object($test));
         $this->assertEquals('TestClass', get_class($test));
     }

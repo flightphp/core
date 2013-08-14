@@ -20,7 +20,7 @@ Flight requires `PHP 5.3` or greater.
 
 ## License
 
-Flight is released under the [MIT](http://www.opensource.org/licenses/mit-license.php) license.
+Flight is released under the [MIT](http://flightphp.com/license) license.
 
 ## Installation
 

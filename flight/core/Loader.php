@@ -3,7 +3,7 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 namespace flight\core;
@@ -34,7 +34,7 @@ class Loader {
      *
      * @var array
      */
-    protected $dirs = array();
+    protected static $dirs = array();
 
     /**
      * Registers a class.
@@ -131,33 +131,32 @@ class Loader {
     }
 
     /**
-     * Adds a directory for autoloading classes.
+     * Resets the object to the initial state.
+     */
+    public function reset() {
+        $this->classes = array();
+        $this->instances = array();
+    }
+
+    /*** Autoloading Functions ***/
+
+    /**
+     * Starts/stops autoloader.
      *
-     * @param mixed $dir Directory path
+     * @param bool $enabled Enable/disable autoloading
+     * @param mixed $dirs Autoload directories
      */
-    public function addDirectory($dir) {
-        if (is_array($dir) || is_object($dir)) {
-            foreach ($dir as $value) {
-                $this->dirs[] = $value;
-            }
+    public static function autoload($enabled = true, $dirs = array()) {
+        if ($enabled) {
+            spl_autoload_register(array(__CLASS__, 'loadClass'));
         }
-        else if (is_string($dir)) {
-            $this->dirs[] = $dir;
+        else {
+            spl_autoload_unregister(array(__CLASS__, 'loadClass'));
         }
-    }
 
-    /**
-     * Starts autoloader.
-     */
-    public function start() {
-        spl_autoload_register(array($this, 'autoload'));
-    }
-
-    /**
-     * Stops autoloading.
-     */
-    public function stop() {
-        spl_autoload_unregister(array($this, 'autoload'));
+        if (!empty($dirs)) {
+            self::addDirectory($dirs);
+        }
     }
 
     /**
@@ -166,10 +165,10 @@ class Loader {
      * @param string $class Class name
      * @throws \Exception If class not found
      */
-    public function autoload($class) {
+    public static function loadClass($class) {
         $class_file = str_replace('\\', '/', str_replace('_', '/', $class)).'.php';
 
-        foreach ($this->dirs as $dir) {
+        foreach (self::$dirs as $dir) {
             $file = $dir.'/'.$class_file;
             if (file_exists($file)) {
                 require $file;
@@ -186,12 +185,18 @@ class Loader {
     }
 
     /**
-     * Resets the object to the initial state.
+     * Adds a directory for autoloading classes.
+     *
+     * @param mixed $dir Directory path
      */
-    public function reset() {
-        $this->classes = array();
-        $this->instances = array();
-        $this->dirs = array();
+    public static function addDirectory($dir) {
+        if (is_array($dir) || is_object($dir)) {
+            foreach ($dir as $value) {
+                self::$dirs[] = $value;
+            }
+        }
+        else if (is_string($dir)) {
+            self::$dirs[] = $dir;
+        }
     }
 }
-?>
