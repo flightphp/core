@@ -36,7 +36,6 @@ class Flight {
             require_once __DIR__.'/autoload.php';
 
             self::$engine = new \flight\Engine();
-            self::$engine->init();
 
             $initialized = true;
         }

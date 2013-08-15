@@ -45,8 +45,6 @@ class Engine {
         $this->vars = array();
 
         $this->loader = new Loader();
-        $this->loader->autoload(true, dirname(dirname(__DIR__)));
-
         $this->dispatcher = new Dispatcher();
 
         $this->init();
@@ -79,6 +77,7 @@ class Engine {
         static $initialized = false;
 
         if ($initialized) {
+            $this->vars = array();
             $this->loader->reset();
             $this->dispatcher->reset();
         }
