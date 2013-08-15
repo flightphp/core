@@ -708,3 +708,24 @@ Flight::json($data) // Sends a JSON response.
 ```
 
 Any custom methods added with `map` and `register` can also be filtered.
+
+
+## Framework Instance
+
+Instead of running Flight as a global static class, you can optionally run it as an object instance.
+
+```php
+require 'flight/autoload.php';
+
+use flight\Engine;
+
+$app = new Engine();
+
+$app->route('/', function(){
+    echo 'hello world!';
+});
+
+$app->start();
+```
+
+All of the existing static methods are available as regular class methods.
