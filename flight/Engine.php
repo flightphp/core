@@ -75,6 +75,7 @@ class Engine {
      */
     public function init() {
         static $initialized = false;
+        $self = $this;
 
         if ($initialized) {
             $this->vars = array();
@@ -86,8 +87,8 @@ class Engine {
         $this->loader->register('request', '\flight\net\Request');
         $this->loader->register('response', '\flight\net\Response');
         $this->loader->register('router', '\flight\net\Router');
-        $this->loader->register('view', '\flight\template\View', array(), function($view) {
-            $view->path = $this->get('flight.views.path');
+        $this->loader->register('view', '\flight\template\View', array(), function($view) use ($self) {
+            $view->path = $self->get('flight.views.path');
         });
 
         // Register framework methods
@@ -320,12 +321,13 @@ class Engine {
      *
      * @param int $code HTTP status code
      * @param string $message Response message
+     * @param bool $cache Cache response
      */
-    public function _halt($code = 200, $message = '') {
+    public function _halt($code = 200, $message = '', $cache = false) {
         $this->response(false)
             ->status($code)
             ->write($message)
-            ->cache(false)
+            ->cache($cache)
             ->send();
     }
 
@@ -438,7 +440,7 @@ class Engine {
         $this->response()->header('ETag', $id);
 
         if ($id === getenv('HTTP_IF_NONE_MATCH')) {
-            $this->halt(304);
+            $this->halt(304, '', true);
         }
     }
 
@@ -451,7 +453,7 @@ class Engine {
         $this->response()->header('Last-Modified', date(DATE_RFC1123, $time));
 
         if ($time === strtotime(getenv('HTTP_IF_MODIFIED_SINCE'))) {
-            $this->halt(304);
+            $this->halt(304, '', true);
         }
     }
 }
