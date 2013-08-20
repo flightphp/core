@@ -104,6 +104,7 @@ class Engine {
         $this->set('flight.views.path', './views');
         $this->set('flight.log_errors', false);
         $this->set('flight.handle_errors', true);
+        $this->set('flight.base_url', null);
 
         $initialized = true;
     }
@@ -321,13 +322,11 @@ class Engine {
      *
      * @param int $code HTTP status code
      * @param string $message Response message
-     * @param bool $cache Cache response
      */
-    public function _halt($code = 200, $message = '', $cache = false) {
+    public function _halt($code = 200, $message = '') {
         $this->response(false)
             ->status($code)
             ->write($message)
-            ->cache($cache)
             ->send();
     }
 
@@ -440,7 +439,7 @@ class Engine {
         $this->response()->header('ETag', $id);
 
         if ($id === getenv('HTTP_IF_NONE_MATCH')) {
-            $this->halt(304, '', true);
+            $this->halt(304);
         }
     }
 
@@ -453,7 +452,7 @@ class Engine {
         $this->response()->header('Last-Modified', date(DATE_RFC1123, $time));
 
         if ($time === strtotime(getenv('HTTP_IF_MODIFIED_SINCE'))) {
-            $this->halt(304, '', true);
+            $this->halt(304);
         }
     }
 }
