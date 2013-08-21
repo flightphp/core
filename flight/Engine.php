@@ -101,10 +101,10 @@ class Engine {
         }
 
         // Default configuration settings
-        $this->set('flight.views.path', './views');
-        $this->set('flight.log_errors', false);
-        $this->set('flight.handle_errors', true);
         $this->set('flight.base_url', null);
+        $this->set('flight.handle_errors', true);
+        $this->set('flight.log_errors', false);
+        $this->set('flight.views.path', './views');
 
         $initialized = true;
     }
@@ -386,10 +386,9 @@ class Engine {
      * @param int $code HTTP status code
      */
     public function _redirect($url, $code = 303) {
-        if ($this->get('flight.base_url') !== null) {
-            $base = $this->get('flight.base_url');
-        }
-        else {
+        $base = $this->get('flight.base_url');
+
+        if ($base === null) {
             $base = $this->request()->base;
         }
 
