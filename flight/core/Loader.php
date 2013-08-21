@@ -192,11 +192,11 @@ class Loader {
     public static function addDirectory($dir) {
         if (is_array($dir) || is_object($dir)) {
             foreach ($dir as $value) {
-                self::$dirs[] = $value;
+                self::addDirectory($value);
             }
         }
         else if (is_string($dir)) {
-            self::$dirs[] = $dir;
+            if (!in_array($dir, self::$dirs)) self::$dirs[] = $dir;
         }
     }
 }
