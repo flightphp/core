@@ -673,6 +673,21 @@ Calling `halt` will discard any response content up to that point. If you want t
 Flight::stop();
 ```
 
+## Configuration
+
+You can customize certain behaviors of Flight by setting configuration values.
+
+```php
+Flight::set('flight.log_errors', true);
+```
+
+The following is a list of all the available configuration settings.
+
+    flight.base_url - Override the base url of the request. (default: null)
+    flight.handle_errors - Allow Flight to handle all errors internally. (default: true)
+    flight.log_errors - Log errors to the web server's error log file. (default: false)
+    flight.views.path - Directory containing view template files (default: ./views)
+
 ## Framework Methods
 
 Flight is designed to be easy to use and understand. The following is the complete set of methods for the framework. It consists of core methods, which are regular static methods, and extensible methods, which can be filtered or overridden.
@@ -728,4 +743,4 @@ $app->route('/', function(){
 $app->start();
 ```
 
-All of the existing static methods are available as regular class methods.
+So instead of calling the static method, you would call
