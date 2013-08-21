@@ -17,6 +17,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     function setUp() {
         putenv('REQUEST_URI=/');
+        putenv('SCRIPT_NAME=/index.php');
         putenv('REQUEST_METHOD=GET');
         putenv('HTTP_X_REQUESTED_WITH=XMLHttpRequest');
         putenv('REQUEST_URI=/');
@@ -29,7 +30,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     function testDefaults() {
         $this->assertEquals('/', $this->request->url);
-        $this->assertEquals('', $this->request->base);
+        $this->assertEquals('/', $this->request->base);
         $this->assertEquals('GET', $this->request->method);
         $this->assertEquals('', $this->request->referrer);
         $this->assertEquals(true, $this->request->ajax);

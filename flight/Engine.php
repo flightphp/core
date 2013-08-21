@@ -386,9 +386,16 @@ class Engine {
      * @param int $code HTTP status code
      */
     public function _redirect($url, $code = 303) {
-        $base = $this->request()->base;
-        if ($base != '/' && strpos($url, '://') === false) {
-            $url = $base.(($url[0] == '/') ? '' : '/').$url;
+        if ($this->get('flight.base_url') !== null) {
+            $base = $this->get('flight.base_url');
+        }
+        else {
+            $base = $this->request()->base;
+        }
+
+        // Append base to relative urls
+        if ($base != '/' && $url[0] != '/' && strpos($url, '://') === false) {
+            $url = $base.'/'.$url;
         }
 
         $this->response(false)

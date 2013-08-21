@@ -43,7 +43,7 @@ class Request {
         if (empty($config)) {
             $config = array(
                 'url' => getenv('REQUEST_URI') ?: '/',
-                'base' => str_replace('\\', '/', dirname(getenv('SCRIPT_NAME'))),
+                'base' => str_replace(array('\\',' '), array('/','%20'), dirname(getenv('SCRIPT_NAME'))),
                 'method' => getenv('REQUEST_METHOD') ?: 'GET',
                 'referrer' => getenv('HTTP_REFERER') ?: '',
                 'ip' => getenv('REMOTE_ADDR') ?: '',
