@@ -348,7 +348,7 @@ Flight::before('hello', function(&$params, &$output){
 Flight::after('hello', function(&$params, &$output){
     // Manipulate the output
     $output .= " Have a nice day!";
-}
+});
 
 // Invoke the custom method
 echo Flight::hello('Bob');
