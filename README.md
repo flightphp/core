@@ -16,7 +16,7 @@ Flight::start();
 
 ## Requirements
 
-Flight requires `PHP 5.3` or greater. 
+Flight requires `PHP 5.3` or greater.
 
 ## License
 
@@ -68,7 +68,7 @@ Finally, start the framework.
 Flight::start();
 ```
 
-## Routing 
+## Routing
 
 Routing in Flight is done by matching a URL pattern with a callback function.
 
@@ -348,7 +348,7 @@ Flight::before('hello', function(&$params, &$output){
 Flight::after('hello', function(&$params, &$output){
     // Manipulate the output
     $output .= " Have a nice day!";
-}
+});
 
 // Invoke the custom method
 echo Flight::hello('Bob');
@@ -356,7 +356,7 @@ echo Flight::hello('Bob');
 
 This should display:
 
-    Hello Fred! Have a nice day! 
+    Hello Fred! Have a nice day!
 
 If you have defined multiple filters, you can break the chain by returning `false` in any of your filter functions:
 
@@ -415,7 +415,7 @@ Flight also uses variables for configuration purposes.
 Flight::set('flight.log_errors', true);
 ```
 
-## Views 
+## Views
 
 Flight provides some basic templating functionality by default. To display a view template call the `render` method with the name of the template file and optional template data:
 
@@ -541,7 +541,7 @@ Flight::map('render', function($template, $data){
     Flight::view()->display($template);
 });
 ```
-## Error Handling 
+## Error Handling
 
 ### Errors and Exceptions
 
@@ -575,7 +575,7 @@ Flight::map('notFound', function(){
 });
 ```
 
-## Redirects 
+## Redirects
 
 You can redirect the current request by using the `redirect` method and passing in a new URL:
 
@@ -625,7 +625,7 @@ Or you can do:
 $id = Flight::request()->query->id;
 ```
 
-## HTTP Caching 
+## HTTP Caching
 
 Flight provides built-in support for HTTP level caching. If the caching condition is met, Flight will return an HTTP `304 Not Modified` response. The next time the client requests the same resource, they will be prompted to use their locally cached version.
 
@@ -653,7 +653,7 @@ Flight::route('/news', function(){
 
 Keep in mind that calling either `lastModified` or `etag` will both set and check the cache value. If the cache value is the same between requests, Flight will immediately send an `HTTP 304` response and stop processing.
 
-## Stopping 
+## Stopping
 
 You can stop the framework at any point by calling the `halt` method:
 
@@ -743,4 +743,4 @@ $app->route('/', function(){
 $app->start();
 ```
 
-So instead of calling the static method, you would call
+So instead of calling the static method, you would call the instance method with the same name on the Engine object.
