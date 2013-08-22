@@ -3,7 +3,7 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 namespace flight\net;
@@ -67,7 +67,7 @@ class Router {
      * Routes the current request.
      *
      * @param Request $request Request object
-     * @return callable|boolean Matched callback function or false if not found
+     * @return Route Matching route
      */
     public function route(Request $request) {
         while ($route = $this->current()) {
@@ -105,4 +105,4 @@ class Router {
         $this->index = 0;
     }
 }
-?>
+

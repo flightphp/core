@@ -3,11 +3,10 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/core/Loader.php';
 
 class LoaderTest extends PHPUnit_Framework_TestCase
 {
@@ -18,8 +17,7 @@ class LoaderTest extends PHPUnit_Framework_TestCase
 
     function setUp(){
         $this->loader = new \flight\core\Loader();
-        $this->loader->start();
-        $this->loader->addDirectory(__DIR__.'/classes');
+        $this->loader->autoload(true, __DIR__.'/classes');
     }
 
     // Autoload a class

@@ -20,7 +20,7 @@ Flight requires `PHP 5.3` or greater.
 
 ## License
 
-Flight is released under the [MIT](http://www.opensource.org/licenses/mit-license.php) license.
+Flight is released under the [MIT](http://flightphp.com/license) license.
 
 ## Installation
 
@@ -673,6 +673,21 @@ Calling `halt` will discard any response content up to that point. If you want t
 Flight::stop();
 ```
 
+## Configuration
+
+You can customize certain behaviors of Flight by setting configuration values.
+
+```php
+Flight::set('flight.log_errors', true);
+```
+
+The following is a list of all the available configuration settings.
+
+    flight.base_url - Override the base url of the request. (default: null)
+    flight.handle_errors - Allow Flight to handle all errors internally. (default: true)
+    flight.log_errors - Log errors to the web server's error log file. (default: false)
+    flight.views.path - Directory containing view template files (default: ./views)
+
 ## Framework Methods
 
 Flight is designed to be easy to use and understand. The following is the complete set of methods for the framework. It consists of core methods, which are regular static methods, and extensible methods, which can be filtered or overridden.
@@ -701,10 +716,31 @@ Flight::route($pattern, $callback) // Maps a URL pattern to a callback.
 Flight::redirect($url, [$code]) // Redirects to another URL.
 Flight::render($file, [$data], [$key]) // Renders a template file.
 Flight::error($exception) // Sends an HTTP 500 response.
-Flight::notFound() // Sends an HTTP 400 response.
+Flight::notFound() // Sends an HTTP 404 response.
 Flight::etag($id, [$type]) // Performs ETag HTTP caching.
 Flight::lastModified($time) // Performs last modified HTTP caching.
 Flight::json($data) // Sends a JSON response.
 ```
 
 Any custom methods added with `map` and `register` can also be filtered.
+
+
+## Framework Instance
+
+Instead of running Flight as a global static class, you can optionally run it as an object instance.
+
+```php
+require 'flight/autoload.php';
+
+use flight\Engine;
+
+$app = new Engine();
+
+$app->route('/', function(){
+    echo 'hello world!';
+});
+
+$app->start();
+```
+
+So instead of calling the static method, you would call
