@@ -7,7 +7,7 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class RedirectTest extends PHPUnit_Framework_TestCase
 {

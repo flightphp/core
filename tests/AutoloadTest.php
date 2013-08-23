@@ -7,22 +7,28 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class AutoloadTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \flight\Engine
+     */
+    private $app;
+    
     function setUp() {
+        $this->app = new \flight\Engine();
     }
 
     // Autoload a class
     function testAutoload(){
-        Flight::path(__DIR__.'/classes');
+        $this->app->path(__DIR__.'/classes');
 
-        Flight::register('test', 'TestClass');
+        $this->app->register('test', 'TestClass');
 
         $loaders = spl_autoload_functions();
 
-        $test = Flight::test();
+        $test = $this->app->test();
 
         $this->assertTrue(sizeof($loaders) > 0);
         $this->assertTrue(is_object($test));

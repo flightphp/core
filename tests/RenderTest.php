@@ -11,21 +11,27 @@ require_once __DIR__.'/../flight/Flight.php';
 
 class RenderTest extends PHPUnit_Framework_TestCase
 {
-    function setUp(){
-        Flight::set('flight.views.path', __DIR__.'/views');
+    /**
+     * @var \flight\Engine
+     */
+    private $app;
+
+    function setUp() {
+        $this->app = new \flight\Engine();
+        $this->app->set('flight.views.path', __DIR__.'/views');
     }
 
     // Render a view
     function testRenderView(){
-        Flight::render('hello', array('name' => 'Bob'));
+        $this->app->render('hello', array('name' => 'Bob'));
 
         $this->expectOutputString('Hello, Bob!');
     }
 
     // Renders a view into a layout
     function testRenderLayout(){
-        Flight::render('hello', array('name' => 'Bob'), 'content');
-        Flight::render('layouts/layout');
+        $this->app->render('hello', array('name' => 'Bob'), 'content');
+        $this->app->render('layouts/layout');
 
         $this->expectOutputString('<html>Hello, Bob!</html>');
     }

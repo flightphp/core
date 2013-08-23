@@ -7,18 +7,24 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class RegisterTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var \flight\Engine
+     */
+    private $app;
+
     function setUp() {
+        $this->app = new \flight\Engine();
     }
 
     // Register a class
     function testRegister(){
-        Flight::register('reg1', 'User');
+        $this->app->register('reg1', 'User');
 
-        $user = Flight::reg1();
+        $user = $this->app->reg1();
 
         $this->assertTrue(is_object($user));
         $this->assertEquals('User', get_class($user));
@@ -27,9 +33,9 @@ class RegisterTest extends PHPUnit_Framework_TestCase
 
     // Register a class with constructor parameters
     function testRegisterWithConstructor(){
-        Flight::register('reg2', 'User', array('Bob'));
+        $this->app->register('reg2', 'User', array('Bob'));
 
-        $user = Flight::reg2();
+        $user = $this->app->reg2();
 
         $this->assertTrue(is_object($user));
         $this->assertEquals('User', get_class($user));
@@ -38,11 +44,11 @@ class RegisterTest extends PHPUnit_Framework_TestCase
 
     // Register a class with initialzation
     function testRegisterWithInitialization(){
-        Flight::register('reg3', 'User', array('Bob'), function($user){
+        $this->app->register('reg3', 'User', array('Bob'), function($user){
             $user->name = 'Fred';
         });
 
-        $user = Flight::reg3();
+        $user = $this->app->reg3();
 
         $this->assertTrue(is_object($user));
         $this->assertEquals('User', get_class($user));
@@ -51,11 +57,11 @@ class RegisterTest extends PHPUnit_Framework_TestCase
 
     // Get a non-shared instance of a class
     function testSharedInstance() {
-        Flight::register('reg4', 'User');
+        $this->app->register('reg4', 'User');
 
-        $user1 = Flight::reg4();
-        $user2 = Flight::reg4();
-        $user3 = Flight::reg4(false);
+        $user1 = $this->app->reg4();
+        $user2 = $this->app->reg4();
+        $user3 = $this->app->reg4(false);
 
         $this->assertTrue($user1 === $user2);
         $this->assertTrue($user1 !== $user3);
@@ -63,17 +69,17 @@ class RegisterTest extends PHPUnit_Framework_TestCase
 
     // Map method takes precedence over register
     function testMapOverridesRegister(){
-        Flight::register('reg5', 'User');
+        $this->app->register('reg5', 'User');
 
-        $user = Flight::reg5();
+        $user = $this->app->reg5();
 
         $this->assertTrue(is_object($user));
 
-        Flight::map('reg5', function(){
+        $this->app->map('reg5', function(){
             return 123;
         });
 
-        $user = Flight::reg5();
+        $user = $this->app->reg5();
 
         $this->assertEquals(123, $user);
     }
