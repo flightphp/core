@@ -690,7 +690,7 @@ The following is a list of all the available configuration settings.
 
 ## Framework Methods
 
-Flight is designed to be easy to use and understand. The following is the complete set of methods for the framework. It consists of core methods, which are regular static methods, and extensible methods, which can be filtered or overridden.
+Flight is designed to be easy to use and understand. The following is the complete set of methods for the framework. It consists of core methods, which are regular static methods, and extensible methods, which are mapped methods that can be filtered or overridden.
 
 ### Core Methods
 
@@ -704,6 +704,7 @@ Flight::get($key) // Gets a variable.
 Flight::set($key, $value) // Sets a variable.
 Flight::has($key) // Checks if a variable is set.
 Flight::clear([$key]) // Clears a variable.
+Flight::init() // Initializes the framework to its default settings.
 ```
 
 ### Extensible Methods
