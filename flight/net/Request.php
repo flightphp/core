@@ -34,6 +34,96 @@ use flight\util\Collection;
  */
 class Request {
     /**
+     * @var string URL being requested
+     */
+    public $url;
+
+    /**
+     * @var string Parent subdirectory of the URL
+     */
+    public $base;
+
+    /**
+     * @var string Request method (GET, POST, PUT, DELETE)
+     */
+    public $method;
+
+    /**
+     * @var string Referrer URL
+     */
+    public $referrer;
+
+    /**
+     * @var string IP address of the client
+     */
+    public $ip;
+
+    /**
+     * @var bool Whether the request is an AJAX request
+     */
+    public $ajax;
+
+    /**
+     * @var string Server protocol (http, https)
+     */
+    public $scheme;
+
+    /**
+     * @var string Browser information
+     */
+    public $user_agent;
+
+    /**
+     * @var mixed Raw data from the request body
+     */
+    public $body;
+
+    /**
+     * @var string Content type
+     */
+    public $type;
+
+    /**
+     * @var int Content length
+     */
+    public $length;
+
+    /**
+     * @var \flight\util\Collection Query string parameters
+     */
+    public $query;
+
+    /**
+     * @var \flight\util\Collection Post parameters
+     */
+    public $data;
+
+    /**
+     * @var \flight\util\Collection Cookie parameters
+     */
+    public $cookies;
+
+    /**
+     * @var \flight\util\Collection Uploaded files
+     */
+    public $files;
+
+    /**
+     * @var bool Whether the connection is secure
+     */
+    public $secure;
+
+    /**
+     * @var string HTTP accept parameters
+     */
+    public $accept;
+
+    /**
+     * @var string Proxy IP address of the client
+     */
+    public $proxy_ip;
+
+    /**
      * Constructor.
      *
      * @param array $config Request configuration
@@ -71,7 +161,7 @@ class Request {
      *
      * @param array $properties Array of request properties
      */
-    public function init($properties) {
+    public function init($properties = array()) {
         foreach ($properties as $name => $value) {
             $this->$name = $value;
         }
