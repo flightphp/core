@@ -273,6 +273,11 @@ class Engine {
     public function _start() {
         $dispatched = false;
 
+        // Flush any existing output
+        if (ob_get_length() > 0) {
+            $this->response()->write(ob_get_contents());
+        }
+
         // Enable output buffering
         ob_start();
 
