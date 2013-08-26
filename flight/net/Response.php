@@ -14,10 +14,24 @@ namespace flight\net;
  * body.
  */
 class Response {
-    protected $headers = array();
+    /**
+     * @var int HTTP status
+     */
     protected $status = 200;
+
+    /**
+     * @var array HTTP headers
+     */
+    protected $headers = array();
+
+    /**
+     * @var string HTTP response body
+     */
     protected $body;
 
+    /**
+     * @var array HTTP status codes
+     */
     public static $codes = array(
         200 => 'OK',
         201 => 'Created',
@@ -70,27 +84,7 @@ class Response {
      */
     public function status($code) {
         if (array_key_exists($code, self::$codes)) {
-            if (strpos(php_sapi_name(), 'cgi') !== false) {
-                header(
-                    sprintf(
-                        'Status: %d %s',
-                        $code,
-                        self::$codes[$code]
-                    ),
-                    true
-                );
-            }
-            else {
-                header(
-                    sprintf(
-                        '%s %d %s',
-                        getenv('SERVER_PROTOCOL') ?: 'HTTP/1.1',
-                        $code,
-                        self::$codes[$code]),
-                    true,
-                    $code
-                );
-            }
+            $this->status = $code;
         }
         else {
             throw new \Exception('Invalid status code.');
@@ -137,8 +131,8 @@ class Response {
      * @return object Self reference
      */
     public function clear() {
-        $this->headers = array();
         $this->status = 200;
+        $this->headers = array();
         $this->body = '';
 
         return $this;
@@ -178,6 +172,30 @@ class Response {
         }
 
         if (!headers_sent()) {
+            // Send status code header
+            if (strpos(php_sapi_name(), 'cgi') !== false) {
+                header(
+                    sprintf(
+                        'Status: %d %s',
+                        $this->status,
+                        self::$codes[$this->status]
+                    ),
+                    true
+                );
+            }
+            else {
+                header(
+                    sprintf(
+                        '%s %d %s',
+                        getenv('SERVER_PROTOCOL') ?: 'HTTP/1.1',
+                        $this->status,
+                        self::$codes[$this->status]),
+                    true,
+                    $this->status
+                );
+            }
+
+            // Send other headers
             foreach ($this->headers as $field => $value) {
                 if (is_array($value)) {
                     foreach ($value as $v) {
