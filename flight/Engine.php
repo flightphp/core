@@ -133,10 +133,11 @@ class Engine {
      * @param int $errstr Error string
      * @param int $errfile Error file name
      * @param int $errline Error file line number
+     * @throws \ErrorException
      */
     public function handleError($errno, $errstr, $errfile, $errline) {
         if ($errno & error_reporting()) {
-            $this->handleException(new \ErrorException($errstr, $errno, 0, $errfile, $errline));
+            throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
         }
     }
 
