@@ -18,12 +18,11 @@ class AutoloadTest extends PHPUnit_Framework_TestCase
     
     function setUp() {
         $this->app = new \flight\Engine();
+        $this->app->path(__DIR__.'/classes');
     }
 
     // Autoload a class
     function testAutoload(){
-        $this->app->path(__DIR__.'/classes');
-
         $this->app->register('test', 'TestClass');
 
         $loaders = spl_autoload_functions();
@@ -33,5 +32,17 @@ class AutoloadTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(sizeof($loaders) > 0);
         $this->assertTrue(is_object($test));
         $this->assertEquals('TestClass', get_class($test));
+    }
+
+    // Check autoload failure
+    function testMissingClass(){
+        $test = null;
+        $this->app->register('test', 'NonExistentClass');
+
+        if (class_exists('NonExistentClass')) {
+            $test = $this->app->test();
+        }
+
+        $this->assertEquals(null, $test);
     }
 }
