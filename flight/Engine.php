@@ -446,8 +446,8 @@ class Engine {
      * @param mixed $data Data to JSON encode
      */
     public function _jsonp($data) {
-		// Get the callback value (eg '?jsonp=my_function') and pad the output
-		$callback = \Flight::request()->query[ $this->get('flight.jsonp.callback') ];
+        // Get the callback value (eg '?jsonp=my_function') and pad the output
+        $callback = \Flight::request()->query[ $this->get('flight.jsonp.callback') ];
         $this->response()
             ->status(200)
             ->header('Content-Type', 'application/javascript')
