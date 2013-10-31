@@ -94,7 +94,7 @@ class Engine {
         // Register framework methods
         $methods = array(
             'start','stop','route','halt','error','notFound',
-            'render','redirect','etag','lastModified','json'
+            'render','redirect','etag','lastModified','json','jsonp'
         );
         foreach ($methods as $name) {
             $this->dispatcher->set($name, array($this, '_'.$name));
@@ -105,6 +105,7 @@ class Engine {
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
         $this->set('flight.views.path', './views');
+        $this->set('flight.jsonp.callback', 'jsonp');
 
         $initialized = true;
     }
@@ -436,6 +437,21 @@ class Engine {
             ->status(200)
             ->header('Content-Type', 'application/json')
             ->write(json_encode($data))
+            ->send();
+    }
+	
+    /**
+     * Sends a JSONP response.
+     *
+     * @param mixed $data Data to JSON encode
+     */
+    public function _jsonp($data) {
+        // Get the callback value (eg '?jsonp=my_function') and pad the output
+        $callback = $this->request()->query[ $this->get('flight.jsonp.callback') ];
+        $this->response()
+            ->status(200)
+            ->header('Content-Type', 'application/javascript')
+            ->write($callback.'('.json_encode($data).');')
             ->send();
     }
 
