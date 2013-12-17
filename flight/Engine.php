@@ -466,7 +466,8 @@ class Engine {
 
         $this->response()->header('ETag', $id);
 
-        if ($id === getenv('HTTP_IF_NONE_MATCH')) {
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
+            $_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
             $this->halt(304);
         }
     }
@@ -479,7 +480,8 @@ class Engine {
     public function _lastModified($time) {
         $this->response()->header('Last-Modified', date(DATE_RFC1123, $time));
 
-        if ($time === strtotime(getenv('HTTP_IF_MODIFIED_SINCE'))) {
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
+            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
             $this->halt(304);
         }
     }
