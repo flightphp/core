@@ -187,7 +187,7 @@ class Response {
                 header(
                     sprintf(
                         '%s %d %s',
-                        getenv('SERVER_PROTOCOL') ?: 'HTTP/1.1',
+                        (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'),
                         $this->status,
                         self::$codes[$this->status]),
                     true,

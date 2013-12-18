@@ -25,7 +25,7 @@ class RedirectTest extends PHPUnit_Framework_TestCase
     }
 
     function setUp() {
-        putenv('SCRIPT_NAME=/subdir/index.php');
+        $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
 
         $this->app = new \flight\Engine();
         $this->app->set('flight.base_url', '/testdir');
