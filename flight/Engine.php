@@ -274,6 +274,7 @@ class Engine {
      */
     public function _start() {
         $dispatched = false;
+        $self = $this;
 
         // Flush any existing output
         if (ob_get_length() > 0) {
@@ -292,8 +293,8 @@ class Engine {
         }
 
         // Allow post-filters to run
-        $this->after('start', function() {
-            $this->stop();
+        $this->after('start', function() use ($self) {
+            $self->stop();
         });
 
         // Route the request
