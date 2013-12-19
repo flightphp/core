@@ -141,7 +141,9 @@ class Dispatcher {
                 self::invokeMethod($callback, $params) :
                 self::callFunction($callback, $params);
         }
-        return null;
+        else {
+            throw new \Exception('Invalid callback specified.');
+        }
     }
 
     /**
