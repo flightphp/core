@@ -226,10 +226,14 @@ class Request {
         return '';
     }
 
-  /**
-   * Get variable from $_SERVER using $default if not provided
-   */
-  private function server($var, $default='') {
-    return isset($_SERVER[$var]) ? $_SERVER[$var] : $default;
-  }
+    /**
+     * Get variable from $_SERVER using $default if not provided
+     *
+     * @param string $var Variable name
+     * @param string $default Default value to substitute
+     * @return string Server variable value
+     */
+    private function server($var, $default='') {
+        return isset($_SERVER[$var]) ? $_SERVER[$var] : $default;
+    }
 }
