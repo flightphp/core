@@ -317,9 +317,12 @@ class Engine {
 
     /**
      * Stops the framework and outputs the current response.
+     *
+     * @param int $code HTTP status code
      */
-    public function _stop() {
+    public function _stop($code = 200) {
         $this->response()
+            ->status($code)
             ->write(ob_get_clean())
             ->send();
     }
@@ -430,29 +433,37 @@ class Engine {
     /**
      * Sends a JSON response.
      *
-     * @param mixed $data Data to JSON encode
+     * @param mixed $data JSON data
+     * @param int $code HTTP status code
+     * @param bool $encode Whether to perform JSON encoding
      */
-    public function _json($data) {
+    public function _json($data, $code = 200, $encode = true) {
+        $json = ($encode) ? json_encode($data) : $data;
+
         $this->response()
-            ->status(200)
+            ->status($code)
             ->header('Content-Type', 'application/json')
-            ->write(json_encode($data))
+            ->write($json)
             ->send();
     }
 	
     /**
      * Sends a JSONP response.
      *
-     * @param mixed $data Data to JSON encode
+     * @param mixed $data JSON data
+     * @param int $code HTTP status code
+     * @param bool $encode Whether to perform JSON encoding
      */
-    public function _jsonp($data) {
-        // Get the callback value (eg '?jsonp=my_function') and pad the output
-        $callback = $this->request()->query[ $this->get('flight.jsonp.callback') ];
-        $this->response()
-            ->status(200)
-            ->header('Content-Type', 'application/javascript')
-            ->write($callback.'('.json_encode($data).');')
-            ->send();
+    public function _jsonp($data, $code = 200, $encode = true) {
+        $json = ($encode) ? json_encode($data) : $data;
+
+        $callback = $this->request()->query[$this->get('flight.jsonp.callback')];
+
+        $this->json(
+            $callback.'('.$json.');',
+            $code,
+            !$encode
+        );
     }
 
     /**
