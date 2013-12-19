@@ -292,7 +292,9 @@ class Engine {
         }
 
         // Allow post-filters to run
-        $this->after('start', array($this, 'stop'));
+        $this->after('start', function() {
+            $this->stop();
+        });
 
         // Route the request
         while ($route = $this->router()->route($this->request())) {
