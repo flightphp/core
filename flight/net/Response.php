@@ -30,6 +30,11 @@ class Response {
     protected $body;
 
     /**
+     * @var bool If a response has already been sent
+     */
+    protected static $sent = false;
+
+    /**
      * @var array HTTP status codes
      */
     public static $codes = array(
@@ -168,41 +173,39 @@ class Response {
      *
      * @return object Self reference
      */
-    public  function sendHeaders() {
-        if (!headers_sent()) {
-            // Send status code header
-            if (strpos(php_sapi_name(), 'cgi') !== false) {
-                header(
-                    sprintf(
-                        'Status: %d %s',
-                        $this->status,
-                        self::$codes[$this->status]
-                    ),
-                    true
-                );
+    public function sendHeaders() {
+        // Send status code header
+        if (strpos(php_sapi_name(), 'cgi') !== false) {
+            header(
+                sprintf(
+                    'Status: %d %s',
+                    $this->status,
+                    self::$codes[$this->status]
+                ),
+                true
+            );
+        }
+        else {
+            header(
+                sprintf(
+                    '%s %d %s',
+                    (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'),
+                    $this->status,
+                    self::$codes[$this->status]),
+                true,
+                $this->status
+            );
+        }
+
+        // Send other headers
+        foreach ($this->headers as $field => $value) {
+            if (is_array($value)) {
+                foreach ($value as $v) {
+                    header($field.': '.$v, false);
+                }
             }
             else {
-                header(
-                    sprintf(
-                        '%s %d %s',
-                        (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'),
-                        $this->status,
-                        self::$codes[$this->status]),
-                    true,
-                    $this->status
-                );
-            }
-
-            // Send other headers
-            foreach ($this->headers as $field => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $v) {
-                        header($field.': '.$v, false);
-                    }
-                }
-                else {
-                    header($field.': '.$value);
-                }
+                header($field.': '.$value);
             }
         }
 
@@ -219,9 +222,15 @@ class Response {
             ob_end_clean();
         }
 
-        $this->sendHeaders();
+        if (!self::$sent) {
+            if (!headers_sent()) {
+                $this->sendHeaders();
+            }
 
-        echo $this->body;
+            echo $this->body;
+
+            self::$sent = true;
+        }
 
         return $this;
     }
