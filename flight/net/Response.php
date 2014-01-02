@@ -30,11 +30,6 @@ class Response {
     protected $body;
 
     /**
-     * @var bool If a response has already been sent
-     */
-    protected static $sent = false;
-
-    /**
      * @var array HTTP status codes
      */
     public static $codes = array(
@@ -214,25 +209,17 @@ class Response {
 
     /**
      * Sends a HTTP response.
-     *
-     * @return object Self reference
      */
     public function send() {
         if (ob_get_length() > 0) {
             ob_end_clean();
         }
 
-        if (!self::$sent) {
-            if (!headers_sent()) {
-                $this->sendHeaders();
-            }
-
-            echo $this->body;
-
-            self::$sent = true;
+        if (!headers_sent()) {
+            $this->sendHeaders();
         }
 
-        return $this;
+        exit($this->body);
     }
 }
 
