@@ -164,13 +164,11 @@ class Response {
     }
 
     /**
-     * Sends the response and exits the program.
+     * Sends HTTP headers.
+     *
+     * @return object Self reference
      */
-    public function send() {
-        if (ob_get_length() > 0) {
-            ob_end_clean();
-        }
-
+    public  function sendHeaders() {
         if (!headers_sent()) {
             // Send status code header
             if (strpos(php_sapi_name(), 'cgi') !== false) {
@@ -208,7 +206,24 @@ class Response {
             }
         }
 
-        exit($this->body);
+        return $this;
+    }
+
+    /**
+     * Sends a HTTP response.
+     *
+     * @return object Self reference
+     */
+    public function send() {
+        if (ob_get_length() > 0) {
+            ob_end_clean();
+        }
+
+        $this->sendHeaders();
+
+        echo $this->body;
+
+        return $this;
     }
 }
 
