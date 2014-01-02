@@ -80,4 +80,20 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $request->cookies->q);
         $this->assertEquals(1, $request->files->q);
     }
+
+    function testMethodOverrideWithHeader() {
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'PUT';
+
+        $request = new \flight\net\Request();
+
+        $this->assertEquals('PUT', $request->method);
+    }
+
+    function testMethodOverrideWithPost() {
+        $_REQUEST['_method'] = 'PUT';
+
+        $request = new \flight\net\Request();
+
+        $this->assertEquals('PUT', $request->method);
+    }
 }
