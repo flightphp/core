@@ -453,6 +453,12 @@ By default Flight will look for a `views` directory for template files. You can 
 Flight::set('flight.views.path', '/path/to/views');
 ```
 
+You can use subdirectories for your templates in your `views` directory, just specify folder before template name when calling `render` method
+
+```php
+Flight::render('main/spnippets/hello.php', array('name' => 'Bob'));
+```
+
 ### Layouts
 
 It is common for websites to have a single layout template file with interchanging content. To render content to be used in a layout, you can pass in an optional parameter to the `render` method.
@@ -725,6 +731,27 @@ Flight::json($data) // Sends a JSON response.
 
 Any custom methods added with `map` and `register` can also be filtered.
 
+## Autoloading Classes
+
+You can add directories with files containing class definitions to autoload:
+
+```php
+Flight::path('app/controllers');
+```
+
+You can use subdirectories, name your classes by following pattern:
+
+```php
+/** 
+ *   path to file
+ *   /app/controllers/main/MainController.php
+ */
+
+//Class definition
+Class main_MainController () {
+    //your class
+}
+```
 
 ## Framework Instance
 
