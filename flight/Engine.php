@@ -278,7 +278,7 @@ class Engine {
 
         // Flush any existing output
         if (ob_get_length() > 0) {
-            $this->response()->write(ob_get_contents());
+            $this->response()->write(ob_get_clean());
         }
 
         // Enable output buffering
@@ -443,7 +443,7 @@ class Engine {
     public function _json($data, $code = 200, $encode = true) {
         $json = ($encode) ? json_encode($data) : $data;
 
-        $this->response()
+        $this->response(false)
             ->status($code)
             ->header('Content-Type', 'application/json')
             ->write($json)
