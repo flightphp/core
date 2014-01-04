@@ -105,7 +105,6 @@ class Engine {
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
         $this->set('flight.views.path', './views');
-        $this->set('flight.jsonp.callback', 'jsonp');
 
         $initialized = true;
     }
@@ -454,19 +453,20 @@ class Engine {
      * Sends a JSONP response.
      *
      * @param mixed $data JSON data
+     * @param string $param Query parameter that specifies the callback name.
      * @param int $code HTTP status code
      * @param bool $encode Whether to perform JSON encoding
      */
-    public function _jsonp($data, $code = 200, $encode = true) {
+    public function _jsonp($data, $param = 'jsonp', $code = 200, $encode = true) {
         $json = ($encode) ? json_encode($data) : $data;
 
-        $callback = $this->request()->query[$this->get('flight.jsonp.callback')];
+        $callback = $this->request()->query[$param];
 
-        $this->json(
-            $callback.'('.$json.');',
-            $code,
-            !$encode
-        );
+        $this->response(false)
+            ->status($code)
+            ->header('Content-Type', 'application/javascript')
+            ->write($callback.'('.$json.');')
+            ->send();
     }
 
     /**
