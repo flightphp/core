@@ -583,6 +583,12 @@ You can redirect the current request by using the `redirect` method and passing 
 Flight::redirect('/new/location');
 ```
 
+By default Flight sends a HTTP 303 status code. You can optionally set a custom code:
+
+```php
+Flight::redirect('/new/location', 401);
+```
+
 ## Requests
 
 Flight encapsulates the HTTP request into a single object, which can be accessed by doing:
@@ -609,6 +615,9 @@ query - Query string parameters
 data - Post parameters
 cookies - Cookie parameters
 files - Uploaded files
+secure - Whether the connection is secure
+accept - HTTP accept parameters
+proxy_ip - Proxy IP address of the client
 ```
 
 You can access the `query`, `data`, `cookies`, and `files` properties as arrays or objects.
@@ -673,20 +682,43 @@ Calling `halt` will discard any response content up to that point. If you want t
 Flight::stop();
 ```
 
+## JSON
+
+Flight provides support for sending JSON and JSONP responses. To send a JSON response you pass some data to be JSON encoded:
+
+```php
+Flight::json(array('id' => 123));
+```
+
+For JSONP requests you, can optionally pass in the query parameter name you are using to define your callback function:
+
+```php
+Flight::json(array('id' => 123), 'q');
+```
+
+So, when making a GET request using `?q=my_func`, you should receive the output:
+
+```
+my_func({"id":123});
+```
+
+If you don't pass in a query parameter name it will default to `jsonp`.
+
+
 ## Configuration
 
-You can customize certain behaviors of Flight by setting configuration values.
+You can customize certain behaviors of Flight by setting configuration values through the `set` method.
 
 ```php
 Flight::set('flight.log_errors', true);
 ```
 
-The following is a list of all the available configuration settings.
+The following is a list of all the available configuration settings:
 
     flight.base_url - Override the base url of the request. (default: null)
     flight.handle_errors - Allow Flight to handle all errors internally. (default: true)
     flight.log_errors - Log errors to the web server's error log file. (default: false)
-    flight.views.path - Directory containing view template files (default: ./views)
+    flight.views.path - Directory containing view template files. (default: ./views)
 
 ## Framework Methods
 
@@ -720,7 +752,8 @@ Flight::error($exception) // Sends an HTTP 500 response.
 Flight::notFound() // Sends an HTTP 404 response.
 Flight::etag($id, [$type]) // Performs ETag HTTP caching.
 Flight::lastModified($time) // Performs last modified HTTP caching.
-Flight::json($data) // Sends a JSON response.
+Flight::json($data, [$code], [$encode]) // Sends a JSON response.
+Flight::jsonp($data, [$param], [$code], [$encode]) // Sends a JSONP response.
 ```
 
 Any custom methods added with `map` and `register` can also be filtered.
