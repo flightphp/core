@@ -34,11 +34,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
     // Checks if a route was matched
     function check($str = 'OK'){
         $route = $this->router->route($this->request);
+
         $params = array_values($route->params);
+        array_push($params, $route);
 
         $this->assertTrue(is_callable($route->callback));
 
-        call_user_func_array($route->callback, $route->params);
+        call_user_func_array($route->callback, $params);
 
         $this->expectOutputString($str);
     }
@@ -145,5 +147,15 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->request->url = '/account/123/abc/xyz';
 
         $this->check();
+    }
+
+    // Test splat
+    function testSplatWildcard(){
+        $this->router->map('/account/*', function($route){
+            echo $route->splat;
+        });
+        $this->request->url = '/account/123/abc/xyz';
+
+        $this->check('123/abc/xyz');
     }
 }

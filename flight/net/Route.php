@@ -40,6 +40,11 @@ class Route {
     public $regex;
 
     /**
+     * @var string URL splat content
+     */
+    public $splat;
+
+    /**
      * Constructor.
      *
      * @param string $pattern URL pattern
@@ -65,6 +70,8 @@ class Route {
 
         $ids = array();
         $char = substr($this->pattern, -1);
+
+        $this->splat = substr($url, strpos($this->pattern, '*'));
         $this->pattern = str_replace(array(')','*'), array(')?','.*?'), $this->pattern);
 
         // Build the regex for matching

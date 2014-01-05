@@ -274,10 +274,13 @@ class Engine {
     public function _start() {
         $dispatched = false;
         $self = $this;
+        $request = $this->request();
+        $response = $this->response();
+        $router = $this->router();
 
         // Flush any existing output
         if (ob_get_length() > 0) {
-            $this->response()->write(ob_get_clean());
+            $response->write(ob_get_clean());
         }
 
         // Enable output buffering
@@ -287,8 +290,8 @@ class Engine {
         $this->handleErrors($this->get('flight.handle_errors'));
 
         // Disable caching for AJAX requests
-        if ($this->request()->ajax) {
-            $this->response()->cache(false);
+        if ($request->ajax) {
+            $response->cache(false);
         }
 
         // Allow post-filters to run
@@ -297,8 +300,9 @@ class Engine {
         });
 
         // Route the request
-        while ($route = $this->router()->route($this->request())) {
+        while ($route = $router->route($request)) {
             $params = array_values($route->params);
+            array_push($params, $route);
 
             $continue = $this->dispatcher->execute(
                 $route->callback,
@@ -309,7 +313,7 @@ class Engine {
 
             if (!$continue) break;
 
-            $this->router()->next();
+            $router->next();
         }
 
         if (!$dispatched) {
