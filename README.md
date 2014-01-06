@@ -239,12 +239,12 @@ The register method also allows you to pass along parameters to your class const
 
 ```php
 // Register class with constructor parameters
-Flight::register('db', 'Database', array('localhost','mydb','user','pass'));
+Flight::register('db', 'PDO', array('mysql:host=localhost;dnbname=test','user','pass'));
 
 // Get an instance of your class
 // This will create an object with the defined parameters
 //
-//     new Database('localhost', 'mydb', 'user', 'pass');
+//     new PDO('mysql:host=localhost;dnbname=test','user','pass');
 //
 $db = Flight::db();
 ```
@@ -253,8 +253,8 @@ If you pass in an additional callback parameter, it will be executed immediately
 
 ```php
 // The callback will be passed the object that was constructed
-Flight::register('db', 'Database', array('localhost', 'mydb', 'user', 'pass'), function($db){
-    $db->connect();
+Flight::register('db', 'PDO', array('mysql:host=localhost;dnbname=test','user','pass'), function($db){
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 });
 ```
 
@@ -262,10 +262,10 @@ By default, every time you load your class you will get a shared instance.
 To get a new instance of a class, simply pass in `false` as a parameter:
 
 ```php
-// Shared instance of Database class
+// Shared instance of the class
 $shared = Flight::db();
 
-// New instance of Database class
+// New instance of the class
 $new = Flight::db(false);
 ```
 
