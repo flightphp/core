@@ -163,7 +163,6 @@ class Loader {
      * Autoloads classes.
      *
      * @param string $class Class name
-     * @throws \Exception If class not found
      */
     public static function loadClass($class) {
         $class_file = str_replace('\\', '/', str_replace('_', '/', $class)).'.php';
