@@ -122,9 +122,7 @@ class View {
         ob_start();
 
         $this->render($file, $data);
-        $output = ob_get_contents();
-
-        ob_end_clean();
+        $output = ob_get_clean();
 
         return $output;
     }
