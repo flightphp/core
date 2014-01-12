@@ -15,7 +15,7 @@ namespace flight\template;
  */
 class View {
     /**
-     * Locaton of view templates.
+     * Location of view templates.
      *
      * @var string
      */

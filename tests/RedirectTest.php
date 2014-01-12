@@ -46,7 +46,7 @@ class RedirectTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/login', $this->getBaseUrl($base, $url));
     }
 
-    // Relative URLs shuold include the base
+    // Relative URLs should include the base
     function testRelativeUrl(){
         $url = 'login';
         $base = $this->app->request()->base;

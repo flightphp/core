@@ -239,12 +239,12 @@ The register method also allows you to pass along parameters to your class const
 
 ```php
 // Register class with constructor parameters
-Flight::register('db', 'PDO', array('mysql:host=localhost;dnbname=test','user','pass'));
+Flight::register('db', 'PDO', array('mysql:host=localhost;dbname=test','user','pass'));
 
 // Get an instance of your class
 // This will create an object with the defined parameters
 //
-//     new PDO('mysql:host=localhost;dnbname=test','user','pass');
+//     new PDO('mysql:host=localhost;dbname=test','user','pass');
 //
 $db = Flight::db();
 ```
@@ -253,7 +253,7 @@ If you pass in an additional callback parameter, it will be executed immediately
 
 ```php
 // The callback will be passed the object that was constructed
-Flight::register('db', 'PDO', array('mysql:host=localhost;dnbname=test','user','pass'), function($db){
+Flight::register('db', 'PDO', array('mysql:host=localhost;dbname=test','user','pass'), function($db){
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 });
 ```

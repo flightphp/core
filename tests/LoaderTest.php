@@ -52,7 +52,7 @@ class LoaderTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Bob', $user->name);
     }
 
-    // Register a class with initialzation
+    // Register a class with initialization
     function testRegisterWithInitialization(){
         $this->loader->register('c', 'User', array('Bob'), function($user){
             $user->name = 'Fred';
