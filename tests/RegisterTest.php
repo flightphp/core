@@ -42,7 +42,7 @@ class RegisterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Bob', $user->name);
     }
 
-    // Register a class with initialzation
+    // Register a class with initialization
     function testRegisterWithInitialization(){
         $this->app->register('reg3', 'User', array('Bob'), function($user){
             $user->name = 'Fred';
