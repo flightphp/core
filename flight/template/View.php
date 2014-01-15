@@ -29,6 +29,13 @@ class View {
     protected $vars = array();
 
     /**
+     * Template file.
+     *
+     * @var string
+     */
+    private $template;
+
+    /**
      * Constructor.
      *
      * @param string $path Path to templates directory
@@ -96,10 +103,10 @@ class View {
      * @throws \Exception If template not found
      */
     public function render($file, $data = null) {
-        $template = $this->getTemplate($file);
+        $this->template = $this->getTemplate($file);
 
-        if (!file_exists($template)) {
-            throw new \Exception("Template file not found: $template.");
+        if (!file_exists($this->template)) {
+            throw new \Exception("Template file not found: {$this->template}.");
         }
 
         if (is_array($data)) {
@@ -108,7 +115,7 @@ class View {
 
         extract($this->vars);
 
-        include $template;
+        include $this->template;
     }
 
     /**
