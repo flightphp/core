@@ -165,7 +165,7 @@ class Loader {
      * @param string $class Class name
      */
     public static function loadClass($class) {
-        $class_file = str_replace('\\', '/', str_replace('_', '/', $class)).'.php';
+        $class_file = str_replace(array('\\', '_'), '/', $class).'.php';
 
         foreach (self::$dirs as $dir) {
             $file = $dir.'/'.$class_file;
