@@ -1,4 +1,4 @@
-## What is Flight?
+# What is Flight?
 
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.
 
@@ -14,15 +14,15 @@ Flight::start();
 
 [Learn more](http://flightphp.com/learn)
 
-## Requirements
+# Requirements
 
 Flight requires `PHP 5.3` or greater.
 
-## License
+# License
 
 Flight is released under the [MIT](http://flightphp.com/license) license.
 
-## Installation
+# Installation
 
 1\. [Download](https://github.com/mikecao/flight/tarball/master) and extract the Flight framework files to your web directory.
 
@@ -68,7 +68,7 @@ Finally, start the framework.
 Flight::start();
 ```
 
-## Routing
+# Routing
 
 Routing in Flight is done by matching a URL pattern with a callback function.
 
@@ -102,7 +102,7 @@ Flight::route('/', array('Greeting','hello'));
 
 Routes are matched in the order they are defined. The first route to match a request will be invoked.
 
-### Method Routing
+## Method Routing
 
 By default, route patterns are matched against all request methods. You can respond to specific methods by placing an identifier before the URL.
 
@@ -124,7 +124,7 @@ Flight::route('GET|POST /', function(){
 });
 ```
 
-### Regular Expressions
+## Regular Expressions
 
 You can use regular expressions in your routes:
 
@@ -134,7 +134,7 @@ Flight::route('/user/[0-9]+', function(){
 });
 ```
 
-### Named Parameters
+## Named Parameters
 
 You can specify named parameters in your routes which will be passed along to your callback function.
 
@@ -153,7 +153,7 @@ Flight::route('/@name/@id:[0-9]{3}', function($name, $id){
 });
 ```
 
-### Optional Parameters
+## Optional Parameters
 
 You can specify named parameters that are optional for matching by wrapping segments in parentheses.
 
@@ -169,7 +169,7 @@ Flight::route('/blog(/@year(/@month(/@day)))', function($year, $month, $day){
 
 Any optional parameters that are not matched will be passed in as NULL.
 
-### Wildcards
+## Wildcards
 
 Matching is only done on individual URL segments. If you want to match multiple segments you can use the `*` wildcard.
 
@@ -187,7 +187,7 @@ Flight::route('*', function(){
 });
 ```
 
-### Passing
+## Passing
 
 You can pass execution on to the next matching route by returning `true` from your callback function.
 
@@ -205,11 +205,31 @@ Flight::route('/user/*', function(){
 });
 ```
 
-## Extending
+## Route Info
+
+Your matching callback will be passed a route object which you can use to inspect route information.
+
+```php
+Flight::route('/', function($route){
+    // Array of HTTP methods matched against
+    $route->methods;
+
+    // Array of named parameters
+    $route->params;
+
+    // Matching regular expression
+    $route->regex;
+
+    // Contains the contents of any '*' used in the URL pattern
+    $route->splat;
+});
+```
+
+# Extending
 
 Flight is designed to be an extensible framework. The framework comes with a set of default methods and components, but it allows you to map your own methods, register your own classes, or even override existing classes and methods.
 
-### Mapping Methods
+## Mapping Methods
 
 To map your own custom method, you use the `map` function:
 
@@ -223,7 +243,7 @@ Flight::map('hello', function($name){
 Flight::hello('Bob');
 ```
 
-### Registering Classes
+## Registering Classes
 
 To register your own class, you use the `register` function:
 
@@ -271,7 +291,7 @@ $new = Flight::db(false);
 
 Keep in mind that mapped methods have precedence over registered classes. If you declare both using the same name, only the mapped method will be invoked.
 
-## Overriding
+# Overriding
 
 Flight allows you to override its default functionality to suit your own needs, without having to modify any code.
 
@@ -298,7 +318,7 @@ $myrouter = Flight::router();
 
 Framework methods like `map` and `register` however cannot be overridden. You will get an error if you try to do so.
 
-## Filtering
+# Filtering
 
 Flight allows you to filter methods before and after they are called. There are no predefined hooks you need to memorize. You can filter any of the default framework methods as well as any custom methods that you've mapped.
 
@@ -380,7 +400,7 @@ Flight::before('start', function(&$params, &$output){
 
 Note, core methods such as `map` and `register` cannot be filtered because they are called directly and not invoked dynamically.
 
-## Variables
+# Variables
 
 Flight allows you to save variables so that they can be used anywhere in your application.
 
@@ -415,7 +435,7 @@ Flight also uses variables for configuration purposes.
 Flight::set('flight.log_errors', true);
 ```
 
-## Views
+# Views
 
 Flight provides some basic templating functionality by default. To display a view template call the `render` method with the name of the template file and optional template data:
 
@@ -453,7 +473,7 @@ By default Flight will look for a `views` directory for template files. You can 
 Flight::set('flight.views.path', '/path/to/views');
 ```
 
-### Layouts
+## Layouts
 
 It is common for websites to have a single layout template file with interchanging content. To render content to be used in a layout, you can pass in an optional parameter to the `render` method.
 
@@ -509,7 +529,7 @@ The output would be:
 </html>
 ```
 
-### Custom Views
+## Custom Views
 
 Flight allows you to swap out the default view engine simply by registering your own view class. Here's how you would use the [Smarty](http://www.smarty.net/) template engine for your views:
 
@@ -541,9 +561,9 @@ Flight::map('render', function($template, $data){
     Flight::view()->display($template);
 });
 ```
-## Error Handling
+# Error Handling
 
-### Errors and Exceptions
+## Errors and Exceptions
 
 All errors and exceptions are caught by Flight and passed to the `error` method.
 The default behavior is to send a generic `HTTP 500 Internal Server Error` response with some error information.
@@ -563,7 +583,7 @@ By default errors are not logged to the web server. You can enable this by chang
 Flight::set('flight.log_errors', true);
 ```
 
-### Not Found
+## Not Found
 
 When a URL can't be found, Flight calls the `notFound` method. The default behavior is to send an `HTTP 404 Not Found` response with a simple message.
 
@@ -575,7 +595,7 @@ Flight::map('notFound', function(){
 });
 ```
 
-## Redirects
+# Redirects
 
 You can redirect the current request by using the `redirect` method and passing in a new URL:
 
@@ -589,7 +609,7 @@ By default Flight sends a HTTP 303 status code. You can optionally set a custom 
 Flight::redirect('/new/location', 401);
 ```
 
-## Requests
+# Requests
 
 Flight encapsulates the HTTP request into a single object, which can be accessed by doing:
 
@@ -634,11 +654,11 @@ Or you can do:
 $id = Flight::request()->query->id;
 ```
 
-## HTTP Caching
+# HTTP Caching
 
 Flight provides built-in support for HTTP level caching. If the caching condition is met, Flight will return an HTTP `304 Not Modified` response. The next time the client requests the same resource, they will be prompted to use their locally cached version.
 
-### Last-Modified
+## Last-Modified
 
 You can use the `lastModified` method and pass in a UNIX timestamp to set the date and time a page was last modified. The client will continue to use their cache until the last modified value is changed.
 
@@ -649,7 +669,7 @@ Flight::route('/news', function(){
 });
 ```
 
-### ETag
+## ETag
 
 `ETag` caching is similar to `Last-Modified`, except you can specify any id you want for the resource:
 
@@ -662,7 +682,7 @@ Flight::route('/news', function(){
 
 Keep in mind that calling either `lastModified` or `etag` will both set and check the cache value. If the cache value is the same between requests, Flight will immediately send an `HTTP 304` response and stop processing.
 
-## Stopping
+# Stopping
 
 You can stop the framework at any point by calling the `halt` method:
 
@@ -682,7 +702,7 @@ Calling `halt` will discard any response content up to that point. If you want t
 Flight::stop();
 ```
 
-## JSON
+# JSON
 
 Flight provides support for sending JSON and JSONP responses. To send a JSON response you pass some data to be JSON encoded:
 
@@ -705,7 +725,7 @@ my_func({"id":123});
 If you don't pass in a query parameter name it will default to `jsonp`.
 
 
-## Configuration
+# Configuration
 
 You can customize certain behaviors of Flight by setting configuration values through the `set` method.
 
@@ -720,11 +740,11 @@ The following is a list of all the available configuration settings:
     flight.log_errors - Log errors to the web server's error log file. (default: false)
     flight.views.path - Directory containing view template files. (default: ./views)
 
-## Framework Methods
+# Framework Methods
 
 Flight is designed to be easy to use and understand. The following is the complete set of methods for the framework. It consists of core methods, which are regular static methods, and extensible methods, which are mapped methods that can be filtered or overridden.
 
-### Core Methods
+## Core Methods
 
 ```php
 Flight::map($name, $callback) // Creates a custom framework method.
@@ -739,7 +759,7 @@ Flight::clear([$key]) // Clears a variable.
 Flight::init() // Initializes the framework to its default settings.
 ```
 
-### Extensible Methods
+## Extensible Methods
 
 ```php
 Flight::start() // Starts the framework.
@@ -759,7 +779,7 @@ Flight::jsonp($data, [$param], [$code], [$encode]) // Sends a JSONP response.
 Any custom methods added with `map` and `register` can also be filtered.
 
 
-## Framework Instance
+# Framework Instance
 
 Instead of running Flight as a global static class, you can optionally run it as an object instance.
 
