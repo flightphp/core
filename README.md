@@ -693,7 +693,7 @@ Flight::json(array('id' => 123));
 For JSONP requests you, can optionally pass in the query parameter name you are using to define your callback function:
 
 ```php
-Flight::json(array('id' => 123), 'q');
+Flight::jsonp(array('id' => 123), 'q');
 ```
 
 So, when making a GET request using `?q=my_func`, you should receive the output:
