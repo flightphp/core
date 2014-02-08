@@ -1,6 +1,7 @@
 # What is Flight?
 
-Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.
+Flight is a fast, simple, extensible framework for PHP. Flight enables you to 
+quickly and easily build RESTful web applications.
 
 ```php
 require 'flight/Flight.php';
@@ -24,7 +25,8 @@ Flight is released under the [MIT](http://flightphp.com/license) license.
 
 # Installation
 
-1\. [Download](https://github.com/mikecao/flight/tarball/master) and extract the Flight framework files to your web directory.
+1\. [Download](https://github.com/mikecao/flight/tarball/master) and extract
+the Flight framework files to your web directory.
 
 2\. Configure your webserver.
 
@@ -100,11 +102,13 @@ class Greeting {
 Flight::route('/', array('Greeting','hello'));
 ```
 
-Routes are matched in the order they are defined. The first route to match a request will be invoked.
+Routes are matched in the order they are defined. The first route to match a
+request will be invoked.
 
 ## Method Routing
 
-By default, route patterns are matched against all request methods. You can respond to specific methods by placing an identifier before the URL.
+By default, route patterns are matched against all request methods. You can respond
+to specific methods by placing an identifier before the URL.
 
 ```php
 Flight::route('GET /', function(){
@@ -136,7 +140,8 @@ Flight::route('/user/[0-9]+', function(){
 
 ## Named Parameters
 
-You can specify named parameters in your routes which will be passed along to your callback function.
+You can specify named parameters in your routes which will be passed along to
+your callback function.
 
 ```php
 Flight::route('/@name/@id', function($name, $id){
@@ -144,7 +149,8 @@ Flight::route('/@name/@id', function($name, $id){
 });
 ```
 
-You can also include regular expressions with your named parameters by using the `:` delimiter:
+You can also include regular expressions with your named parameters by using
+the `:` delimiter:
 
 ```php
 Flight::route('/@name/@id:[0-9]{3}', function($name, $id){
@@ -155,7 +161,8 @@ Flight::route('/@name/@id:[0-9]{3}', function($name, $id){
 
 ## Optional Parameters
 
-You can specify named parameters that are optional for matching by wrapping segments in parentheses.
+You can specify named parameters that are optional for matching by wrapping
+segments in parentheses.
 
 ```php
 Flight::route('/blog(/@year(/@month(/@day)))', function($year, $month, $day){
@@ -171,7 +178,8 @@ Any optional parameters that are not matched will be passed in as NULL.
 
 ## Wildcards
 
-Matching is only done on individual URL segments. If you want to match multiple segments you can use the `*` wildcard.
+Matching is only done on individual URL segments. If you want to match multiple
+segments you can use the `*` wildcard.
 
 ```php
 Flight::route('/blog/*', function(){
@@ -189,7 +197,8 @@ Flight::route('*', function(){
 
 ## Passing
 
-You can pass execution on to the next matching route by returning `true` from your callback function.
+You can pass execution on to the next matching route by returning `true` from
+your callback function.
 
 ```php
 Flight::route('/user/@name', function($name){
@@ -207,7 +216,8 @@ Flight::route('/user/*', function(){
 
 ## Route Info
 
-Your matching callback will be passed a route object which you can use to inspect route information.
+Your matching callback will be passed a route object which you can use to inspect
+route information.
 
 ```php
 Flight::route('/', function($route){
@@ -227,7 +237,9 @@ Flight::route('/', function($route){
 
 # Extending
 
-Flight is designed to be an extensible framework. The framework comes with a set of default methods and components, but it allows you to map your own methods, register your own classes, or even override existing classes and methods.
+Flight is designed to be an extensible framework. The framework comes with a set
+of default methods and components, but it allows you to map your own methods,
+register your own classes, or even override existing classes and methods.
 
 ## Mapping Methods
 
@@ -255,7 +267,10 @@ Flight::register('user', 'User');
 $user = Flight::user();
 ```
 
-The register method also allows you to pass along parameters to your class constructor. So when you load your custom class, it will come pre-initialized. You can define the constructor parameters by passing in an additional array. Here's an example of loading a database connection:
+The register method also allows you to pass along parameters to your class
+constructor. So when you load your custom class, it will come pre-initialized.
+You can define the constructor parameters by passing in an additional array.
+Here's an example of loading a database connection:
 
 ```php
 // Register class with constructor parameters
@@ -269,7 +284,9 @@ Flight::register('db', 'PDO', array('mysql:host=localhost;dbname=test','user','p
 $db = Flight::db();
 ```
 
-If you pass in an additional callback parameter, it will be executed immediately after class construction. This allows you to perform any set up procedures for your new object. The callback function takes one parameter, an instance of the new object.
+If you pass in an additional callback parameter, it will be executed immediately
+after class construction. This allows you to perform any set up procedures for your
+new object. The callback function takes one parameter, an instance of the new object.
 
 ```php
 // The callback will be passed the object that was constructed
@@ -289,14 +306,17 @@ $shared = Flight::db();
 $new = Flight::db(false);
 ```
 
-Keep in mind that mapped methods have precedence over registered classes. If you declare both using the same name, only the mapped method will be invoked.
+Keep in mind that mapped methods have precedence over registered classes. If you
+declare both using the same name, only the mapped method will be invoked.
 
 # Overriding
 
-Flight allows you to override its default functionality to suit your own needs, without having to modify any code.
+Flight allows you to override its default functionality to suit your own needs,
+without having to modify any code.
 
-For example, when Flight cannot match a URL to a route, it invokes the `notFound` method which sends a generic `HTTP 404` response.
-You can override this behavior by using the `map` method:
+For example, when Flight cannot match a URL to a route, it invokes the `notFound`
+method which sends a generic `HTTP 404` response. You can override this behavior
+by using the `map` method:
 
 ```php
 Flight::map('notFound', function(){
@@ -316,11 +336,14 @@ Flight::register('router', 'MyRouter');
 $myrouter = Flight::router();
 ```
 
-Framework methods like `map` and `register` however cannot be overridden. You will get an error if you try to do so.
+Framework methods like `map` and `register` however cannot be overridden. You will
+get an error if you try to do so.
 
 # Filtering
 
-Flight allows you to filter methods before and after they are called. There are no predefined hooks you need to memorize. You can filter any of the default framework methods as well as any custom methods that you've mapped.
+Flight allows you to filter methods before and after they are called. There are no
+predefined hooks you need to memorize. You can filter any of the default framework
+methods as well as any custom methods that you've mapped.
 
 A filter function looks like this:
 
@@ -348,7 +371,8 @@ Flight::after('start', function(&$params, &$output){
 });
 ```
 
-You can add as many filters as you want to any method. They will be called in the order that they are declared.
+You can add as many filters as you want to any method. They will be called in the
+order that they are declared.
 
 Here's an example of the filtering process:
 
@@ -378,7 +402,8 @@ This should display:
 
     Hello Fred! Have a nice day!
 
-If you have defined multiple filters, you can break the chain by returning `false` in any of your filter functions:
+If you have defined multiple filters, you can break the chain by returning `false`
+in any of your filter functions:
 
 ```php
 Flight::before('start', function(&$params, &$output){
@@ -398,7 +423,8 @@ Flight::before('start', function(&$params, &$output){
 });
 ```
 
-Note, core methods such as `map` and `register` cannot be filtered because they are called directly and not invoked dynamically.
+Note, core methods such as `map` and `register` cannot be filtered because they
+are called directly and not invoked dynamically.
 
 # Variables
 
@@ -437,13 +463,17 @@ Flight::set('flight.log_errors', true);
 
 # Views
 
-Flight provides some basic templating functionality by default. To display a view template call the `render` method with the name of the template file and optional template data:
+Flight provides some basic templating functionality by default. To display a view
+template call the `render` method with the name of the template file and optional
+template data:
 
 ```php
 Flight::render('hello.php', array('name' => 'Bob'));
 ```
 
-The template data you pass in is automatically injected into the template and can be reference like a local variable. Template files are simply PHP files. If the content of the `hello.php` template file is:
+The template data you pass in is automatically injected into the template and can
+be reference like a local variable. Template files are simply PHP files. If the
+content of the `hello.php` template file is:
 
 ```php
 Hello, '<?php echo $name; ?>'!
@@ -465,9 +495,11 @@ The variable `name` is now available across all your views. So you can simply do
 Flight::render('hello');
 ```
 
-Note that when specifying the name of the template in the render method, you can leave out the `.php` extension.
+Note that when specifying the name of the template in the render method, you can
+leave out the `.php` extension.
 
-By default Flight will look for a `views` directory for template files. You can set an alternate path for your templates by setting the following config:
+By default Flight will look for a `views` directory for template files. You can
+set an alternate path for your templates by setting the following config:
 
 ```php
 Flight::set('flight.views.path', '/path/to/views');
@@ -475,14 +507,17 @@ Flight::set('flight.views.path', '/path/to/views');
 
 ## Layouts
 
-It is common for websites to have a single layout template file with interchanging content. To render content to be used in a layout, you can pass in an optional parameter to the `render` method.
+It is common for websites to have a single layout template file with interchanging
+content. To render content to be used in a layout, you can pass in an optional
+parameter to the `render` method.
 
 ```php
 Flight::render('header', array('heading' => 'Hello'), 'header_content');
 Flight::render('body', array('body' => 'World'), 'body_content');
 ```
 
-Your view will then have saved variables called `header_content` and `body_content`. You can then render your layout by doing:
+Your view will then have saved variables called `header_content` and `body_content`.
+You can then render your layout by doing:
 
 ```php
 Flight::render('layout', array('title' => 'Home Page'));
@@ -531,7 +566,9 @@ The output would be:
 
 ## Custom Views
 
-Flight allows you to swap out the default view engine simply by registering your own view class. Here's how you would use the [Smarty](http://www.smarty.net/) template engine for your views:
+Flight allows you to swap out the default view engine simply by registering your
+own view class. Here's how you would use the [Smarty](http://www.smarty.net/)
+template engine for your views:
 
 ```php
 // Load Smarty library
@@ -566,7 +603,8 @@ Flight::map('render', function($template, $data){
 ## Errors and Exceptions
 
 All errors and exceptions are caught by Flight and passed to the `error` method.
-The default behavior is to send a generic `HTTP 500 Internal Server Error` response with some error information.
+The default behavior is to send a generic `HTTP 500 Internal Server Error`
+response with some error information.
 
 You can override this behavior for your own needs:
 
@@ -577,7 +615,8 @@ Flight::map('error', function(Exception $ex){
 });
 ```
 
-By default errors are not logged to the web server. You can enable this by changing the config:
+By default errors are not logged to the web server. You can enable this by
+changing the config:
 
 ```php
 Flight::set('flight.log_errors', true);
@@ -585,7 +624,8 @@ Flight::set('flight.log_errors', true);
 
 ## Not Found
 
-When a URL can't be found, Flight calls the `notFound` method. The default behavior is to send an `HTTP 404 Not Found` response with a simple message.
+When a URL can't be found, Flight calls the `notFound` method. The default
+behavior is to send an `HTTP 404 Not Found` response with a simple message.
 
 You can override this behavior for your own needs:
 
@@ -597,13 +637,15 @@ Flight::map('notFound', function(){
 
 # Redirects
 
-You can redirect the current request by using the `redirect` method and passing in a new URL:
+You can redirect the current request by using the `redirect` method and passing
+in a new URL:
 
 ```php
 Flight::redirect('/new/location');
 ```
 
-By default Flight sends a HTTP 303 status code. You can optionally set a custom code:
+By default Flight sends a HTTP 303 status code. You can optionally set a
+custom code:
 
 ```php
 Flight::redirect('/new/location', 401);
@@ -611,7 +653,8 @@ Flight::redirect('/new/location', 401);
 
 # Requests
 
-Flight encapsulates the HTTP request into a single object, which can be accessed by doing:
+Flight encapsulates the HTTP request into a single object, which can be
+accessed by doing:
 
 ```php
 $request = Flight::request();
@@ -640,7 +683,8 @@ accept - HTTP accept parameters
 proxy_ip - Proxy IP address of the client
 ```
 
-You can access the `query`, `data`, `cookies`, and `files` properties as arrays or objects.
+You can access the `query`, `data`, `cookies`, and `files` properties
+as arrays or objects.
 
 So, to get a query string parameter, you can do:
 
@@ -656,11 +700,16 @@ $id = Flight::request()->query->id;
 
 # HTTP Caching
 
-Flight provides built-in support for HTTP level caching. If the caching condition is met, Flight will return an HTTP `304 Not Modified` response. The next time the client requests the same resource, they will be prompted to use their locally cached version.
+Flight provides built-in support for HTTP level caching. If the caching condition
+is met, Flight will return an HTTP `304 Not Modified` response. The next time the
+client requests the same resource, they will be prompted to use their locally
+cached version.
 
 ## Last-Modified
 
-You can use the `lastModified` method and pass in a UNIX timestamp to set the date and time a page was last modified. The client will continue to use their cache until the last modified value is changed.
+You can use the `lastModified` method and pass in a UNIX timestamp to set the date
+and time a page was last modified. The client will continue to use their cache until
+the last modified value is changed.
 
 ```php
 Flight::route('/news', function(){
@@ -671,7 +720,8 @@ Flight::route('/news', function(){
 
 ## ETag
 
-`ETag` caching is similar to `Last-Modified`, except you can specify any id you want for the resource:
+`ETag` caching is similar to `Last-Modified`, except you can specify any id you
+want for the resource:
 
 ```php
 Flight::route('/news', function(){
@@ -680,7 +730,9 @@ Flight::route('/news', function(){
 });
 ```
 
-Keep in mind that calling either `lastModified` or `etag` will both set and check the cache value. If the cache value is the same between requests, Flight will immediately send an `HTTP 304` response and stop processing.
+Keep in mind that calling either `lastModified` or `etag` will both set and check the
+cache value. If the cache value is the same between requests, Flight will immediately
+send an `HTTP 304` response and stop processing.
 
 # Stopping
 
@@ -696,7 +748,8 @@ You can also specify an optional `HTTP` status code and message:
 Flight::halt(200, 'Be right back...');
 ```
 
-Calling `halt` will discard any response content up to that point. If you want to stop the framework and output the current response, use the `stop` method:
+Calling `halt` will discard any response content up to that point. If you want to stop
+the framework and output the current response, use the `stop` method:
 
 ```php
 Flight::stop();
@@ -704,13 +757,15 @@ Flight::stop();
 
 # JSON
 
-Flight provides support for sending JSON and JSONP responses. To send a JSON response you pass some data to be JSON encoded:
+Flight provides support for sending JSON and JSONP responses. To send a JSON response you
+pass some data to be JSON encoded:
 
 ```php
 Flight::json(array('id' => 123));
 ```
 
-For JSONP requests you, can optionally pass in the query parameter name you are using to define your callback function:
+For JSONP requests you, can optionally pass in the query parameter name you are
+using to define your callback function:
 
 ```php
 Flight::jsonp(array('id' => 123), 'q');
@@ -727,7 +782,8 @@ If you don't pass in a query parameter name it will default to `jsonp`.
 
 # Configuration
 
-You can customize certain behaviors of Flight by setting configuration values through the `set` method.
+You can customize certain behaviors of Flight by setting configuration values
+through the `set` method.
 
 ```php
 Flight::set('flight.log_errors', true);
@@ -742,7 +798,10 @@ The following is a list of all the available configuration settings:
 
 # Framework Methods
 
-Flight is designed to be easy to use and understand. The following is the complete set of methods for the framework. It consists of core methods, which are regular static methods, and extensible methods, which are mapped methods that can be filtered or overridden.
+Flight is designed to be easy to use and understand. The following is the complete
+set of methods for the framework. It consists of core methods, which are regular
+static methods, and extensible methods, which are mapped methods that can be filtered
+or overridden.
 
 ## Core Methods
 
@@ -781,7 +840,8 @@ Any custom methods added with `map` and `register` can also be filtered.
 
 # Framework Instance
 
-Instead of running Flight as a global static class, you can optionally run it as an object instance.
+Instead of running Flight as a global static class, you can optionally run it
+as an object instance.
 
 ```php
 require 'flight/autoload.php';
@@ -797,4 +857,5 @@ $app->route('/', function(){
 $app->start();
 ```
 
-So instead of calling the static method, you would call the instance method with the same name on the Engine object.
+So instead of calling the static method, you would call the instance method with
+the same name on the Engine object.
