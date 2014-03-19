@@ -40,14 +40,14 @@ class FlightTest extends PHPUnit_Framework_TestCase
     function testRegister(){
         Flight::path(__DIR__.'/classes');
 
-        Flight::register('test', 'TestClass');
-        $test = Flight::test();
+        Flight::register('user', 'User');
+        $user = Flight::user();
 
         $loaders = spl_autoload_functions();
 
         $this->assertTrue(sizeof($loaders) > 0);
-        $this->assertTrue(is_object($test));
-        $this->assertEquals('TestClass', get_class($test));
+        $this->assertTrue(is_object($user));
+        $this->assertEquals('User', get_class($user));
     }
 
     // Map a function

@@ -23,15 +23,15 @@ class AutoloadTest extends PHPUnit_Framework_TestCase
 
     // Autoload a class
     function testAutoload(){
-        $this->app->register('test', 'TestClass');
+        $this->app->register('user', 'User');
 
         $loaders = spl_autoload_functions();
 
-        $test = $this->app->test();
+        $user = $this->app->user();
 
         $this->assertTrue(sizeof($loaders) > 0);
-        $this->assertTrue(is_object($test));
-        $this->assertEquals('TestClass', get_class($test));
+        $this->assertTrue(is_object($user));
+        $this->assertEquals('User', get_class($user));
     }
 
     // Check autoload failure
