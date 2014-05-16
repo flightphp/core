@@ -109,6 +109,11 @@ class Request {
     public $files;
 
     /**
+     * @var \flight\util\Collection Merged GET, POST, PUT and DELETE parameters
+     */
+    public $params;
+
+    /**
      * @var bool Whether the connection is secure
      */
     public $secure;
@@ -178,6 +183,11 @@ class Request {
 
             $this->query->setData($_GET);
         }
+
+        $raw_params = array();
+        parse_str($this->body, $raw_params);
+
+        $this->params = new Collection(array_merge($this->query->getData(), $this->data->getData(), $raw_params));
     }
 
     /**
