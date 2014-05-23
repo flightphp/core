@@ -28,7 +28,8 @@ use flight\util\Collection;
  *   type - The content type
  *   length - The content length
  *   query - Query string parameters
- *   data - Post parameters 
+ *   data - Post parameters
+ *   json - JSON decoded body for application/json requests
  *   cookies - Cookie parameters
  *   files - Uploaded files
  */
@@ -97,6 +98,11 @@ class Request {
      * @var \flight\util\Collection Post parameters
      */
     public $data;
+
+    /**
+     * @var \flight\util\Collection JSON decoded body
+     */
+    public $json;
 
     /**
      * @var \flight\util\Collection Cookie parameters
@@ -177,6 +183,10 @@ class Request {
             $_GET += self::parseQuery($this->url);
 
             $this->query->setData($_GET);
+        }
+
+        if ($this->type == 'application/json' && $this->body != '') {
+            $this->json = json_decode($this->body, true);
         }
     }
 
