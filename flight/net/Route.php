@@ -64,9 +64,7 @@ class Route {
      * @return boolean Match status
      */
     public function matchUrl($url) {
-        if ($this->pattern === '*' || $this->pattern === $url) {
-            return true;
-        }
+        $ret = false;
 
         $ids = array();
         $char = substr($this->pattern, -1);
@@ -104,10 +102,15 @@ class Route {
 
             $this->regex = $regex;
 
-            return true;
+            $ret = true;
         }
 
-        return false;
+        if ($this->pattern === '*' || $this->pattern === $url) {
+            $ret = true;
+            array_push( $this->params[0], $this );
+        }
+
+        return $ret;
     }
 
     /**
