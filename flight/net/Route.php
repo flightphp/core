@@ -107,7 +107,7 @@ class Route {
 
         if ($this->pattern === '*' || $this->pattern === $url) {
             $ret = true;
-            $this->params['route'] = $this;
+            array_push( $this->params[0], $this );
         }
 
         return $ret;
