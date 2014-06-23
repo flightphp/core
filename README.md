@@ -816,6 +816,7 @@ Flight::set($key, $value) // Sets a variable.
 Flight::has($key) // Checks if a variable is set.
 Flight::clear([$key]) // Clears a variable.
 Flight::init() // Initializes the framework to its default settings.
+Flight::app() // Gets the application object instance
 ```
 
 ## Extensible Methods

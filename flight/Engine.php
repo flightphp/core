@@ -55,6 +55,7 @@ class Engine {
      *
      * @param string $name Method name
      * @param array $params Method parameters
+     * @return mixed Callback results
      */
     public function __call($name, $params) {
         $callback = $this->dispatcher->get($name);
