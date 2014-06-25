@@ -259,7 +259,7 @@ class Request {
      * @param string $default Default value to substitute
      * @return string Server variable value
      */
-    private function getVar($var, $default = '') {
+    public function getVar($var, $default = '') {
         return isset($_SERVER[$var]) ? $_SERVER[$var] : $default;
     }
 }
