@@ -187,8 +187,11 @@ class Request {
 
         if (strpos($this->type, 'application/json') === 0 && $this->body != '') {
             $this->json = json_decode($this->body, true);
-			$this->json = new Collection($this->json);
+        } else {
+            $this->json = array();
         }
+		
+        $this->json = new Collection($this->json);
 		
     }
 
