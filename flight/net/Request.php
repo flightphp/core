@@ -138,24 +138,24 @@ class Request {
         // Default properties
         if (empty($config)) {
             $config = array(
-                'url' => $this->getVar('REQUEST_URI', '/'),
-                'base' => str_replace(array('\\',' '), array('/','%20'), dirname($this->getVar('SCRIPT_NAME'))),
-                'method' => $this->getMethod(),
-                'referrer' => $this->getVar('HTTP_REFERER'),
-                'ip' => $this->getVar('REMOTE_ADDR'),
-                'ajax' => $this->getVar('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
-                'scheme' => $this->getVar('SERVER_PROTOCOL', 'HTTP/1.1'),
-                'user_agent' => $this->getVar('HTTP_USER_AGENT'),
+                'url' => self::getVar('REQUEST_URI', '/'),
+                'base' => str_replace(array('\\',' '), array('/','%20'), dirname(self::getVar('SCRIPT_NAME'))),
+                'method' => self::getMethod(),
+                'referrer' => self::getVar('HTTP_REFERER'),
+                'ip' => self::getVar('REMOTE_ADDR'),
+                'ajax' => self::getVar('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
+                'scheme' => self::getVar('SERVER_PROTOCOL', 'HTTP/1.1'),
+                'user_agent' => self::getVar('HTTP_USER_AGENT'),
                 'body' => file_get_contents('php://input'),
-                'type' => $this->getVar('CONTENT_TYPE'),
-                'length' => $this->getVar('CONTENT_LENGTH', 0),
+                'type' => self::getVar('CONTENT_TYPE'),
+                'length' => self::getVar('CONTENT_LENGTH', 0),
                 'query' => new Collection($_GET),
                 'data' => new Collection($_POST),
                 'cookies' => new Collection($_COOKIE),
                 'files' => new Collection($_FILES),
-                'secure' => $this->getVar('HTTPS', 'off') != 'off',
-                'accept' => $this->getVar('HTTP_ACCEPT'),
-                'proxy_ip' => $this->getProxyIpAddress()
+                'secure' => self::getVar('HTTPS', 'off') != 'off',
+                'accept' => self::getVar('HTTP_ACCEPT'),
+                'proxy_ip' => self::getProxyIpAddress()
             );
         }
 
@@ -168,10 +168,12 @@ class Request {
      * @param array $properties Array of request properties
      */
     public function init($properties = array()) {
+        // Set all the defined properties
         foreach ($properties as $name => $value) {
             $this->$name = $value;
         }
 
+        // Get the requested URL without the base directory
         if ($this->base != '/' && strlen($this->base) > 0 && strpos($this->url, $this->base) === 0) {
             $this->url = substr($this->url, strlen($this->base));
         }
@@ -179,20 +181,19 @@ class Request {
         if (empty($this->url)) {
             $this->url = '/';
         }
+        // Merge URL query parameters with $_GET
         else {
             $_GET += self::parseQuery($this->url);
 
             $this->query->setData($_GET);
         }
 
-        if (strpos($this->type, 'application/json') === 0 && $this->body != '') {
-            $this->json = json_decode($this->body, true);
-        } else {
-            $this->json = array();
+        // Check for JSON input
+        $json = array();
+        if ($this->body != '' && strpos($this->type, 'application/json') === 0) {
+            $json = json_decode($this->body, true);
         }
-		
-        $this->json = new Collection($this->json);
-		
+        $this->json = new Collection($json);
     }
 
     /**
@@ -217,7 +218,7 @@ class Request {
      *
      * @return string
      */
-    private function getMethod() {
+    public static function getMethod() {
         if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
             return $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
         }
@@ -225,7 +226,7 @@ class Request {
             return $_REQUEST['_method'];
         }
 
-        return $this->getVar('REQUEST_METHOD', 'GET');
+        return self::getVar('REQUEST_METHOD', 'GET');
     }
 
     /**
@@ -233,7 +234,7 @@ class Request {
      *
      * @return string IP address
      */
-    private function getProxyIpAddress() {
+    public static function getProxyIpAddress() {
         static $forwarded = array(
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
@@ -264,7 +265,7 @@ class Request {
      * @param string $default Default value to substitute
      * @return string Server variable value
      */
-    public function getVar($var, $default = '') {
+    public static function getVar($var, $default = '') {
         return isset($_SERVER[$var]) ? $_SERVER[$var] : $default;
     }
 }
