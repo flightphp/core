@@ -185,9 +185,14 @@ class Request {
             $this->query->setData($_GET);
         }
 
-        if ($this->type == 'application/json' && $this->body != '') {
+        if (strpos($this->type, 'application/json') === 0 && $this->body != '') {
             $this->json = json_decode($this->body, true);
+        } else {
+            $this->json = array();
         }
+		
+        $this->json = new Collection($this->json);
+		
     }
 
     /**
