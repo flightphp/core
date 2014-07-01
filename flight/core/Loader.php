@@ -175,10 +175,12 @@ class Loader {
         $class_file = str_replace(array('\\', '_'), '/', $class).'.php';
 
         foreach (self::$dirs as $dir) {
-            $file = $dir.'/'.$class_file;
-            if (file_exists($file)) {
-                require $file;
-                return;
+            foreach(array($class_file, strtolower($class_file), ucfirst($class_file)) as $file_name) {
+                $file = $dir.'/'.$file_name;
+                if (file_exists($file)) {
+                    require $file;
+                    return;
+                }
             }
         }
     }
