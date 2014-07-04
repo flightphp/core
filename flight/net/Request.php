@@ -77,7 +77,7 @@ class Request {
     /**
      * @var mixed Raw data from the request body
      */
-    public $body;
+    protected $_body;
 
     /**
      * @var string Content type
@@ -130,6 +130,11 @@ class Request {
     public $proxy_ip;
 
     /**
+     * @var bool true if body already load
+     */
+    protected $_body_loaded = false;
+
+    /**
      * Constructor.
      *
      * @param array $config Request configuration
@@ -146,7 +151,6 @@ class Request {
                 'ajax' => self::getVar('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
                 'scheme' => self::getVar('SERVER_PROTOCOL', 'HTTP/1.1'),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
-                'body' => file_get_contents('php://input'),
                 'type' => self::getVar('CONTENT_TYPE'),
                 'length' => self::getVar('CONTENT_LENGTH', 0),
                 'query' => new Collection($_GET),
@@ -160,6 +164,84 @@ class Request {
         }
 
         $this->init($config);
+    }
+
+    /**
+     * Overloading method to redirect request for ->body to ->_body
+     *
+     * @param string $name  name of variable to set
+     * @param mixed  $value value to set
+     *
+     * @return void
+     */
+    public function __set($name, $value) {
+        if ($name == 'body') {
+            $this->_body = $value;
+            $this->_body_loaded = true;
+            return;
+        }
+
+        $trace = debug_backtrace();
+        trigger_error(
+            'Undefined property via __set(): ' . $name .
+            ' in ' . $trace[0]['file'] .
+            ' on line ' . $trace[0]['line'],
+            E_USER_NOTICE);
+    }
+
+    /**
+     * Overloading method to load body only when requested
+     *
+     * @param string $name name of variable to get
+     *
+     * @return mixed value of variable
+     */
+    public function __get($name) {
+        if ($name == 'body') {
+            if (!$this->_body_loaded) {
+                $this->_body = file_get_contents('php://input');
+                $this->_body_loaded = true;
+            }
+
+            return $this->_body;
+        }
+
+        $trace = debug_backtrace();
+        trigger_error(
+            'Undefined property via __get(): ' . $name .
+            ' in ' . $trace[0]['file'] .
+            ' on line ' . $trace[0]['line'],
+            E_USER_NOTICE);
+        return null;
+    }
+
+    /**
+     * Overloading method to redirect request for ->body to ->_body
+     *
+     * @param string $name name of variable to get
+     *
+     * @return bool true if variable is set
+     */
+    public function __isset($name) {
+        if ($name == 'body') {
+            $this->__get('body');
+            return isset($this->_body);
+        }
+
+        return false;
+    }
+
+    /**
+     * Overloading method to redirect request for ->body to ->_body
+     *
+     * @param string $name name of variable to get
+     *
+     * @return void
+     */
+    public function __unset($name) {
+        if ($name == 'body') {
+            unset($this->_body);
+        }
     }
 
     /**
