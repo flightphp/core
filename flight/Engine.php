@@ -106,6 +106,7 @@ class Engine {
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
         $this->set('flight.views.path', './views');
+        $this->set('flight.add_route_obj', true);
 
         $initialized = true;
     }
@@ -303,7 +304,9 @@ class Engine {
         // Route the request
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
-            array_push($params, $route);
+            if ($this->get('flight.add_route_obj')) {
+            	array_push($params, $route);
+            }
 
             $continue = $this->dispatcher->execute(
                 $route->callback,

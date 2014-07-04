@@ -795,6 +795,7 @@ The following is a list of all the available configuration settings:
     flight.handle_errors - Allow Flight to handle all errors internally. (default: true)
     flight.log_errors - Log errors to the web server's error log file. (default: false)
     flight.views.path - Directory containing view template files. (default: ./views)
+    flight.add_route_obj - Add routing object to all callbacks as last parameter (default: true)
 
 # Framework Methods
 
