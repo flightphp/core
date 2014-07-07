@@ -45,16 +45,23 @@ class Route {
     public $splat;
 
     /**
+     * @var boolean Pass self in callback parameters
+     */
+    public $pass = false;
+
+    /**
      * Constructor.
      *
      * @param string $pattern URL pattern
      * @param mixed $callback Callback function
      * @param array $methods HTTP methods
+     * @param boolean $pass Pass self in callback parameters
      */
-    public function __construct($pattern, $callback, $methods) {
+    public function __construct($pattern, $callback, $methods, $pass) {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
+        $this->pass = $pass;
     }
 
     /**
@@ -64,7 +71,11 @@ class Route {
      * @return boolean Match status
      */
     public function matchUrl($url) {
+        // Wildcard or exact match
         if ($this->pattern === '*' || $this->pattern === $url) {
+            if ($this->pass) {
+                array_push($this->params, $this);
+            }
             return true;
         }
 
@@ -100,6 +111,10 @@ class Route {
         if (preg_match('#^'.$regex.'(?:\?.*)?$#i', $url, $matches)) {
             foreach ($ids as $k => $v) {
                 $this->params[$k] = (array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
+            }
+
+            if ($this->pass) {
+                array_push($this->params, $this);
             }
 
             $this->regex = $regex;

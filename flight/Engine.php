@@ -303,7 +303,6 @@ class Engine {
         // Route the request
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
-            array_push($params, $route);
 
             $continue = $this->dispatcher->execute(
                 $route->callback,
@@ -391,9 +390,10 @@ class Engine {
      *
      * @param string $pattern URL pattern to match
      * @param callback $callback Callback function
+     * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function _route($pattern, $callback) {
-        $this->router()->map($pattern, $callback);
+    public function _route($pattern, $callback, $pass_route = false) {
+        $this->router()->map($pattern, $callback, $pass_route);
     }
 
     /**
