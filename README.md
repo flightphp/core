@@ -216,8 +216,10 @@ Flight::route('/user/*', function(){
 
 ## Route Info
 
-Your matching callback will be passed a route object which you can use to inspect
-route information.
+If you want to inspect the matching route information, you can request for the route
+object to be passed to your callback by passing in `true` as the third parameter in
+the route method. The route object will always be the last parameter passed to your
+callback function.
 
 ```php
 Flight::route('/', function($route){
@@ -232,7 +234,7 @@ Flight::route('/', function($route){
 
     // Contains the contents of any '*' used in the URL pattern
     $route->splat;
-});
+}, true);
 ```
 
 # Extending
