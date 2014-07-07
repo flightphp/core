@@ -146,7 +146,7 @@ class Request {
                 'ajax' => self::getVar('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
                 'scheme' => self::getVar('SERVER_PROTOCOL', 'HTTP/1.1'),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
-                'body' => file_get_contents('php://input'),
+                'body' => self::getBody(),
                 'type' => self::getVar('CONTENT_TYPE'),
                 'length' => self::getVar('CONTENT_LENGTH', 0),
                 'query' => new Collection($_GET),
@@ -197,20 +197,19 @@ class Request {
     }
 
     /**
-     * Parse query parameters from a URL.
+     * Gets the body of the request.
      *
-     * @param string $url URL string
-     * @return array Query parameters
+     * @return string Raw HTTP request body
      */
-    public static function parseQuery($url) {
-        $params = array();
+    public static function getBody()
+    {
+        $method = self::getVar('REQUEST_METHOD', 'GET');
 
-        $args = parse_url($url);
-        if (isset($args['query'])) {
-            parse_str($args['query'], $params);
+        if ($method == 'POST' || $method == 'PUT') {
+            return file_get_contents('php://input');
         }
 
-        return $params;
+        return '';
     }
 
     /**
@@ -267,5 +266,22 @@ class Request {
      */
     public static function getVar($var, $default = '') {
         return isset($_SERVER[$var]) ? $_SERVER[$var] : $default;
+    }
+
+    /**
+     * Parse query parameters from a URL.
+     *
+     * @param string $url URL string
+     * @return array Query parameters
+     */
+    public static function parseQuery($url) {
+        $params = array();
+
+        $args = parse_url($url);
+        if (isset($args['query'])) {
+            parse_str($args['query'], $params);
+        }
+
+        return $params;
     }
 }
