@@ -673,12 +673,11 @@ ip - IP address of the client
 ajax - Whether the request is an AJAX request
 scheme - The server protocol (http, https)
 user_agent - Browser information
-body - Raw data from the request body
 type - The content type
 length - The content length
 query - Query string parameters
-data - Post parameters
-cookies - Cookie parameters
+data - Post data or JSON data
+cookies - Cookie data
 files - Uploaded files
 secure - Whether the connection is secure
 accept - HTTP accept parameters
@@ -698,6 +697,23 @@ Or you can do:
 
 ```php
 $id = Flight::request()->query->id;
+```
+
+## RAW Request Body
+
+To get the raw HTTP request body, for example when dealing with PUT requests, you can do:
+
+```php
+$body = Flight::request()->getBody();
+```
+
+## JSON Input
+
+If you send request with the type `application/json` and the data `{"id": 123}` it will be availabe
+from the `data` property:
+
+```php
+$id = Flight::request()->data->id;
 ```
 
 # HTTP Caching

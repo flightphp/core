@@ -94,11 +94,6 @@ class Request {
     public $data;
 
     /**
-     * @var \flight\util\Collection JSON decoded body
-     */
-    public $json;
-
-    /**
      * @var \flight\util\Collection Cookie parameters
      */
     public $cookies;
@@ -146,7 +141,6 @@ class Request {
                 'data' => new Collection($_POST),
                 'cookies' => new Collection($_COOKIE),
                 'files' => new Collection($_FILES),
-                'json' => new Collection(),
                 'secure' => self::getVar('HTTPS', 'off') != 'off',
                 'accept' => self::getVar('HTTP_ACCEPT'),
                 'proxy_ip' => self::getProxyIpAddress()
@@ -186,9 +180,11 @@ class Request {
         // Check for JSON input
         if (strpos($this->type, 'application/json') === 0) {
             $body = $this->getBody();
-
             if ($body != '') {
-                $this->json->setData(json_decode($body, true));
+                $data = json_decode($body, true);
+                if ($data != null) {
+                    $this->data->setData($data);
+                }
             }
         }
     }
