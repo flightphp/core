@@ -28,9 +28,11 @@ use flight\util\Collection;
  *   length - The content length
  *   query - Query string parameters
  *   data - Post parameters
- *   json - JSON decoded body for application/json requests
  *   cookies - Cookie parameters
  *   files - Uploaded files
+ *   secure - Connection is secure
+ *   accept - HTTP accept parameters
+ *   proxy_ip - Proxy IP address of the client
  */
 class Request {
     /**
