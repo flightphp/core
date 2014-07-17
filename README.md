@@ -216,8 +216,10 @@ Flight::route('/user/*', function(){
 
 ## Route Info
 
-Your matching callback will be passed a route object which you can use to inspect
-route information.
+If you want to inspect the matching route information, you can request for the route
+object to be passed to your callback by passing in `true` as the third parameter in
+the route method. The route object will always be the last parameter passed to your
+callback function.
 
 ```php
 Flight::route('/', function($route){
@@ -232,7 +234,7 @@ Flight::route('/', function($route){
 
     // Contains the contents of any '*' used in the URL pattern
     $route->splat;
-});
+}, true);
 ```
 
 # Extending
@@ -671,12 +673,11 @@ ip - IP address of the client
 ajax - Whether the request is an AJAX request
 scheme - The server protocol (http, https)
 user_agent - Browser information
-body - Raw data from the request body
 type - The content type
 length - The content length
 query - Query string parameters
-data - Post parameters
-cookies - Cookie parameters
+data - Post data or JSON data
+cookies - Cookie data
 files - Uploaded files
 secure - Whether the connection is secure
 accept - HTTP accept parameters
@@ -696,6 +697,23 @@ Or you can do:
 
 ```php
 $id = Flight::request()->query->id;
+```
+
+## RAW Request Body
+
+To get the raw HTTP request body, for example when dealing with PUT requests, you can do:
+
+```php
+$body = Flight::request()->getBody();
+```
+
+## JSON Input
+
+If you send request with the type `application/json` and the data `{"id": 123}` it will be availabe
+from the `data` property:
+
+```php
+$id = Flight::request()->data->id;
 ```
 
 # HTTP Caching
@@ -816,6 +834,7 @@ Flight::set($key, $value) // Sets a variable.
 Flight::has($key) // Checks if a variable is set.
 Flight::clear([$key]) // Clears a variable.
 Flight::init() // Initializes the framework to its default settings.
+Flight::app() // Gets the application object instance
 ```
 
 ## Extensible Methods

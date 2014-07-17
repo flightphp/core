@@ -38,7 +38,7 @@ class Router {
     }
 
     /**
-     * Clears all routes the router.
+     * Clears all routes in the router.
      */
     public function clear() {
         $this->routes = array();
@@ -49,18 +49,19 @@ class Router {
      *
      * @param string $pattern URL pattern to match
      * @param callback $callback Callback function
+     * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function map($pattern, $callback) {
+    public function map($pattern, $callback, $pass_route = false) {
+        $url = $pattern;
+        $methods = array('*');
+
         if (strpos($pattern, ' ') !== false) {
             list($method, $url) = explode(' ', trim($pattern), 2);
 
             $methods = explode('|', $method);
+        }
 
-            array_push($this->routes, new Route($url, $callback, $methods));
-        }
-        else {
-            array_push($this->routes, new Route($pattern, $callback, array('*')));
-        }
+        array_push($this->routes, new Route($url, $callback, $methods, $pass_route));
     }
 
     /**
