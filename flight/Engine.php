@@ -412,8 +412,11 @@ class Engine {
         // Append base to relative urls
         if ($base != '/' && $url[0] != '/' && strpos($url, '://') === false) {
             $url = $base.'/'.$url;
-        }
-
+		// If url is empty or with a backslash redirect to base
+        } else if (empty($url) || $url == '/') {
+			$url = $base;
+		}		
+		
         $this->response(false)
             ->status($code)
             ->header('Location', $url)
