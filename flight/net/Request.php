@@ -24,15 +24,102 @@ use flight\util\Collection;
  *   ajax - Whether the request is an AJAX request
  *   scheme - The server protocol (http, https)
  *   user_agent - Browser information
- *   body - Raw data from the request body
  *   type - The content type
  *   length - The content length
  *   query - Query string parameters
- *   data - Post parameters 
+ *   data - Post parameters
  *   cookies - Cookie parameters
  *   files - Uploaded files
+ *   secure - Connection is secure
+ *   accept - HTTP accept parameters
+ *   proxy_ip - Proxy IP address of the client
  */
 class Request {
+    /**
+     * @var string URL being requested
+     */
+    public $url;
+
+    /**
+     * @var string Parent subdirectory of the URL
+     */
+    public $base;
+
+    /**
+     * @var string Request method (GET, POST, PUT, DELETE)
+     */
+    public $method;
+
+    /**
+     * @var string Referrer URL
+     */
+    public $referrer;
+
+    /**
+     * @var string IP address of the client
+     */
+    public $ip;
+
+    /**
+     * @var bool Whether the request is an AJAX request
+     */
+    public $ajax;
+
+    /**
+     * @var string Server protocol (http, https)
+     */
+    public $scheme;
+
+    /**
+     * @var string Browser information
+     */
+    public $user_agent;
+
+    /**
+     * @var string Content type
+     */
+    public $type;
+
+    /**
+     * @var int Content length
+     */
+    public $length;
+
+    /**
+     * @var \flight\util\Collection Query string parameters
+     */
+    public $query;
+
+    /**
+     * @var \flight\util\Collection Post parameters
+     */
+    public $data;
+
+    /**
+     * @var \flight\util\Collection Cookie parameters
+     */
+    public $cookies;
+
+    /**
+     * @var \flight\util\Collection Uploaded files
+     */
+    public $files;
+
+    /**
+     * @var bool Whether the connection is secure
+     */
+    public $secure;
+
+    /**
+     * @var string HTTP accept parameters
+     */
+    public $accept;
+
+    /**
+     * @var string Proxy IP address of the client
+     */
+    public $proxy_ip;
+
     /**
      * Constructor.
      *
@@ -42,24 +129,23 @@ class Request {
         // Default properties
         if (empty($config)) {
             $config = array(
-                'url' => getenv('REQUEST_URI') ?: '/',
-                'base' => str_replace(array('\\',' '), array('/','%20'), dirname(getenv('SCRIPT_NAME'))),
-                'method' => getenv('REQUEST_METHOD') ?: 'GET',
-                'referrer' => getenv('HTTP_REFERER') ?: '',
-                'ip' => getenv('REMOTE_ADDR') ?: '',
-                'ajax' => getenv('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
-                'scheme' => getenv('SERVER_PROTOCOL') ?: 'HTTP/1.1',
-                'user_agent' => getenv('HTTP_USER_AGENT') ?: '',
-                'body' => file_get_contents('php://input'),
-                'type' => getenv('CONTENT_TYPE') ?: '',
-                'length' => getenv('CONTENT_LENGTH') ?: 0,
+                'url' => self::getVar('REQUEST_URI', '/'),
+                'base' => str_replace(array('\\',' '), array('/','%20'), dirname(self::getVar('SCRIPT_NAME'))),
+                'method' => self::getMethod(),
+                'referrer' => self::getVar('HTTP_REFERER'),
+                'ip' => self::getVar('REMOTE_ADDR'),
+                'ajax' => self::getVar('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
+                'scheme' => self::getVar('SERVER_PROTOCOL', 'HTTP/1.1'),
+                'user_agent' => self::getVar('HTTP_USER_AGENT'),
+                'type' => self::getVar('CONTENT_TYPE'),
+                'length' => self::getVar('CONTENT_LENGTH', 0),
                 'query' => new Collection($_GET),
                 'data' => new Collection($_POST),
                 'cookies' => new Collection($_COOKIE),
                 'files' => new Collection($_FILES),
-                'secure' => getenv('HTTPS') && getenv('HTTPS') != 'off',
-                'accept' => getenv('HTTP_ACCEPT') ?: '',
-                'proxy_ip' => $this->getProxyIpAddress()
+                'secure' => self::getVar('HTTPS', 'off') != 'off',
+                'accept' => self::getVar('HTTP_ACCEPT'),
+                'proxy_ip' => self::getProxyIpAddress()
             );
         }
 
@@ -71,40 +157,70 @@ class Request {
      *
      * @param array $properties Array of request properties
      */
-    public function init($properties) {
+    public function init($properties = array()) {
+        // Set all the defined properties
         foreach ($properties as $name => $value) {
             $this->$name = $value;
         }
 
+        // Get the requested URL without the base directory
         if ($this->base != '/' && strlen($this->base) > 0 && strpos($this->url, $this->base) === 0) {
             $this->url = substr($this->url, strlen($this->base));
         }
 
+        // Default url
         if (empty($this->url)) {
             $this->url = '/';
         }
+        // Merge URL query parameters with $_GET
         else {
             $_GET += self::parseQuery($this->url);
 
             $this->query->setData($_GET);
         }
+
+        // Check for JSON input
+        if (strpos($this->type, 'application/json') === 0) {
+            $body = $this->getBody();
+            if ($body != '') {
+                $data = json_decode($body, true);
+                if ($data != null) {
+                    $this->data->setData($data);
+                }
+            }
+        }
     }
 
     /**
-     * Parse query parameters from a URL.
+     * Gets the body of the request.
      *
-     * @param string $url URL string
-     * @return array Query parameters
+     * @return string Raw HTTP request body
      */
-    public static function parseQuery($url) {
-        $params = array();
+    public static function getBody()
+    {
+        $method = self::getMethod();
 
-        $args = parse_url($url);
-        if (isset($args['query'])) {
-            parse_str($args['query'], $params);
+        if ($method == 'POST' || $method == 'PUT') {
+            return file_get_contents('php://input');
         }
 
-        return $params;
+        return '';
+    }
+
+    /**
+     * Gets the request method.
+     *
+     * @return string
+     */
+    public static function getMethod() {
+        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+            return $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+        }
+        elseif (isset($_REQUEST['_method'])) {
+            return $_REQUEST['_method'];
+        }
+
+        return self::getVar('REQUEST_METHOD', 'GET');
     }
 
     /**
@@ -112,7 +228,7 @@ class Request {
      *
      * @return string IP address
      */
-    private function getProxyIpAddress() {
+    public static function getProxyIpAddress() {
         static $forwarded = array(
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
@@ -134,5 +250,33 @@ class Request {
         }
 
         return '';
+    }
+
+    /**
+     * Gets a variable from $_SERVER using $default if not provided.
+     *
+     * @param string $var Variable name
+     * @param string $default Default value to substitute
+     * @return string Server variable value
+     */
+    public static function getVar($var, $default = '') {
+        return isset($_SERVER[$var]) ? $_SERVER[$var] : $default;
+    }
+
+    /**
+     * Parse query parameters from a URL.
+     *
+     * @param string $url URL string
+     * @return array Query parameters
+     */
+    public static function parseQuery($url) {
+        $params = array();
+
+        $args = parse_url($url);
+        if (isset($args['query'])) {
+            parse_str($args['query'], $params);
+        }
+
+        return $params;
     }
 }

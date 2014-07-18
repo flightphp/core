@@ -7,7 +7,7 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class RedirectTest extends PHPUnit_Framework_TestCase
 {
@@ -25,7 +25,7 @@ class RedirectTest extends PHPUnit_Framework_TestCase
     }
 
     function setUp() {
-        putenv('SCRIPT_NAME=/subdir/index.php');
+        $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
 
         $this->app = new \flight\Engine();
         $this->app->set('flight.base_url', '/testdir');
@@ -46,7 +46,7 @@ class RedirectTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/login', $this->getBaseUrl($base, $url));
     }
 
-    // Relative URLs shuold include the base
+    // Relative URLs should include the base
     function testRelativeUrl(){
         $url = 'login';
         $base = $this->app->request()->base;

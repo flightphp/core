@@ -40,12 +40,12 @@ class Loader {
      * Registers a class.
      *
      * @param string $name Registry name
-     * @param string $class Class name
+     * @param string|callable $class Class name or function to instantiate class
      * @param array $params Class initialization parameters
      * @param callback $callback Function to call after object instantiation
      */
     public function register($name, $class, array $params = array(), $callback = null) {
-        unset($this->instances[$class]);
+        unset($this->instances[$name]);
 
         $this->classes[$name] = array($class, $params, $callback);
     }
@@ -67,50 +67,57 @@ class Loader {
      * @return object Class instance
      */
     public function load($name, $shared = true) {
+        $obj = null;
+
         if (isset($this->classes[$name])) {
             list($class, $params, $callback) = $this->classes[$name];
 
-            $do_callback = ($callback && (!$shared || !isset($this->instances[$class])));
+            $exists = isset($this->instances[$name]);
 
-            $obj = ($shared) ?
-                $this->getInstance($class, $params) :
-                $this->newInstance($class, $params);
+            if ($shared) {
+                $obj = ($exists) ?
+                    $this->getInstance($name) :
+                    $this->newInstance($class, $params);
+                
+                if (!$exists) {
+                    $this->instances[$name] = $obj;
+                }
+            }
+            else {
+                $obj = $this->newInstance($class, $params);
+            }
 
-            if ($do_callback) {
+            if ($callback && (!$shared || !$exists)) {
                 $ref = array(&$obj);
                 call_user_func_array($callback, $ref);
             }
-
-            return $obj;
         }
 
-        return ($shared) ?
-            $this->getInstance($name) :
-            $this->newInstance($name);
+        return $obj;
     }
 
     /**
      * Gets a single instance of a class.
      *
-     * @param string $class Class name
-     * @param array $params Class initialization parameters
+     * @param string $name Instance name
+     * @return object Class instance
      */
-    public function getInstance($class, array $params = array()) {
-        if (!isset($this->instances[$class])) {
-            $this->instances[$class] = $this->newInstance($class, $params);
-        }
-
-        return $this->instances[$class];
+    public function getInstance($name) {
+        return isset($this->instances[$name]) ? $this->instances[$name] : null;
     }
 
     /**
      * Gets a new instance of a class.
      *
-     * @param string $class Class name
+     * @param string|callable $class Class name or callback function to instantiate class
      * @param array $params Class initialization parameters
      * @return object Class instance
      */
     public function newInstance($class, array $params = array()) {
+        if (is_callable($class)) {
+            return call_user_func_array($class, $params);
+        }
+
         switch (count($params)) {
             case 0:
                 return new $class();
@@ -163,10 +170,9 @@ class Loader {
      * Autoloads classes.
      *
      * @param string $class Class name
-     * @throws \Exception If class not found
      */
     public static function loadClass($class) {
-        $class_file = str_replace('\\', '/', str_replace('_', '/', $class)).'.php';
+        $class_file = str_replace(array('\\', '_'), '/', $class).'.php';
 
         foreach (self::$dirs as $dir) {
             $file = $dir.'/'.$class_file;
@@ -174,13 +180,6 @@ class Loader {
                 require $file;
                 return;
             }
-        }
-
-        // Allow other autoloaders to run before raising an error
-        $loaders = spl_autoload_functions();
-        $loader = array_pop($loaders);
-        if (is_array($loader) && $loader[0] == __CLASS__ && $loader[1] == __FUNCTION__) {
-            throw new \Exception('Unable to load file: '.$class_file);
         }
     }
 

@@ -55,6 +55,7 @@ class Engine {
      *
      * @param string $name Method name
      * @param array $params Method parameters
+     * @return mixed Callback results
      */
     public function __call($name, $params) {
         $callback = $this->dispatcher->get($name);
@@ -94,7 +95,7 @@ class Engine {
         // Register framework methods
         $methods = array(
             'start','stop','route','halt','error','notFound',
-            'render','redirect','etag','lastModified','json'
+            'render','redirect','etag','lastModified','json','jsonp'
         );
         foreach ($methods as $name) {
             $this->dispatcher->set($name, array($this, '_'.$name));
@@ -133,10 +134,11 @@ class Engine {
      * @param int $errstr Error string
      * @param int $errfile Error file name
      * @param int $errline Error file line number
+     * @throws \ErrorException
      */
     public function handleError($errno, $errstr, $errfile, $errline) {
         if ($errno & error_reporting()) {
-            $this->handleException(new \ErrorException($errstr, $errno, 0, $errfile, $errline));
+            throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
         }
     }
 
@@ -272,6 +274,15 @@ class Engine {
      */
     public function _start() {
         $dispatched = false;
+        $self = $this;
+        $request = $this->request();
+        $response = $this->response();
+        $router = $this->router();
+
+        // Flush any existing output
+        if (ob_get_length() > 0) {
+            $response->write(ob_get_clean());
+        }
 
         // Enable output buffering
         ob_start();
@@ -280,15 +291,17 @@ class Engine {
         $this->handleErrors($this->get('flight.handle_errors'));
 
         // Disable caching for AJAX requests
-        if ($this->request()->ajax) {
-            $this->response()->cache(false);
+        if ($request->ajax) {
+            $response->cache(false);
         }
 
         // Allow post-filters to run
-        $this->after('start', array($this, 'stop'));
+        $this->after('start', function() use ($self) {
+            $self->stop();
+        });
 
         // Route the request
-        while ($route = $this->router()->route($this->request())) {
+        while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
             $continue = $this->dispatcher->execute(
@@ -300,7 +313,7 @@ class Engine {
 
             if (!$continue) break;
 
-            $this->router()->next();
+            $router->next();
         }
 
         if (!$dispatched) {
@@ -310,9 +323,12 @@ class Engine {
 
     /**
      * Stops the framework and outputs the current response.
+     *
+     * @param int $code HTTP status code
      */
-    public function _stop() {
+    public function _stop($code = 200) {
         $this->response()
+            ->status($code)
             ->write(ob_get_clean())
             ->send();
     }
@@ -374,9 +390,10 @@ class Engine {
      *
      * @param string $pattern URL pattern to match
      * @param callback $callback Callback function
+     * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function _route($pattern, $callback) {
-        $this->router()->map($pattern, $callback);
+    public function _route($pattern, $callback, $pass_route = false) {
+        $this->router()->map($pattern, $callback, $pass_route);
     }
 
     /**
@@ -423,13 +440,37 @@ class Engine {
     /**
      * Sends a JSON response.
      *
-     * @param mixed $data Data to JSON encode
+     * @param mixed $data JSON data
+     * @param int $code HTTP status code
+     * @param bool $encode Whether to perform JSON encoding
      */
-    public function _json($data) {
-        $this->response()
-            ->status(200)
+    public function _json($data, $code = 200, $encode = true) {
+        $json = ($encode) ? json_encode($data) : $data;
+
+        $this->response(false)
+            ->status($code)
             ->header('Content-Type', 'application/json')
-            ->write(json_encode($data))
+            ->write($json)
+            ->send();
+    }
+	
+    /**
+     * Sends a JSONP response.
+     *
+     * @param mixed $data JSON data
+     * @param string $param Query parameter that specifies the callback name.
+     * @param int $code HTTP status code
+     * @param bool $encode Whether to perform JSON encoding
+     */
+    public function _jsonp($data, $param = 'jsonp', $code = 200, $encode = true) {
+        $json = ($encode) ? json_encode($data) : $data;
+
+        $callback = $this->request()->query[$param];
+
+        $this->response(false)
+            ->status($code)
+            ->header('Content-Type', 'application/javascript')
+            ->write($callback.'('.$json.');')
             ->send();
     }
 
@@ -444,7 +485,8 @@ class Engine {
 
         $this->response()->header('ETag', $id);
 
-        if ($id === getenv('HTTP_IF_NONE_MATCH')) {
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
+            $_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
             $this->halt(304);
         }
     }
@@ -457,7 +499,8 @@ class Engine {
     public function _lastModified($time) {
         $this->response()->header('Last-Modified', date(DATE_RFC1123, $time));
 
-        if ($time === strtotime(getenv('HTTP_IF_MODIFIED_SINCE'))) {
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
+            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
             $this->halt(304);
         }
     }

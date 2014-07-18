@@ -82,4 +82,11 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('Hello, Fred! Have a nice day!', $result);
     }
+
+    // Test an invalid callback
+    function testInvalidCallback() {
+        $this->setExpectedException('Exception', 'Invalid callback specified.');
+
+        $this->dispatcher->execute(array('NonExistentClass', 'nonExistentMethod'));
+    }
 }

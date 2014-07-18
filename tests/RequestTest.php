@@ -7,6 +7,7 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class RequestTest extends PHPUnit_Framework_TestCase
 {
@@ -16,13 +17,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
     private $request;
 
     function setUp() {
-        putenv('REQUEST_URI=/');
-        putenv('SCRIPT_NAME=/index.php');
-        putenv('REQUEST_METHOD=GET');
-        putenv('HTTP_X_REQUESTED_WITH=XMLHttpRequest');
-        putenv('REQUEST_URI=/');
-        putenv('REMOTE_ADDR=8.8.8.8');
-        putenv('HTTPS=on');
+        $_SERVER['REQUEST_URI'] = '/';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
+        $_SERVER['HTTPS'] = 'on';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '32.32.32.32';
 
         $this->request = new \flight\net\Request();
@@ -47,7 +47,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     function testSubdirectory() {
-        putenv('SCRIPT_NAME=/subdir/index.php');
+        $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
 
         $request = new \flight\net\Request();
 
@@ -55,7 +55,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     function testQueryParameters() {
-        putenv('REQUEST_URI=/page?id=1&name=bob');
+        $_SERVER['REQUEST_URI'] = '/page?id=1&name=bob';
 
         $request = new \flight\net\Request();
 
@@ -65,7 +65,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     function testCollections() {
-        putenv('REQUEST_URI=/page?id=1');
+        $_SERVER['REQUEST_URI'] = '/page?id=1';
 
         $_GET['q'] = 1;
         $_POST['q'] = 1;
@@ -79,5 +79,21 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $request->data->q);
         $this->assertEquals(1, $request->cookies->q);
         $this->assertEquals(1, $request->files->q);
+    }
+
+    function testMethodOverrideWithHeader() {
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'PUT';
+
+        $request = new \flight\net\Request();
+
+        $this->assertEquals('PUT', $request->method);
+    }
+
+    function testMethodOverrideWithPost() {
+        $_REQUEST['_method'] = 'PUT';
+
+        $request = new \flight\net\Request();
+
+        $this->assertEquals('PUT', $request->method);
     }
 }

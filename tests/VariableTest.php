@@ -7,39 +7,44 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class VariableTest extends PHPUnit_Framework_TestCase
 {
-    function setUp() {
-    }
+    /**
+     * @var \flight\Engine
+     */
+    private $app;
 
+    function setUp() {
+        $this->app = new \flight\Engine();
+    }
     // Set and get a variable
     function testSetAndGet() {
-        Flight::set('a', 1);
-        $var = Flight::get('a');
+        $this->app->set('a', 1);
+        $var = $this->app->get('a');
         $this->assertEquals(1, $var);
     }
 
     // Clear a specific variable
     function testClear() {
-        Flight::set('b', 1);
-        Flight::clear('b');
-        $var = Flight::get('b');
+        $this->app->set('b', 1);
+        $this->app->clear('b');
+        $var = $this->app->get('b');
         $this->assertEquals(null, $var);
     }
 
     // Clear all variables
     function testClearAll() {
-        Flight::set('c', 1);
-        Flight::clear();
-        $var = Flight::get('c');
+        $this->app->set('c', 1);
+        $this->app->clear();
+        $var = $this->app->get('c');
         $this->assertEquals(null, $var);
     }
 
     // Check if a variable exists
     function testHas() {
-        Flight::set('d', 1);
-        $this->assertTrue(Flight::has('d'));
+        $this->app->set('d', 1);
+        $this->assertTrue($this->app->has('d'));
     }
 }

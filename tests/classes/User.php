@@ -1,8 +1,8 @@
 <?php
-class TestClass {
+class User {
     public $name;
 
-    public function TestClass($name = ''){
+    public function User($name = ''){
         $this->name = $name;
     }
 }

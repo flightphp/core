@@ -134,6 +134,7 @@ class Dispatcher {
      * @param callback $callback Callback function
      * @param array $params Function parameters
      * @return mixed Function results
+     * @throws \Exception
      */
     public static function execute($callback, array &$params = array()) {
         if (is_callable($callback)) {
@@ -141,7 +142,9 @@ class Dispatcher {
                 self::invokeMethod($callback, $params) :
                 self::callFunction($callback, $params);
         }
-        return null;
+        else {
+            throw new \Exception('Invalid callback specified.');
+        }
     }
 
     /**

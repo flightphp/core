@@ -7,6 +7,7 @@
  */
 
 require_once 'PHPUnit/Autoload.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class ViewTest extends PHPUnit_Framework_TestCase
 {
