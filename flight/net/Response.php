@@ -3,7 +3,7 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 namespace flight\net;
@@ -14,10 +14,24 @@ namespace flight\net;
  * body.
  */
 class Response {
-    protected $headers = array();
+    /**
+     * @var int HTTP status
+     */
     protected $status = 200;
+
+    /**
+     * @var array HTTP headers
+     */
+    protected $headers = array();
+
+    /**
+     * @var string HTTP response body
+     */
     protected $body;
 
+    /**
+     * @var array HTTP status codes
+     */
     public static $codes = array(
         200 => 'OK',
         201 => 'Created',
@@ -70,27 +84,7 @@ class Response {
      */
     public function status($code) {
         if (array_key_exists($code, self::$codes)) {
-            if (strpos(php_sapi_name(), 'cgi') !== false) {
-                header(
-                    sprintf(
-                        'Status: %d %s',
-                        $code,
-                        self::$codes[$code]
-                    ),
-                    true
-                );
-            }
-            else {
-                header(
-                    sprintf(
-                        '%s %d %s',
-                        getenv('SERVER_PROTOCOL') ?: 'HTTP/1.1',
-                        $code,
-                        self::$codes[$code]),
-                    true,
-                    $code
-                );
-            }
+            $this->status = $code;
         }
         else {
             throw new \Exception('Invalid status code.');
@@ -137,8 +131,8 @@ class Response {
      * @return object Self reference
      */
     public function clear() {
-        $this->headers = array();
         $this->status = 200;
+        $this->headers = array();
         $this->body = '';
 
         return $this;
@@ -170,7 +164,51 @@ class Response {
     }
 
     /**
-     * Sends the response and exits the program.
+     * Sends HTTP headers.
+     *
+     * @return object Self reference
+     */
+    public function sendHeaders() {
+        // Send status code header
+        if (strpos(php_sapi_name(), 'cgi') !== false) {
+            header(
+                sprintf(
+                    'Status: %d %s',
+                    $this->status,
+                    self::$codes[$this->status]
+                ),
+                true
+            );
+        }
+        else {
+            header(
+                sprintf(
+                    '%s %d %s',
+                    (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'),
+                    $this->status,
+                    self::$codes[$this->status]),
+                true,
+                $this->status
+            );
+        }
+
+        // Send other headers
+        foreach ($this->headers as $field => $value) {
+            if (is_array($value)) {
+                foreach ($value as $v) {
+                    header($field.': '.$v, false);
+                }
+            }
+            else {
+                header($field.': '.$value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sends a HTTP response.
      */
     public function send() {
         if (ob_get_length() > 0) {
@@ -178,19 +216,10 @@ class Response {
         }
 
         if (!headers_sent()) {
-            foreach ($this->headers as $field => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $v) {
-                        header($field.': '.$v);
-                    }
-                }
-                else {
-                    header($field.': '.$value);
-                }
-            }
+            $this->sendHeaders();
         }
 
         exit($this->body);
     }
 }
-?>
+

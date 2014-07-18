@@ -3,11 +3,11 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/template/View.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class ViewTest extends PHPUnit_Framework_TestCase
 {

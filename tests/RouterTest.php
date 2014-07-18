@@ -3,12 +3,11 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/net/Router.php';
-require_once __DIR__.'/../flight/net/Request.php';
+require_once __DIR__.'/../flight/autoload.php';
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
@@ -32,14 +31,15 @@ class RouterTest extends PHPUnit_Framework_TestCase
         echo 'OK';
     }
 
-    // Checks if a route was matched
-    function check($str = 'OK'){
-        $callback = $this->router->route($this->request);
-        $params = array_values($this->router->params);
+    // Checks if a route was matched with a given output
+    function check($str = ''){
+        $route = $this->router->route($this->request);
 
-        $this->assertTrue(is_callable($callback));
+        $params = array_values($route->params);
 
-        call_user_func_array($callback, $params);
+        $this->assertTrue(is_callable($route->callback));
+
+        call_user_func_array($route->callback, $params);
 
         $this->expectOutputString($str);
     }
@@ -49,15 +49,15 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/', array($this, 'ok'));
         $this->request->url = '/';
 
-        $this->check();
+        $this->check('OK');
     }
 
     // Simple path
-    function testPathRoute() {
+    function testPathRoute(){
         $this->router->map('/path', array($this, 'ok'));
         $this->request->url = '/path';
 
-        $this->check();
+        $this->check('OK');
     }
 
     // POST route
@@ -66,7 +66,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->request->url = '/';
         $this->request->method = 'POST';
 
-        $this->check();
+        $this->check('OK');
     }
 
     // Either GET or POST route
@@ -75,7 +75,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->request->url = '/';
         $this->request->method = 'GET';
 
-        $this->check();
+        $this->check('OK');
     }
 
     // Test regular expression matching
@@ -83,7 +83,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/num/[0-9]+', array($this, 'ok'));
         $this->request->url = '/num/1234';
 
-        $this->check();
+        $this->check('OK');
     }
 
     // Passing URL parameters
@@ -145,6 +145,35 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/account/*', array($this, 'ok'));
         $this->request->url = '/account/123/abc/xyz';
 
+        $this->check('OK');
+    }
+
+    // Check if route was passed
+    function testRoutePassing(){
+        $this->router->map('/yes_route', function($route){
+            $this->assertTrue(is_object($route));
+        },
+        true);
+        $this->request->url = '/yes_route';
         $this->check();
+
+        $this->router->map('/no_route', function($route = null){
+            $this->assertTrue(is_null($route));
+        },
+        false);
+        $this->request->url = '/no_route';
+        $this->check();
+    }
+
+    // Test splat
+    function testSplatWildcard(){
+        $this->router->map('/account/*', function($route){
+            echo $route->splat;
+        },
+        true);
+
+        $this->request->url = '/account/456/def/xyz';
+
+        $this->check('456/def/xyz');
     }
 }

@@ -3,11 +3,10 @@
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     http://www.opensource.org/licenses/mit-license.php
+ * @license     MIT, http://flightphp.com/license
  */
 
 require_once 'PHPUnit/Autoload.php';
-require_once __DIR__.'/../flight/core/Dispatcher.php';
 require_once __DIR__.'/classes/Hello.php';
 
 class DispatcherTest extends PHPUnit_Framework_TestCase
@@ -82,5 +81,12 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
         $result = $this->dispatcher->run('hello', array('Bob'));
 
         $this->assertEquals('Hello, Fred! Have a nice day!', $result);
+    }
+
+    // Test an invalid callback
+    function testInvalidCallback() {
+        $this->setExpectedException('Exception', 'Invalid callback specified.');
+
+        $this->dispatcher->execute(array('NonExistentClass', 'nonExistentMethod'));
     }
 }
