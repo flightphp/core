@@ -409,9 +409,9 @@ class Engine {
             $base = $this->request()->base;
         }
 
-        // Append base to relative urls
-        if ($base != '/' && $url[0] != '/' && strpos($url, '://') === false) {
-            $url = $base.'/'.$url;
+        // Append base url to redirect url
+        if ($base != '/' && strpos($url, '://') === false) {
+            $url = preg_replace('#/+#', '/', $base.'/'.$url);
         }
 
         $this->response(false)
