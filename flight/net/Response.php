@@ -83,7 +83,11 @@ class Response {
      * @return object Self reference
      * @throws \Exception If invalid status code
      */
-    public function status($code) {
+    public function status($code = null) {
+        if ($code === null) {
+            return $this->status;
+        }
+
         if (array_key_exists($code, self::$codes)) {
             $this->status = $code;
         }
