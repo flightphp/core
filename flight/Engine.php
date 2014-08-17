@@ -392,8 +392,8 @@ class Engine {
      * @param callback $callback Callback function
      * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function _route($pattern, $callback, $pass_route = false) {
-        $this->router()->map($pattern, $callback, $pass_route);
+    public function _route($pattern, $callback, $pass_route = false, $extras) {
+        $this->router()->map($pattern, $callback, $pass_route, $extras);
     }
 
     /**
