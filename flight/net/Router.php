@@ -50,8 +50,9 @@ class Router {
      * @param string $pattern URL pattern to match
      * @param callback $callback Callback function
      * @param boolean $pass_route Pass the matching route object to the callback
+     * @param array $extras Pass extra parameters to route object
      */
-    public function map($pattern, $callback, $pass_route = false) {
+    public function map($pattern, $callback, $pass_route = false, $extras) {
         $url = $pattern;
         $methods = array('*');
 
@@ -61,7 +62,7 @@ class Router {
             $methods = explode('|', $method);
         }
 
-        array_push($this->routes, new Route($url, $callback, $methods, $pass_route));
+        array_push($this->routes, new Route($url, $callback, $methods, $pass_route, $extras));
     }
 
     /**

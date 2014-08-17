@@ -50,18 +50,25 @@ class Route {
     public $pass = false;
 
     /**
+     * @var array Route extra parameters
+     */
+    public $extras = array();
+
+    /**
      * Constructor.
      *
      * @param string $pattern URL pattern
      * @param mixed $callback Callback function
      * @param array $methods HTTP methods
      * @param boolean $pass Pass self in callback parameters
+     * @param array $extras Pass extra parameters in route
      */
-    public function __construct($pattern, $callback, $methods, $pass) {
+    public function __construct($pattern, $callback, $methods, $pass, $extras) {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
         $this->pass = $pass;
+        $this->extras = $extras;
     }
 
     /**
