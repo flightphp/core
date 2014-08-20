@@ -74,7 +74,7 @@ class Route {
         // Wildcard or exact match
         if ($this->pattern === '*' || $this->pattern === $url) {
             if ($this->pass) {
-                array_push($this->params, $this);
+                $this->params[] = $this;
             }
             return true;
         }
@@ -114,7 +114,7 @@ class Route {
             }
 
             if ($this->pass) {
-                array_push($this->params, $this);
+                $this->params[] = $this;
             }
 
             $this->regex = $regex;
