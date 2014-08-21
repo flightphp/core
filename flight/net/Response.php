@@ -66,6 +66,7 @@ class Response {
         415 => 'Unsupported Media Type',
         416 => 'Requested Range Not Satisfiable',
         417 => 'Expectation Failed',
+        418 => 'Permanent Redirect',
 
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
@@ -82,7 +83,11 @@ class Response {
      * @return object Self reference
      * @throws \Exception If invalid status code
      */
-    public function status($code) {
+    public function status($code = null) {
+        if ($code === null) {
+            return $this->status;
+        }
+
         if (array_key_exists($code, self::$codes)) {
             $this->status = $code;
         }
