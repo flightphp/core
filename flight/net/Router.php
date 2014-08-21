@@ -61,7 +61,7 @@ class Router {
             $methods = explode('|', $method);
         }
 
-        array_push($this->routes, new Route($url, $callback, $methods, $pass_route));
+        $this->routes[] = new Route($url, $callback, $methods, $pass_route);
     }
 
     /**
