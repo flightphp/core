@@ -82,7 +82,20 @@ class Route {
         $ids = array();
         $char = substr($this->pattern, -1);
 
-        $this->splat = substr($url, strpos($this->pattern, '*'));
+        // Get splat
+        if ($char === '*') {
+            $n = 0;
+            $len = strlen($url);
+            $count = substr_count($this->pattern, '/');
+
+            for ($i = 0; $i < $len; $i++) {
+                if ($url[$i] == '/') $n++;
+                if ($n == $count) break;
+            }
+
+            $this->splat = substr($url, $i+1);
+        }
+
         $this->pattern = str_replace(array(')','*'), array(')?','.*?'), $this->pattern);
 
         // Build the regex for matching

@@ -176,4 +176,17 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->check('456/def/xyz');
     }
+
+    // Test splat with named parameters
+    function testSplatNamedPlusWildcard(){
+        $this->router->map('/account/@name/*', function($name, $route){
+                echo $route->splat;
+                $this->assertEquals('abc', $name);
+            },
+            true);
+
+        $this->request->url = '/account/abc/456/def/xyz';
+
+        $this->check('456/def/xyz');
+    }
 }
