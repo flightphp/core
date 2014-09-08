@@ -177,6 +177,18 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->check('456/def/xyz');
     }
 
+    // Test splat without trailing slash
+    function testSplatWildcardTrailingSlash(){
+        $this->router->map('/account/*', function($route){
+                echo $route->splat;
+            },
+            true);
+
+        $this->request->url = '/account';
+
+        $this->check('');
+    }
+
     // Test splat with named parameters
     function testSplatNamedPlusWildcard(){
         $this->router->map('/account/@name/*', function($name, $route){

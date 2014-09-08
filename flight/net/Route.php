@@ -42,7 +42,7 @@ class Route {
     /**
      * @var string URL splat content
      */
-    public $splat;
+    public $splat = '';
 
     /**
      * @var boolean Pass self in callback parameters
@@ -80,10 +80,10 @@ class Route {
         }
 
         $ids = array();
-        $char = substr($this->pattern, -1);
+        $last_char = substr($this->pattern, -1);
 
         // Get splat
-        if ($char === '*') {
+        if ($last_char === '*') {
             $n = 0;
             $len = strlen($url);
             $count = substr_count($this->pattern, '/');
@@ -93,12 +93,12 @@ class Route {
                 if ($n == $count) break;
             }
 
-            $this->splat = substr($url, $i+1);
+            $this->splat = (string)substr($url, $i+1);
         }
 
-        $this->pattern = str_replace(array(')','*'), array(')?','.*?'), $this->pattern);
-
         // Build the regex for matching
+        $regex = str_replace(array(')','/*'), array(')?','(/?|/.*?)'), $this->pattern);
+
         $regex = preg_replace_callback(
             '#@([\w]+)(:([^/\(\)]*))?#',
             function($matches) use (&$ids) {
@@ -108,11 +108,11 @@ class Route {
                 }
                 return '(?P<'.$matches[1].'>[^/\?]+)';
             },
-            $this->pattern
+            $regex
         );
 
         // Fix trailing slash
-        if ($char === '/') {
+        if ($last_char === '/') {
             $regex .= '?';
         }
         // Allow trailing slash
