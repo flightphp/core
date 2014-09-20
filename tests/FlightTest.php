@@ -34,6 +34,19 @@ class FlightTest extends PHPUnit_Framework_TestCase
         $var = Flight::get('a');
 
         $this->assertEquals(1, $var);
+
+        Flight::clear();
+        $vars = Flight::get();
+
+        $this->assertEquals(0, count($vars));
+
+        Flight::set('a', 1);
+        Flight::set('b', 2);
+        $vars = Flight::get();
+
+        $this->assertEquals(2, count($vars));
+        $this->assertEquals(1, $vars['a']);
+        $this->assertEquals(2, $vars['b']);
     }
 
     // Register a class
