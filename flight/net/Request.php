@@ -121,6 +121,11 @@ class Request {
     public $proxy_ip;
 
     /**
+     * @var mixed Data from the request body
+     */
+    protected static $body;
+
+    /**
      * Constructor.
      *
      * @param array $config Request configuration
@@ -198,13 +203,18 @@ class Request {
      */
     public static function getBody()
     {
+        if (!is_null(self::$body)) {
+            return self::$body;
+        }
+
+        $body = '';
         $method = self::getMethod();
 
         if ($method == 'POST' || $method == 'PUT') {
-            return file_get_contents('php://input');
+            $body = file_get_contents('php://input');
         }
 
-        return '';
+        return self::$body = $body;
     }
 
     /**
