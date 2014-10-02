@@ -196,15 +196,20 @@ class Request {
      *
      * @return string Raw HTTP request body
      */
-    public static function getBody()
-    {
+    public static function getBody() {
+        static $body;
+
+        if (!is_null($body)) {
+            return $body;
+        }
+
         $method = self::getMethod();
 
         if ($method == 'POST' || $method == 'PUT') {
-            return file_get_contents('php://input');
+            $body = file_get_contents('php://input');
         }
 
-        return '';
+        return $body;
     }
 
     /**
