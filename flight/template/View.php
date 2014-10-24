@@ -154,7 +154,13 @@ class View {
         if ((substr($file, -4) != '.php')) {
             $file .= '.php';
         }
-        return $this->path.'/'.$file;
+        if ((substr($file, 0, 1) == '/')) {
+            return $file;
+        }
+        else
+        {
+            return $this->path.'/'.$file;
+        }
     }
 
     /**
