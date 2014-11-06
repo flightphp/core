@@ -148,8 +148,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->check('OK');
     }
 
-    // Check if route was passed
-    function testRoutePassing(){
+    // Check if route object was passed
+    function testRouteObjectPassing(){
         $this->router->map('/yes_route', function($route){
             $this->assertTrue(is_object($route));
         },
@@ -186,7 +186,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->request->url = '/account';
 
-        $this->check('');
+        $this->check();
     }
 
     // Test splat with named parameters

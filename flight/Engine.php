@@ -316,6 +316,8 @@ class Engine {
             if (!$continue) break;
 
             $router->next();
+
+            $dispatched = false;
         }
 
         if (!$dispatched) {
