@@ -39,6 +39,13 @@ class Engine {
     protected $dispatcher;
 
     /**
+     * Previous Exception handler. (To help integration with third party Exception handler, ex : Monolog)
+		*
+     * @var object
+     */
+    protected $previousExceptionHandler;
+	
+    /**
      * Constructor.
      */
     public function __construct() {
@@ -119,7 +126,7 @@ class Engine {
     {
         if ($enabled) {
             set_error_handler(array($this, 'handleError'));
-            set_exception_handler(array($this, 'handleException'));
+            $this->previousExceptionHandler = set_exception_handler(array($this, 'handleException'));
         }
         else {
             restore_error_handler();
@@ -152,6 +159,10 @@ class Engine {
             error_log($e->getMessage());
         }
 
+        if ($this->previousExceptionHandler) {
+            call_user_func($this->previousExceptionHandler, $e);
+        }
+        
         $this->error($e);
     }
 
