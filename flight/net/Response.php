@@ -236,8 +236,8 @@ class Response {
         }
 
         // Send content length
-        if( ($length = strlen($this->body)) > 0) {
-            header("Content-Length: $length");
+        if (($length = strlen($this->body)) > 0) {
+            header('Content-Length: '.$length);
         }
 
         return $this;
