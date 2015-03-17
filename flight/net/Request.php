@@ -218,14 +218,16 @@ class Request {
      * @return string
      */
     public static function getMethod() {
+        $method = self::getVar('REQUEST_METHOD', 'GET');
+
         if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
-            return $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+            $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
         }
         elseif (isset($_REQUEST['_method'])) {
-            return $_REQUEST['_method'];
+            $method = $_REQUEST['_method'];
         }
 
-        return self::getVar('REQUEST_METHOD', 'GET');
+        return strtoupper($method);
     }
 
     /**
