@@ -191,7 +191,6 @@ class Response {
             $this->headers['Expires'] = gmdate('D, d M Y H:i:s', $expires) . ' GMT';
             $this->headers['Cache-Control'] = 'max-age='.($expires - time());
         }
-
         return $this;
     }
 
@@ -234,6 +233,11 @@ class Response {
             else {
                 header($field.': '.$value);
             }
+        }
+
+        // Send content length
+        if (($length = strlen($this->body)) > 0) {
+            header('Content-Length: '.$length);
         }
 
         return $this;
