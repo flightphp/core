@@ -190,6 +190,9 @@ class Response {
             $expires = is_int($expires) ? $expires : strtotime($expires);
             $this->headers['Expires'] = gmdate('D, d M Y H:i:s', $expires) . ' GMT';
             $this->headers['Cache-Control'] = 'max-age='.($expires - time());
+            if (isset($this->headers['Pragma']) && $this->headers['Pragma'] == 'no-cache'){
+                unset($this->headers['Pragma']);
+            }
         }
         return $this;
     }
