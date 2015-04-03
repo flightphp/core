@@ -14,9 +14,9 @@
  * @method  static void before($name, $callback) Adds a filter before a framework method.
  * @method  static void after($name, $callback) Adds a filter after a framework method.
  * @method  static void path($path) Adds a path for autoloading classes.
- * @method  static void get($key) Gets a variable.
- * @method  static void set($key, $value) Sets a variable.
- * @method  static void has($key) Checks if a variable is set.
+ * @method  static mixed get($key) Gets a variable.
+ * @method  static string set($key, $value) Sets a variable.
+ * @method  static bool has($key) Checks if a variable is set.
  * @method  static void clear($key = null) Clears a variable.
  * @method  static void start() Starts the framework.
  * @method  static void stop() Stops the framework and sends a response.
