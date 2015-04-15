@@ -25,8 +25,16 @@ Flight is released under the [MIT](http://flightphp.com/license) license.
 
 # Installation
 
-1\. [Download](https://github.com/mikecao/flight/tarball/master) and extract
-the Flight framework files to your web directory.
+1\. Download the files.
+
+If you're using [Composer](https://getcomposer.org/), you can run the following command:
+
+```
+composer require mikecao/flight
+```
+
+OR you can [download](https://github.com/mikecao/flight/archive/master.zip) them directly 
+and extract them to your web directory.
 
 2\. Configure your webserver.
 
@@ -54,6 +62,12 @@ First include the framework.
 
 ```php
 require 'flight/Flight.php';
+```
+
+If you're using Composer, run the autoloader instead.
+
+```php
+require 'vendor/autoload.php';
 ```
 
 Then define a route and assign a function to handle the request.
