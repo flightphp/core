@@ -6,7 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-require_once 'PHPUnit/Autoload.php';
+require_once 'vendor/autoload.php';
 require_once __DIR__.'/classes/Hello.php';
 
 class DispatcherTest extends PHPUnit_Framework_TestCase

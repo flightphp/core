@@ -4,6 +4,7 @@ This directory contains unit tests for Flight. The tests were written for PHPUni
 
 To run the tests do:
 
-    phpunit tests
+    composer install
+    vendor/bin/phpunit tests
 
 Learn more about PHPUnit at [http://www.phpunit.de](http://www.phpunit.de/manual/current/en/index.html)

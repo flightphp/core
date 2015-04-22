@@ -6,7 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-require_once 'PHPUnit/Autoload.php';
+require_once 'vendor/autoload.php';
 require_once __DIR__.'/../flight/autoload.php';
 
 class RouterTest extends PHPUnit_Framework_TestCase
@@ -20,7 +20,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
      * @var \flight\net\Request
      */
     private $request;
-    
+
     function setUp(){
         $this->router = new \flight\net\Router();
         $this->request = new \flight\net\Request();

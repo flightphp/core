@@ -16,5 +16,8 @@
     },
     "autoload": {
         "files": [ "flight/autoload.php", "flight/Flight.php" ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.6"
     }
 }
