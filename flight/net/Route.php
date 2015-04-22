@@ -72,7 +72,7 @@ class Route {
      */
     public function matchUrl($url) {
         // Wildcard or exact match
-        if ($this->pattern === '*' || $this->pattern === $url) {
+        if ($this->pattern === '*' || ($this->pattern === $url && ! strstr($url, '@'))) {
             if ($this->pass) {
                 $this->params[] = $this;
             }
