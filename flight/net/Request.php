@@ -128,6 +128,9 @@ class Request {
     public function __construct($config = array()) {
         // Default properties
         if (empty($config)) {
+            // POST data
+            parse_str(file_get_contents('php://input'), $dataParams);
+
             $config = array(
                 'url' => self::getVar('REQUEST_URI', '/'),
                 'base' => str_replace(array('\\',' '), array('/','%20'), dirname(self::getVar('SCRIPT_NAME'))),
@@ -140,7 +143,7 @@ class Request {
                 'type' => self::getVar('CONTENT_TYPE'),
                 'length' => self::getVar('CONTENT_LENGTH', 0),
                 'query' => new Collection($_GET),
-                'data' => new Collection($_POST),
+                'data' => new Collection($dataParams),
                 'cookies' => new Collection($_COOKIE),
                 'files' => new Collection($_FILES),
                 'secure' => self::getVar('HTTPS', 'off') != 'off',
