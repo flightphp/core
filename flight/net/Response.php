@@ -146,6 +146,14 @@ class Response {
     }
 
     /**
+     * Returns the headers from the response
+     * @return array
+     */
+    public function headers() {
+        return $this->headers;
+    }
+
+    /**
      * Writes content to the response body.
      *
      * @param string $str Response content
