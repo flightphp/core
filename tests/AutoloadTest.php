@@ -6,7 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-require_once 'PHPUnit/Autoload.php';
+require_once 'vendor/autoload.php';
 require_once __DIR__.'/../flight/autoload.php';
 
 class AutoloadTest extends PHPUnit_Framework_TestCase
@@ -15,7 +15,7 @@ class AutoloadTest extends PHPUnit_Framework_TestCase
      * @var \flight\Engine
      */
     private $app;
-    
+
     function setUp() {
         $this->app = new \flight\Engine();
         $this->app->path(__DIR__.'/classes');
