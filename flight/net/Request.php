@@ -64,6 +64,11 @@ class Request {
      * @var bool Whether the request is an AJAX request
      */
     public $ajax;
+    
+    /**
+     * @var string The Anti-XSRF header token used to identify fraud by autosubmitted forms and such.
+     */
+    public $anti_xsrf_token;
 
     /**
      * @var string Server protocol (http, https)
@@ -135,6 +140,7 @@ class Request {
                 'referrer' => self::getVar('HTTP_REFERER'),
                 'ip' => self::getVar('REMOTE_ADDR'),
                 'ajax' => self::getVar('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
+                'anti_xsrf_token' => self::getVar('HTTP_X_XSRF_TOKEN'),
                 'scheme' => self::getVar('SERVER_PROTOCOL', 'HTTP/1.1'),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
                 'type' => self::getVar('CONTENT_TYPE'),
