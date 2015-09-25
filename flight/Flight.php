@@ -52,6 +52,15 @@ class Flight {
      * @return mixed Callback results
      */
     public static function __callStatic($name, $params) {
+        $app = Flight::app();
+
+        return \flight\core\Dispatcher::invokeMethod(array($app, $name), $params);
+    }
+
+    /**
+     * @return object Application instance
+     */
+    public static function app() {
         static $initialized = false;
 
         if (!$initialized) {
@@ -62,13 +71,6 @@ class Flight {
             $initialized = true;
         }
 
-        return \flight\core\Dispatcher::invokeMethod(array(self::$engine, $name), $params);
-    }
-
-    /**
-     * @return object Application instance
-     */
-    public static function app() {
         return self::$engine;
     }
 }
