@@ -129,7 +129,7 @@ class Request {
         // Default properties
         if (empty($config)) {
             $config = array(
-                'url' => self::getVar('REQUEST_URI', '/'),
+                'url' => str_replace('@', '%40', self::getVar('REQUEST_URI', '/')),
                 'base' => str_replace(array('\\',' '), array('/','%20'), dirname(self::getVar('SCRIPT_NAME'))),
                 'method' => self::getMethod(),
                 'referrer' => self::getVar('HTTP_REFERER'),
