@@ -723,7 +723,7 @@ $body = Flight::request()->getBody();
 
 ## JSON Input
 
-If you send request with the type `application/json` and the data `{"id": 123}` it will be availabe
+If you send request with the type `application/json` and the data `{"id": 123}` it will be available
 from the `data` property:
 
 ```php
