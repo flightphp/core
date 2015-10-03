@@ -24,6 +24,7 @@
  * @method  static void route($pattern, $callback) Maps a URL pattern to a callback.
  * @method  static void redirect($url, $code = 303) Redirects to another URL.
  * @method  static void render($file, array $data = null, $key = null) Renders a template file.
+ * @method  static void response() Get the response object
  * @method  static void error($exception) Sends an HTTP 500 response.
  * @method  static void notFound() Sends an HTTP 404 response.
  * @method  static void etag($id, $type = 'strong') Performs ETag HTTP caching.
