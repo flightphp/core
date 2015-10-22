@@ -1,5 +1,12 @@
 # What is Flight?
 
+[![Latest Version on Packagist][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status][ico-travis]][link-travis]
+[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
+[![Quality Score][ico-code-quality]][link-code-quality]
+[![Total Downloads][ico-downloads]][link-downloads]
+
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to 
 quickly and easily build RESTful web applications.
 
@@ -892,3 +899,18 @@ $app->start();
 
 So instead of calling the static method, you would call the instance method with
 the same name on the Engine object.
+
+[ico-version]: https://img.shields.io/packagist/v/mikecao/flight.svg?style=flat-square
+[ico-license]: https://img.shields.io/packagist/l/mikecao/flight.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/mikecao/flight/master.svg?style=flat-square
+[ico-scrutinizer]: https://img.shields.io/scrutinizer/coverage/g/mikecao/flight.svg?style=flat-square
+[ico-code-quality]: https://img.shields.io/scrutinizer/g/mikecao/flight.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/mikecao/flight.svg?style=flat-square
+
+[link-packagist]: https://packagist.org/packages/mikecao/flight
+[link-travis]: https://travis-ci.org/mikecao/flight
+[link-scrutinizer]: https://scrutinizer-ci.com/g/mikecao/flight/code-structure
+[link-code-quality]: https://scrutinizer-ci.com/g/mikecao/flight
+[link-downloads]: https://packagist.org/packages/mikecao/flight
+[link-author]: https://github.com/mikecao
+[link-contributors]: ../../contributors
