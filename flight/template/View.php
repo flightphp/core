@@ -60,14 +60,14 @@ class View {
      * @param mixed $key Key
      * @param string $value Value
      */
-    public function set($key, $value = null) {
+    public function set($key, &$value = null) {
         if (is_array($key) || is_object($key)) {
-            foreach ($key as $k => $v) {
+            foreach ($key as $k => &$v) {
                 $this->vars[$k] = $v;
             }
         }
         else {
-            $this->vars[$key] = $value;
+            $this->vars[$key] = &$value;
         }
     }
 
@@ -173,4 +173,3 @@ class View {
         echo htmlentities($str);
     }
 }
-
