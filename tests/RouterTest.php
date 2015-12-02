@@ -24,6 +24,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     function setUp(){
         $this->router = new \flight\net\Router();
         $this->request = new \flight\net\Request();
+        $this->dispatcher = new \flight\core\Dispatcher();
     }
 
     // Simple output
@@ -32,7 +33,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     // Checks if a route was matched with a given output
-    function check($str = ''){
+    function check($str = '') {
+        /*
         $route = $this->router->route($this->request);
 
         $params = array_values($route->params);
@@ -40,8 +42,35 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_callable($route->callback));
 
         call_user_func_array($route->callback, $params);
+        */
 
+        $this->routeRequest();
         $this->expectOutputString($str);
+    }
+
+    function routeRequest() {
+        $dispatched = false;
+
+        while ($route = $this->router->route($this->request)) {
+            $params = array_values($route->params);
+
+            $continue = $this->dispatcher->execute(
+                $route->callback,
+                $params
+            );
+
+            $dispatched = true;
+
+            if (!$continue) break;
+
+            $this->router->next();
+
+            $dispatched = false;
+        }
+
+        if (!$dispatched) {
+            echo '404';
+        }
     }
 
     // Default route
@@ -200,5 +229,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->request->url = '/account/abc/456/def/xyz';
 
         $this->check('456/def/xyz');
+    }
+
+    // Test not found
+    function testNotFound() {
+        $this->router->map('/does_exist', array($this, 'ok'));
+        $this->request->url = '/does_not_exist';
+
+        $this->check('404');
+    }
+
+    // Test case sensitivity
+    function testCaseSensitivity() {
+        $this->router->map('/hello', array($this, 'ok'));
+        $this->request->url = '/HELLO';
+        $this->router->case_sensitive = true;
+
+        $this->check('404');
     }
 }

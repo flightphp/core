@@ -103,6 +103,7 @@ class Engine {
 
         // Default configuration settings
         $this->set('flight.base_url', null);
+        $this->set('flight.case_sensitive', false);
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
         $this->set('flight.views.path', './views');
@@ -301,6 +302,9 @@ class Engine {
         $this->after('start', function() use ($self) {
             $self->stop();
         });
+
+        // Set case-sensitivity
+        $router->case_sensitive = $this->get('flight.case_sensitive');
 
         // Route the request
         while ($route = $router->route($request)) {

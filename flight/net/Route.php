@@ -68,9 +68,10 @@ class Route {
      * Checks if a URL matches the route pattern. Also parses named parameters in the URL.
      *
      * @param string $url Requested URL
+     * @param boolean $case_sensitive Case sensitive matching
      * @return boolean Match status
      */
-    public function matchUrl($url) {
+    public function matchUrl($url, $case_sensitive = false) {
         // Wildcard or exact match
         if ($this->pattern === '*' || $this->pattern === $url) {
             if ($this->pass) {
@@ -121,7 +122,7 @@ class Route {
         }
 
         // Attempt to match route and named parameters
-        if (preg_match('#^'.$regex.'(?:\?.*)?$#i', $url, $matches)) {
+        if (preg_match('#^'.$regex.'(?:\?.*)?$#'.(($case_sensitive) ? '' : 'i'), $url, $matches)) {
             foreach ($ids as $k => $v) {
                 $this->params[$k] = (array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
             }

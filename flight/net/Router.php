@@ -22,11 +22,18 @@ class Router {
     protected $routes = array();
 
     /**
-     * Pointer to current route
+     * Pointer to current route.
      *
      * @var int
      */
     protected $index = 0;
+
+    /**
+     * Case sensitive matching.
+     *
+     * @var boolean
+     */
+    public $case_sensitive = false;
 
     /**
      * Gets mapped routes.
@@ -72,7 +79,7 @@ class Router {
      */
     public function route(Request $request) {
         while ($route = $this->current()) {
-            if ($route !== false && $route->matchMethod($request->method) && $route->matchUrl($request->url)) {
+            if ($route !== false && $route->matchMethod($request->method) && $route->matchUrl($request->url, $this->case_sensitive)) {
                 return $route;
             }
             $this->next();
