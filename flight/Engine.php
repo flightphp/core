@@ -295,11 +295,6 @@ class Engine {
         // Enable error handling
         $this->handleErrors($this->get('flight.handle_errors'));
 
-        // Disable caching for AJAX requests
-        if ($request->ajax) {
-            $response->cache(false);
-        }
-
         // Allow post-filters to run
         $this->after('start', function() use ($self) {
             $self->stop();
@@ -350,7 +345,7 @@ class Engine {
      * @param string $message Response message
      */
     public function _halt($code = 200, $message = '') {
-        $this->response(false)
+        $this->response()
             ->status($code)
             ->write($message)
             ->send();
@@ -457,7 +452,7 @@ class Engine {
     public function _json($data, $code = 200, $encode = true) {
         $json = ($encode) ? json_encode($data) : $data;
 
-        $this->response(false)
+        $this->response()
             ->status($code)
             ->header('Content-Type', 'application/json')
             ->write($json)
@@ -477,7 +472,7 @@ class Engine {
 
         $callback = $this->request()->query[$param];
 
-        $this->response(false)
+        $this->response()
             ->status($code)
             ->header('Content-Type', 'application/javascript')
             ->write($callback.'('.$json.');')
