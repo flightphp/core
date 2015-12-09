@@ -828,6 +828,7 @@ The following is a list of all the available configuration settings:
     flight.handle_errors - Allow Flight to handle all errors internally. (default: true)
     flight.log_errors - Log errors to the web server's error log file. (default: false)
     flight.views.path - Directory containing view template files. (default: ./views)
+    flight.views.extension - View template file extension. (default: .php)
 
 # Framework Methods
 

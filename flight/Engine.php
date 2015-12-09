@@ -90,6 +90,7 @@ class Engine {
         $this->loader->register('router', '\flight\net\Router');
         $this->loader->register('view', '\flight\template\View', array(), function($view) use ($self) {
             $view->path = $self->get('flight.views.path');
+            $view->extension = $self->get('flight.views.extension');
         });
 
         // Register framework methods
@@ -107,6 +108,7 @@ class Engine {
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
         $this->set('flight.views.path', './views');
+        $this->set('flight.views.extension', '.php');
 
         $initialized = true;
     }
