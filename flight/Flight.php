@@ -38,12 +38,10 @@
  * @method  static void render($file, array $data = null, $key = null) Renders a template file.
  * @method  static flight\template\View view() Returns View instance.
  *
- * Redirects.
- * @method  static void redirect($url, $code = 303) Redirects to another URL.
- *
  * Request & Response.
  * @method  static flight\net\Request request() Returns Request instance.
  * @method  static flight\net\Response response() Returns Request instance.
+ * @method  static void redirect($url, $code = 303) Redirects to another URL.
  * @method  static void json($data, $code = 200, $encode = true) Sends a JSON response.
  * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true) Sends a JSONP response.
  * @method  static void error($exception) Sends an HTTP 500 response.
