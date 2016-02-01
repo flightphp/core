@@ -448,13 +448,14 @@ class Engine {
      * @param mixed $data JSON data
      * @param int $code HTTP status code
      * @param bool $encode Whether to perform JSON encoding
+     * @param string $charset Charset
      */
-    public function _json($data, $code = 200, $encode = true) {
+    public function _json($data, $code = 200, $encode = true, $charset = 'utf-8') {
         $json = ($encode) ? json_encode($data) : $data;
 
         $this->response()
             ->status($code)
-            ->header('Content-Type', 'application/json')
+            ->header('Content-Type', 'application/json; charset='.$charset)
             ->write($json)
             ->send();
     }
@@ -466,15 +467,16 @@ class Engine {
      * @param string $param Query parameter that specifies the callback name.
      * @param int $code HTTP status code
      * @param bool $encode Whether to perform JSON encoding
+     * @param string $charset Charset
      */
-    public function _jsonp($data, $param = 'jsonp', $code = 200, $encode = true) {
+    public function _jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = 'utf-8') {
         $json = ($encode) ? json_encode($data) : $data;
 
         $callback = $this->request()->query[$param];
 
         $this->response()
             ->status($code)
-            ->header('Content-Type', 'application/javascript')
+            ->header('Content-Type', 'application/javascript; charset='.$charset)
             ->write($callback.'('.$json.');')
             ->send();
     }
