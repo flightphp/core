@@ -148,9 +148,9 @@ class Engine {
     /**
      * Custom exception handler. Logs exceptions.
      *
-     * @param \Exception $e Thrown exception
+     * @param object $e Thrown exception
      */
-    public function handleException(\Exception $e) {
+    public function handleException($e) {
         if ($this->get('flight.log_errors')) {
             error_log($e->getMessage());
         }
@@ -354,9 +354,9 @@ class Engine {
     /**
      * Sends an HTTP 500 response for any errors.
      *
-     * @param \Exception Thrown exception
+     * @param object $e Thrown exception
      */
-    public function _error(\Exception $e) {
+    public function _error($e) {
         $msg = sprintf('<h1>500 Internal Server Error</h1>'.
             '<h3>%s (%s)</h3>'.
             '<pre>%s</pre>',
@@ -370,6 +370,9 @@ class Engine {
                 ->status(500)
                 ->write($msg)
                 ->send();
+        }
+        catch (\Throwable $t) {
+            exit($msg);
         }
         catch (\Exception $ex) {
             exit($msg);
