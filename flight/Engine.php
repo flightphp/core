@@ -507,7 +507,7 @@ class Engine {
      * @param int $time Unix timestamp
      */
     public function _lastModified($time) {
-        $this->response()->header('Last-Modified', date(DATE_RFC1123, $time));
+        $this->response()->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $time));
 
         if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
             strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
