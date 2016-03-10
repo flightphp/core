@@ -113,7 +113,24 @@ class Greeting {
     }
 }
 
-Flight::route('/', array('Greeting','hello'));
+Flight::route('/', array('Greeting', 'hello'));
+```
+
+Or an object method:
+
+```php
+class Greeting
+{
+    public function __construct() {
+        $this->name = 'John Doe';
+    }
+
+    public function hello() {
+        echo "Hello, {$this->name}!";
+    }
+}
+
+Flight::route('/', array(new Greeting, 'hello')); 
 ```
 
 Routes are matched in the order they are defined. The first route to match a
