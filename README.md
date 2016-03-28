@@ -130,7 +130,9 @@ class Greeting
     }
 }
 
-Flight::route('/', array(new Greeting, 'hello')); 
+$greeting = new Greeting();
+
+Flight::route('/', array($greeting, 'hello')); 
 ```
 
 Routes are matched in the order they are defined. The first route to match a
