@@ -120,6 +120,8 @@ class Request {
      */
     public $proxy_ip;
 
+    public $params;
+
     /**
      * Constructor.
      *
@@ -145,7 +147,8 @@ class Request {
                 'files' => new Collection($_FILES),
                 'secure' => self::getVar('HTTPS', 'off') != 'off',
                 'accept' => self::getVar('HTTP_ACCEPT'),
-                'proxy_ip' => self::getProxyIpAddress()
+                'proxy_ip' => self::getProxyIpAddress(),
+                'params' => Array()
             );
         }
 
@@ -189,6 +192,8 @@ class Request {
                 }
             }
         }
+
+        $this->_parseParams();
     }
 
     /**
@@ -285,5 +290,27 @@ class Request {
         }
 
         return $params;
+    }
+    
+    private function _parseParams() {
+        $method = $_SERVER['REQUEST_METHOD'];
+        if ($method == "PUT" || $method == "DELETE") {
+            parse_str($this->getBody(), $this->params);
+            $GLOBALS["_{$method}"] = $this->params;
+            // Add these request vars into _REQUEST, mimicing default behavior, PUT/DELETE will override existing COOKIE/GET vars
+            $_REQUEST = $this->params + $_REQUEST;
+        } else if ($method == "GET") {
+            $this->params = $_GET;
+        } else if ($method == "POST") {
+            $this->params = $_POST;
+        }
+    }
+    
+    public function getParam($name, $default = '') {
+        if (isset($this->params[$name])) {
+          return $this->params[$name];
+        } else {
+          return $default;
+        }
     }
 }
