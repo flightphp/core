@@ -47,7 +47,7 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 ```
 
-**Note**: If you need to use flight in a subdirectory add the line `RewriteBase /flight/` just after `RewriteEngine On`.
+**Note**: If you need to use flight in a subdirectory add the line `RewriteBase /subdir/` just after `RewriteEngine On`.
 
 For *Nginx*, add the following to your server declaration:
 
