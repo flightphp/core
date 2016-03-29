@@ -50,9 +50,6 @@
  * @method  static void etag($id, $type = 'strong') Performs ETag HTTP caching.
  * @method  static void lastModified($time) Performs last modified HTTP caching.
  */
-
-namespace flight;
-
 class Flight {
     /**
      * Framework engine.
