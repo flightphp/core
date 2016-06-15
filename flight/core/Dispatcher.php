@@ -155,6 +155,11 @@ class Dispatcher {
      * @return mixed Function results
      */
     public static function callFunction($func, array &$params = array()) {
+        // Call static method
+        if (is_string($func) && strpos($func, '::') !== false) {
+            return call_user_func_array($func, $params);
+        }
+
         switch (count($params)) {
             case 0:
                 return $func();
