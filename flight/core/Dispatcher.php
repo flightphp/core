@@ -140,7 +140,8 @@ class Dispatcher {
         if (is_callable($callback)) {
             return is_array($callback) ?
                 self::invokeMethod($callback, $params) :
-                self::callFunction($callback, $params);
+                call_user_func_array($callback, $params);
+                // self::callFunction($callback, $params);
         }
         else {
             throw new \Exception('Invalid callback specified.');
