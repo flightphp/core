@@ -101,7 +101,8 @@ class Route {
         $regex = str_replace(array(')','/*'), array(')?','(/?|/.*?)'), $this->pattern);
 
         $regex = preg_replace_callback(
-            '#@([\w]+)(:([^/\(\)]*))?#',
+            #'#@([\w]+)(:([^/\(\)]*))?#', //So, it can support @name:(foo|bar)
+            '#@([\w]+)(:([^/]*))?#',
             function($matches) use (&$ids) {
                 $ids[$matches[1]] = null;
                 if (isset($matches[3])) {
