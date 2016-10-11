@@ -452,9 +452,18 @@ class Engine {
      * @param int $code HTTP status code
      * @param bool $encode Whether to perform JSON encoding
      * @param string $charset Charset
+     * @param int $encodeOption Bitmask Json constant such as JSON_HEX_QUOT
+     * @param int $encodeDepth Maximum encoding depth, must be greater than 0
      */
-    public function _json($data, $code = 200, $encode = true, $charset = 'utf-8') {
-        $json = ($encode) ? json_encode($data) : $data;
+    public function _json(
+        $data,
+        $code = 200,
+        $encode = true,
+        $charset = 'utf-8',
+        $encodeOption = 0,
+        $encodeDepth = 512
+    ) {
+        $json = ($encode) ? json_encode($data, $encodeOption, $encodeDepth) : $data;
 
         $this->response()
             ->status($code)
@@ -471,9 +480,19 @@ class Engine {
      * @param int $code HTTP status code
      * @param bool $encode Whether to perform JSON encoding
      * @param string $charset Charset
+     * @param int $encodeOption Bitmask Json constant such as JSON_HEX_QUOT
+     * @param int $encodeDepth Maximum encoding depth, must be greater than 0
      */
-    public function _jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = 'utf-8') {
-        $json = ($encode) ? json_encode($data) : $data;
+    public function _jsonp(
+        $data,
+        $param = 'jsonp',
+        $code = 200,
+        $encode = true,
+        $charset = 'utf-8',
+        $encodeOption = 0,
+        $encodeDepth = 512
+    ) {
+        $json = ($encode) ? json_encode($data, $encodeOption, $encodeDepth) : $data;
 
         $callback = $this->request()->query[$param];
 
