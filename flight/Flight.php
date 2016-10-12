@@ -69,15 +69,20 @@ class Flight {
      * @param string $name Method name
      * @param array $params Method parameters
      * @return mixed Callback results
+     * @throws \Exception
      */
     public static function __callStatic($name, $params) {
         $app = Flight::app();
+
+        if (!method_exists($app, $name) && !$app->isEvent($name)) {
+            throw new \Exception("{$name} must be a mapped method");
+        }
 
         return \flight\core\Dispatcher::invokeMethod(array($app, $name), $params);
     }
 
     /**
-     * @return object Application instance
+     * @return \flight\Engine Application instance
      */
     public static function app() {
         static $initialized = false;
