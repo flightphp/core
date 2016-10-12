@@ -74,10 +74,6 @@ class Flight {
     public static function __callStatic($name, $params) {
         $app = Flight::app();
 
-        if (!method_exists($app, $name) && !$app->isEvent($name)) {
-            throw new \Exception("{$name} must be a mapped method");
-        }
-
         return \flight\core\Dispatcher::invokeMethod(array($app, $name), $params);
     }
 

@@ -62,4 +62,11 @@ class MapTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('goodbye', $result);
     }
+
+    // Unmapped method
+    function testUnmapped() {
+        $this->setExpectedException('Exception', 'doesNotExist must be a mapped method.');
+
+        $this->app->doesNotExist();
+    }
 }

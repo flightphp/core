@@ -138,6 +138,14 @@ class Loader {
     }
 
     /**
+     * @param string $name Registry name
+     * @return mixed Class information or null if not registered
+     */
+    public function get($name) {
+        return isset($this->classes[$name]) ? $this->classes[$name] : null;
+    }
+
+    /**
      * Resets the object to the initial state.
      */
     public function reset() {

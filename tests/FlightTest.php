@@ -73,4 +73,11 @@ class FlightTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('hello', $result);
     }
+
+    // Unmapped method
+    function testUnmapped() {
+        $this->setExpectedException('Exception', 'doesNotExist must be a mapped method.');
+
+        Flight::doesNotExist();
+    }
 }

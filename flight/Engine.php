@@ -56,12 +56,17 @@ class Engine {
      * @param string $name Method name
      * @param array $params Method parameters
      * @return mixed Callback results
+     * @throws \Exception
      */
     public function __call($name, $params) {
         $callback = $this->dispatcher->get($name);
 
         if (is_callable($callback)) {
             return $this->dispatcher->run($name, $params);
+        }
+
+        if (!$this->loader->get($name)) {
+            throw new \Exception("{$name} must be a mapped method.");
         }
 
         $shared = (!empty($params)) ? (bool)$params[0] : true;
@@ -270,16 +275,6 @@ class Engine {
      */
     public function path($dir) {
         $this->loader->addDirectory($dir);
-    }
-
-    /**
-     * Checks for mapped event within the engine dispatcher.
-     *
-     * @param $name
-     * @return bool
-     */
-    public function isEvent($name) {
-        return !is_null($this->dispatcher->get($name));
     }
 
     /*** Extensible Methods ***/
