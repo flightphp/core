@@ -887,8 +887,8 @@ Flight::error($exception) // Sends an HTTP 500 response.
 Flight::notFound() // Sends an HTTP 404 response.
 Flight::etag($id, [$type]) // Performs ETag HTTP caching.
 Flight::lastModified($time) // Performs last modified HTTP caching.
-Flight::json($data, [$code], [$encode]) // Sends a JSON response.
-Flight::jsonp($data, [$param], [$code], [$encode]) // Sends a JSONP response.
+Flight::json($data, [$code], [$encode], [$charset], [$encodeOption], [$encodeDepth]) // Sends a JSON response.
+Flight::jsonp($data, [$param], [$code], [$encode], [$charset], [$encodeOption], [$encodeDepth]) // Sends a JSONP response.
 ```
 
 Any custom methods added with `map` and `register` can also be filtered.
