@@ -272,6 +272,16 @@ class Engine {
         $this->loader->addDirectory($dir);
     }
 
+    /**
+     * Checks for mapped event within the engine dispatcher.
+     *
+     * @param $name
+     * @return bool
+     */
+    public function isEvent($name) {
+        return !is_null($this->dispatcher->get($name));
+    }
+
     /*** Extensible Methods ***/
 
     /**
