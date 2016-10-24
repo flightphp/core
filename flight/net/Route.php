@@ -127,10 +127,6 @@ class Route {
                 $this->params[$k] = (array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
             }
 
-            if ($this->pass) {
-                $this->params[] = $this;
-            }
-
             $this->regex = $regex;
 
             return true;

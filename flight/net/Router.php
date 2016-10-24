@@ -75,7 +75,7 @@ class Router {
      * Routes the current request.
      *
      * @param Request $request Request object
-     * @return Route Matching route
+     * @return Route|bool Matching route or false if no match
      */
     public function route(Request $request) {
         while ($route = $this->current()) {

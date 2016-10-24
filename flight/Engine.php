@@ -312,6 +312,12 @@ class Engine {
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
+            // Add route info to the parameter list
+            if ($route->pass) {
+                $params[] = $route;
+            }
+
+            // Call route handler
             $continue = $this->dispatcher->execute(
                 $route->callback,
                 $params

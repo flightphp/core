@@ -54,6 +54,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         while ($route = $this->router->route($this->request)) {
             $params = array_values($route->params);
 
+            if ($route->pass) {
+                $params[] = $route;
+            }
+
             $continue = $this->dispatcher->execute(
                 $route->callback,
                 $params
@@ -130,7 +134,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/test/@name:[a-z]+', function($name){
             echo $name;
         });
-
         $this->request->url = '/test/abc';
 
         $this->check('abc');
@@ -141,7 +144,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/blog(/@year(/@month(/@day)))', function($year, $month, $day){
             echo "$year,$month,$day";
         });
-
         $this->request->url = '/blog/2000';
 
         $this->check('2000,,');
@@ -152,7 +154,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/@controller/@method(/@id:[0-9]+)', function($controller, $method, $id){
             echo "$controller,$method,$id";
         });
-
         $this->request->url = '/user/delete/123';
 
         $this->check('user,delete,123');
@@ -163,7 +164,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/@controller/@method(/@id:[0-9]+)', function($controller, $method, $id){
             echo "$controller,$method,$id";
         });
-
         $this->request->url = '/user/delete/';
 
         $this->check('user,delete,');
@@ -181,16 +181,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
     function testRouteObjectPassing(){
         $this->router->map('/yes_route', function($route){
             $this->assertTrue(is_object($route));
-        },
-        true);
+        }, true);
         $this->request->url = '/yes_route';
+
         $this->check();
 
         $this->router->map('/no_route', function($route = null){
             $this->assertTrue(is_null($route));
-        },
-        false);
+        }, false);
         $this->request->url = '/no_route';
+
         $this->check();
     }
 
@@ -198,9 +198,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     function testSplatWildcard(){
         $this->router->map('/account/*', function($route){
             echo $route->splat;
-        },
-        true);
-
+        }, true);
         $this->request->url = '/account/456/def/xyz';
 
         $this->check('456/def/xyz');
@@ -209,10 +207,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     // Test splat without trailing slash
     function testSplatWildcardTrailingSlash(){
         $this->router->map('/account/*', function($route){
-                echo $route->splat;
-            },
-            true);
-
+            echo $route->splat;
+        }, true);
         $this->request->url = '/account';
 
         $this->check();
@@ -223,9 +219,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/account/@name/*', function($name, $route){
                 echo $route->splat;
                 $this->assertEquals('abc', $name);
-            },
-            true);
-
+            }, true);
         $this->request->url = '/account/abc/456/def/xyz';
 
         $this->check('456/def/xyz');
