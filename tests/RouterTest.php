@@ -181,6 +181,12 @@ class RouterTest extends PHPUnit_Framework_TestCase
     function testRouteObjectPassing(){
         $this->router->map('/yes_route', function($route){
             $this->assertTrue(is_object($route));
+            $this->assertTrue(is_array($route->methods));
+            $this->assertTrue(is_array($route->params));
+            $this->assertEquals(sizeof($route->params), 0);
+            $this->assertEquals($route->regex, null);
+            $this->assertEquals($route->splat, '');
+            $this->assertTrue($route->pass);
         }, true);
         $this->request->url = '/yes_route';
 
@@ -190,6 +196,17 @@ class RouterTest extends PHPUnit_Framework_TestCase
             $this->assertTrue(is_null($route));
         }, false);
         $this->request->url = '/no_route';
+
+        $this->check();
+    }
+
+    function testRouteWithParameters() {
+        $this->router->map('/@one/@two', function($one, $two, $route){
+            $this->assertEquals(sizeof($route->params), 2);
+            $this->assertEquals($route->params['one'], $one);
+            $this->assertEquals($route->params['two'], $two);
+        }, true);
+        $this->request->url = '/1/2';
 
         $this->check();
     }

@@ -74,9 +74,6 @@ class Route {
     public function matchUrl($url, $case_sensitive = false) {
         // Wildcard or exact match
         if ($this->pattern === '*' || $this->pattern === $url) {
-            if ($this->pass) {
-                $this->params[] = $this;
-            }
             return true;
         }
 
