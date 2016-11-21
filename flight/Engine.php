@@ -430,7 +430,7 @@ class Engine {
 
         // Append base url to redirect url
         if ($base != '/' && strpos($url, '://') === false) {
-            $url = preg_replace('#/+#', '/', $base.'/'.$url);
+            $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
         $this->response(false)
