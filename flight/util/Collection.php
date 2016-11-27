@@ -26,7 +26,7 @@ class Collection implements \ArrayAccess, \Iterator, \Countable {
      * @param array $data Initial data
      */
     public function __construct(array $data = array()) {
-        $this->data = $data;
+        $this->data = array_map('utf8_encode', $data);
     }
 
     /**
