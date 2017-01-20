@@ -2,7 +2,7 @@
 class User {
     public $name;
 
-    public function User($name = ''){
+    public function __construct($name = ''){
         $this->name = $name;
     }
 }
