@@ -163,10 +163,7 @@ class Request {
             $this->$name = $value;
         }
 
-        // Get the requested URL without the base directory
-        if ($this->base != '/' && strlen($this->base) > 0 && strpos($this->url, $this->base) === 0) {
-            $this->url = substr($this->url, strlen($this->base));
-        }
+        $this->url = self::getVar('QUERY_STRING');
 
         // Default url
         if (empty($this->url)) {
