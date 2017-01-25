@@ -218,13 +218,14 @@ class Engine {
     /**
      * Gets a variable.
      *
-     * @param string $key Key
+     * @param string $key  Key
+     * @param string $skey Second key
      * @return mixed
      */
-    public function get($key = null) {
+    public function get($key = null, $sKey = null) {
         if ($key === null) return $this->vars;
 
-        return isset($this->vars[$key]) ? $this->vars[$key] : null;
+        return is_null($sKey) ? (isset($this->vars[$key]) ? $this->vars[$key] : null) : (isset($this->vars[$key][$sKey]) ? $this->vars[$key][$sKey] : null);
     }
 
     /**
