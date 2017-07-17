@@ -247,7 +247,7 @@ class Response {
         }
 
         // Send content length
-        if (($length = strlen($this->body)) > 0) {
+        if (($length = mb_strlen($this->body, 'latin1')) > 0) {
             header('Content-Length: '.$length);
         }
 
