@@ -107,7 +107,7 @@ class Response {
      * Sets the HTTP status of the response.
      *
      * @param int $code HTTP status code.
-     * @return object Self reference
+     * @return object|int Self reference
      * @throws \Exception If invalid status code
      */
     public function status($code = null) {
@@ -247,7 +247,11 @@ class Response {
         }
 
         // Send content length
-        if (($length = strlen($this->body)) > 0) {
+        $length = (extension_loaded('mbstring')) ?
+            mb_strlen($this->body, 'latin1') :
+            strlen($this->body);
+
+        if ($length > 0) {
             header('Content-Length: '.$length);
         }
 
