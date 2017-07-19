@@ -234,7 +234,7 @@ class Response
 
         $length = strlen($this->body);
         // determine request size when using the multibyte strings extention
-        if (extension_loaded("mbstring")) {
+        if (extension_loaded('mbstring')) {
             $length = mb_strlen($this->body, 'latin1');
         }
 
