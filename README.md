@@ -23,6 +23,10 @@ Flight requires `PHP 5.3` or greater.
 
 Flight is released under the [MIT](http://flightphp.com/license) license.
 
+# Support
+
+There is an Unofficial IRC Channel hosted on Freenode network, feel free to jump by and have a chat with us about FlightPHP
+
 # Installation
 
 1\. Download the files.
