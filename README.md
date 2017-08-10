@@ -25,7 +25,7 @@ Flight is released under the [MIT](http://flightphp.com/license) license.
 
 # Support
 
-There is an Unofficial IRC Channel hosted on Freenode network, feel free to jump by and have a chat with us about FlightPHP
+There is an Unofficial IRC Channel (#FlightPHP) hosted on Freenode network, feel free to jump by and have a chat with us about FlightPHP
 
 # Installation
 
