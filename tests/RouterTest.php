@@ -21,6 +21,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
      */
     private $request;
 
+    /**
+     * @var \flight\core\Dispatcher
+     */
+    private $dispatcher;
+
     function setUp(){
         $this->router = new \flight\net\Router();
         $this->request = new \flight\net\Request();
