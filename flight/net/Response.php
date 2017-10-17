@@ -270,7 +270,7 @@ class Response {
             $this->sendHeaders();
         }
 
-        exit($this->body);
+        echo $this->body;
     }
 }
 
