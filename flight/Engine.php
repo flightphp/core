@@ -115,24 +115,19 @@ class Engine {
         $this->set('flight.views.path', './views');
         $this->set('flight.views.extension', '.php');
 
-        $initialized = true;
-    }
+        // Startup configuration
+        $this->before('start', function() use ($self) {
+            // Enable error handling
+            if ($self->get('flight.handle_errors')) {
+                set_error_handler(array($self, 'handleError'));
+                set_exception_handler(array($self, 'handleException'));
+            }
 
-    /**
-     * Enables/disables custom error handling.
-     *
-     * @param bool $enabled True or false
-     */
-    public function handleErrors($enabled)
-    {
-        if ($enabled) {
-            set_error_handler(array($this, 'handleError'));
-            set_exception_handler(array($this, 'handleException'));
-        }
-        else {
-            restore_error_handler();
-            restore_exception_handler();
-        }
+            // Set case-sensitivity
+            $self->router()->case_sensitive = $self->get('flight.case_sensitive');
+        });
+
+        $initialized = true;
     }
 
     /**
@@ -289,6 +284,11 @@ class Engine {
         $response = $this->response();
         $router = $this->router();
 
+        // Allow post-filters to run
+        $this->after('start', function() use ($self) {
+            $self->stop();
+        });
+
         // Flush any existing output
         if (ob_get_length() > 0) {
             $response->write(ob_get_clean());
@@ -296,17 +296,6 @@ class Engine {
 
         // Enable output buffering
         ob_start();
-
-        // Enable error handling
-        $this->handleErrors($this->get('flight.handle_errors'));
-
-        // Allow post-filters to run
-        $this->after('start', function() use ($self) {
-            $self->stop();
-        });
-
-        // Set case-sensitivity
-        $router->case_sensitive = $this->get('flight.case_sensitive');
 
         // Route the request
         while ($route = $router->route($request)) {
