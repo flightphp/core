@@ -284,7 +284,7 @@ class Engine {
         $response = $this->response();
         $router = $this->router();
 
-        // Allow post-filters to run
+        // Allow filters to run
         $this->after('start', function() use ($self) {
             $self->stop();
         });
@@ -331,11 +331,29 @@ class Engine {
      *
      * @param int $code HTTP status code
      */
-    public function _stop($code = 200) {
-        $this->response()
-            ->status($code)
-            ->write(ob_get_clean())
-            ->send();
+    public function _stop($code = null) {
+        $response = $this->response();
+
+        if (!$response->sent()) {
+            if ($code !== null) {
+                $response->status($code);
+            }
+
+            $response->write(ob_get_clean());
+
+            $response->send();
+        }
+    }
+
+    /**
+     * Routes a URL to a callback function.
+     *
+     * @param string $pattern URL pattern to match
+     * @param callback $callback Callback function
+     * @param boolean $pass_route Pass the matching route object to the callback
+     */
+    public function _route($pattern, $callback, $pass_route = false) {
+        $this->router()->map($pattern, $callback, $pass_route);
     }
 
     /**
@@ -366,7 +384,8 @@ class Engine {
         );
 
         try {
-            $this->response(false)
+            $this->response()
+                ->clear()
                 ->status(500)
                 ->write($msg)
                 ->send();
@@ -383,7 +402,8 @@ class Engine {
      * Sends an HTTP 404 response when a URL is not found.
      */
     public function _notFound() {
-        $this->response(false)
+        $this->response()
+            ->clear()
             ->status(404)
             ->write(
                 '<h1>404 Not Found</h1>'.
@@ -391,17 +411,6 @@ class Engine {
                 str_repeat(' ', 512)
             )
             ->send();
-    }
-
-    /**
-     * Routes a URL to a callback function.
-     *
-     * @param string $pattern URL pattern to match
-     * @param callback $callback Callback function
-     * @param boolean $pass_route Pass the matching route object to the callback
-     */
-    public function _route($pattern, $callback, $pass_route = false) {
-        $this->router()->map($pattern, $callback, $pass_route);
     }
 
     /**
@@ -422,7 +431,8 @@ class Engine {
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
-        $this->response(false)
+        $this->response()
+            ->clear()
             ->status($code)
             ->header('Location', $url)
             ->write($url)
