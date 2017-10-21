@@ -364,6 +364,7 @@ class Engine {
      */
     public function _halt($code = 200, $message = '') {
         $this->response()
+            ->clear()
             ->status($code)
             ->write($message)
             ->send();
