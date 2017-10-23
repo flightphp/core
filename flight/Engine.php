@@ -368,6 +368,7 @@ class Engine {
             ->status($code)
             ->write($message)
             ->send();
+        exit();
     }
 
     /**
