@@ -90,10 +90,10 @@ class Engine {
         }
 
         // Register default components
-        $this->loader->register('request', '\flight\net\Request');
-        $this->loader->register('response', '\flight\net\Response');
-        $this->loader->register('router', '\flight\net\Router');
-        $this->loader->register('view', '\flight\template\View', array(), function($view) use ($self) {
+        $this->loader->register('request', 'Flight\Net\Request');
+        $this->loader->register('response', 'Flight\Net\Response');
+        $this->loader->register('router', 'Flight\Net\Router');
+        $this->loader->register('view', 'Flight\Template\View', array(), function($view) use ($self) {
             $view->path = $self->get('flight.views.path');
             $view->extension = $self->get('flight.views.extension');
         });

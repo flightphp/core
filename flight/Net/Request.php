@@ -86,22 +86,22 @@ class Request {
     public $length;
 
     /**
-     * @var \flight\util\Collection Query string parameters
+     * @var Flight\Util\Collection Query string parameters
      */
     public $query;
 
     /**
-     * @var \flight\util\Collection Post parameters
+     * @var Flight\Util\Collection Post parameters
      */
     public $data;
 
     /**
-     * @var \flight\util\Collection Cookie parameters
+     * @var Flight\Util\Collection Cookie parameters
      */
     public $cookies;
 
     /**
-     * @var \flight\util\Collection Uploaded files
+     * @var Flight\Util\Collection Uploaded files
      */
     public $files;
 

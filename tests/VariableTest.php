@@ -7,17 +7,19 @@
  */
 
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+// require_once __DIR__.'/../flight/autoload.php';
+
+use Flight\Engine;
 
 class VariableTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\Engine
+     * @var Flight\Engine
      */
     private $app;
 
     function setUp() {
-        $this->app = new \flight\Engine();
+        $this->app = new Engine();
     }
     // Set and get a variable
     function testSetAndGet() {

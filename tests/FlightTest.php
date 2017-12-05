@@ -7,7 +7,9 @@
  */
 
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+// require_once __DIR__.'/../flight/Flight.php';
+
+use Flight\Flight;
 
 class FlightTest extends PHPUnit_Framework_TestCase
 {
@@ -22,10 +24,10 @@ class FlightTest extends PHPUnit_Framework_TestCase
         $router = Flight::router();
         $view = Flight::view();
 
-        $this->assertEquals('flight\net\Request', get_class($request));
-        $this->assertEquals('flight\net\Response', get_class($response));
-        $this->assertEquals('flight\net\Router', get_class($router));
-        $this->assertEquals('flight\template\View', get_class($view));
+        $this->assertEquals('Flight\Net\Request', get_class($request));
+        $this->assertEquals('Flight\Net\Response', get_class($response));
+        $this->assertEquals('Flight\Net\Router', get_class($router));
+        $this->assertEquals('Flight\Template\View', get_class($view));
     }
 
     // Test get/set of variables

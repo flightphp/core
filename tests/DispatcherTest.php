@@ -9,15 +9,17 @@
 require_once 'vendor/autoload.php';
 require_once __DIR__.'/classes/Hello.php';
 
+use Flight\Core\Dispatcher;
+
 class DispatcherTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\core\Dispatcher
+     * @var Flight\Core\Dispatcher
      */
     private $dispatcher;
 
     function setUp(){
-        $this->dispatcher = new \flight\core\Dispatcher();
+        $this->dispatcher = new Dispatcher();
     }
 
     // Map a closure

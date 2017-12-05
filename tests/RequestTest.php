@@ -7,12 +7,14 @@
  */
 
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+// require_once __DIR__.'/../flight/autoload.php';
+
+use Flight\Net\Request;
 
 class RequestTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\net\Request
+     * @var Flight\Net\Request
      */
     private $request;
 
@@ -25,7 +27,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $_SERVER['HTTPS'] = 'on';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '32.32.32.32';
 
-        $this->request = new \flight\net\Request();
+        $this->request = new Request();
     }
 
     function testDefaults() {
@@ -49,7 +51,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     function testSubdirectory() {
         $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
         $this->assertEquals('/subdir', $request->base);
     }
@@ -57,7 +59,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     function testQueryParameters() {
         $_SERVER['REQUEST_URI'] = '/page?id=1&name=bob';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
         $this->assertEquals('/page?id=1&name=bob', $request->url);
         $this->assertEquals(1, $request->query->id);
@@ -72,7 +74,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $_COOKIE['q'] = 1;
         $_FILES['q'] = 1;
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
         $this->assertEquals(1, $request->query->q);
         $this->assertEquals(1, $request->query->id);
@@ -84,7 +86,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     function testMethodOverrideWithHeader() {
         $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'PUT';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
         $this->assertEquals('PUT', $request->method);
     }
@@ -92,7 +94,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     function testMethodOverrideWithPost() {
         $_REQUEST['_method'] = 'PUT';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
         $this->assertEquals('PUT', $request->method);
     }

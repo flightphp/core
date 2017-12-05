@@ -7,18 +7,20 @@
  */
 
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+// require_once __DIR__.'/../flight/autoload.php';
 require_once __DIR__.'/classes/User.php';
+
+use Flight\Engine;
 
 class RegisterTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\Engine
+     * @var Flight\Engine
      */
     private $app;
 
     function setUp() {
-        $this->app = new \flight\Engine();
+        $this->app = new Engine();
     }
 
     // Register a class

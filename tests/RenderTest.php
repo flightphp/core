@@ -7,17 +7,19 @@
  */
 
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+// require_once __DIR__.'/../flight/Flight.php';
+
+use Flight\Engine;
 
 class RenderTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\Engine
+     * @var Flight\Engine
      */
     private $app;
 
     function setUp() {
-        $this->app = new \flight\Engine();
+        $this->app = new Engine();
         $this->app->set('flight.views.path', __DIR__.'/views');
     }
 

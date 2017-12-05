@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Flight": "flight/"
+            "Flight\\": "flight/"
         }
     },
     "require-dev": {

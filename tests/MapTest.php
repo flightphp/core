@@ -7,18 +7,20 @@
  */
 
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+// require_once __DIR__.'/../flight/autoload.php';
 require_once __DIR__.'/classes/Hello.php';
+
+use Flight\Engine;
 
 class MapTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\Engine
+     * @var Flight\Engine
      */
     private $app;
 
     function setUp() {
-        $this->app = new \flight\Engine();
+        $this->app = new Engine();
     }
 
     // Map a closure

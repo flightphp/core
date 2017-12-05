@@ -7,29 +7,32 @@
  */
 
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+// require_once __DIR__.'/../flight/autoload.php';
+
+use Flight\Net\{ Router, Request };
+use Flight\Core\Dispatcher;
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\net\Router
+     * @var Flight\Net\Router
      */
     private $router;
 
     /**
-     * @var \flight\net\Request
+     * @var Flight\Net\Request
      */
     private $request;
 
     /**
-     * @var \flight\core\Dispatcher
+     * @var Flight\Core\Dispatcher
      */
     private $dispatcher;
 
     function setUp(){
-        $this->router = new \flight\net\Router();
-        $this->request = new \flight\net\Request();
-        $this->dispatcher = new \flight\core\Dispatcher();
+        $this->router = new Router();
+        $this->request = new Request();
+        $this->dispatcher = new Dispatcher();
     }
 
     // Simple output

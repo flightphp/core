@@ -10,15 +10,17 @@ require_once 'vendor/autoload.php';
 require_once __DIR__.'/classes/User.php';
 require_once __DIR__.'/classes/Factory.php';
 
+use Flight\Core\Loader;
+
 class LoaderTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \flight\core\Loader
+     * @var Flight\Core\Loader
      */
     private $loader;
 
     function setUp(){
-        $this->loader = new \flight\core\Loader();
+        $this->loader = new Loader();
         $this->loader->autoload(true, __DIR__.'/classes');
     }
 

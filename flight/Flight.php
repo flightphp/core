@@ -8,6 +8,9 @@
 
 namespace Flight;
 
+use Flight\Engine;
+use Flight\Core\Dispatcher;
+
 /**
  * The Flight class is a static representation of the framework.
  *
@@ -19,7 +22,7 @@ namespace Flight;
  *
  * Routing.
  * @method  static void route($pattern, $callback) Maps a URL pattern to a callback.
- * @method  static \flight\net\Router router() Returns Router instance.
+ * @method  static Flight\Net\Router router() Returns Router instance.
  *
  * Extending & Overriding.
  * @method  static void map($name, $callback) Creates a custom framework method.
@@ -37,11 +40,11 @@ namespace Flight;
  *
  * Views.
  * @method  static void render($file, array $data = null, $key = null) Renders a template file.
- * @method  static \flight\template\View view() Returns View instance.
+ * @method  static Flight\Template\View view() Returns View instance.
  *
  * Request & Response.
- * @method  static \flight\net\Request request() Returns Request instance.
- * @method  static \flight\net\Response response() Returns Request instance.
+ * @method  static Flight\Net\Request request() Returns Request instance.
+ * @method  static Flight\Net\Response response() Returns Request instance.
  * @method  static void redirect($url, $code = 303) Redirects to another URL.
  * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
  * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
@@ -76,19 +79,17 @@ class Flight {
     public static function __callStatic($name, $params) {
         $app = Flight::app();
 
-        return \flight\core\Dispatcher::invokeMethod(array($app, $name), $params);
+        return Dispatcher::invokeMethod(array($app, $name), $params);
     }
 
     /**
-     * @return \flight\Engine Application instance
+     * @return Flight\Engine Application instance
      */
     public static function app() {
         static $initialized = false;
 
         if (!$initialized) {
-            require_once __DIR__.'/autoload.php';
-
-            self::$engine = new \flight\Engine();
+            self::$engine = new Engine();
 
             $initialized = true;
         }
