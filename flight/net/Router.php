@@ -6,12 +6,12 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-namespace flight\net;
+namespace Flight\Net;
 
 /**
  * The Router class is responsible for routing an HTTP request to
  * an assigned callback function. The Router tries to match the
- * requested URL against a series of URL patterns. 
+ * requested URL against a series of URL patterns.
  */
 class Router {
     /**
@@ -113,4 +113,3 @@ class Router {
         $this->index = 0;
     }
 }
-

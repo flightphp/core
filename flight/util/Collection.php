@@ -6,7 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-namespace flight\util;
+namespace Flight\Util;
 
 /**
  * The Collection class allows you to access a set of data
@@ -118,40 +118,40 @@ class Collection implements \ArrayAccess, \Iterator, \Countable {
     public function rewind() {
         reset($this->data);
     }
- 
+
     /**
      * Gets current collection item.
      *
      * @return mixed Value
-     */ 
+     */
     public function current() {
         return current($this->data);
     }
- 
+
     /**
      * Gets current collection key.
      *
      * @return mixed Value
-     */ 
+     */
     public function key() {
         return key($this->data);
     }
- 
+
     /**
      * Gets the next collection value.
      *
      * @return mixed Value
-     */ 
-    public function next() 
+     */
+    public function next()
     {
         return next($this->data);
     }
- 
+
     /**
      * Checks if the current collection key is valid.
      *
      * @return bool Key status
-     */ 
+     */
     public function valid()
     {
         $key = key($this->data);

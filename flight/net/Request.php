@@ -6,9 +6,9 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-namespace flight\net;
+namespace Flight\Net;
 
-use flight\util\Collection;
+use Flight\Util\Collection;
 
 /**
  * The Request class represents an HTTP request. Data from

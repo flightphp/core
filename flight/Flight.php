@@ -6,6 +6,8 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+namespace Flight;
+
 /**
  * The Flight class is a static representation of the framework.
  *

@@ -6,7 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-namespace flight\template;
+namespace Flight\Template;
 
 /**
  * The View class represents output to be displayed. It provides
@@ -167,7 +167,7 @@ class View {
         if ((substr($file, 0, 1) == '/')) {
             return $file;
         }
-        
+
         return $this->path.'/'.$file;
     }
 
@@ -181,4 +181,3 @@ class View {
         echo htmlentities($str);
     }
 }
-

@@ -6,10 +6,10 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-namespace flight;
+namespace Flight;
 
-use flight\core\Loader;
-use flight\core\Dispatcher;
+use Flight\Core\Loader;
+use Flight\Core\Dispatcher;
 
 /**
  * The Engine class contains the core functionality of the framework.
@@ -481,7 +481,7 @@ class Engine {
             ->write($json)
             ->send();
     }
-	
+
     /**
      * Sends a JSONP response.
      *

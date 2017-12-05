@@ -6,7 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-namespace flight\core;
+namespace Flight\Core;
 
 /**
  * The Loader class is responsible for loading objects. It maintains
@@ -78,7 +78,7 @@ class Loader {
                 $obj = ($exists) ?
                     $this->getInstance($name) :
                     $this->newInstance($class, $params);
-                
+
                 if (!$exists) {
                     $this->instances[$name] = $obj;
                 }

@@ -6,7 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-namespace flight\net;
+namespace Flight\Net;
 
 /**
  * The Route class is responsible for routing an HTTP request to
