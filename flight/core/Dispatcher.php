@@ -188,7 +188,7 @@ class Dispatcher {
     public static function invokeMethod($func, array &$params = array()) {
         list($class, $method) = $func;
 
-		$instance = is_object($class);
+        $instance = is_object($class);
 		
         switch (count($params)) {
             case 0:

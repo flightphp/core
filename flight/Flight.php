@@ -39,7 +39,7 @@
  *
  * Request & Response.
  * @method  static \flight\net\Request request() Returns Request instance.
- * @method  static \flight\net\Response response() Returns Request instance.
+ * @method  static \flight\net\Response response() Returns Response instance.
  * @method  static void redirect($url, $code = 303) Redirects to another URL.
  * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
  * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
