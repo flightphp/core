@@ -437,7 +437,6 @@ class Engine {
             ->clear()
             ->status($code)
             ->header('Location', $url)
-            ->write($url)
             ->send();
     }
 
