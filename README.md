@@ -641,9 +641,6 @@ Flight::map('render', function($template, $data){
     Flight::view()->display($template);
 });
 ```
-
-
-
 # Error Handling
 
 ## Errors and Exceptions
