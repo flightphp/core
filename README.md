@@ -347,7 +347,7 @@ Keep in mind that mapped methods have precedence over registered classes. If you
 declare both using the same name, only the mapped method will be invoked.
 
 
-__Note: If you are using composer, you must specify register classes with the Fully Qualified Class Name (FQCN).__
+__Note: If you are using composer, you must register classes using the Fully Qualified Class Name (FQCN).__
 ```php
 Flight::register('class_name', 'Fully\Qualified\Class\Name');
 ```
