@@ -346,6 +346,12 @@ $new = Flight::db(false);
 Keep in mind that mapped methods have precedence over registered classes. If you
 declare both using the same name, only the mapped method will be invoked.
 
+
+__Note: If you are using composer, you must specify register classes with the Fully Qualified Class Name (FQCN).__
+```php
+Flight::register('class_name', 'Fully\Qualified\Class\Name');
+```
+
 # Overriding
 
 Flight allows you to override its default functionality to suit your own needs,
@@ -635,6 +641,9 @@ Flight::map('render', function($template, $data){
     Flight::view()->display($template);
 });
 ```
+
+
+
 # Error Handling
 
 ## Errors and Exceptions
