@@ -54,7 +54,7 @@ class Flight {
     /**
      * Framework engine.
      *
-     * @var object
+     * @var \flight\Engine
      */
     private static $engine;
 

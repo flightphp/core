@@ -15,6 +15,33 @@ use flight\core\Dispatcher;
  * The Engine class contains the core functionality of the framework.
  * It is responsible for loading an HTTP request, running the assigned services,
  * and generating an HTTP response.
+ *
+ * Core methods
+ * @method void start() Starts engine
+ * @method void stop() Stops framework and outputs current response
+ * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
+ *
+ *
+ * Routing
+ * @method void route(string $pattern, callable $callback, bool $pass_route = false) Routes a URL to a callback function.
+ * @method \flight\net\Router router() Gets router
+ *
+ * Views
+ * @method void render(string $file, array $data = null, string $key = null) Renders template
+ * @method \flight\template\View view() Gets current view
+ *
+ * Request-response
+ * @method \flight\net\Request request() Gets current request
+ * @method \flight\net\Response response() Gets current response
+ * @method void error(\Exception $e) Sends an HTTP 500 response for any errors.
+ * @method void notFound() Sends an HTTP 404 response when a URL is not found.
+ * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
+ * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSON response.
+ * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSONP response.
+ *
+ * HTTP caching
+ * @method void etag($id, string $type = 'strong') Handles ETag HTTP caching.
+ * @method void lastModified(int $time) Handles last modified HTTP caching.
  */
 class Engine {
     /**
@@ -27,14 +54,14 @@ class Engine {
     /**
      * Class loader.
      *
-     * @var object
+     * @var Loader
      */
     protected $loader;
 
     /**
      * Event dispatcher.
      *
-     * @var object
+     * @var Dispatcher
      */
     protected $dispatcher;
 
@@ -148,7 +175,7 @@ class Engine {
     /**
      * Custom exception handler. Logs exceptions.
      *
-     * @param object $e Thrown exception
+     * @param \Exception $e Thrown exception
      */
     public function handleException($e) {
         if ($this->get('flight.log_errors')) {
@@ -276,6 +303,7 @@ class Engine {
 
     /**
      * Starts the framework.
+     * @throws \Exception
      */
     public function _start() {
         $dispatched = false;
@@ -330,6 +358,7 @@ class Engine {
      * Stops the framework and outputs the current response.
      *
      * @param int $code HTTP status code
+     * @throws \Exception
      */
     public function _stop($code = null) {
         $response = $this->response();
@@ -395,9 +424,6 @@ class Engine {
         catch (\Throwable $t) {
             exit($msg);
         }
-        catch (\Exception $ex) {
-            exit($msg);
-        }
     }
 
     /**
@@ -446,6 +472,7 @@ class Engine {
      * @param string $file Template file
      * @param array $data Template data
      * @param string $key View variable name
+     * @throws \Exception
      */
     public function _render($file, $data = null, $key = null) {
         if ($key !== null) {
@@ -464,6 +491,7 @@ class Engine {
      * @param bool $encode Whether to perform JSON encoding
      * @param string $charset Charset
      * @param int $option Bitmask Json constant such as JSON_HEX_QUOT
+     * @throws \Exception
      */
     public function _json(
         $data,
@@ -490,6 +518,7 @@ class Engine {
      * @param bool $encode Whether to perform JSON encoding
      * @param string $charset Charset
      * @param int $option Bitmask Json constant such as JSON_HEX_QUOT
+     * @throws \Exception
      */
     public function _jsonp(
         $data,

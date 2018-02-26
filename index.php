@@ -6,4 +6,3 @@ Flight::route('/', function(){
 });
 
 Flight::start();
-?>

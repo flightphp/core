@@ -35,6 +35,7 @@ class Dispatcher {
      * @param string $name Event name
      * @param array $params Callback parameters
      * @return string Output of callback
+     * @throws \Exception
      */
     public function run($name, array $params = array()) {
         $output = '';
@@ -119,6 +120,7 @@ class Dispatcher {
      * @param array $filters Chain of filters
      * @param array $params Method parameters
      * @param mixed $output Method output
+     * @throws \Exception
      */
     public function filter($filters, &$params, &$output) {
         $args = array(&$params, &$output);
