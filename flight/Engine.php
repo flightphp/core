@@ -372,6 +372,7 @@ class Engine {
 
             $response->send();
         }
+	exit();
     }
 
     /**
