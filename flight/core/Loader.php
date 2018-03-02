@@ -65,6 +65,7 @@ class Loader {
      * @param string $name Method name
      * @param bool $shared Shared instance
      * @return object Class instance
+     * @throws \Exception
      */
     public function load($name, $shared = true) {
         $obj = null;
@@ -112,6 +113,7 @@ class Loader {
      * @param string|callable $class Class name or callback function to instantiate class
      * @param array $params Class initialization parameters
      * @return object Class instance
+     * @throws \Exception
      */
     public function newInstance($class, array $params = array()) {
         if (is_callable($class)) {
@@ -132,8 +134,12 @@ class Loader {
             case 5:
                 return new $class($params[0], $params[1], $params[2], $params[3], $params[4]);
             default:
-                $refClass = new \ReflectionClass($class);
-                return $refClass->newInstanceArgs($params);
+                try {
+                    $refClass = new \ReflectionClass($class);
+                    return $refClass->newInstanceArgs($params);
+                } catch (\ReflectionException $e) {
+                    throw new \Exception("Cannot instantiate {$class}", 0, $e);
+                }
         }
     }
 
@@ -159,7 +165,7 @@ class Loader {
      * Starts/stops autoloader.
      *
      * @param bool $enabled Enable/disable autoloading
-     * @param mixed $dirs Autoload directories
+     * @param array $dirs Autoload directories
      */
     public static function autoload($enabled = true, $dirs = array()) {
         if ($enabled) {
