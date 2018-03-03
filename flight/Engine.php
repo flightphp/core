@@ -403,7 +403,7 @@ class Engine {
     /**
      * Sends an HTTP 500 response for any errors.
      *
-     * @param object $e Thrown exception
+     * @param \Exception|\Throwable $e Thrown exception
      */
     public function _error($e) {
         $msg = sprintf('<h1>500 Internal Server Error</h1>'.
@@ -421,7 +421,9 @@ class Engine {
                 ->write($msg)
                 ->send();
         }
-        catch (\Throwable $t) {
+        catch (\Throwable $t) { // PHP 7.0+
+            exit($msg);
+        } catch(\Exception $e) { // PHP < 7
             exit($msg);
         }
     }
