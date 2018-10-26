@@ -5,7 +5,7 @@
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
-
+namespace flight;
 /**
  * The Flight class is a static representation of the framework.
  *
