@@ -191,7 +191,15 @@ class Dispatcher {
         list($class, $method) = $func;
 
         $instance = is_object($class);
-		
+
+        if (!$instance && method_exists($class, $method)) {
+            $methodChecker = new \ReflectionMethod($class, $method);
+            if (!$methodChecker->isStatic()) {
+                $class = new $class;
+                $instance = is_object($class);
+            }
+        }
+
         switch (count($params)) {
             case 0:
                 return ($instance) ?
