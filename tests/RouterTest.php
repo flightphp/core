@@ -263,4 +263,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->check('404');
     }
+
+    
+    // Passing URL parameters matched with regular expression for a URL containing Cyrillic letters:
+    function testRegExParametersCyrillic(){
+        $this->router->map('/категория/@name:[абвгдеёжзийклмнопрстуфхцчшщъыьэюя]+', function($name){
+            echo $name;
+        });
+        $this->request->url = urlencode('/категория/цветя');
+
+        $this->check('цветя');
+    }
+    
 }
