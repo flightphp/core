@@ -139,14 +139,25 @@ class Dispatcher {
      * @throws \Exception
      */
     public static function execute($callback, array &$params = array()) {
-        if (is_callable($callback)) {
-            return is_array($callback) ?
-                self::invokeMethod($callback, $params) :
-                self::callFunction($callback, $params);
-        }
-        else {
-            throw new \Exception('Invalid callback specified.');
-        }
+
+	if (is_array($callback) && is_string($callback[0]) && isset($callback[1])) {
+	    $classname = $callback[0];
+	    $method = $callback[1];
+	    if (class_exists($classname)) {
+		$r_method = new ReflectionMethod("$classname::$method");
+		if (!$r_method->isStatic())  //is not a static method
+		    $callback[0] = new $callback[0](); //instantiate object on the fly (Lorenzo Sanzari)
+	    } else {
+		throw new \Exception('The class ' . $callback[0] . ' does not exists!');
+	    }
+	}
+	if (is_callable($callback)) {
+	    return is_array($callback) ?
+		    self::invokeMethod($callback, $params) : //here, $callback is a string or an object
+		    self::callFunction($callback, $params);
+	} else {
+	    throw new \Exception('Invalid callback specified.');
+	}
     }
 
     /**
