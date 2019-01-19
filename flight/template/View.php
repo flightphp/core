@@ -152,23 +152,39 @@ class View {
     }
 
     /**
-     * Gets the full path to a template file.
+     * Load view from multiple folders using path prefix. 
+     * E.g.:
+     * Flight::set('theme.path','/home/myrootfolder/public/themes/current_theme')  //in app settings files
+     * 
+     * Flight::render('theme.path::myview', $params); 
      *
-     * @param string $file Template file
+     * @param string $file Template file with prefix
      * @return string Template file location
+     * 
+     * @author Lorenzo Sanzari
      */
     public function getTemplate($file) {
-        $ext = $this->extension;
 
-        if (!empty($ext) && (substr($file, -1 * strlen($ext)) != $ext)) {
-            $file .= $ext;
-        }
+	$ext = $this->extension;
 
-        if ((substr($file, 0, 1) == '/')) {
-            return $file;
-        }
-        
-        return $this->path.'/'.$file;
+	//Se il file non ha estensione, aggiugi estensione di default
+	if (!empty($ext) && (substr($file, -1 * strlen($ext)) != $ext)) {
+	    $file .= $ext;
+	}
+
+	
+	$parts = explode("::", $file);
+	if (count($parts) == 2) {
+	    $base_path_key = $parts[0];
+	    $file_path = $parts[1];
+	    return rtrim(App::get($base_path_key), "/") . "/" . $file_path;
+	}
+
+	if ((substr($file, 0, 1) == '/')) {
+	    return $file;
+	}
+
+	return $this->path . '/' . $file;
     }
 
     /**
