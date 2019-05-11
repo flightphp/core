@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/mikecao/flight/badge.svg?branch=master)](https://coveralls.io/github/mikecao/flight?branch=master)[![Build Status](https://travis-ci.org/mikecao/flight.svg?branch=master)](https://travis-ci.org/mikecao/flight)
+
 # What is Flight?
 
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to 

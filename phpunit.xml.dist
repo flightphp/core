@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.8/phpunit.xsd"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         beStrictAboutChangesToGlobalState="true"
+         beStrictAboutOutputDuringTests="true"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+>
+    <testsuites>
+        <testsuite name="Flight Test Suite">
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory>./flight/</directory>
+        </whitelist>
+    </filter>
+</phpunit>
