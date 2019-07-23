@@ -24,6 +24,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
         $_SERVER['HTTPS'] = 'on';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '32.32.32.32';
+        $_SERVER['HTTP_HOST'] = 'example.com';
 
         $this->request = new \flight\net\Request();
     }
@@ -39,6 +40,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0, $this->request->length);
         $this->assertEquals(true, $this->request->secure);
         $this->assertEquals('', $this->request->accept);
+        $this->assertEquals('example.com', $this->request->host);
     }
 
     function testIpAddress() {
