@@ -135,7 +135,7 @@ class Request {
                 'referrer' => self::getVar('HTTP_REFERER'),
                 'ip' => self::getVar('REMOTE_ADDR'),
                 'ajax' => self::getVar('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest',
-                'scheme' => self::getVar('SERVER_PROTOCOL', 'HTTP/1.1'),
+                'scheme' => self::getScheme(),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
                 'type' => self::getVar('CONTENT_TYPE'),
                 'length' => self::getVar('CONTENT_LENGTH', 0),
@@ -143,7 +143,7 @@ class Request {
                 'data' => new Collection($_POST),
                 'cookies' => new Collection($_COOKIE),
                 'files' => new Collection($_FILES),
-                'secure' => self::getVar('HTTPS', 'off') != 'off',
+                'secure' => self::getScheme() == 'https',
                 'accept' => self::getVar('HTTP_ACCEPT'),
                 'proxy_ip' => self::getProxyIpAddress()
             );
@@ -285,5 +285,20 @@ class Request {
         }
 
         return $params;
+    }
+
+    public static function getScheme() {
+        if (
+            (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on')
+            ||
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            ||
+            (isset($_SERVER['HTTP_FRONT_END_HTTPS']) && $_SERVER['HTTP_FRONT_END_HTTPS'] === 'on')
+            ||
+            (isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https')
+        ) {
+            return 'https';
+        }
+        return 'http';
     }
 }
