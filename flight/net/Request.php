@@ -121,6 +121,11 @@ class Request {
     public $proxy_ip;
 
     /**
+     * @var string HTTP host name
+     */
+    public $host;
+
+    /**
      * Constructor.
      *
      * @param array $config Request configuration
@@ -145,7 +150,8 @@ class Request {
                 'files' => new Collection($_FILES),
                 'secure' => self::getScheme() == 'https',
                 'accept' => self::getVar('HTTP_ACCEPT'),
-                'proxy_ip' => self::getProxyIpAddress()
+                'proxy_ip' => self::getProxyIpAddress(),
+                'host' => self::getVar('HTTP_HOST'),
             );
         }
 

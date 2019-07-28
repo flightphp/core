@@ -717,6 +717,7 @@ files - Uploaded files
 secure - Whether the connection is secure
 accept - HTTP accept parameters
 proxy_ip - Proxy IP address of the client
+host - The request host name
 ```
 
 You can access the `query`, `data`, `cookies`, and `files` properties
