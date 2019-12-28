@@ -308,6 +308,7 @@ class Engine {
     public function _start() {
         $dispatched = false;
         $self = $this;
+
         $request = $this->request();
         $response = $this->response();
         $router = $this->router();
@@ -327,6 +328,30 @@ class Engine {
 
         // Route the request
         while ($route = $router->route($request)) {
+
+            if ( $route->cors_allowed ) {
+                if ( isset ( $_SERVER['HTTP_ORIGIN'] ) ) {
+                    // Allow source
+                    $response->header('Access-Control-Allow-Origin', $_SERVER['HTTP_ORIGIN'])
+                    ->header('Access-Control-Allow-Credentials', true)
+                    ->header('Access-Control-Max-Age', 86400);
+                }
+
+                // Access-Control headers are received during OPTIONS requests
+                if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
+                    if ( isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']) ) {
+                        $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                    }
+
+                    if ( isset( $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] ) ) {
+                        $response->header('Access-Control-Allow-Methods', $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+                    }
+                    $response->status(200)->send();
+
+                    exit(0);
+                }
+            }
+
             $params = array_values($route->params);
 
             // Add route info to the parameter list
@@ -381,8 +406,8 @@ class Engine {
      * @param callback $callback Callback function
      * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function _route($pattern, $callback, $pass_route = false) {
-        $this->router()->map($pattern, $callback, $pass_route);
+    public function _route($pattern, $callback, $pass_route = false, $cors_allowed = false) {
+        $this->router()->map($pattern, $callback, $pass_route, $cors_allowed);
     }
 
     /**
@@ -510,7 +535,7 @@ class Engine {
             ->write($json)
             ->send();
     }
-	
+
     /**
      * Sends a JSONP response.
      *

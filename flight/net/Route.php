@@ -50,6 +50,11 @@ class Route {
     public $pass = false;
 
     /**
+     * @var boolean Allow cors
+     */
+    public $cors_allowed = false;
+
+    /**
      * Constructor.
      *
      * @param string $pattern URL pattern
@@ -57,11 +62,12 @@ class Route {
      * @param array $methods HTTP methods
      * @param boolean $pass Pass self in callback parameters
      */
-    public function __construct($pattern, $callback, $methods, $pass) {
+    public function __construct($pattern, $callback, $methods, $pass, $cors_allowed) {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
         $this->pass = $pass;
+        $this->cors_allowed = $cors_allowed;
     }
 
     /**
