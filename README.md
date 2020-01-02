@@ -13,10 +13,12 @@ Flight::route('/', function(){
 Flight::start();
 ```
 
+[Learn more](http://flightphp.com/learn)
+
+# This Branch
+
 This branch has the goal to provide a viable and optional middleware stack implementation with the lightest modification to the current code.
 Sacrificating PSR compliance (Flight isn't PSR compliant anyway).
-
-[Learn more](http://flightphp.com/learn)
 
 # Requirements
 
