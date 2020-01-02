@@ -13,11 +13,16 @@ Flight::route('/', function(){
 Flight::start();
 ```
 
+This branch has the goal to provide a viable and optional middleware stack implementation with the lightest modification to the current code.
+Sacrificating PSR compliance (Flight isn't PSR compliant anyway).
+
 [Learn more](http://flightphp.com/learn)
 
 # Requirements
 
 Flight requires `PHP 5.3` or greater.
+
+This branch requires `PHP 5.4` or greater due to short array initialization
 
 # License
 
@@ -47,8 +52,14 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 ```
 
-**Note**: If you need to use flight in a subdirectory add the line `RewriteBase /subdir/` just after `RewriteEngine On`.
+For *Apache* modern, set the htdocs path to 'public_html' or 'html' or 'public' or whatever and then put only scripts, styles and a single index.php file.
+Then edit your `.htaccess` file or the conf of your virtual host (a lot better) with the following:
+```
+FallbackResource index.php
+```
 
+**Note**: If you need to use flight in a subdirectory add the line `RewriteBase /subdir/` just after `RewriteEngine On`.
+.
 For *Nginx*, add the following to your server declaration:
 
 ```
@@ -63,13 +74,13 @@ server {
 First include the framework.
 
 ```php
-require 'flight/Flight.php';
+require_once 'flight/Flight.php';
 ```
 
 If you're using Composer, run the autoloader instead.
 
 ```php
-require 'vendor/autoload.php';
+require_once 'vendor/autoload.php';
 ```
 
 Then define a route and assign a function to handle the request.
@@ -272,6 +283,14 @@ Flight::route('/', function($route){
 }, true);
 ```
 
+If you want to specify more parameters for http middleware usage (see later) you can add them as the third parameter
+
+```php
+Flight::route('/', function(){
+    //Now every http middleware interested in your configuration will receive it
+}, false, [ 'MyKey' => true, 'AnotheryKey' => 2 ]);
+```
+
 # Extending
 
 Flight is designed to be an extensible framework. The framework comes with a set
@@ -290,6 +309,34 @@ Flight::map('hello', function($name){
 
 // Call your custom method
 Flight::hello('Bob');
+```
+
+You can add a custom route dispatch if you want to perform additional work before real route dispatch
+
+
+```php
+// Map your route dispatch
+
+Flight::map('dispatchRoute', function($route, $params){
+    //Do something instead of directly dispatching the route
+    //when you are done
+    Flight::_dispatchRoute($route, $params);
+});
+
+// You can implement a sort of middleware stack too
+
+$stack = new MiddlewareStack();
+
+$stack->push( [ Flight::class, '_dispatchRoute' ] );
+$stack->push( [ CachingMiddleware::class, 'process' ] );
+$stack->push( [ CORSMiddleware::class, 'process' ] );
+$stack->push( [ ErrorsMiddleware::class, 'process' ] );
+
+Flight::map('dispatchRoute', function($route, $params) use ($stack) {
+    //Now dispatch middleware stack
+    $stack->start($route, $params);
+});
+
 ```
 
 ## Registering Classes
