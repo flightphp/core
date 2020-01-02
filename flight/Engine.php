@@ -128,7 +128,8 @@ class Engine {
         // Register framework methods
         $methods = array(
             'start','stop','route','halt','error','notFound',
-            'render','redirect','etag','lastModified','json','jsonp'
+            'render','redirect','etag','lastModified','json',
+            'jsonp', 'dispatchRoute'
         );
         foreach ($methods as $name) {
             $this->dispatcher->set($name, array($this, '_'.$name));
@@ -299,6 +300,19 @@ class Engine {
         $this->loader->addDirectory($dir);
     }
 
+    /**
+     * Dispatch a route
+     *
+     * @param Route $route Flight Route object
+     * @param array $params array of params for the route callback
+     */
+    public function _dispatchRoute($route, $params) {
+        return $this->dispatcher->execute(
+            $route->callback,
+            $params
+        );
+    }
+
     /*** Extensible Methods ***/
 
     /**
@@ -328,30 +342,6 @@ class Engine {
 
         // Route the request
         while ($route = $router->route($request)) {
-
-            if ( $route->cors_allowed ) {
-                if ( isset ( $_SERVER['HTTP_ORIGIN'] ) ) {
-                    // Allow source
-                    $response->header('Access-Control-Allow-Origin', $_SERVER['HTTP_ORIGIN'])
-                    ->header('Access-Control-Allow-Credentials', true)
-                    ->header('Access-Control-Max-Age', 86400);
-                }
-
-                // Access-Control headers are received during OPTIONS requests
-                if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
-                    if ( isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']) ) {
-                        $response->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-                    }
-
-                    if ( isset( $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'] ) ) {
-                        $response->header('Access-Control-Allow-Methods', $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
-                    }
-                    $response->status(200)->send();
-
-                    exit(0);
-                }
-            }
-
             $params = array_values($route->params);
 
             // Add route info to the parameter list
@@ -360,10 +350,7 @@ class Engine {
             }
 
             // Call route handler
-            $continue = $this->dispatcher->execute(
-                $route->callback,
-                $params
-            );
+            $continue = $this->dispatchRoute($route, $params);
 
             $dispatched = true;
 
@@ -406,8 +393,8 @@ class Engine {
      * @param callback $callback Callback function
      * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function _route($pattern, $callback, $pass_route = false, $cors_allowed = false) {
-        $this->router()->map($pattern, $callback, $pass_route, $cors_allowed);
+    public function _route($pattern, $callback, $pass_route = false, $config = []) {
+        $this->router()->map($pattern, $callback, $pass_route, $config);
     }
 
     /**

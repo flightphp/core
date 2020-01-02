@@ -50,9 +50,9 @@ class Route {
     public $pass = false;
 
     /**
-     * @var boolean Allow cors
+     * @var array Additional parameters for middlewares
      */
-    public $cors_allowed = false;
+    public $config = false;
 
     /**
      * Constructor.
@@ -62,12 +62,12 @@ class Route {
      * @param array $methods HTTP methods
      * @param boolean $pass Pass self in callback parameters
      */
-    public function __construct($pattern, $callback, $methods, $pass, $cors_allowed) {
+    public function __construct($pattern, $callback, $methods, $pass, $config) {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
         $this->pass = $pass;
-        $this->cors_allowed = $cors_allowed;
+        $this->config = $config;
     }
 
     /**
