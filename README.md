@@ -18,7 +18,7 @@ Flight::start();
 # This Branch
 
 This branch has the goal to provide a viable and optional middleware stack implementation with the lightest modification to the current code.
-Sacrificating PSR compliance (Flight isn't PSR compliant anyway).
+No PSR compliant implementation is provided (Flight isn't PSR compliant anyway).
 
 # Requirements
 
