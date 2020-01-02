@@ -327,12 +327,12 @@ Flight::map('dispatchRoute', function($route, $params){
 
 // You can implement a sort of middleware stack too
 
-$stack = new MiddlewareStack();
+$stack = new MySuperCoolMiddlewareStack();
 
 $stack->push( [ Flight::class, '_dispatchRoute' ] );
-$stack->push( [ CachingMiddleware::class, 'process' ] );
-$stack->push( [ CORSMiddleware::class, 'process' ] );
-$stack->push( [ ErrorsMiddleware::class, 'process' ] );
+$stack->push( [ MyCoolCachingMiddleware::class, 'process' ] );
+$stack->push( [ MyCoolCORSMiddleware::class, 'process' ] );
+$stack->push( [ MyCoolErrorsMiddleware::class, 'process' ] );
 
 Flight::map('dispatchRoute', function($route, $params) use ($stack) {
     //Now dispatch middleware stack
