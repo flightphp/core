@@ -45,11 +45,6 @@ class Route {
     public $splat = '';
 
     /**
-     * @var boolean Pass self in callback parameters
-     */
-    public $pass = false;
-
-    /**
      * @var array Additional parameters for middlewares
      */
     public $config = false;
@@ -62,11 +57,10 @@ class Route {
      * @param array $methods HTTP methods
      * @param boolean $pass Pass self in callback parameters
      */
-    public function __construct($pattern, $callback, $methods, $pass, $config) {
+    public function __construct($pattern, $callback, $methods, $config) {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
-        $this->pass = $pass;
         $this->config = $config;
     }
 

@@ -344,11 +344,6 @@ class Engine {
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
-            // Add route info to the parameter list
-            if ($route->pass) {
-                $params[] = $route;
-            }
-
             // Call route handler
             $continue = $this->dispatchRoute($route, $params);
 
@@ -393,8 +388,8 @@ class Engine {
      * @param callback $callback Callback function
      * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function _route($pattern, $callback, $pass_route = false, $config = []) {
-        $this->router()->map($pattern, $callback, $pass_route, $config);
+    public function _route(string $pattern, $callback, array $config = []) {
+        $this->router()->map($pattern, $callback, $config);
     }
 
     /**
