@@ -29,9 +29,7 @@ No PSR compliant implementation is provided (Flight isn't PSR compliant anyway).
 
 # Requirements
 
-Flight requires `PHP 5.3` or greater.
-
-This branch requires `PHP 5.4` or greater due to short array initialization
+Thi branch of Flight requires `PHP 7` or greater due to the typed params for the functions and the short array initialization   
 
 # License
 
