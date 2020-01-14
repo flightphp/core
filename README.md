@@ -1,9 +1,9 @@
 # TODO
 
-Update tests 
-Implements new tests 
-Change README to point to aleferri/flight instead of mikecao/flight (if he doesn't want to merge) 
-Describe the change 
+Update tests   
+Implements new tests  
+Change README to point to aleferri/flight instead of mikecao/flight (if he doesn't want to merge)   
+Describe the change   
 
 # What is Flight?
 
