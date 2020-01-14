@@ -1,10 +1,9 @@
 # TODO
 
-Update tests
-Implements new tests
-Remove third paramaters in Flight::route(), merge it with the $config paramaters and replace the implementation with a middleware
-Change README to point to aleferri/flight instead of mikecao/flight (if he doesn't want to merge)
-Describe the change
+Update tests 
+Implements new tests 
+Change README to point to aleferri/flight instead of mikecao/flight (if he doesn't want to merge) 
+Describe the change 
 
 # What is Flight?
 
@@ -290,7 +289,7 @@ Flight::route('/', function($route){
 
     // Contains the contents of any '*' used in the URL pattern
     $route->splat;
-}, true);
+}, [ 'pass_route' => true ]);
 ```
 
 If you want to specify more parameters for http middleware usage (see later) you can add them as the third parameter
@@ -298,7 +297,7 @@ If you want to specify more parameters for http middleware usage (see later) you
 ```php
 Flight::route('/', function(){
     //Now every http middleware interested in your configuration will receive it
-}, false, [ 'MyKey' => true, 'AnotheryKey' => 2 ]);
+}, [ 'MyKey' => true, 'AnotheryKey' => 2 ]);
 ```
 
 # Extending
