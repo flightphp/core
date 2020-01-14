@@ -1,3 +1,11 @@
+# TODO
+
+Update tests
+Implements new tests
+Remove third paramaters in Flight::route(), merge it with the $config paramaters and replace the implementation with a middleware
+Change README to point to aleferri/flight instead of mikecao/flight (if he doesn't want to merge)
+Describe the change
+
 # What is Flight?
 
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to 
@@ -324,20 +332,18 @@ Flight::map('dispatchRoute', function($route, $params){
     //when you are done
     Flight::_dispatchRoute($route, $params);
 });
+```
 
-// You can implement a sort of middleware stack too
+Or you can use the embedded fully optional LayersStack middlewares dispatcher to achieve what you want
 
-$stack = new MySuperCoolMiddlewareStack();
+```php
+$stack = new \flight\LayersStack( true ); //true if you don't want to remap the last call, false otherwise
 
-$stack->push( [ Flight::class, '_dispatchRoute' ] );
 $stack->push( [ MyCoolCachingMiddleware::class, 'process' ] );
-$stack->push( [ MyCoolCORSMiddleware::class, 'process' ] );
+$stack->push( [ MyCoolVisibilityMiddleware::class, 'process' ] );
 $stack->push( [ MyCoolErrorsMiddleware::class, 'process' ] );
 
-Flight::map('dispatchRoute', function($route, $params) use ($stack) {
-    //Now dispatch middleware stack
-    $stack->start($route, $params);
-});
+Flight::map( 'dispatchRoute', [ $stack, 'dispatch' ] );
 
 ```
 
