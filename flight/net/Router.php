@@ -64,7 +64,7 @@ class Router {
 
         if (strpos($pattern, ' ') !== false) {
             list($method, $url) = explode(' ', trim($pattern), 2);
-
+            $url = trim($url);
             $methods = explode('|', $method);
         }
 
