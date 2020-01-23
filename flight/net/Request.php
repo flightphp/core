@@ -211,7 +211,7 @@ class Request {
 
         $method = self::getMethod();
 
-        if ($method == 'POST' || $method == 'PUT' || $method == 'PATCH') {
+        if ($method == 'POST' || $method == 'PUT' || $method == 'DELETE' || $method == 'PATCH') {
             $body = file_get_contents('php://input');
         }
 
