@@ -66,13 +66,6 @@ class Engine {
     protected $dispatcher;
 
     /**
-     * Running mode
-     * 
-     * @var bool
-     */
-    protected $legacy;
-
-    /**
      * Constructor.
      */
     public function __construct($legacy = true) {
@@ -80,8 +73,6 @@ class Engine {
 
         $this->loader = new Loader();
         $this->dispatcher = new Dispatcher();
-
-        $this->legacy = $legacy;
 
         $this->init();
     }
@@ -402,7 +393,7 @@ class Engine {
      * @param boolean|array $route_params Pass the matching route object to the callback
      */
     public function _route(string $pattern, $callback, $route_params = false) {
-        if ( $this->legacy ) {
+        if ( $route_params === false || $route_params === true ) {
             $config = [ 'pass_route' => $route_params ];
         } else {
             $config = $route_params;

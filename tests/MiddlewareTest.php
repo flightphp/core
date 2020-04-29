@@ -12,7 +12,6 @@ require_once __DIR__.'/../flight/Flight.php';
 class MiddleWareTest extends \PHPUnit\Framework\TestCase
 {
     function setUp() {
-        Flight::$legacy = false;
         Flight::init();
     }
 
