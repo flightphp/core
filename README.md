@@ -7,24 +7,8 @@
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to 
 quickly and easily build RESTful web applications.
 
-It is lazy-initialized on legacy mode at the first call
-
 ```php
 require 'flight/Flight.php';
-
-Flight::route('/', function(){
-    echo 'hello world!';
-});
-
-Flight::start();
-```
-
-If you want the lazy-initialization, but want the middleware-enabled mode use
-
-```php
-require 'flight/Flight.php';
-
-Flight::$legacy = false;
 
 Flight::route('/', function(){
     echo 'hello world!';
@@ -293,10 +277,8 @@ Flight::route('/user/*', function(){
 
 If you want to inspect the matching route information, you can request for the route
 object to be passed to your callback by passing in `true` as the third parameter in
-the route method. The route object will always be the last parameter passed to your
-callback function.
-
-Legacy (default):
+the route method or by including `'pass_route' => true` inside the array you can pass as third paramter. 
+The route object will always be the last parameter passed to your callback function.
 
 ```php
 Flight::route('/', function($route){
@@ -312,24 +294,6 @@ Flight::route('/', function($route){
     // Contains the contents of any '*' used in the URL pattern
     $route->splat;
 }, true);
-```
-
-Non-Legacy (require flags before initialization)
-
-```php
-Flight::route('/', function($route){
-    // Array of HTTP methods matched against
-    $route->methods;
-
-    // Array of named parameters
-    $route->params;
-
-    // Matching regular expression
-    $route->regex;
-
-    // Contains the contents of any '*' used in the URL pattern
-    $route->splat;
-}, [ 'pass_route' => true ]);
 ```
 
 If you want to specify more parameters for http middleware usage (see later) you can add them as the third parameter
@@ -994,30 +958,12 @@ Any custom methods added with `map` and `register` can also be filtered.
 Instead of running Flight as a global static class, you can optionally run it
 as an object instance.
 
-Start in legacy mode:
-
 ```php
 require 'flight/autoload.php';
 
 use flight\Engine;
 
 $app = new Engine();
-
-$app->route('/', function(){
-    echo 'hello world!';
-});
-
-$app->start();
-```
-
-Start in non-legacy mode:
-
-```php
-require 'flight/autoload.php';
-
-use flight\Engine;
-
-$app = new Engine(false);
 
 $app->route('/', function(){
     echo 'hello world!';
