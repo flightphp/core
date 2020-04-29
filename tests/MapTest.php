@@ -10,7 +10,7 @@ require_once 'vendor/autoload.php';
 require_once __DIR__.'/../flight/autoload.php';
 require_once __DIR__.'/classes/Hello.php';
 
-class MapTest extends PHPUnit_Framework_TestCase
+class MapTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\Engine
@@ -65,7 +65,8 @@ class MapTest extends PHPUnit_Framework_TestCase
 
     // Unmapped method
     function testUnmapped() {
-        $this->setExpectedException('Exception', 'doesNotExist must be a mapped method.');
+        $this->expectException('Exception');
+        $this->expectExceptionMessage('doesNotExist must be a mapped method.');
 
         $this->app->doesNotExist();
     }

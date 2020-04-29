@@ -58,6 +58,13 @@ class Flight {
      */
     private static $engine;
 
+    /**
+     * Legacy mode: no middleware allowed in routing
+     * 
+     * @var bool
+     */
+    public static $legacy = true;
+
     // Don't allow object instantiation
     private function __construct() {}
     private function __destruct() {}
@@ -72,21 +79,22 @@ class Flight {
      * @throws \Exception
      */
     public static function __callStatic($name, $params) {
-        $app = Flight::app();
+        $app = Flight::app(self::$legacy);
 
         return \flight\core\Dispatcher::invokeMethod(array($app, $name), $params);
     }
 
     /**
+     * @param bool $legacy legacy routing
      * @return \flight\Engine Application instance
      */
-    public static function app() {
+    public static function app($legacy = true) {
         static $initialized = false;
 
         if (!$initialized) {
             require_once __DIR__.'/autoload.php';
 
-            self::$engine = new \flight\Engine();
+            self::$engine = new \flight\Engine($legacy);
 
             $initialized = true;
         }

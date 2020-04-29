@@ -11,7 +11,7 @@ namespace flight\net;
 /**
  * The Router class is responsible for routing an HTTP request to
  * an assigned callback function. The Router tries to match the
- * requested URL against a series of URL patterns. 
+ * requested URL against a series of URL patterns.
  */
 class Router {
     /**
@@ -58,7 +58,7 @@ class Router {
      * @param callback $callback Callback function
      * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function map($pattern, $callback, $pass_route = false) {
+    public function map($pattern, $callback, array $config = []) {
         $url = $pattern;
         $methods = array('*');
 
@@ -68,7 +68,7 @@ class Router {
             $methods = explode('|', $method);
         }
 
-        $this->routes[] = new Route($url, $callback, $methods, $pass_route);
+        $this->routes[] = new Route($url, $callback, $methods, $config);
     }
 
     /**
@@ -114,4 +114,3 @@ class Router {
         $this->index = 0;
     }
 }
-

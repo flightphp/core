@@ -10,7 +10,7 @@ require_once 'vendor/autoload.php';
 require_once __DIR__.'/classes/User.php';
 require_once __DIR__.'/classes/Factory.php';
 
-class LoaderTest extends PHPUnit_Framework_TestCase
+class LoaderTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\core\Loader

@@ -9,7 +9,7 @@
 require_once 'vendor/autoload.php';
 require_once __DIR__.'/../flight/autoload.php';
 
-class ViewTest extends PHPUnit_Framework_TestCase
+class ViewTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\template\View

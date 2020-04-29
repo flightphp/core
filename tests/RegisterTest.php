@@ -10,7 +10,7 @@ require_once 'vendor/autoload.php';
 require_once __DIR__.'/../flight/autoload.php';
 require_once __DIR__.'/classes/User.php';
 
-class RegisterTest extends PHPUnit_Framework_TestCase
+class RegisterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\Engine

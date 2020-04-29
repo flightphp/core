@@ -9,7 +9,7 @@
 require_once 'vendor/autoload.php';
 require_once __DIR__.'/../flight/Flight.php';
 
-class FlightTest extends PHPUnit_Framework_TestCase
+class FlightTest extends \PHPUnit\Framework\TestCase
 {
     function setUp() {
         Flight::init();
@@ -76,7 +76,8 @@ class FlightTest extends PHPUnit_Framework_TestCase
 
     // Unmapped method
     function testUnmapped() {
-        $this->setExpectedException('Exception', 'doesNotExist must be a mapped method.');
+        $this->expectException('Exception');
+        $this->expectExceptionMessage('doesNotExist must be a mapped method.');
 
         Flight::doesNotExist();
     }

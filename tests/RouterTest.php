@@ -9,7 +9,7 @@
 require_once 'vendor/autoload.php';
 require_once __DIR__.'/../flight/autoload.php';
 
-class RouterTest extends PHPUnit_Framework_TestCase
+class RouterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\net\Router
@@ -59,7 +59,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         while ($route = $this->router->route($this->request)) {
             $params = array_values($route->params);
 
-            if ($route->pass) {
+            if (isset($route->config['pass_route']) && $route->config['pass_route']) {
                 $params[] = $route;
             }
 
@@ -191,15 +191,15 @@ class RouterTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(sizeof($route->params), 0);
             $this->assertEquals($route->regex, null);
             $this->assertEquals($route->splat, '');
-            $this->assertTrue($route->pass);
-        }, true);
+            $this->assertTrue($route->config['pass_route']);
+        }, [ 'pass_route' => true ]);
         $this->request->url = '/yes_route';
 
         $this->check();
 
         $this->router->map('/no_route', function($route = null){
             $this->assertTrue(is_null($route));
-        }, false);
+        }, [ 'pass_route' => false ]);
         $this->request->url = '/no_route';
 
         $this->check();
@@ -210,7 +210,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(sizeof($route->params), 2);
             $this->assertEquals($route->params['one'], $one);
             $this->assertEquals($route->params['two'], $two);
-        }, true);
+        }, [ 'pass_route' => true ]);
         $this->request->url = '/1/2';
 
         $this->check();
@@ -220,7 +220,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     function testSplatWildcard(){
         $this->router->map('/account/*', function($route){
             echo $route->splat;
-        }, true);
+        }, [ 'pass_route' => true ]);
         $this->request->url = '/account/456/def/xyz';
 
         $this->check('456/def/xyz');
@@ -230,7 +230,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     function testSplatWildcardTrailingSlash(){
         $this->router->map('/account/*', function($route){
             echo $route->splat;
-        }, true);
+        }, [ 'pass_route' => true ]);
         $this->request->url = '/account';
 
         $this->check();
@@ -241,7 +241,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->router->map('/account/@name/*', function($name, $route){
                 echo $route->splat;
                 $this->assertEquals('abc', $name);
-            }, true);
+            }, [ 'pass_route' => true ]);
         $this->request->url = '/account/abc/456/def/xyz';
 
         $this->check('456/def/xyz');

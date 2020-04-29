@@ -66,13 +66,22 @@ class Engine {
     protected $dispatcher;
 
     /**
+     * Running mode
+     * 
+     * @var bool
+     */
+    protected $legacy;
+
+    /**
      * Constructor.
      */
-    public function __construct() {
+    public function __construct($legacy = true) {
         $this->vars = array();
 
         $this->loader = new Loader();
         $this->dispatcher = new Dispatcher();
+
+        $this->legacy = $legacy;
 
         $this->init();
     }
@@ -128,7 +137,8 @@ class Engine {
         // Register framework methods
         $methods = array(
             'start','stop','route','halt','error','notFound',
-            'render','redirect','etag','lastModified','json','jsonp'
+            'render','redirect','etag','lastModified','json',
+            'jsonp', 'dispatchRoute'
         );
         foreach ($methods as $name) {
             $this->dispatcher->set($name, array($this, '_'.$name));
@@ -299,6 +309,19 @@ class Engine {
         $this->loader->addDirectory($dir);
     }
 
+    /**
+     * Dispatch a route
+     *
+     * @param Route $route Flight Route object
+     * @param array $params array of params for the route callback
+     */
+    public function _dispatchRoute($route, array $params) {
+        return $this->dispatcher->execute(
+            $route->callback,
+            $params
+        );
+    }
+
     /*** Extensible Methods ***/
 
     /**
@@ -308,6 +331,7 @@ class Engine {
     public function _start() {
         $dispatched = false;
         $self = $this;
+
         $request = $this->request();
         $response = $this->response();
         $router = $this->router();
@@ -329,16 +353,12 @@ class Engine {
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
-            // Add route info to the parameter list
-            if ($route->pass) {
+            if (isset($route->config['pass_route']) && $route->config['pass_route']) {
                 $params[] = $route;
             }
 
             // Call route handler
-            $continue = $this->dispatcher->execute(
-                $route->callback,
-                $params
-            );
+            $continue = $this->dispatchRoute($route, $params);
 
             $dispatched = true;
 
@@ -379,10 +399,15 @@ class Engine {
      *
      * @param string $pattern URL pattern to match
      * @param callback $callback Callback function
-     * @param boolean $pass_route Pass the matching route object to the callback
+     * @param boolean|array $route_params Pass the matching route object to the callback
      */
-    public function _route($pattern, $callback, $pass_route = false) {
-        $this->router()->map($pattern, $callback, $pass_route);
+    public function _route(string $pattern, $callback, $route_params = false) {
+        if ( $this->legacy ) {
+            $config = [ 'pass_route' => $route_params ];
+        } else {
+            $config = $route_params;
+        }
+        $this->router()->map($pattern, $callback, $config);
     }
 
     /**
@@ -510,7 +535,7 @@ class Engine {
             ->write($json)
             ->send();
     }
-	
+
     /**
      * Sends a JSONP response.
      *

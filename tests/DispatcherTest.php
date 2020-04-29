@@ -9,7 +9,7 @@
 require_once 'vendor/autoload.php';
 require_once __DIR__.'/classes/Hello.php';
 
-class DispatcherTest extends PHPUnit_Framework_TestCase
+class DispatcherTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\core\Dispatcher
@@ -85,7 +85,8 @@ class DispatcherTest extends PHPUnit_Framework_TestCase
 
     // Test an invalid callback
     function testInvalidCallback() {
-        $this->setExpectedException('Exception', 'Invalid callback specified.');
+        $this->expectException('Exception');
+        $this->expectExceptionMessage('Invalid callback specified.');
 
         $this->dispatcher->execute(array('NonExistentClass', 'nonExistentMethod'));
     }
