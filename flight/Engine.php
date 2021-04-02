@@ -141,6 +141,7 @@ class Engine {
         $this->set('flight.log_errors', false);
         $this->set('flight.views.path', './views');
         $this->set('flight.views.extension', '.php');
+        $this->set('flight.content_length', true);
 
         // Startup configuration
         $this->before('start', function() use ($self) {
@@ -152,6 +153,8 @@ class Engine {
 
             // Set case-sensitivity
             $self->router()->case_sensitive = $self->get('flight.case_sensitive');
+            // Set Content-Length
+            $self->response()->content_length = $self->get('flight.content_length');
         });
 
         $initialized = true;
