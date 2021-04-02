@@ -33,6 +33,13 @@ class Response {
      * @var bool HTTP response sent
      */
     protected $sent = false;
+    
+    /**
+     * header Content-Length
+     *
+     * @var boolean
+     */
+    public $content_length = true;
 
     /**
      * @var array HTTP status codes
@@ -251,11 +258,13 @@ class Response {
             }
         }
 
-        // Send content length
-        $length = $this->getContentLength();
+        if ($this->content_length) {
+            // Send content length
+            $length = $this->getContentLength();
 
-        if ($length > 0) {
-            header('Content-Length: '.$length);
+            if ($length > 0) {
+                header('Content-Length: '.$length);
+            }
         }
 
         return $this;
