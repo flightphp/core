@@ -8,11 +8,15 @@
 
 namespace flight\util;
 
+if (!interface_exists('JsonSerializable')) {
+    require_once dirname(__FILE__) . '/LegacyJsonSerializable.php';
+}
+
 /**
  * The Collection class allows you to access a set of data
  * using both array and object notation.
  */
-class Collection implements \ArrayAccess, \Iterator, \Countable {
+class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable {
     /**
      * Collection data.
      *
@@ -192,6 +196,15 @@ class Collection implements \ArrayAccess, \Iterator, \Countable {
      */
     public function setData(array $data) {
         $this->data = $data;
+    }
+
+    /**
+     * Gets the collection data which can be serialized to JSON
+     *
+     * @return array Collection data which can be serialized by <b>json_encode</b>
+     */
+    public function jsonSerialize() {
+        return $this->data;
     }
 
     /**
