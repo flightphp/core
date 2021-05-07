@@ -194,6 +194,8 @@ Flight::route('/@name/@id:[0-9]{3}', function($name, $id){
 });
 ```
 
+Matching regex groups `()` with named parameters isn't supported.
+
 ## Optional Parameters
 
 You can specify named parameters that are optional for matching by wrapping
