@@ -58,11 +58,11 @@ class Router
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false): void
     {
-        $url = $pattern;
+        $url = trim($pattern);
         $methods = ['*'];
 
-        if (false !== strpos($pattern, ' ')) {
-            [$method, $url] = explode(' ', trim($pattern), 2);
+        if (false !== strpos($url, ' ')) {
+            [$method, $url] = explode(' ', $url, 2);
             $url = trim($url);
             $methods = explode('|', $method);
         }

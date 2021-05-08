@@ -86,7 +86,7 @@ class Engine
      * @param string $name   Method name
      * @param array  $params Method parameters
      *
-     *@throws Exception
+     * @throws Exception
      *
      * @return mixed Callback results
      */
@@ -102,7 +102,7 @@ class Engine
             throw new Exception("{$name} must be a mapped method.");
         }
 
-        $shared = (!empty($params)) ? (bool) $params[0] : true;
+        $shared = empty($params) || $params[0];
 
         return $this->loader->load($name, $shared);
     }
@@ -124,10 +124,10 @@ class Engine
         }
 
         // Register default components
-        $this->loader->register('request', '\flight\net\Request');
-        $this->loader->register('response', '\flight\net\Response');
-        $this->loader->register('router', '\flight\net\Router');
-        $this->loader->register('view', '\flight\template\View', [], function ($view) use ($self) {
+        $this->loader->register('request', Request::class);
+        $this->loader->register('response', Response::class);
+        $this->loader->register('router', Router::class);
+        $this->loader->register('view', View::class, [], function ($view) use ($self) {
             $view->path = $self->get('flight.views.path');
             $view->extension = $self->get('flight.views.extension');
         });
@@ -136,13 +136,14 @@ class Engine
         $methods = [
             'start', 'stop', 'route', 'halt', 'error', 'notFound',
             'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
+            'post', 'put', 'patch', 'delete',
         ];
         foreach ($methods as $name) {
             $this->dispatcher->set($name, [$this, '_' . $name]);
         }
 
         // Default configuration settings
-        $this->set('flight.base_url', null);
+        $this->set('flight.base_url');
         $this->set('flight.case_sensitive', false);
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
@@ -170,14 +171,14 @@ class Engine
     /**
      * Custom error handler. Converts errors into exceptions.
      *
-     * @param int $errno   Error number
-     * @param int $errstr  Error string
-     * @param int $errfile Error file name
-     * @param int $errline Error file line number
+     * @param int    $errno   Error number
+     * @param string $errstr  Error string
+     * @param string $errfile Error file name
+     * @param int    $errline Error file line number
      *
      * @throws ErrorException
      */
-    public function handleError(int $errno, int $errstr, int $errfile, int $errline)
+    public function handleError(int $errno, string $errstr, string $errfile, int $errline)
     {
         if ($errno & error_reporting()) {
             throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
@@ -385,6 +386,32 @@ class Engine
     }
 
     /**
+     * Sends an HTTP 500 response for any errors.
+     *
+     * @param Throwable $e Thrown exception
+     */
+    public function _error($e): void
+    {
+        $msg = sprintf('<h1>500 Internal Server Error</h1>' .
+            '<h3>%s (%s)</h3>' .
+            '<pre>%s</pre>',
+            $e->getMessage(),
+            $e->getCode(),
+            $e->getTraceAsString()
+        );
+
+        try {
+            $this->response()
+                ->clear()
+                ->status(500)
+                ->write($msg)
+                ->send();
+        } catch (Throwable $t) {
+            exit($msg);
+        }
+    }
+
+    /**
      * Stops the framework and outputs the current response.
      *
      * @param int|null $code HTTP status code
@@ -419,6 +446,54 @@ class Engine
     }
 
     /**
+     * Routes a URL to a callback function.
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callback $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     */
+    public function _post(string $pattern, callable $callback, bool $pass_route = false): void
+    {
+        $this->router()->map('POST ' . $pattern, $callback, $pass_route);
+    }
+
+    /**
+     * Routes a URL to a callback function.
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callback $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     */
+    public function _put(string $pattern, callable $callback, bool $pass_route = false): void
+    {
+        $this->router()->map('PUT ' . $pattern, $callback, $pass_route);
+    }
+
+    /**
+     * Routes a URL to a callback function.
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callback $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     */
+    public function _patch(string $pattern, callable $callback, bool $pass_route = false): void
+    {
+        $this->router()->map('PATCH ' . $pattern, $callback, $pass_route);
+    }
+
+    /**
+     * Routes a URL to a callback function.
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callback $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     */
+    public function _delete(string $pattern, callable $callback, bool $pass_route = false): void
+    {
+        $this->router()->map('DELETE ' . $pattern, $callback, $pass_route);
+    }
+
+    /**
      * Stops processing and returns a given response.
      *
      * @param int    $code    HTTP status code
@@ -432,34 +507,6 @@ class Engine
             ->write($message)
             ->send();
         exit();
-    }
-
-    /**
-     * Sends an HTTP 500 response for any errors.
-     *
-     * @param Exception|Throwable $e Thrown exception
-     */
-    public function _error($e): void
-    {
-        $msg = sprintf('<h1>500 Internal Server Error</h1>' .
-            '<h3>%s (%s)</h3>' .
-            '<pre>%s</pre>',
-            $e->getMessage(),
-            $e->getCode(),
-            $e->getTraceAsString()
-        );
-
-        try {
-            $this->response()
-                ->clear()
-                ->status(500)
-                ->write($msg)
-                ->send();
-        } catch (Throwable $t) { // PHP 7.0+
-            exit($msg);
-        } catch (Exception $e) { // PHP < 7
-            exit($msg);
-        }
     }
 
     /**
@@ -493,7 +540,7 @@ class Engine
         }
 
         // Append base url to redirect url
-        if ('/' != $base && false === strpos($url, '://')) {
+        if ('/' !== $base && false === strpos($url, '://')) {
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
@@ -540,7 +587,7 @@ class Engine
         string $charset = 'utf-8',
         int $option = 0
     ): void {
-        $json = ($encode) ? json_encode($data, $option) : $data;
+        $json = $encode ? json_encode($data, $option) : $data;
 
         $this->response()
             ->status($code)
@@ -569,7 +616,7 @@ class Engine
         string $charset = 'utf-8',
         int $option = 0
     ): void {
-        $json = ($encode) ? json_encode($data, $option) : $data;
+        $json = $encode ? json_encode($data, $option) : $data;
 
         $callback = $this->request()->query[$param];
 
