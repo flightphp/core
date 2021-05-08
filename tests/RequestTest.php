@@ -6,17 +6,17 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+use flight\net\Request;
+
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+require_once __DIR__ . '/../flight/autoload.php';
 
-class RequestTest extends PHPUnit_Framework_TestCase
+class RequestTest extends PHPUnit\Framework\TestCase
 {
-    /**
-     * @var \flight\net\Request
-     */
-    private $request;
+    private Request $request;
 
-    function setUp() {
+    protected function setUp(): void
+    {
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -25,47 +25,52 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '32.32.32.32';
         $_SERVER['HTTP_HOST'] = 'example.com';
 
-        $this->request = new \flight\net\Request();
+        $this->request = new Request();
     }
 
-    function testDefaults() {
-        $this->assertEquals('/', $this->request->url);
-        $this->assertEquals('/', $this->request->base);
-        $this->assertEquals('GET', $this->request->method);
-        $this->assertEquals('', $this->request->referrer);
-        $this->assertEquals(true, $this->request->ajax);
-        $this->assertEquals('http', $this->request->scheme);
-        $this->assertEquals('', $this->request->type);
-        $this->assertEquals(0, $this->request->length);
-        $this->assertEquals(false, $this->request->secure);
-        $this->assertEquals('', $this->request->accept);
-        $this->assertEquals('example.com', $this->request->host);
+    public function testDefaults()
+    {
+        self::assertEquals('/', $this->request->url);
+        self::assertEquals('/', $this->request->base);
+        self::assertEquals('GET', $this->request->method);
+        self::assertEquals('', $this->request->referrer);
+        self::assertTrue($this->request->ajax);
+        self::assertEquals('http', $this->request->scheme);
+        self::assertEquals('', $this->request->type);
+        self::assertEquals(0, $this->request->length);
+        self::assertFalse($this->request->secure);
+        self::assertEquals('', $this->request->accept);
+        self::assertEquals('example.com', $this->request->host);
     }
 
-    function testIpAddress() {
-        $this->assertEquals('8.8.8.8', $this->request->ip);
-        $this->assertEquals('32.32.32.32', $this->request->proxy_ip);
+    public function testIpAddress()
+    {
+        self::assertEquals('8.8.8.8', $this->request->ip);
+        self::assertEquals('32.32.32.32', $this->request->proxy_ip);
     }
 
-    function testSubdirectory() {
+    public function testSubdirectory()
+    {
         $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
-        $this->assertEquals('/subdir', $request->base);
+        self::assertEquals('/subdir', $request->base);
     }
 
-    function testQueryParameters() {
+    public function testQueryParameters()
+    {
         $_SERVER['REQUEST_URI'] = '/page?id=1&name=bob';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
-        $this->assertEquals('/page?id=1&name=bob', $request->url);
-        $this->assertEquals(1, $request->query->id);
-        $this->assertEquals('bob', $request->query->name);
+        self::assertEquals('/page?id=1&name=bob', $request->url);
+        self::assertEquals(1, $request->query->id);
+        self::assertEquals('bob', $request->query->name);
     }
 
-    function testCollections() {
+    public function testCollections()
+    {
         $_SERVER['REQUEST_URI'] = '/page?id=1';
 
         $_GET['q'] = 1;
@@ -73,58 +78,61 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $_COOKIE['q'] = 1;
         $_FILES['q'] = 1;
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
-        $this->assertEquals(1, $request->query->q);
-        $this->assertEquals(1, $request->query->id);
-        $this->assertEquals(1, $request->data->q);
-        $this->assertEquals(1, $request->cookies->q);
-        $this->assertEquals(1, $request->files->q);
+        self::assertEquals(1, $request->query->q);
+        self::assertEquals(1, $request->query->id);
+        self::assertEquals(1, $request->data->q);
+        self::assertEquals(1, $request->cookies->q);
+        self::assertEquals(1, $request->files->q);
     }
 
-    function testMethodOverrideWithHeader() {
+    public function testMethodOverrideWithHeader()
+    {
         $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'PUT';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
-        $this->assertEquals('PUT', $request->method);
+        self::assertEquals('PUT', $request->method);
     }
 
-    function testMethodOverrideWithPost() {
+    public function testMethodOverrideWithPost()
+    {
         $_REQUEST['_method'] = 'PUT';
 
-        $request = new \flight\net\Request();
+        $request = new Request();
 
-        $this->assertEquals('PUT', $request->method);
+        self::assertEquals('PUT', $request->method);
     }
 
-    function testHttps() {
+    public function testHttps()
+    {
         $_SERVER['HTTPS'] = 'on';
-        $request = new \flight\net\Request();
-        $this->assertEquals('https', $request->scheme);
+        $request = new Request();
+        self::assertEquals('https', $request->scheme);
         $_SERVER['HTTPS'] = 'off';
-        $request = new \flight\net\Request();
-        $this->assertEquals('http', $request->scheme);
+        $request = new Request();
+        self::assertEquals('http', $request->scheme);
 
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
-        $request = new \flight\net\Request();
-        $this->assertEquals('https', $request->scheme);
+        $request = new Request();
+        self::assertEquals('https', $request->scheme);
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'http';
-        $request = new \flight\net\Request();
-        $this->assertEquals('http', $request->scheme);
+        $request = new Request();
+        self::assertEquals('http', $request->scheme);
 
         $_SERVER['HTTP_FRONT_END_HTTPS'] = 'on';
-        $request = new \flight\net\Request();
-        $this->assertEquals('https', $request->scheme);
+        $request = new Request();
+        self::assertEquals('https', $request->scheme);
         $_SERVER['HTTP_FRONT_END_HTTPS'] = 'off';
-        $request = new \flight\net\Request();
-        $this->assertEquals('http', $request->scheme);
+        $request = new Request();
+        self::assertEquals('http', $request->scheme);
 
         $_SERVER['REQUEST_SCHEME'] = 'https';
-        $request = new \flight\net\Request();
-        $this->assertEquals('https', $request->scheme);
+        $request = new Request();
+        self::assertEquals('https', $request->scheme);
         $_SERVER['REQUEST_SCHEME'] = 'http';
-        $request = new \flight\net\Request();
-        $this->assertEquals('http', $request->scheme);
+        $request = new Request();
+        self::assertEquals('http', $request->scheme);
     }
 }

@@ -6,31 +6,33 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+use flight\Engine;
+
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/Flight.php';
+require_once __DIR__ . '/../flight/Flight.php';
 
-class RenderTest extends PHPUnit_Framework_TestCase
+class RenderTest extends PHPUnit\Framework\TestCase
 {
-    /**
-     * @var \flight\Engine
-     */
-    private $app;
+    private Engine $app;
 
-    function setUp() {
-        $this->app = new \flight\Engine();
-        $this->app->set('flight.views.path', __DIR__.'/views');
+    protected function setUp(): void
+    {
+        $this->app = new Engine();
+        $this->app->set('flight.views.path', __DIR__ . '/views');
     }
 
     // Render a view
-    function testRenderView(){
-        $this->app->render('hello', array('name' => 'Bob'));
+    public function testRenderView()
+    {
+        $this->app->render('hello', ['name' => 'Bob']);
 
         $this->expectOutputString('Hello, Bob!');
     }
 
     // Renders a view into a layout
-    function testRenderLayout(){
-        $this->app->render('hello', array('name' => 'Bob'), 'content');
+    public function testRenderLayout()
+    {
+        $this->app->render('hello', ['name' => 'Bob'], 'content');
         $this->app->render('layouts/layout');
 
         $this->expectOutputString('<html>Hello, Bob!</html>');
