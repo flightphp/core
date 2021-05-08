@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace flight\core;
 
 use Exception;
+use InvalidArgumentException;
 
 /**
  * The Dispatcher class is responsible for dispatching events. Events
@@ -38,9 +39,9 @@ class Dispatcher
      *
      *@throws Exception
      *
-     * @return string Output of callback
+     * @return mixed|null Output of callback
      */
-    public function run(string $name, array $params = []): ?string
+    final public function run(string $name, array $params = [])
     {
         $output = '';
 
@@ -50,7 +51,7 @@ class Dispatcher
         }
 
         // Run requested method
-        $output = $this->execute($this->get($name), $params);
+        $output = self::execute($this->get($name), $params);
 
         // Run post-filters
         if (!empty($this->filters[$name]['after'])) {
@@ -66,7 +67,7 @@ class Dispatcher
      * @param string   $name     Event name
      * @param callback $callback Callback function
      */
-    public function set(string $name, callable $callback): void
+    final public function set(string $name, callable $callback): void
     {
         $this->events[$name] = $callback;
     }
@@ -78,7 +79,7 @@ class Dispatcher
      *
      * @return callback $callback Callback function
      */
-    public function get(string $name): ?callable
+    final public function get(string $name): ?callable
     {
         return $this->events[$name] ?? null;
     }
@@ -90,7 +91,7 @@ class Dispatcher
      *
      * @return bool Event status
      */
-    public function has(string $name): bool
+    final public function has(string $name): bool
     {
         return isset($this->events[$name]);
     }
@@ -101,7 +102,7 @@ class Dispatcher
      *
      * @param string|null $name Event name
      */
-    public function clear(?string $name = null): void
+    final public function clear(?string $name = null): void
     {
         if (null !== $name) {
             unset($this->events[$name]);
@@ -119,7 +120,7 @@ class Dispatcher
      * @param string   $type     Filter type
      * @param callback $callback Callback function
      */
-    public function hook(string $name, string $type, callable $callback)
+    final public function hook(string $name, string $type, callable $callback): void
     {
         $this->filters[$name][$type][] = $callback;
     }
@@ -133,11 +134,11 @@ class Dispatcher
      *
      * @throws Exception
      */
-    public function filter(array $filters, array &$params, &$output): void
+    final public function filter(array $filters, array &$params, &$output): void
     {
         $args = [&$params, &$output];
         foreach ($filters as $callback) {
-            $continue = $this->execute($callback, $args);
+            $continue = self::execute($callback, $args);
             if (false === $continue) {
                 break;
             }
@@ -147,14 +148,14 @@ class Dispatcher
     /**
      * Executes a callback function.
      *
-     * @param callback $callback Callback function
-     * @param array    $params   Function parameters
+     * @param array|callback $callback Callback function
+     * @param array          $params   Function parameters
      *
      *@throws Exception
      *
      * @return mixed Function results
      */
-    public static function execute(callable $callback, array &$params = [])
+    public static function execute($callback, array &$params = [])
     {
         if (\is_callable($callback)) {
             return \is_array($callback) ?
@@ -162,7 +163,7 @@ class Dispatcher
                 self::callFunction($callback, $params);
         }
 
-        throw new Exception('Invalid callback specified.');
+        throw new InvalidArgumentException('Invalid callback specified.');
     }
 
     /**
@@ -245,7 +246,7 @@ class Dispatcher
     /**
      * Resets the object to the initial state.
      */
-    public function reset(): void
+    final public function reset(): void
     {
         $this->events = [];
         $this->filters = [];

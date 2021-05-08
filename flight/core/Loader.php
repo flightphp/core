@@ -179,9 +179,9 @@ class Loader
      * Starts/stops autoloader.
      *
      * @param bool  $enabled Enable/disable autoloading
-     * @param array $dirs    Autoload directories
+     * @param mixed $dirs    Autoload directories
      */
-    public static function autoload(bool $enabled = true, array $dirs = []): void
+    public static function autoload(bool $enabled = true, $dirs = []): void
     {
         if ($enabled) {
             spl_autoload_register([__CLASS__, 'loadClass']);

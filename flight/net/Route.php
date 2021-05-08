@@ -40,7 +40,7 @@ final class Route
     /**
      * @var string|null Matching regular expression
      */
-    public ?string $regex;
+    public ?string $regex = null;
 
     /**
      * @var string URL splat content
