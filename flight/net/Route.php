@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Flight: An extensible micro-framework.
  *
@@ -13,11 +15,12 @@ namespace flight\net;
  * an assigned callback function. The Router tries to match the
  * requested URL against a series of URL patterns.
  */
-class Route {
+final class Route
+{
     /**
      * @var string URL pattern
      */
-    public $pattern;
+    public string $pattern;
 
     /**
      * @var mixed Callback function
@@ -27,37 +30,38 @@ class Route {
     /**
      * @var array HTTP methods
      */
-    public $methods = array();
+    public array $methods = [];
 
     /**
      * @var array Route parameters
      */
-    public $params = array();
+    public array $params = [];
 
     /**
-     * @var string Matching regular expression
+     * @var string|null Matching regular expression
      */
-    public $regex;
+    public ?string $regex;
 
     /**
      * @var string URL splat content
      */
-    public $splat = '';
+    public string $splat = '';
 
     /**
-     * @var boolean Pass self in callback parameters
+     * @var bool Pass self in callback parameters
      */
-    public $pass = false;
+    public bool $pass = false;
 
     /**
      * Constructor.
      *
-     * @param string $pattern URL pattern
-     * @param mixed $callback Callback function
-     * @param array $methods HTTP methods
-     * @param boolean $pass Pass self in callback parameters
+     * @param string $pattern  URL pattern
+     * @param mixed  $callback Callback function
+     * @param array  $methods  HTTP methods
+     * @param bool   $pass     Pass self in callback parameters
      */
-    public function __construct($pattern, $callback, $methods, $pass) {
+    public function __construct(string $pattern, $callback, array $methods, bool $pass)
+    {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
@@ -67,61 +71,67 @@ class Route {
     /**
      * Checks if a URL matches the route pattern. Also parses named parameters in the URL.
      *
-     * @param string $url Requested URL
-     * @param boolean $case_sensitive Case sensitive matching
-     * @return boolean Match status
+     * @param string $url            Requested URL
+     * @param bool   $case_sensitive Case sensitive matching
+     *
+     * @return bool Match status
      */
-    public function matchUrl($url, $case_sensitive = false) {
+    public function matchUrl(string $url, bool $case_sensitive = false): bool
+    {
         // Wildcard or exact match
-        if ($this->pattern === '*' || $this->pattern === $url) {
+        if ('*' === $this->pattern || $this->pattern === $url) {
             return true;
         }
 
-        $ids = array();
+        $ids = [];
         $last_char = substr($this->pattern, -1);
 
         // Get splat
-        if ($last_char === '*') {
+        if ('*' === $last_char) {
             $n = 0;
-            $len = strlen($url);
+            $len = \strlen($url);
             $count = substr_count($this->pattern, '/');
 
             for ($i = 0; $i < $len; $i++) {
-                if ($url[$i] == '/') $n++;
-                if ($n == $count) break;
+                if ('/' === $url[$i]) {
+                    $n++;
+                }
+                if ($n === $count) {
+                    break;
+                }
             }
 
-            $this->splat = (string)substr($url, $i+1);
+            $this->splat = (string) substr($url, $i + 1);
         }
 
         // Build the regex for matching
-        $regex = str_replace(array(')','/*'), array(')?','(/?|/.*?)'), $this->pattern);
+        $regex = str_replace([')', '/*'], [')?', '(/?|/.*?)'], $this->pattern);
 
         $regex = preg_replace_callback(
             '#@([\w]+)(:([^/\(\)]*))?#',
-            function($matches) use (&$ids) {
+            static function ($matches) use (&$ids) {
                 $ids[$matches[1]] = null;
                 if (isset($matches[3])) {
-                    return '(?P<'.$matches[1].'>'.$matches[3].')';
+                    return '(?P<' . $matches[1] . '>' . $matches[3] . ')';
                 }
-                return '(?P<'.$matches[1].'>[^/\?]+)';
+
+                return '(?P<' . $matches[1] . '>[^/\?]+)';
             },
             $regex
         );
 
         // Fix trailing slash
-        if ($last_char === '/') {
+        if ('/' === $last_char) {
             $regex .= '?';
-        }
-        // Allow trailing slash
+        } // Allow trailing slash
         else {
             $regex .= '/?';
         }
 
         // Attempt to match route and named parameters
-        if (preg_match('#^'.$regex.'(?:\?.*)?$#'.(($case_sensitive) ? '' : 'i'), $url, $matches)) {
+        if (preg_match('#^' . $regex . '(?:\?.*)?$#' . (($case_sensitive) ? '' : 'i'), $url, $matches)) {
             foreach ($ids as $k => $v) {
-                $this->params[$k] = (array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
+                $this->params[$k] = (\array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
             }
 
             $this->regex = $regex;
@@ -136,9 +146,11 @@ class Route {
      * Checks if an HTTP method matches the route methods.
      *
      * @param string $method HTTP method
+     *
      * @return bool Match status
      */
-    public function matchMethod($method) {
-        return count(array_intersect(array($method, '*'), $this->methods)) > 0;
+    public function matchMethod(string $method): bool
+    {
+        return \count(array_intersect([$method, '*'], $this->methods)) > 0;
     }
 }

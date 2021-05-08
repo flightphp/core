@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Flight: An extensible micro-framework.
  *
@@ -13,38 +15,19 @@ namespace flight\net;
  * contains the response headers, HTTP status code, and response
  * body.
  */
-class Response {
+class Response
+{
     /**
-     * @var int HTTP status
-     */
-    protected $status = 200;
-
-    /**
-     * @var array HTTP headers
-     */
-    protected $headers = array();
-
-    /**
-     * @var string HTTP response body
-     */
-    protected $body;
-
-    /**
-     * @var bool HTTP response sent
-     */
-    protected $sent = false;
-    
-    /**
-     * header Content-Length
+     * header Content-Length.
      *
-     * @var boolean
+     * @var bool
      */
     public $content_length = true;
 
     /**
      * @var array HTTP status codes
      */
-    public static $codes = array(
+    public static $codes = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
@@ -112,25 +95,46 @@ class Response {
         508 => 'Loop Detected',
 
         510 => 'Not Extended',
-        511 => 'Network Authentication Required'
-    );
+        511 => 'Network Authentication Required',
+    ];
+    /**
+     * @var int HTTP status
+     */
+    protected $status = 200;
+
+    /**
+     * @var array HTTP headers
+     */
+    protected $headers = [];
+
+    /**
+     * @var string HTTP response body
+     */
+    protected $body;
+
+    /**
+     * @var bool HTTP response sent
+     */
+    protected $sent = false;
 
     /**
      * Sets the HTTP status of the response.
      *
      * @param int $code HTTP status code.
-     * @return object|int Self reference
+     *
      * @throws \Exception If invalid status code
+     *
+     * @return int|object Self reference
      */
-    public function status($code = null) {
-        if ($code === null) {
+    public function status($code = null)
+    {
+        if (null === $code) {
             return $this->status;
         }
 
-        if (array_key_exists($code, self::$codes)) {
+        if (\array_key_exists($code, self::$codes)) {
             $this->status = $code;
-        }
-        else {
+        } else {
             throw new \Exception('Invalid status code.');
         }
 
@@ -140,17 +144,18 @@ class Response {
     /**
      * Adds a header to the response.
      *
-     * @param string|array $name Header name or array of names and values
-     * @param string $value Header value
+     * @param array|string $name  Header name or array of names and values
+     * @param string       $value Header value
+     *
      * @return object Self reference
      */
-    public function header($name, $value = null) {
-        if (is_array($name)) {
+    public function header($name, $value = null)
+    {
+        if (\is_array($name)) {
             foreach ($name as $k => $v) {
                 $this->headers[$k] = $v;
             }
-        }
-        else {
+        } else {
             $this->headers[$name] = $value;
         }
 
@@ -158,10 +163,12 @@ class Response {
     }
 
     /**
-     * Returns the headers from the response
+     * Returns the headers from the response.
+     *
      * @return array
      */
-    public function headers() {
+    public function headers()
+    {
         return $this->headers;
     }
 
@@ -169,9 +176,11 @@ class Response {
      * Writes content to the response body.
      *
      * @param string $str Response content
+     *
      * @return object Self reference
      */
-    public function write($str) {
+    public function write($str)
+    {
         $this->body .= $str;
 
         return $this;
@@ -182,9 +191,10 @@ class Response {
      *
      * @return object Self reference
      */
-    public function clear() {
+    public function clear()
+    {
         $this->status = 200;
-        $this->headers = array();
+        $this->headers = [];
         $this->body = '';
 
         return $this;
@@ -194,26 +204,28 @@ class Response {
      * Sets caching headers for the response.
      *
      * @param int|string $expires Expiration time
+     *
      * @return object Self reference
      */
-    public function cache($expires) {
-        if ($expires === false) {
+    public function cache($expires)
+    {
+        if (false === $expires) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
-            $this->headers['Cache-Control'] = array(
+            $this->headers['Cache-Control'] = [
                 'no-store, no-cache, must-revalidate',
                 'post-check=0, pre-check=0',
-                'max-age=0'
-            );
+                'max-age=0',
+            ];
             $this->headers['Pragma'] = 'no-cache';
-        }
-        else {
-            $expires = is_int($expires) ? $expires : strtotime($expires);
+        } else {
+            $expires = \is_int($expires) ? $expires : strtotime($expires);
             $this->headers['Expires'] = gmdate('D, d M Y H:i:s', $expires) . ' GMT';
-            $this->headers['Cache-Control'] = 'max-age='.($expires - time());
-            if (isset($this->headers['Pragma']) && $this->headers['Pragma'] == 'no-cache'){
+            $this->headers['Cache-Control'] = 'max-age=' . ($expires - time());
+            if (isset($this->headers['Pragma']) && 'no-cache' == $this->headers['Pragma']) {
                 unset($this->headers['Pragma']);
             }
         }
+
         return $this;
     }
 
@@ -222,9 +234,10 @@ class Response {
      *
      * @return object Self reference
      */
-    public function sendHeaders() {
+    public function sendHeaders()
+    {
         // Send status code header
-        if (strpos(php_sapi_name(), 'cgi') !== false) {
+        if (false !== strpos(\PHP_SAPI, 'cgi')) {
             header(
                 sprintf(
                     'Status: %d %s',
@@ -233,12 +246,11 @@ class Response {
                 ),
                 true
             );
-        }
-        else {
+        } else {
             header(
                 sprintf(
                     '%s %d %s',
-                    (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1'),
+                    ($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1'),
                     $this->status,
                     self::$codes[$this->status]),
                 true,
@@ -248,13 +260,12 @@ class Response {
 
         // Send other headers
         foreach ($this->headers as $field => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 foreach ($value as $v) {
-                    header($field.': '.$v, false);
+                    header($field . ': ' . $v, false);
                 }
-            }
-            else {
-                header($field.': '.$value);
+            } else {
+                header($field . ': ' . $value);
             }
         }
 
@@ -263,7 +274,7 @@ class Response {
             $length = $this->getContentLength();
 
             if ($length > 0) {
-                header('Content-Length: '.$length);
+                header('Content-Length: ' . $length);
             }
         }
 
@@ -275,23 +286,26 @@ class Response {
      *
      * @return string Content length
      */
-    public function getContentLength() {
-        return extension_loaded('mbstring') ?
+    public function getContentLength()
+    {
+        return \extension_loaded('mbstring') ?
             mb_strlen($this->body, 'latin1') :
-            strlen($this->body);
+            \strlen($this->body);
     }
 
     /**
      * Gets whether response was sent.
      */
-    public function sent() {
+    public function sent()
+    {
         return $this->sent;
     }
 
     /**
      * Sends a HTTP response.
      */
-    public function send() {
+    public function send()
+    {
         if (ob_get_length() > 0) {
             ob_end_clean();
         }
@@ -305,4 +319,3 @@ class Response {
         $this->sent = true;
     }
 }
-

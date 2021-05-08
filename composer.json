@@ -12,7 +12,8 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": "^7.4|^8.0",
+        "ext-json": "*"
     },
     "autoload": {
         "files": [ "flight/autoload.php", "flight/Flight.php" ]
