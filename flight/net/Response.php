@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace flight\net;
 
+use Exception;
+
 /**
  * The Response class represents an HTTP response. The object
  * contains the response headers, HTTP status code, and response
@@ -19,15 +21,13 @@ class Response
 {
     /**
      * header Content-Length.
-     *
-     * @var bool
      */
-    public $content_length = true;
+    public bool $content_length = true;
 
     /**
      * @var array HTTP status codes
      */
-    public static $codes = [
+    public static array $codes = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
@@ -100,33 +100,33 @@ class Response
     /**
      * @var int HTTP status
      */
-    protected $status = 200;
+    protected int $status = 200;
 
     /**
      * @var array HTTP headers
      */
-    protected $headers = [];
+    protected array $headers = [];
 
     /**
      * @var string HTTP response body
      */
-    protected $body;
+    protected string $body;
 
     /**
      * @var bool HTTP response sent
      */
-    protected $sent = false;
+    protected bool $sent = false;
 
     /**
      * Sets the HTTP status of the response.
      *
-     * @param int $code HTTP status code.
+     * @param int|null $code HTTP status code.
      *
-     * @throws \Exception If invalid status code
+     * @throws Exception If invalid status code
      *
      * @return int|object Self reference
      */
-    public function status($code = null)
+    public function status(?int $code = null)
     {
         if (null === $code) {
             return $this->status;
@@ -135,7 +135,7 @@ class Response
         if (\array_key_exists($code, self::$codes)) {
             $this->status = $code;
         } else {
-            throw new \Exception('Invalid status code.');
+            throw new Exception('Invalid status code.');
         }
 
         return $this;
@@ -145,11 +145,11 @@ class Response
      * Adds a header to the response.
      *
      * @param array|string $name  Header name or array of names and values
-     * @param string       $value Header value
+     * @param string|null  $value Header value
      *
      * @return object Self reference
      */
-    public function header($name, $value = null)
+    public function header($name, ?string $value = null)
     {
         if (\is_array($name)) {
             foreach ($name as $k => $v) {
@@ -177,9 +177,9 @@ class Response
      *
      * @param string $str Response content
      *
-     * @return object Self reference
+     * @return Response Self reference
      */
-    public function write($str)
+    public function write(string $str): self
     {
         $this->body .= $str;
 
@@ -189,9 +189,9 @@ class Response
     /**
      * Clears the response.
      *
-     * @return object Self reference
+     * @return Response Self reference
      */
-    public function clear()
+    public function clear(): self
     {
         $this->status = 200;
         $this->headers = [];
@@ -205,9 +205,9 @@ class Response
      *
      * @param int|string $expires Expiration time
      *
-     * @return object Self reference
+     * @return Response Self reference
      */
-    public function cache($expires)
+    public function cache($expires): self
     {
         if (false === $expires) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
@@ -232,9 +232,9 @@ class Response
     /**
      * Sends HTTP headers.
      *
-     * @return object Self reference
+     * @return Response Self reference
      */
-    public function sendHeaders()
+    public function sendHeaders(): self
     {
         // Send status code header
         if (false !== strpos(\PHP_SAPI, 'cgi')) {
@@ -250,7 +250,7 @@ class Response
             header(
                 sprintf(
                     '%s %d %s',
-                    ($_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1'),
+                    $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1',
                     $this->status,
                     self::$codes[$this->status]),
                 true,
@@ -284,9 +284,9 @@ class Response
     /**
      * Gets the content length.
      *
-     * @return string Content length
+     * @return int Content length
      */
-    public function getContentLength()
+    public function getContentLength(): int
     {
         return \extension_loaded('mbstring') ?
             mb_strlen($this->body, 'latin1') :
@@ -296,7 +296,7 @@ class Response
     /**
      * Gets whether response was sent.
      */
-    public function sent()
+    public function sent(): bool
     {
         return $this->sent;
     }
@@ -304,7 +304,7 @@ class Response
     /**
      * Sends a HTTP response.
      */
-    public function send()
+    public function send(): void
     {
         if (ob_get_length() > 0) {
             ob_end_clean();

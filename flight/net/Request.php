@@ -143,7 +143,7 @@ final class Request
                 'method' => self::getMethod(),
                 'referrer' => self::getVar('HTTP_REFERER'),
                 'ip' => self::getVar('REMOTE_ADDR'),
-                'ajax' => 'XMLHttpRequest' == self::getVar('HTTP_X_REQUESTED_WITH'),
+                'ajax' => 'XMLHttpRequest' === self::getVar('HTTP_X_REQUESTED_WITH'),
                 'scheme' => self::getScheme(),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
                 'type' => self::getVar('CONTENT_TYPE'),
@@ -152,7 +152,7 @@ final class Request
                 'data' => new Collection($_POST),
                 'cookies' => new Collection($_COOKIE),
                 'files' => new Collection($_FILES),
-                'secure' => 'https' == self::getScheme(),
+                'secure' => 'https' === self::getScheme(),
                 'accept' => self::getVar('HTTP_ACCEPT'),
                 'proxy_ip' => self::getProxyIpAddress(),
                 'host' => self::getVar('HTTP_HOST'),
@@ -175,27 +175,26 @@ final class Request
         }
 
         // Get the requested URL without the base directory
-        if ('/' != $this->base && \strlen($this->base) > 0 && 0 === strpos($this->url, $this->base)) {
+        if ('/' !== $this->base && '' !== $this->base && 0 === strpos($this->url, $this->base)) {
             $this->url = substr($this->url, \strlen($this->base));
         }
 
         // Default url
         if (empty($this->url)) {
             $this->url = '/';
-        }
-        // Merge URL query parameters with $_GET
-        else {
-            $_GET += self::parseQuery($this->url);
+        } else {
+            // Merge URL query parameters with $_GET
+            $_GET = array_merge($_GET, self::parseQuery($this->url));
 
             $this->query->setData($_GET);
         }
 
         // Check for JSON input
         if (0 === strpos($this->type, 'application/json')) {
-            $body = $this->getBody();
-            if ('' != $body) {
+            $body = self::getBody();
+            if ('' !== $body) {
                 $data = json_decode($body, true);
-                if (null != $data) {
+                if (null !== $data) {
                     $this->data->setData($data);
                 }
             }
