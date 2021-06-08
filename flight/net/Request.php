@@ -190,7 +190,7 @@ class Request {
             $body = $this->getBody();
             if ($body != '') {
                 $data = json_decode($body, true);
-                if ($data != null) {
+                if (is_array($data)) {
                     $this->data->setData($data);
                 }
             }
