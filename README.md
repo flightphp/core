@@ -17,7 +17,7 @@ Flight::start();
 
 # Requirements
 
-Flight requires `PHP 5.3` or greater.
+Flight requires `PHP 7.4` or greater.
 
 # License
 
