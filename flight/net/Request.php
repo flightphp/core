@@ -194,7 +194,7 @@ final class Request
             $body = self::getBody();
             if ('' !== $body) {
                 $data = json_decode($body, true);
-                if (null !== $data) {
+                if (is_array($data)) {
                     $this->data->setData($data);
                 }
             }
