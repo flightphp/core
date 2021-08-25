@@ -9,10 +9,15 @@
             "email": "mike@mikecao.com",
             "homepage": "http://www.mikecao.com/",
             "role": "Original Developer"
+        },
+        {
+            "name": "Masroor Ehsan",
+            "email": "masroore@gmail.com",
+            "homepage": "https://github.com/masroore/flight/"
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
+        "php": ">=7.4",
         "ext-json": "*"
     },
     "autoload": {
