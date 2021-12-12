@@ -110,7 +110,7 @@ class Response
     /**
      * @var string HTTP response body
      */
-    protected string $body;
+    protected string $body = '';
 
     /**
      * @var bool HTTP response sent
