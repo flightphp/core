@@ -93,6 +93,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
      *
      * @return mixed Value
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->data[$offset] ?? null;
@@ -104,6 +105,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
      * @param string $offset Offset
      * @param mixed  $value  Value
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
@@ -148,6 +150,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
      *
      * @return mixed Value
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return current($this->data);
@@ -158,6 +161,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
      *
      * @return mixed Value
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return key($this->data);
@@ -168,6 +172,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
      *
      * @return mixed Value
      */
+    #[\ReturnTypeWillChange]
     public function next()
     {
         return next($this->data);
