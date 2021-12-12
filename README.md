@@ -30,7 +30,7 @@ Flight is released under the [MIT](http://flightphp.com/license) license.
 If you're using [Composer](https://getcomposer.org/), you can run the following command:
 
 ```
-composer require masroore/flight
+composer require mikecao/flight
 ```
 
 OR you can [download](https://github.com/mikecao/flight/archive/master.zip) them directly 

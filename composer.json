@@ -1,5 +1,5 @@
 {
-    "name": "masroore/flight",
+    "name": "mikecao/flight",
     "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
     "homepage": "http://flightphp.com",
     "license": "MIT",
@@ -9,15 +9,10 @@
             "email": "mike@mikecao.com",
             "homepage": "http://www.mikecao.com/",
             "role": "Original Developer"
-        },
-        {
-            "name": "Masroor Ehsan",
-            "email": "masroore@gmail.com",
-            "homepage": "https://github.com/masroore/flight/"
         }
     ],
     "require": {
-        "php": ">=7.4",
+        "php": "^7.4|^8.0|^8.1",
         "ext-json": "*"
     },
     "autoload": {
