@@ -5,24 +5,25 @@
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
-
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+require_once __DIR__ . '/../flight/autoload.php';
 
-class ViewTest extends PHPUnit_Framework_TestCase
+class ViewTest extends PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\template\View
      */
     private $view;
 
-    function setUp() {
+    protected function setUp(): void
+    {
         $this->view = new \flight\template\View();
-        $this->view->path = __DIR__.'/views';
+        $this->view->path = __DIR__ . '/views';
     }
 
     // Set template variables
-    function testVariables() {
+    public function testVariables()
+    {
         $this->view->set('test', 123);
 
         $this->assertEquals(123, $this->view->get('test'));
@@ -32,31 +33,35 @@ class ViewTest extends PHPUnit_Framework_TestCase
 
         $this->view->clear('test');
 
-        $this->assertEquals(null, $this->view->get('test'));
+        $this->assertNull($this->view->get('test'));
     }
 
     // Check if template files exist
-    function testTemplateExists() {
+    public function testTemplateExists()
+    {
         $this->assertTrue($this->view->exists('hello.php'));
         $this->assertTrue(!$this->view->exists('unknown.php'));
     }
 
     // Render a template
-    function testRender() {
-        $this->view->render('hello', array('name' => 'Bob'));
+    public function testRender()
+    {
+        $this->view->render('hello', ['name' => 'Bob']);
 
         $this->expectOutputString('Hello, Bob!');
     }
 
     // Fetch template output
-    function testFetch() {
-        $output = $this->view->fetch('hello', array('name' => 'Bob'));
+    public function testFetch()
+    {
+        $output = $this->view->fetch('hello', ['name' => 'Bob']);
 
         $this->assertEquals('Hello, Bob!', $output);
     }
 
     // Default extension
-    function testTemplateWithExtension() {
+    public function testTemplateWithExtension()
+    {
         $this->view->set('name', 'Bob');
 
         $this->view->render('hello.php');
@@ -65,7 +70,8 @@ class ViewTest extends PHPUnit_Framework_TestCase
     }
 
     // Custom extension
-    function testTemplateWithCustomExtension() {
+    public function testTemplateWithCustomExtension()
+    {
         $this->view->set('name', 'Bob');
         $this->view->extension = '.html';
 

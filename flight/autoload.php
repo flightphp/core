@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Flight: An extensible micro-framework.
  *
@@ -6,6 +8,8 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-require_once __DIR__.'/core/Loader.php';
+use flight\core\Loader;
 
-\flight\core\Loader::autoload(true, dirname(__DIR__));
+require_once __DIR__ . '/core/Loader.php';
+
+Loader::autoload(true, [dirname(__DIR__)]);

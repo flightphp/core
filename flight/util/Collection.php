@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Flight: An extensible micro-framework.
  *
@@ -8,28 +10,34 @@
 
 namespace flight\util;
 
+use ArrayAccess;
+use function count;
+use Countable;
+use Iterator;
+use JsonSerializable;
+
 if (!interface_exists('JsonSerializable')) {
-    require_once dirname(__FILE__) . '/LegacyJsonSerializable.php';
+    require_once __DIR__ . '/LegacyJsonSerializable.php';
 }
 
 /**
  * The Collection class allows you to access a set of data
  * using both array and object notation.
  */
-class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializable {
+final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
+{
     /**
      * Collection data.
-     *
-     * @var array
      */
-    private $data;
+    private array $data;
 
     /**
      * Constructor.
      *
      * @param array $data Initial data
      */
-    public function __construct(array $data = array()) {
+    public function __construct(array $data = [])
+    {
         $this->data = $data;
     }
 
@@ -37,19 +45,22 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Gets an item.
      *
      * @param string $key Key
+     *
      * @return mixed Value
      */
-    public function __get($key) {
-        return isset($this->data[$key]) ? $this->data[$key] : null;
+    public function __get(string $key)
+    {
+        return $this->data[$key] ?? null;
     }
 
     /**
      * Set an item.
      *
-     * @param string $key Key
-     * @param mixed $value Value
+     * @param string $key   Key
+     * @param mixed  $value Value
      */
-    public function __set($key, $value) {
+    public function __set(string $key, $value): void
+    {
         $this->data[$key] = $value;
     }
 
@@ -57,9 +68,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Checks if an item exists.
      *
      * @param string $key Key
+     *
      * @return bool Item status
      */
-    public function __isset($key) {
+    public function __isset(string $key): bool
+    {
         return isset($this->data[$key]);
     }
 
@@ -68,7 +81,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @param string $key Key
      */
-    public function __unset($key) {
+    public function __unset(string $key): void
+    {
         unset($this->data[$key]);
     }
 
@@ -76,23 +90,27 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Gets an item at the offset.
      *
      * @param string $offset Offset
+     *
      * @return mixed Value
      */
-    public function offsetGet($offset) {
-        return isset($this->data[$offset]) ? $this->data[$offset] : null;
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
+    {
+        return $this->data[$offset] ?? null;
     }
 
     /**
      * Sets an item at the offset.
      *
      * @param string $offset Offset
-     * @param mixed $value Value
+     * @param mixed  $value  Value
      */
-    public function offsetSet($offset, $value) {
-        if (is_null($offset)) {
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value)
+    {
+        if (null === $offset) {
             $this->data[] = $value;
-        }
-        else {
+        } else {
             $this->data[$offset] = $value;
         }
     }
@@ -101,9 +119,11 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      * Checks if an item exists at the offset.
      *
      * @param string $offset Offset
+     *
      * @return bool Item status
      */
-    public function offsetExists($offset) {
+    public function offsetExists($offset): bool
+    {
         return isset($this->data[$offset]);
     }
 
@@ -112,54 +132,62 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @param string $offset Offset
      */
-    public function offsetUnset($offset) {
+    public function offsetUnset($offset): void
+    {
         unset($this->data[$offset]);
     }
 
     /**
      * Resets the collection.
      */
-    public function rewind() {
+    public function rewind(): void
+    {
         reset($this->data);
     }
- 
+
     /**
      * Gets current collection item.
      *
      * @return mixed Value
-     */ 
-    public function current() {
+     */
+    #[\ReturnTypeWillChange]
+    public function current()
+    {
         return current($this->data);
     }
- 
+
     /**
      * Gets current collection key.
      *
      * @return mixed Value
-     */ 
-    public function key() {
+     */
+    #[\ReturnTypeWillChange]
+    public function key()
+    {
         return key($this->data);
     }
- 
+
     /**
      * Gets the next collection value.
      *
      * @return mixed Value
-     */ 
-    public function next() 
+     */
+    #[\ReturnTypeWillChange]
+    public function next()
     {
         return next($this->data);
     }
- 
+
     /**
      * Checks if the current collection key is valid.
      *
      * @return bool Key status
-     */ 
-    public function valid()
+     */
+    public function valid(): bool
     {
         $key = key($this->data);
-        return ($key !== NULL && $key !== FALSE);
+
+        return null !== $key && false !== $key;
     }
 
     /**
@@ -167,8 +195,9 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return int Collection size
      */
-    public function count() {
-        return sizeof($this->data);
+    public function count(): int
+    {
+        return \count($this->data);
     }
 
     /**
@@ -176,7 +205,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return array Collection keys
      */
-    public function keys() {
+    public function keys(): array
+    {
         return array_keys($this->data);
     }
 
@@ -185,7 +215,8 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @return array Collection data
      */
-    public function getData() {
+    public function getData(): array
+    {
         return $this->data;
     }
 
@@ -194,23 +225,26 @@ class Collection implements \ArrayAccess, \Iterator, \Countable, \JsonSerializab
      *
      * @param array $data New collection data
      */
-    public function setData(array $data) {
+    public function setData(array $data): void
+    {
         $this->data = $data;
     }
 
     /**
-     * Gets the collection data which can be serialized to JSON
+     * Gets the collection data which can be serialized to JSON.
      *
      * @return array Collection data which can be serialized by <b>json_encode</b>
      */
-    public function jsonSerialize() {
+    public function jsonSerialize(): array
+    {
         return $this->data;
     }
 
     /**
      * Removes all items from the collection.
      */
-    public function clear() {
-        $this->data = array();
+    public function clear(): void
+    {
+        $this->data = [];
     }
 }

@@ -17,7 +17,7 @@ Flight::start();
 
 # Requirements
 
-Flight requires `PHP 5.3` or greater.
+Flight requires `PHP 7.4` or greater.
 
 # License
 
@@ -193,6 +193,8 @@ Flight::route('/@name/@id:[0-9]{3}', function($name, $id){
     // But will not match /bob/12345
 });
 ```
+
+Matching regex groups `()` with named parameters isn't supported.
 
 ## Optional Parameters
 

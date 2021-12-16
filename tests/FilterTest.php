@@ -6,34 +6,38 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+use flight\Engine;
 
-class FilterTest extends PHPUnit_Framework_TestCase
+require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../flight/autoload.php';
+
+class FilterTest extends PHPUnit\Framework\TestCase
 {
     /**
-     * @var \flight\Engine
+     * @var Engine
      */
     private $app;
 
-    function setUp() {
-        $this->app = new \flight\Engine();
+    protected function setUp(): void
+    {
+        $this->app = new Engine();
     }
 
     // Run before and after filters
-    function testBeforeAndAfter() {
-        $this->app->map('hello', function($name){
+    public function testBeforeAndAfter()
+    {
+        $this->app->map('hello', function ($name) {
             return "Hello, $name!";
         });
 
-        $this->app->before('hello', function(&$params, &$output){
+        $this->app->before('hello', function (&$params, &$output) {
             // Manipulate the parameter
             $params[0] = 'Fred';
         });
 
-        $this->app->after('hello', function(&$params, &$output){
+        $this->app->after('hello', function (&$params, &$output) {
             // Manipulate the output
-            $output .= " Have a nice day!";
+            $output .= ' Have a nice day!';
         });
 
         $result = $this->app->hello('Bob');
@@ -42,19 +46,21 @@ class FilterTest extends PHPUnit_Framework_TestCase
     }
 
     // Break out of a filter chain by returning false
-    function testFilterChaining() {
-        $this->app->map('bye', function($name){
+    public function testFilterChaining()
+    {
+        $this->app->map('bye', function ($name) {
             return "Bye, $name!";
         });
 
-        $this->app->before('bye', function(&$params, &$output){
+        $this->app->before('bye', function (&$params, &$output) {
             $params[0] = 'Bob';
         });
-        $this->app->before('bye', function(&$params, &$output){
+        $this->app->before('bye', function (&$params, &$output) {
             $params[0] = 'Fred';
+
             return false;
         });
-        $this->app->before('bye', function(&$params, &$output){
+        $this->app->before('bye', function (&$params, &$output) {
             $params[0] = 'Ted';
         });
 
