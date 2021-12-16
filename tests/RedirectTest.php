@@ -6,72 +6,77 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+use flight\Engine;
+
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
+require_once __DIR__ . '/../flight/autoload.php';
 
-class RedirectTest extends PHPUnit_Framework_TestCase
+class RedirectTest extends PHPUnit\Framework\TestCase
 {
-    /**
-     * @var \flight\Engine
-     */
-    private $app;
+    private Engine $app;
 
-    function getBaseUrl($base, $url){
-        if ($base != '/' && strpos($url, '://') === false) {
-            $url = preg_replace('#/+#', '/', $base.'/'.$url);
+    protected function setUp(): void
+    {
+        $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
+
+        $this->app = new Engine();
+        $this->app->set('flight.base_url', '/testdir');
+    }
+
+    public function getBaseUrl($base, $url)
+    {
+        if ('/' !== $base && false === strpos($url, '://')) {
+            $url = preg_replace('#/+#', '/', $base . '/' . $url);
         }
 
         return $url;
     }
 
-    function setUp() {
-        $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
-
-        $this->app = new \flight\Engine();
-        $this->app->set('flight.base_url', '/testdir');
-    }
-
     // The base should be the subdirectory
-    function testBase(){
+    public function testBase()
+    {
         $base = $this->app->request()->base;
 
-        $this->assertEquals('/subdir', $base);
+        self::assertEquals('/subdir', $base);
     }
 
     // Absolute URLs should include the base
-    function testAbsoluteUrl(){
+    public function testAbsoluteUrl()
+    {
         $url = '/login';
         $base = $this->app->request()->base;
 
-        $this->assertEquals('/subdir/login', $this->getBaseUrl($base, $url));
+        self::assertEquals('/subdir/login', $this->getBaseUrl($base, $url));
     }
 
     // Relative URLs should include the base
-    function testRelativeUrl(){
+    public function testRelativeUrl()
+    {
         $url = 'login';
         $base = $this->app->request()->base;
 
-        $this->assertEquals('/subdir/login', $this->getBaseUrl($base, $url));
+        self::assertEquals('/subdir/login', $this->getBaseUrl($base, $url));
     }
 
     // External URLs should ignore the base
-    function testHttpUrl(){
+    public function testHttpUrl()
+    {
         $url = 'http://www.yahoo.com';
         $base = $this->app->request()->base;
 
-        $this->assertEquals('http://www.yahoo.com', $this->getBaseUrl($base, $url));
+        self::assertEquals('http://www.yahoo.com', $this->getBaseUrl($base, $url));
     }
 
     // Configuration should override derived value
-    function testBaseOverride(){
+    public function testBaseOverride()
+    {
         $url = 'login';
-        if ($this->app->get('flight.base_url') !== null) {
+        if (null !== $this->app->get('flight.base_url')) {
             $base = $this->app->get('flight.base_url');
-        }
-        else {
+        } else {
             $base = $this->app->request()->base;
         }
 
-        $this->assertEquals('/testdir/login', $this->getBaseUrl($base, $url));
+        self::assertEquals('/testdir/login', $this->getBaseUrl($base, $url));
     }
 }

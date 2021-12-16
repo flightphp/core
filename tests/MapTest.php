@@ -6,66 +6,72 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+use flight\Engine;
+
 require_once 'vendor/autoload.php';
-require_once __DIR__.'/../flight/autoload.php';
-require_once __DIR__.'/classes/Hello.php';
+require_once __DIR__ . '/../flight/autoload.php';
+require_once __DIR__ . '/classes/Hello.php';
 
-class MapTest extends PHPUnit_Framework_TestCase
+class MapTest extends PHPUnit\Framework\TestCase
 {
-    /**
-     * @var \flight\Engine
-     */
-    private $app;
+    private Engine $app;
 
-    function setUp() {
-        $this->app = new \flight\Engine();
+    protected function setUp(): void
+    {
+        $this->app = new Engine();
     }
 
     // Map a closure
-    function testClosureMapping(){
-        $this->app->map('map1', function(){
+    public function testClosureMapping()
+    {
+        $this->app->map('map1', function () {
             return 'hello';
         });
 
         $result = $this->app->map1();
 
-        $this->assertEquals('hello', $result);
+        self::assertEquals('hello', $result);
     }
 
     // Map a function
-    function testFunctionMapping(){
-        $this->app->map('map2', function(){
+    public function testFunctionMapping()
+    {
+        $this->app->map('map2', function () {
             return 'hello';
         });
 
         $result = $this->app->map2();
 
-        $this->assertEquals('hello', $result);
+        self::assertEquals('hello', $result);
     }
 
     // Map a class method
-    function testClassMethodMapping(){
+    public function testClassMethodMapping()
+    {
         $h = new Hello();
 
-        $this->app->map('map3', array($h, 'sayHi'));
+        $this->app->map('map3', [$h, 'sayHi']);
 
         $result = $this->app->map3();
 
-        $this->assertEquals('hello', $result);
+        self::assertEquals('hello', $result);
     }
 
     // Map a static class method
-    function testStaticClassMethodMapping(){
-        $this->app->map('map4', array('Hello', 'sayBye'));
+    public function testStaticClassMethodMapping()
+    {
+        $this->app->map('map4', ['Hello', 'sayBye']);
 
         $result = $this->app->map4();
 
-        $this->assertEquals('goodbye', $result);
+        self::assertEquals('goodbye', $result);
     }
 
     // Unmapped method
-    function testUnmapped() {
-        $this->setExpectedException('Exception', 'doesNotExist must be a mapped method.');
+    public function testUnmapped()
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('doesNotExist must be a mapped method.');
 
         $this->app->doesNotExist();
     }

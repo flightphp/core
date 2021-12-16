@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Flight: An extensible micro-framework.
  *
@@ -6,10 +8,18 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+use flight\core\Dispatcher;
+use flight\Engine;
+use flight\net\Request;
+use flight\net\Response;
+use flight\net\Router;
+use flight\template\View;
+
 /**
  * The Flight class is a static representation of the framework.
  *
  * Core.
+ *
  * @method  static void start() Starts the framework.
  * @method  static void path($path) Adds a path for autoloading classes.
  * @method  static void stop() Stops the framework and sends a response.
@@ -17,7 +27,7 @@
  *
  * Routing.
  * @method  static void route($pattern, $callback) Maps a URL pattern to a callback.
- * @method  static \flight\net\Router router() Returns Router instance.
+ * @method  static Router router() Returns Router instance.
  *
  * Extending & Overriding.
  * @method  static void map($name, $callback) Creates a custom framework method.
@@ -35,11 +45,11 @@
  *
  * Views.
  * @method  static void render($file, array $data = null, $key = null) Renders a template file.
- * @method  static \flight\template\View view() Returns View instance.
+ * @method  static View view() Returns View instance.
  *
  * Request & Response.
- * @method  static \flight\net\Request request() Returns Request instance.
- * @method  static \flight\net\Response response() Returns Response instance.
+ * @method  static Request request() Returns Request instance.
+ * @method  static Response response() Returns Response instance.
  * @method  static void redirect($url, $code = 303) Redirects to another URL.
  * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
  * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
@@ -50,43 +60,54 @@
  * @method  static void etag($id, $type = 'strong') Performs ETag HTTP caching.
  * @method  static void lastModified($time) Performs last modified HTTP caching.
  */
-class Flight {
+class Flight
+{
     /**
      * Framework engine.
-     *
-     * @var \flight\Engine
      */
-    private static $engine;
+    private static Engine $engine;
 
     // Don't allow object instantiation
-    private function __construct() {}
-    private function __destruct() {}
-    private function __clone() {}
+    private function __construct()
+    {
+    }
+
+    private function __destruct()
+    {
+    }
+
+    private function __clone()
+    {
+    }
 
     /**
      * Handles calls to static methods.
      *
-     * @param string $name Method name
-     * @param array $params Method parameters
+     * @param string $name   Method name
+     * @param array  $params Method parameters
+     *
+     * @throws Exception
+     *
      * @return mixed Callback results
-     * @throws \Exception
      */
-    public static function __callStatic($name, $params) {
-        $app = Flight::app();
+    public static function __callStatic(string $name, array $params)
+    {
+        $app = self::app();
 
-        return \flight\core\Dispatcher::invokeMethod(array($app, $name), $params);
+        return Dispatcher::invokeMethod([$app, $name], $params);
     }
 
     /**
-     * @return \flight\Engine Application instance
+     * @return Engine Application instance
      */
-    public static function app() {
+    public static function app(): Engine
+    {
         static $initialized = false;
 
         if (!$initialized) {
-            require_once __DIR__.'/autoload.php';
+            require_once __DIR__ . '/autoload.php';
 
-            self::$engine = new \flight\Engine();
+            self::$engine = new Engine();
 
             $initialized = true;
         }
