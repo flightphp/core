@@ -24,6 +24,12 @@ class RequestTest extends PHPUnit\Framework\TestCase
         $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '32.32.32.32';
         $_SERVER['HTTP_HOST'] = 'example.com';
+        $_SERVER['CONTENT_TYPE'] = '';
+
+        $_GET = [];
+        $_POST = [];
+        $_COOKIE = [];
+        $_FILES = [];
 
         $this->request = new Request();
     }
@@ -85,6 +91,15 @@ class RequestTest extends PHPUnit\Framework\TestCase
         self::assertEquals(1, $request->data->q);
         self::assertEquals(1, $request->cookies->q);
         self::assertEquals(1, $request->files->q);
+    }
+
+    public function testJsonWithEmptyBody()
+    {
+        $_SERVER['CONTENT_TYPE'] = 'application/json';
+
+        $request = new Request();
+
+        self::assertSame([], $request->data->getData());
     }
 
     public function testMethodOverrideWithHeader()

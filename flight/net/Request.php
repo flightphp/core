@@ -192,7 +192,7 @@ final class Request
         // Check for JSON input
         if (0 === strpos($this->type, 'application/json')) {
             $body = self::getBody();
-            if ('' !== $body) {
+            if ('' !== $body && null !== $body) {
                 $data = json_decode($body, true);
                 if (is_array($data)) {
                     $this->data->setData($data);
