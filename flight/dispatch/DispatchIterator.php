@@ -1,6 +1,6 @@
 <?php
 
-namespace flight\layers;
+namespace flight\dispatch;
 
 use flight\net\Route;
 use flight\net\Request;
@@ -9,7 +9,7 @@ use flight\net\Response;
 /**
 * LayersIterator iterate over the middlewares stack and call the next layer until it abort or reach the final layer (the route layer)
 */
-class LayersIterator {
+class DispatchIterator {
 
     /**
      * Middleware layers
@@ -43,7 +43,7 @@ class LayersIterator {
         if ( $this->cursor > -1 ) {
             $callable = $this->layers[ $this->cursor ];
             $this->cursor--;
-            call_user_func_array( $callable, [ $route, $params, $request, $response, $this ] );
+            $callable( $route, $params, $request, $response, $this );
         }
     }
 

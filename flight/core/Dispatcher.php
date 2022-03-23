@@ -46,7 +46,7 @@ class Dispatcher {
         }
 
         // Run requested method
-        $output = $this->execute($this->get($name), $params);
+        $output = $this->get($name)(...$params);
 
         // Run post-filters
         if (!empty($this->filters[$name]['after'])) {
@@ -125,58 +125,8 @@ class Dispatcher {
     public function filter($filters, &$params, &$output) {
         $args = array(&$params, &$output);
         foreach ($filters as $callback) {
-            $continue = $this->execute($callback, $args);
+            $continue =  $callback( ...$args );
             if ($continue === false) break;
-        }
-    }
-
-    /**
-     * Executes a callback function.
-     *
-     * @param callback $callback Callback function
-     * @param array $params Function parameters
-     * @return mixed Function results
-     * @throws \Exception
-     */
-    public static function execute($callback, array &$params = array()) {
-        if (is_callable($callback)) {
-            return is_array($callback) ?
-                self::invokeMethod($callback, $params) :
-                self::callFunction($callback, $params);
-        }
-        else {
-            throw new \Exception('Invalid callback specified.');
-        }
-    }
-
-    /**
-     * Calls a function.
-     *
-     * @param string $func Name of function to call
-     * @param array $params Function parameters
-     * @return mixed Function results
-     */
-    public static function callFunction($func, array &$params = array()) {
-        // Call static method
-        if (is_string($func) && strpos($func, '::') !== false) {
-            return call_user_func_array($func, $params);
-        }
-
-        switch (count($params)) {
-            case 0:
-                return $func();
-            case 1:
-                return $func($params[0]);
-            case 2:
-                return $func($params[0], $params[1]);
-            case 3:
-                return $func($params[0], $params[1], $params[2]);
-            case 4:
-                return $func($params[0], $params[1], $params[2], $params[3]);
-            case 5:
-                return $func($params[0], $params[1], $params[2], $params[3], $params[4]);
-            default:
-                return call_user_func_array($func, $params);
         }
     }
 

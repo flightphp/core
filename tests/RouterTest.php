@@ -63,10 +63,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
                 $params[] = $route;
             }
 
-            $continue = $this->dispatcher->execute(
-                $route->callback,
-                $params
-            );
+            $continue = ($route->callback)( ...$params );
 
             $dispatched = true;
 

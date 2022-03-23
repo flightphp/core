@@ -25,7 +25,7 @@ class MiddleWareTest extends \PHPUnit\Framework\TestCase
         }, [ 'inject_param' => true ]);
 
         $stack = new \flight\LayersStack(true);
-        $stack->push(function(\flight\net\Route $route, array $params, \flight\net\Request $request, \flight\net\Response $response, \flight\layers\LayersIterator $iterator) {
+        $stack->push(function(\flight\net\Route $route, array $params, \flight\net\Request $request, \flight\net\Response $response, \flight\dispatch\DispatchIterator $iterator) {
             if ( isset( $route->config['inject_param'] ) ) {
                 $params[] = true;
             }

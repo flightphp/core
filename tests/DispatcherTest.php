@@ -82,12 +82,4 @@ class DispatcherTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals('Hello, Fred! Have a nice day!', $result);
     }
-
-    // Test an invalid callback
-    function testInvalidCallback() {
-        $this->expectException('Exception');
-        $this->expectExceptionMessage('Invalid callback specified.');
-
-        $this->dispatcher->execute(array('NonExistentClass', 'nonExistentMethod'));
-    }
 }

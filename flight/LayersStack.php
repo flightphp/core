@@ -44,7 +44,8 @@ class LayersStack {
     * RealDispatch is a super thin wrapper over the original Flight::dispatchRoute
     */
     public function realDispatch(net\Route $route, array $params, net\Request $request, net\Response $response, layers\LayersIterator $iterator) {
-        \Flight::_dispatchRoute($route, $params);
+        $params[] = $request;
+        \Flight::_dispatchRoute( $route, $params );
     }
 
 }

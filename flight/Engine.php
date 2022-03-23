@@ -307,10 +307,7 @@ class Engine {
      * @param array $params array of params for the route callback
      */
     public function _dispatchRoute($route, array $params) {
-        return $this->dispatcher->execute(
-            $route->callback,
-            $params
-        );
+        return ($route->callback)( ...$params );
     }
 
     /*** Extensible Methods ***/
@@ -363,6 +360,39 @@ class Engine {
         if (!$dispatched) {
             $this->notFound();
         }
+    }
+
+    public function routeRequest(Request $request, Response $response, array $layers = []) {
+        // Enable output buffering
+        ob_start();
+
+        // Route the request
+        while ($route = $router->route($request)) {
+            $params = array_values($route->params);
+
+            if (isset($route->config['pass_route']) && $route->config['pass_route']) {
+                $params[] = $route;
+            }
+
+            // Call route handler
+            $continue = $this->dispatchRoute($route, $params);
+
+            $dispatched = true;
+
+            if (!$continue) break;
+
+            $router->next();
+
+            $dispatched = false;
+        }
+
+        if (!$dispatched) {
+            $this->notFound();
+        }
+
+        $content = ob_get_clean();
+
+        return $content;
     }
 
     /**
