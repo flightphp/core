@@ -36,14 +36,14 @@ class LayersStack {
     * As the router may found multiple routes compatibile with yours the repeatability of the dispatch function is a must
     */
     public function dispatch(net\Route $route, array $params = []) {
-        $iterator = new layers\LayersIterator( $this->layers );
+        $iterator = new dispatch\DispatchIterator( $this->layers );
         $iterator->next( $route, $params, \Flight::request(), \Flight::response() );
     }
 
     /**
     * RealDispatch is a super thin wrapper over the original Flight::dispatchRoute
     */
-    public function realDispatch(net\Route $route, array $params, net\Request $request, net\Response $response, layers\LayersIterator $iterator) {
+    public function realDispatch(net\Route $route, array $params, net\Request $request, net\Response $response, dispatch\DispatchIterator $iterator) {
         $params[] = $request;
         \Flight::_dispatchRoute( $route, $params );
     }
