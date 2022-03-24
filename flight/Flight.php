@@ -74,7 +74,9 @@ class Flight {
     public static function __callStatic($name, $params) {
         $app = Flight::app();
 
-        return \flight\core\Dispatcher::invokeMethod(array($app, $name), $params);
+        $callable = [ $app, $name ];
+
+        return $callable( ...$params );
     }
 
     /**
