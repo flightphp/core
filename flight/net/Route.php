@@ -27,7 +27,7 @@ class Route {
     /**
      * @var array HTTP methods
      */
-    public $methods = array();
+    public $methods;
 
     /**
      * @var array Route parameters
@@ -57,7 +57,7 @@ class Route {
      * @param array $methods HTTP methods
      * @param array $config additional parameters for middlewares
      */
-    public function __construct($pattern, $callback, $methods, array $config) {
+    public function __construct($pattern, $callback, array $methods, array $config) {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
@@ -132,13 +132,4 @@ class Route {
         return false;
     }
 
-    /**
-     * Checks if an HTTP method matches the route methods.
-     *
-     * @param string $method HTTP method
-     * @return bool Match status
-     */
-    public function matchMethod($method) {
-        return count(array_intersect(array($method, '*'), $this->methods)) > 0;
-    }
 }

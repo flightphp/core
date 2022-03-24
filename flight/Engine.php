@@ -352,8 +352,6 @@ class Engine {
 
             if (!$continue) break;
 
-            $router->next();
-
             $dispatched = false;
         }
 
@@ -380,8 +378,6 @@ class Engine {
             $dispatched = true;
 
             if (!$continue) break;
-
-            $router->next();
 
             $dispatched = false;
         }

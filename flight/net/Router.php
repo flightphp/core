@@ -19,21 +19,35 @@ class Router {
      *
      * @var array
      */
-    protected $routes = array();
+    protected $routes;
 
     /**
      * Pointer to current route.
      *
      * @var int
      */
-    protected $index = 0;
+    protected $index;
 
     /**
      * Case sensitive matching.
      *
      * @var boolean
      */
-    public $case_sensitive = false;
+    public $case_sensitive;
+
+    public function __construct() {
+        $this->routes = [
+            'GET' => [],
+            'POST' => [],
+            'PUT' => [],
+            'PATCH' => [],
+            'DELETE' => [],
+            'OPTIONS' => [],
+            'HEAD' => []
+        ];
+        $this->index = 0;
+        $this->case_sensitive = false;
+    }
 
     /**
      * Gets mapped routes.
@@ -60,7 +74,7 @@ class Router {
      */
     public function map($pattern, $callback, array $config = []) {
         $url = $pattern;
-        $methods = array('*');
+        $methods = [ 'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD' ];
 
         if (strpos($pattern, ' ') !== false) {
             list($method, $url) = explode(' ', trim($pattern), 2);
@@ -68,7 +82,10 @@ class Router {
             $methods = explode('|', $method);
         }
 
-        $this->routes[] = new Route($url, $callback, $methods, $config);
+        $route = new Route($url, $callback, $methods, $config);
+        foreach( $methods as $method ) {
+            $this->routes[ $method ][] = $route;
+        }
     }
 
     /**
@@ -79,38 +96,22 @@ class Router {
      */
     public function route(Request $request) {
         $url_decoded = urldecode( $request->url );
-        while ($route = $this->current()) {
-            if ($route !== false && $route->matchMethod($request->method) && $route->matchUrl($url_decoded, $this->case_sensitive)) {
+
+        $bucket = $this->routes[ $request->method ];
+
+        while( $this->index < count( $bucket ) ) {
+            $route = $bucket[ $this->index ];
+            $this->index++;
+            if ( $route->matchUrl($url_decoded, $this->case_sensitive) ) {
                 return $route;
             }
-            $this->next();
         }
 
         return false;
     }
 
-    /**
-     * Gets the current route.
-     *
-     * @return Route
-     */
-    public function current() {
-        return isset($this->routes[$this->index]) ? $this->routes[$this->index] : false;
-    }
-
-    /**
-     * Gets the next route.
-     *
-     * @return Route
-     */
-    public function next() {
-        $this->index++;
-    }
-
-    /**
-     * Reset to the first route.
-     */
-    public  function reset() {
+    public function reset() {
         $this->index = 0;
     }
+
 }
