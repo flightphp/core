@@ -219,14 +219,14 @@ class Engine
     /**
      * Registers a class to a framework method.
      *
-     * @param string        $name     Method name
-     * @param string        $class    Class name
-     * @param array         $params   Class initialization parameters
-     * @param callable|null $callback $callback Function to call after object instantiation
+     * @param string          $name     Method name
+     * @param callable|string $class    $class Class name
+     * @param array           $params   Class initialization parameters
+     * @param callable|null   $callback $callback Function to call after object instantiation
      *
      * @throws Exception If trying to map over a framework method
      */
-    public function register(string $name, string $class, array $params = [], ?callable $callback = null): void
+    public function register(string $name, $class, array $params = [], ?callable $callback = null): void
     {
         if (method_exists($this, $name)) {
             throw new Exception('Cannot override an existing framework method.');
