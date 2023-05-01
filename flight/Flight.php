@@ -72,10 +72,6 @@ class Flight
     {
     }
 
-    private function __destruct()
-    {
-    }
-
     private function __clone()
     {
     }
