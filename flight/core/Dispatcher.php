@@ -37,7 +37,7 @@ class Dispatcher
      * @param string $name   Event name
      * @param array  $params Callback parameters
      *
-     *@throws Exception
+     * @throws Exception
      *
      * @return mixed|null Output of callback
      */
@@ -65,7 +65,7 @@ class Dispatcher
      * Assigns a callback to an event.
      *
      * @param string   $name     Event name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     final public function set(string $name, callable $callback): void
     {
@@ -77,7 +77,7 @@ class Dispatcher
      *
      * @param string $name Event name
      *
-     * @return callback $callback Callback function
+     * @return callable $callback Callback function
      */
     final public function get(string $name): ?callable
     {
@@ -118,7 +118,7 @@ class Dispatcher
      *
      * @param string   $name     Event name
      * @param string   $type     Filter type
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     final public function hook(string $name, string $type, callable $callback): void
     {
@@ -148,10 +148,10 @@ class Dispatcher
     /**
      * Executes a callback function.
      *
-     * @param array|callback $callback Callback function
+     * @param array|callable $callback Callback function
      * @param array          $params   Function parameters
      *
-     *@throws Exception
+     * @throws Exception
      *
      * @return mixed Function results
      */

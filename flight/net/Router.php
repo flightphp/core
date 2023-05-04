@@ -53,7 +53,7 @@ class Router
      * Maps a URL pattern to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false): void

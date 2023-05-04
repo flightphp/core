@@ -203,7 +203,7 @@ class Engine
      * Maps a callback to a framework method.
      *
      * @param string   $name     Method name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      *
      * @throws Exception If trying to map over a framework method
      */
@@ -239,7 +239,7 @@ class Engine
      * Adds a pre-filter to a method.
      *
      * @param string   $name     Method name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     public function before(string $name, callable $callback): void
     {
@@ -250,7 +250,7 @@ class Engine
      * Adds a post-filter to a method.
      *
      * @param string   $name     Method name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     public function after(string $name, callable $callback): void
     {
@@ -406,7 +406,7 @@ class Engine
                 ->status(500)
                 ->write($msg)
                 ->send();
-        } catch (Throwable $t) {
+        } catch (Throwable) {
             exit($msg);
         }
     }
@@ -437,7 +437,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _route(string $pattern, callable $callback, bool $pass_route = false): void
@@ -449,7 +449,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _post(string $pattern, callable $callback, bool $pass_route = false): void
@@ -461,7 +461,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _put(string $pattern, callable $callback, bool $pass_route = false): void
@@ -473,7 +473,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _patch(string $pattern, callable $callback, bool $pass_route = false): void
@@ -485,7 +485,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _delete(string $pattern, callable $callback, bool $pass_route = false): void
