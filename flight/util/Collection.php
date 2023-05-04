@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace flight\util;
 
 use ArrayAccess;
-use function count;
 use Countable;
 use Iterator;
 use JsonSerializable;
@@ -106,7 +105,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
      * @param mixed  $value  Value
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (null === $offset) {
             $this->data[] = $value;
@@ -173,9 +172,9 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
      * @return mixed Value
      */
     #[\ReturnTypeWillChange]
-    public function next()
+    public function next(): void
     {
-        return next($this->data);
+        next($this->data);
     }
 
     /**
