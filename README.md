@@ -3,6 +3,8 @@
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to 
 quickly and easily build RESTful web applications.
 
+> **[Ver en español](LEAME.md)**
+
 ```php
 require 'flight/Flight.php';
 
