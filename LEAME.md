@@ -67,7 +67,7 @@ Primero incluye el framework.
 require 'flight/Flight.php';
 ```
 
-Si estás usando Composer, ejecuta el autoloader en su lugar.
+Si estás usando Composer, requiere el autoloader en su lugar.
 
 ```php
 require 'vendor/autoload.php';
@@ -264,7 +264,7 @@ Flight::route('/usuario/*', function(){
 ## Información de la Ruta
 
 Si quieres inspeccionar la información de la ruta coincidente, puedes solicitar que el objeto
-`route` sea pasado a tu callback pasando `true` como tercer parámetro in tu método route.
+`route` sea pasado a tu callback pasando `true` como tercer parámetro en tu método route.
 El objeto ruta siempre debe ser el último parámetro pasado a tu función callback.
 
 ```php
@@ -520,9 +520,6 @@ Flight::set('flight.log_errors', true);
 
 # Vistas
 
-Flight provides some basic templating functionality by default. To display a view
-template call the `render` method with the name of the template file and optional
-template data:
 Flight te provee algunas funcionalidades básicas de plantilla por defecto.
 Para mostrar una plantilla de vista llama al método `render` con el nombre del archivo
 de la plantilla pasándole una lista opcional de datos a la plantilla.
@@ -587,7 +584,6 @@ Puedes luego renderizar tu diseño haciendo lo siguiente:
 Flight::render('diseño', ['titulo' => 'Página Principal']);
 ```
 
-If the template files looks like this:
 Si los archivos de plantilla lucen así:
 
 `encabezado.php`:
@@ -797,9 +793,6 @@ versión local o la versión cacheada.
 
 ## Last-Modified
 
-You can use the `lastModified` method and pass in a UNIX timestamp to set the date
-and time a page was last modified. The client will continue to use their cache until
-the last modified value is changed.
 Puedes usar el método `lastModified` y pasar un timestamp UNIX para asignar
 la fecha y hora en que la página fue modificada por última vez. El cliente
 continuará usando su versión cacheada hasta que el valor de `last modified` cambie.
@@ -876,8 +869,6 @@ Si no pasas un parámetro de consulta, por defecto será `jsonp`.
 
 # Configuración
 
-You can customize certain behaviors of Flight by setting configuration values
-through the `set` method.
 Puedes personalizar ciertos comportamientos de Flight asignando valores de
 configuración a través del método `set`.
 
@@ -936,7 +927,6 @@ Flight::jsonp($datos, $parametro, $codigo, $codificado, $conjuntoCaracteres, $op
 
 Cualquier método personalizado agregado con `map` y `register` también puede ser
 filtrado.
-
 
 # Instancia del Framework
 
