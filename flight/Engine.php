@@ -427,7 +427,8 @@ class Engine
                 $response->status($code);
             }
 
-            $response->write(ob_get_clean());
+            $content = ob_get_clean();
+            $response->write($content ?: '');
 
             $response->send();
         }
