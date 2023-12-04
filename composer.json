@@ -1,5 +1,5 @@
 {
-    "name": "mikecao/flight",
+    "name": "faslatam/flight",
     "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
     "homepage": "http://flightphp.com",
     "license": "MIT",
@@ -9,16 +9,36 @@
             "email": "mike@mikecao.com",
             "homepage": "http://www.mikecao.com/",
             "role": "Original Developer"
+        },
+        {
+            "name": "Franyer Sánchez",
+            "email": "franyeradriansanchez@gmail.com",
+            "homepage": "https://faslatam.000webhostapp.com",
+            "role": "Maintainer"
         }
     ],
     "require": {
-        "php": "^7.4|^8.0|^8.1",
+        "php": "^7.4|^8.0|^8.1|^8.2",
         "ext-json": "*"
     },
     "autoload": {
         "files": [ "flight/autoload.php", "flight/Flight.php" ]
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.10",
+        "phpstan/extension-installer": "^1.3"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "test": "phpunit tests",
+        "lint": "phpstan --no-progress -cphpstan.neon"
+    },
+    "suggest": {
+        "phpstan/phpstan": "PHP Static Analysis Tool"
     }
 }

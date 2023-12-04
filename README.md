@@ -1,5 +1,8 @@
 # What is Flight?
 
+![](https://user-images.githubusercontent.com/104888/50957476-9c4acb80-14be-11e9-88ce-6447364dc1bb.png)
+![](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
+
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to 
 quickly and easily build RESTful web applications.
 
