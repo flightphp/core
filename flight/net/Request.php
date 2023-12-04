@@ -18,23 +18,24 @@ use flight\util\Collection;
  * are stored and accessible via the Request object.
  *
  * The default request properties are:
- *   url - The URL being requested
- *   base - The parent subdirectory of the URL
- *   method - The request method (GET, POST, PUT, DELETE)
- *   referrer - The referrer URL
- *   ip - IP address of the client
- *   ajax - Whether the request is an AJAX request
- *   scheme - The server protocol (http, https)
- *   user_agent - Browser information
- *   type - The content type
- *   length - The content length
- *   query - Query string parameters
- *   data - Post parameters
- *   cookies - Cookie parameters
- *   files - Uploaded files
- *   secure - Connection is secure
- *   accept - HTTP accept parameters
- *   proxy_ip - Proxy IP address of the client
+ *
+ *   - **url** - The URL being requested
+ *   - **base** - The parent subdirectory of the URL
+ *   - **method** - The request method (GET, POST, PUT, DELETE)
+ *   - **referrer** - The referrer URL
+ *   - **ip** - IP address of the client
+ *   - **ajax** - Whether the request is an AJAX request
+ *   - **scheme** - The server protocol (http, https)
+ *   - **user_agent** - Browser information
+ *   - **type** - The content type
+ *   - **length** - The content length
+ *   - **query** - Query string parameters
+ *   - **data** - Post parameters
+ *   - **cookies** - Cookie parameters
+ *   - **files** - Uploaded files
+ *   - **secure** - Connection is secure
+ *   - **accept** - HTTP accept parameters
+ *   - **proxy_ip** - Proxy IP address of the client
  */
 final class Request
 {
@@ -131,9 +132,9 @@ final class Request
     /**
      * Constructor.
      *
-     * @param array $config Request configuration
+     * @param array<string, mixed> $config Request configuration
      */
-    public function __construct(array $config = [])
+    public function __construct($config = array())
     {
         // Default properties
         if (empty($config)) {
@@ -165,7 +166,8 @@ final class Request
     /**
      * Initialize request properties.
      *
-     * @param array $properties Array of request properties
+     * @param array<string, mixed> $properties Array of request properties
+     * @return static
      */
     public function init(array $properties = [])
     {
@@ -199,6 +201,8 @@ final class Request
                 }
             }
         }
+
+        return $this;
     }
 
     /**
@@ -287,11 +291,11 @@ final class Request
      *
      * @param string $url URL string
      *
-     * @return array Query parameters
+     * @return array<string, int|string|array<int|string, int|string>>
      */
     public static function parseQuery(string $url): array
     {
-        $params = [];
+        $params = array();
 
         $args = parse_url($url);
         if (isset($args['query'])) {

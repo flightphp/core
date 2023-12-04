@@ -25,7 +25,7 @@ class Response
     public bool $content_length = true;
 
     /**
-     * @var array HTTP status codes
+     * @var array<int, ?string> HTTP status codes
      */
     public static array $codes = [
         100 => 'Continue',
@@ -103,7 +103,7 @@ class Response
     protected int $status = 200;
 
     /**
-     * @var array HTTP headers
+     * @var array<string, int|string|array<int, string>> HTTP headers
      */
     protected array $headers = [];
 
@@ -124,7 +124,7 @@ class Response
      *
      * @throws Exception If invalid status code
      *
-     * @return int|object Self reference
+     * @return int|static Self reference
      */
     public function status(?int $code = null)
     {
@@ -144,10 +144,10 @@ class Response
     /**
      * Adds a header to the response.
      *
-     * @param array|string $name  Header name or array of names and values
+     * @param array<string, int|string>|string $name  Header name or array of names and values
      * @param string|null  $value Header value
      *
-     * @return object Self reference
+     * @return static Self reference
      */
     public function header($name, ?string $value = null)
     {
@@ -164,8 +164,7 @@ class Response
 
     /**
      * Returns the headers from the response.
-     *
-     * @return array
+     * @return array<string, int|string|array<int, string>>
      */
     public function headers()
     {
@@ -203,7 +202,7 @@ class Response
     /**
      * Sets caching headers for the response.
      *
-     * @param int|string $expires Expiration time
+     * @param int|string|false $expires Expiration time
      *
      * @return Response Self reference
      */

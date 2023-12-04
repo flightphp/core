@@ -28,12 +28,12 @@ final class Route
     public $callback;
 
     /**
-     * @var array HTTP methods
+     * @var array<int, string> HTTP methods
      */
     public array $methods = [];
 
     /**
-     * @var array Route parameters
+     * @var array<int, ?string> Route parameters
      */
     public array $params = [];
 
@@ -56,8 +56,8 @@ final class Route
      * Constructor.
      *
      * @param string $pattern  URL pattern
-     * @param mixed  $callback Callback function
-     * @param array  $methods  HTTP methods
+     * @param callable  $callback Callback function
+     * @param array<int, string>  $methods  HTTP methods
      * @param bool   $pass     Pass self in callback parameters
      */
     public function __construct(string $pattern, $callback, array $methods, bool $pass)

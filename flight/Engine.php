@@ -40,7 +40,7 @@ use Throwable;
  * Request-response
  * @method Request request() Gets current request
  * @method Response response() Gets current response
- * @method void error(Exception $e) Sends an HTTP 500 response for any errors.
+ * @method void error(Throwable $e) Sends an HTTP 500 response for any errors.
  * @method void notFound() Sends an HTTP 404 response when a URL is not found.
  * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
  * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSON response.
@@ -54,6 +54,7 @@ class Engine
 {
     /**
      * Stored variables.
+     * @var array<string, mixed>
      */
     protected array $vars;
 
@@ -84,7 +85,7 @@ class Engine
      * Handles calls to class methods.
      *
      * @param string $name   Method name
-     * @param array  $params Method parameters
+     * @param array<int, mixed>  $params Method parameters
      *
      * @throws Exception
      *
@@ -155,8 +156,8 @@ class Engine
         $this->before('start', function () use ($self) {
             // Enable error handling
             if ($self->get('flight.handle_errors')) {
-                set_error_handler([$self, 'handleError']);
-                set_exception_handler([$self, 'handleException']);
+                set_error_handler(array($self, 'handleError'));
+                set_exception_handler(array($self, 'handleException'));
             }
 
             // Set case-sensitivity
@@ -177,18 +178,21 @@ class Engine
      * @param int    $errline Error file line number
      *
      * @throws ErrorException
+     * @return bool
      */
     public function handleError(int $errno, string $errstr, string $errfile, int $errline)
     {
         if ($errno & error_reporting()) {
             throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
         }
+
+        return false;
     }
 
     /**
      * Custom exception handler. Logs exceptions.
      *
-     * @param Exception $e Thrown exception
+     * @param Throwable $e Thrown exception
      */
     public function handleException($e): void
     {
@@ -203,7 +207,7 @@ class Engine
      * Maps a callback to a framework method.
      *
      * @param string   $name     Method name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      *
      * @throws Exception If trying to map over a framework method
      */
@@ -218,11 +222,12 @@ class Engine
 
     /**
      * Registers a class to a framework method.
+     * @template T of object
      *
      * @param string        $name     Method name
-     * @param string        $class    Class name
-     * @param array         $params   Class initialization parameters
-     * @param callable|null $callback $callback Function to call after object instantiation
+     * @param class-string<T> $class  Class name
+     * @param array<int, mixed> $params   Class initialization parameters
+     * @param ?callable(T $instance): void $callback Function to call after object instantiation
      *
      * @throws Exception If trying to map over a framework method
      */
@@ -239,7 +244,7 @@ class Engine
      * Adds a pre-filter to a method.
      *
      * @param string   $name     Method name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     public function before(string $name, callable $callback): void
     {
@@ -250,7 +255,7 @@ class Engine
      * Adds a post-filter to a method.
      *
      * @param string   $name     Method name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     public function after(string $name, callable $callback): void
     {
@@ -437,7 +442,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _route(string $pattern, callable $callback, bool $pass_route = false): void
@@ -449,7 +454,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _post(string $pattern, callable $callback, bool $pass_route = false): void
@@ -461,7 +466,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _put(string $pattern, callable $callback, bool $pass_route = false): void
@@ -473,7 +478,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _patch(string $pattern, callable $callback, bool $pass_route = false): void
@@ -485,7 +490,7 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function _delete(string $pattern, callable $callback, bool $pass_route = false): void
@@ -555,7 +560,7 @@ class Engine
      * Renders a template.
      *
      * @param string      $file Template file
-     * @param array|null  $data Template data
+     * @param ?array<string, mixed> $data Template data
      * @param string|null $key  View variable name
      *
      * @throws Exception
