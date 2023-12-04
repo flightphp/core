@@ -23,7 +23,7 @@ use flight\template\View;
  * @method  static void stop() Stops the framework and sends a response.
  * @method  static void halt(int $code = 200, string $message = '') Stop the framework with an optional status code and message.
  *
- * @method  static void route(string $pattern, callable $callback) Maps a URL pattern to a callback.
+ * @method  static void route(string $pattern, callable $callback, bool $pass_route = false) Maps a URL pattern to a callback.
  * @method  static Router router() Returns Router instance.
  *
  * @method  static void map(string $name, callable $callback) Creates a custom framework method.
@@ -80,8 +80,9 @@ class Flight
      * @param  ?Closure(T $instance): void $callback Perform actions with the instance
      * @return void
      */
-    static function register($name, $class, $params = array(), $callback = null) {
-      static::__callStatic('register', func_get_args());
+    static function register($name, $class, $params = array(), $callback = null)
+    {
+        static::__callStatic('register', func_get_args());
     }
 
     /**

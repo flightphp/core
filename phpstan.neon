@@ -1,10 +1,10 @@
 includes:
-  - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
-  level: 6
-  excludePaths:
-    - vendor
-  paths:
-    - flight
-    - index.php
+    level: 6
+    excludePaths:
+        - vendor
+    paths:
+        - flight
+        - index.php

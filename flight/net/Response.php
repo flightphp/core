@@ -251,7 +251,8 @@ class Response
                     '%s %d %s',
                     $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1',
                     $this->status,
-                    self::$codes[$this->status]),
+                    self::$codes[$this->status]
+                ),
                 true,
                 $this->status
             );

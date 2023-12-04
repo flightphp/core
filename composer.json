@@ -22,7 +22,10 @@
         "ext-json": "*"
     },
     "autoload": {
-        "files": [ "flight/autoload.php", "flight/Flight.php" ]
+        "files": [
+            "flight/autoload.php",
+            "flight/Flight.php"
+        ]
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5",

@@ -397,9 +397,10 @@ class Engine
      */
     public function _error($e): void
     {
-        $msg = sprintf('<h1>500 Internal Server Error</h1>' .
-            '<h3>%s (%s)</h3>' .
-            '<pre>%s</pre>',
+        $msg = sprintf(
+            '<h1>500 Internal Server Error</h1>' .
+                '<h3>%s (%s)</h3>' .
+                '<pre>%s</pre>',
             $e->getMessage(),
             $e->getCode(),
             $e->getTraceAsString()
@@ -524,8 +525,8 @@ class Engine
             ->status(404)
             ->write(
                 '<h1>404 Not Found</h1>' .
-                '<h3>The page you have requested could not be found.</h3>' .
-                str_repeat(' ', 512)
+                    '<h3>The page you have requested could not be found.</h3>' .
+                    str_repeat(' ', 512)
             )
             ->send();
     }
@@ -644,8 +645,10 @@ class Engine
 
         $this->response()->header('ETag', $id);
 
-        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
-            $_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
+        if (
+            isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
+            $_SERVER['HTTP_IF_NONE_MATCH'] === $id
+        ) {
             $this->halt(304);
         }
     }
@@ -659,8 +662,10 @@ class Engine
     {
         $this->response()->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $time));
 
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
-            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
+        if (
+            isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
+            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time
+        ) {
             $this->halt(304);
         }
     }

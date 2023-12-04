@@ -2,3 +2,4 @@
 vendor/
 composer.phar
 composer.lock
+*.sublime-workspace
