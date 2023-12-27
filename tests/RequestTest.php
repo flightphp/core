@@ -17,6 +17,8 @@ class RequestTest extends PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
+		$_SERVER = [];
+		$_REQUEST = [];
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -33,6 +35,11 @@ class RequestTest extends PHPUnit\Framework\TestCase
 
         $this->request = new Request();
     }
+
+	protected function tearDown(): void {
+		unset($_REQUEST);
+		unset($_SERVER);
+	}
 
     public function testDefaults()
     {

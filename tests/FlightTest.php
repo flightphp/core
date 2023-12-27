@@ -18,8 +18,15 @@ class FlightTest extends PHPUnit\Framework\TestCase
 {
     protected function setUp(): void
     {
+		$_SERVER = [];
+		$_REQUEST = [];
         Flight::init();
     }
+
+	protected function tearDown(): void {
+		unset($_REQUEST);
+		unset($_SERVER);
+	}
 
     // Checks that default components are loaded
     public function testDefaultComponents()
