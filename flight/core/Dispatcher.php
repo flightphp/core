@@ -23,11 +23,13 @@ class Dispatcher
 {
     /**
      * Mapped events.
+     * @var array<string, callable>
      */
     protected array $events = [];
 
     /**
      * Method filters.
+     * @var array<string, array<'before'|'after', array<int, callable>>>
      */
     protected array $filters = [];
 
@@ -35,9 +37,9 @@ class Dispatcher
      * Dispatches an event.
      *
      * @param string $name   Event name
-     * @param array  $params Callback parameters
+     * @param array<int, mixed>  $params Callback parameters
      *
-     *@throws Exception
+     * @throws Exception
      *
      * @return mixed|null Output of callback
      */
@@ -65,7 +67,7 @@ class Dispatcher
      * Assigns a callback to an event.
      *
      * @param string   $name     Event name
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     final public function set(string $name, callable $callback): void
     {
@@ -77,7 +79,7 @@ class Dispatcher
      *
      * @param string $name Event name
      *
-     * @return callback $callback Callback function
+     * @return callable $callback Callback function
      */
     final public function get(string $name): ?callable
     {
@@ -118,7 +120,7 @@ class Dispatcher
      *
      * @param string   $name     Event name
      * @param string   $type     Filter type
-     * @param callback $callback Callback function
+     * @param callable $callback Callback function
      */
     final public function hook(string $name, string $type, callable $callback): void
     {
@@ -128,8 +130,8 @@ class Dispatcher
     /**
      * Executes a chain of method filters.
      *
-     * @param array $filters Chain of filters
-     * @param array $params  Method parameters
+     * @param array<int, callable> $filters Chain of filters
+     * @param array<int, mixed> $params  Method parameters
      * @param mixed $output  Method output
      *
      * @throws Exception
@@ -148,10 +150,10 @@ class Dispatcher
     /**
      * Executes a callback function.
      *
-     * @param array|callback $callback Callback function
-     * @param array          $params   Function parameters
+     * @param callable|array<class-string|object, string> $callback Callback function
+     * @param array<int, mixed>          $params   Function parameters
      *
-     *@throws Exception
+     * @throws Exception
      *
      * @return mixed Function results
      */
@@ -170,7 +172,7 @@ class Dispatcher
      * Calls a function.
      *
      * @param callable|string $func   Name of function to call
-     * @param array           $params Function parameters
+     * @param array<int, mixed>           $params Function parameters
      *
      * @return mixed Function results
      */
@@ -203,7 +205,7 @@ class Dispatcher
      * Invokes a method.
      *
      * @param mixed $func   Class method
-     * @param array $params Class method parameters
+     * @param array<int, mixed> $params Class method parameters
      *
      * @return mixed Function results
      */
