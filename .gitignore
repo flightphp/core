@@ -6,3 +6,4 @@ composer.lock
 coverage/
 .vscode/settings.json
 *.sublime-workspace
+.vscode/
