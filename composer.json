@@ -1,5 +1,5 @@
 {
-    "name": "faslatam/flight",
+    "name": "n0nag0n/flight",
     "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
     "homepage": "http://flightphp.com",
     "license": "MIT",
@@ -14,6 +14,11 @@
             "name": "Franyer Sánchez",
             "email": "franyeradriansanchez@gmail.com",
             "homepage": "https://faslatam.000webhostapp.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "n0nag0n",
+            "email": "n0nag0n@sky-9.com",
             "role": "Maintainer"
         }
     ],
