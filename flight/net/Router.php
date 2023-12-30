@@ -23,6 +23,7 @@ class Router
     public bool $case_sensitive = false;
     /**
      * Mapped routes.
+     * @var array<int, Route>
      */
     protected array $routes = [];
 
@@ -34,7 +35,7 @@ class Router
     /**
      * Gets mapped routes.
      *
-     * @return array Array of routes
+     * @return array<int, Route> Array of routes
      */
     public function getRoutes(): array
     {
@@ -53,7 +54,7 @@ class Router
      * Maps a URL pattern to a callback function.
      *
      * @param string   $pattern    URL pattern to match
-     * @param callback $callback   Callback function
+     * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false): void
@@ -81,7 +82,7 @@ class Router
     {
         $url_decoded = urldecode($request->url);
         while ($route = $this->current()) {
-            if (false !== $route && $route->matchMethod($request->method) && $route->matchUrl($url_decoded, $this->case_sensitive)) {
+            if ($route->matchMethod($request->method) && $route->matchUrl($url_decoded, $this->case_sensitive)) {
                 return $route;
             }
             $this->next();

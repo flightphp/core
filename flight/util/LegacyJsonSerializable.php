@@ -9,5 +9,9 @@ declare(strict_types=1);
  */
 interface LegacyJsonSerializable
 {
+    /**
+     * Gets the collection data which can be serialized to JSON.
+     * @return mixed Collection data which can be serialized by <b>json_encode</b>
+     */
     public function jsonSerialize();
 }

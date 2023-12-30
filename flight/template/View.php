@@ -34,7 +34,7 @@ class View
     /**
      * View variables.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $vars = [];
 
@@ -70,8 +70,9 @@ class View
     /**
      * Sets a template variable.
      *
-     * @param mixed  $key   Key
-     * @param string $value Value
+     * @param string|iterable<string, mixed>  $key   Key
+     * @param mixed $value Value
+     * @return static
      */
     public function set($key, $value = null)
     {
@@ -82,6 +83,8 @@ class View
         } else {
             $this->vars[$key] = $value;
         }
+
+        return $this;
     }
 
     /**
@@ -100,6 +103,7 @@ class View
      * Unsets a template variable. If no key is passed in, clear all variables.
      *
      * @param string $key Key
+     * @return static
      */
     public function clear($key = null)
     {
@@ -108,15 +112,18 @@ class View
         } else {
             unset($this->vars[$key]);
         }
+
+        return $this;
     }
 
     /**
      * Renders a template.
      *
      * @param string $file Template file
-     * @param array  $data Template data
+     * @param array<string, mixed>  $data Template data
      *
      * @throws \Exception If template not found
+     * @return void
      */
     public function render($file, $data = null)
     {
@@ -139,7 +146,7 @@ class View
      * Gets the output of a template.
      *
      * @param string $file Template file
-     * @param array  $data Template data
+     * @param array<string, mixed>  $data Template data
      *
      * @return string Output of template
      */
@@ -196,5 +203,6 @@ class View
     public function e($str)
     {
         echo htmlentities($str);
+        return htmlentities($str);
     }
 }
