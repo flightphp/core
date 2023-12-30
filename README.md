@@ -37,10 +37,10 @@ If you're using [Composer](https://getcomposer.org/), you can run the following
 command:
 
 ```bash
-composer require mikecao/flight
+composer require n0nag0n/flight
 ```
 
-OR you can [download](https://github.com/mikecao/flight/archive/master.zip)
+OR you can [download](https://github.com/n0nag0n/flight/archive/master.zip)
 them directly and extract them to your web directory.
 
 2\. Configure your webserver.
