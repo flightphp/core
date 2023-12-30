@@ -23,10 +23,17 @@ class RouterTest extends PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
+		$_SERVER = [];
+		$_REQUEST = [];
         $this->router = new Router();
         $this->request = new Request();
         $this->dispatcher = new Dispatcher();
     }
+
+	protected function tearDown(): void {
+		unset($_REQUEST);
+		unset($_SERVER);
+	}
 
     // Simple output
     public function ok()
