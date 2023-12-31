@@ -1,6 +1,6 @@
 {
-    "name": "n0nag0n/flight",
-    "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
+    "name": "flightphp/core",
+    "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications. This is the maintained fork of mikecao/flight",
     "homepage": "http://flightphp.com",
     "license": "MIT",
     "authors": [
