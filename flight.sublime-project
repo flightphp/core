@@ -2,6 +2,7 @@
     "folders": [
         {
             "path": ".",
+            "name": "FLIGHT"
         }
     ],
     "settings": {
@@ -9,13 +10,23 @@
             "LSP-intelephense": {
                 "settings": {
                     "intelephense.environment.phpVersion": "7.4.0",
-                    "intelephense.format.braces": "psr12",
-                },
+                    "intelephense.format.braces": "psr12"
+                }
             },
-            "formatters":
-            {
-				"embedding.php": "LSP-intelephense"
-			},
-        },
-    },
+            "formatters": {
+                "embedding.php": "LSP-intelephense",
+                "source.json.composer": "LSP-json",
+                "source.json.sublime": "LSP-json"
+            },
+            "LSP-html": {
+                "enabled": false
+            },
+            "marksman": {
+                "enabled": false
+            },
+            "ltex-ls": {
+                "enabled": false
+            }
+        }
+    }
 }
