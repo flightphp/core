@@ -9,8 +9,15 @@ This is a fork of the original project [https://github.com/mikecao/flight](https
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to
 quickly and easily build RESTful web applications.
 
+Chat with us on Matrix IRC [#flight-php-framework:matrix.org](https://matrix.to/#/#flight-php-framework:matrix.org)
+
+# Basic Usage
 ```php
-require 'flight/Flight.php';
+
+// if installed with composer
+require 'vendor/autoload.php';
+// or if installed manually by zip file
+//require 'flight/Flight.php';
 
 Flight::route('/', function() {
   echo 'hello world!';
