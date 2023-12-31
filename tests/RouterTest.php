@@ -10,9 +10,6 @@ use flight\core\Dispatcher;
 use flight\net\Request;
 use flight\net\Router;
 
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/autoload.php';
-
 class RouterTest extends PHPUnit\Framework\TestCase
 {
     private Router $router;

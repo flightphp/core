@@ -5,9 +5,6 @@
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/autoload.php';
-
 class ViewTest extends PHPUnit\Framework\TestCase
 {
     /**

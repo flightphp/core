@@ -8,8 +8,6 @@
 
 use flight\Engine;
 
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/autoload.php';
 require_once __DIR__ . '/classes/Hello.php';
 
 class MapTest extends PHPUnit\Framework\TestCase

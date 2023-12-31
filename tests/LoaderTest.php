@@ -8,7 +8,6 @@
 
 use flight\core\Loader;
 
-require_once 'vendor/autoload.php';
 require_once __DIR__ . '/classes/User.php';
 require_once __DIR__ . '/classes/Factory.php';
 

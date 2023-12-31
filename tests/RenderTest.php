@@ -8,9 +8,6 @@
 
 use flight\Engine;
 
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/Flight.php';
-
 class RenderTest extends PHPUnit\Framework\TestCase
 {
     private Engine $app;

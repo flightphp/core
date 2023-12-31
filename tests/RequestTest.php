@@ -8,9 +8,6 @@
 
 use flight\net\Request;
 
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/autoload.php';
-
 class RequestTest extends PHPUnit\Framework\TestCase
 {
     private Request $request;

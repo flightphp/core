@@ -11,9 +11,6 @@ use flight\template\View;
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/Flight.php';
-
 class FlightTest extends PHPUnit\Framework\TestCase
 {
     protected function setUp(): void

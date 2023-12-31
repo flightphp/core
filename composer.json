@@ -43,10 +43,18 @@
         }
     },
     "scripts": {
-        "test": "phpunit tests",
+        "test": "phpunit",
+		"test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage",
         "lint": "phpstan --no-progress -cphpstan.neon"
     },
     "suggest": {
-        "phpstan/phpstan": "PHP Static Analysis Tool"
-    }
+        "phpstan/phpstan": "PHP Static Analysis Tool",
+		"latte/latte": "Latte template engine"
+    },
+	"suggest-dev": {
+		"tracy/tracy": "Tracy debugger"
+	},
+	"replace": {
+		"mikecao/flight": "2.0.2"
+	}
 }
