@@ -1,10 +1,11 @@
+![](https://user-images.githubusercontent.com/104888/50957476-9c4acb80-14be-11e9-88ce-6447364dc1bb.png)
+![](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
+![](https://img.shields.io/matrix/flight-php-framework%3Amatrix.org?server_fqdn=matrix.org&style=social&logo=matrix)
+
 # What the fork?
 This is a fork of the original project [https://github.com/mikecao/flight](https://github.com/mikecao/flight). That project hasn't seen updates in quite some time, so this fork is to help maintain the project going forward.
 
 # What is Flight?
-
-![](https://user-images.githubusercontent.com/104888/50957476-9c4acb80-14be-11e9-88ce-6447364dc1bb.png)
-![](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
 
 Flight is a fast, simple, extensible framework for PHP. Flight enables you to
 quickly and easily build RESTful web applications.
