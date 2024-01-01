@@ -105,6 +105,16 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('OK');
     }
 
+	// Simple path with trailing slash
+	// Simple path
+    public function testPathRouteTrailingSlash()
+    {
+        $this->router->map('/path/', [$this, 'ok']);
+        $this->request->url = '/path';
+
+        $this->check('OK');
+    }
+
     // POST route
     public function testPostRoute()
     {

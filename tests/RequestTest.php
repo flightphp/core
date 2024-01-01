@@ -165,4 +165,32 @@ class RequestTest extends PHPUnit\Framework\TestCase
 		]);
 		$this->assertEquals('/flightphp', $request->url);
 	}
+
+	public function testInitNoUrl() {
+		$request = new Request([
+			'url' => '',
+			'base' => '/vagrant/public',
+			'type' => ''
+		]);
+		$this->assertEquals('/', $request->url);
+	}
+
+	public function testInitWithJsonBody() {
+		// create dummy file to pull request body from
+		$tmpfile = tmpfile();
+		$stream_path = stream_get_meta_data($tmpfile)['uri'];
+		file_put_contents($stream_path, '{"foo":"bar"}');
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$request = new Request([
+			'url' => '/something/fancy',
+			'base' => '/vagrant/public',
+			'type' => 'application/json',
+			'length' => 13,
+			'data' => new Collection(),
+			'query' => new Collection(),
+			'stream_path' => $stream_path
+		]);
+		$this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
+		$this->assertEquals('{"foo":"bar"}', $request->getBody());
+	}
 }

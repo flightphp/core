@@ -130,9 +130,22 @@ final class Request
     public string $host;
 
     /**
+     * Stream path for where to pull the request body from
+     *
+     * @var string
+     */
+    private string $stream_path = 'php://input';
+
+    /**
+     * @var string Raw HTTP request body
+     */
+    public string $body = '';
+
+    /**
      * Constructor.
      *
      * @param array<string, mixed> $config Request configuration
+     * @param string
      */
     public function __construct($config = array())
     {
@@ -196,7 +209,7 @@ final class Request
 
         // Check for JSON input
         if (0 === strpos($this->type, 'application/json')) {
-            $body = self::getBody();
+            $body = $this->getBody();
             if ('' !== $body && null !== $body) {
                 $data = json_decode($body, true);
                 if (is_array($data)) {
@@ -213,19 +226,21 @@ final class Request
      *
      * @return string Raw HTTP request body
      */
-    public static function getBody(): ?string
+    public function getBody(): ?string
     {
-        static $body;
+        $body = $this->body;
 
-        if (null !== $body) {
+        if ('' !== $body) {
             return $body;
         }
 
         $method = self::getMethod();
 
         if ('POST' === $method || 'PUT' === $method || 'DELETE' === $method || 'PATCH' === $method) {
-            $body = file_get_contents('php://input');
+            $body = file_get_contents($this->stream_path);
         }
+
+        $this->body = $body;
 
         return $body;
     }
