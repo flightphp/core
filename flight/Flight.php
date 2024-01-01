@@ -57,11 +57,22 @@ class Flight
      */
     private static Engine $engine;
 
-    // Don't allow object instantiation
+	/**
+	 * Don't allow object instantiation
+	 * 
+	 * @codeCoverageIgnore
+	 * @return void
+	 */
     private function __construct()
     {
     }
 
+	/**
+	 * Forbid cloning the class
+	 *
+	 * @codeCoverageIgnore
+	 * @return void
+	 */
     private function __clone()
     {
     }
