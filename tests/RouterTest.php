@@ -307,4 +307,49 @@ class RouterTest extends PHPUnit\Framework\TestCase
 
         $this->check('цветя');
     }
+
+	public function testGetAndClearRoutes() {
+		$this->router->map('/path1', [$this, 'ok']);
+		$this->router->map('/path2', [$this, 'ok']);
+		$this->router->map('/path3', [$this, 'ok']);
+		$this->router->map('/path4', [$this, 'ok']);
+		$this->router->map('/path5', [$this, 'ok']);
+		$this->router->map('/path6', [$this, 'ok']);
+		$this->router->map('/path7', [$this, 'ok']);
+		$this->router->map('/path8', [$this, 'ok']);
+		$this->router->map('/path9', [$this, 'ok']);
+		
+		$routes = $this->router->getRoutes();
+		$this->assertEquals(9, count($routes));
+
+		$this->router->clear();
+
+		$this->assertEquals(0, count($this->router->getRoutes()));
+	}
+
+	public function testResetRoutes() {
+		$router = new class extends Router {
+			public function getIndex() {
+				return $this->index;
+			}
+		};
+
+		$router->map('/path1', [$this, 'ok']);
+		$router->map('/path2', [$this, 'ok']);
+		$router->map('/path3', [$this, 'ok']);
+		$router->map('/path4', [$this, 'ok']);
+		$router->map('/path5', [$this, 'ok']);
+		$router->map('/path6', [$this, 'ok']);
+		$router->map('/path7', [$this, 'ok']);
+		$router->map('/path8', [$this, 'ok']);
+		$router->map('/path9', [$this, 'ok']);
+		
+		$router->next();
+		$router->next();
+		$router->next();
+
+		$this->assertEquals(3, $router->getIndex());
+		$router->reset();
+		$this->assertEquals(0, $router->getIndex());
+	}
 }
