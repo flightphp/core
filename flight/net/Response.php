@@ -202,7 +202,7 @@ class Response
     /**
      * Sets caching headers for the response.
      *
-     * @param int|string|false $expires Expiration time
+     * @param int|string|false $expires Expiration time as time() or as strtotime() string value
      *
      * @return Response Self reference
      */
@@ -237,7 +237,8 @@ class Response
     {
         // Send status code header
         if (false !== strpos(\PHP_SAPI, 'cgi')) {
-            header(
+			// @codeCoverageIgnoreStart
+            $this->setRealHeader(
                 sprintf(
                     'Status: %d %s',
                     $this->status,
@@ -245,8 +246,9 @@ class Response
                 ),
                 true
             );
+			// @codeCoverageIgnoreEnd
         } else {
-            header(
+            $this->setRealHeader(
                 sprintf(
                     '%s %d %s',
                     $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1',
@@ -262,10 +264,10 @@ class Response
         foreach ($this->headers as $field => $value) {
             if (\is_array($value)) {
                 foreach ($value as $v) {
-                    header($field . ': ' . $v, false);
+                    $this->setRealHeader($field . ': ' . $v, false);
                 }
             } else {
-                header($field . ': ' . $value);
+                $this->setRealHeader($field . ': ' . $value);
             }
         }
 
@@ -274,12 +276,26 @@ class Response
             $length = $this->getContentLength();
 
             if ($length > 0) {
-                header('Content-Length: ' . $length);
+                $this->setRealHeader('Content-Length: ' . $length);
             }
         }
 
         return $this;
     }
+
+	/**
+	 * Sets a real header. Mostly used for test mocking.
+	 *
+	 * @param string $header_string The header string you would pass to header()
+	 * @param bool $replace The optional replace parameter indicates whether the header should replace a previous similar header, or add a second header of the same type. By default it will replace, but if you pass in false as the second argument you can force multiple headers of the same type.
+	 * @param int $response_code The response code to send
+	 * @return self
+	 * @codeCoverageIgnore
+	 */
+	public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self {
+		header($header_string, $replace, $response_code);
+		return $this;
+	}
 
     /**
      * Gets the content length.
@@ -294,7 +310,7 @@ class Response
     }
 
     /**
-     * Gets whether response was sent.
+     * Gets whether response body was sent.
      */
     public function sent(): bool
     {
@@ -307,11 +323,11 @@ class Response
     public function send(): void
     {
         if (ob_get_length() > 0) {
-            ob_end_clean();
+            ob_end_clean(); // @codeCoverageIgnore
         }
 
         if (!headers_sent()) {
-            $this->sendHeaders();
+            $this->sendHeaders(); // @codeCoverageIgnore
         }
 
         echo $this->body;
