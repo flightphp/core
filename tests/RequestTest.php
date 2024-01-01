@@ -7,6 +7,7 @@
  */
 
 use flight\net\Request;
+use flight\util\Collection;
 
 class RequestTest extends PHPUnit\Framework\TestCase
 {
@@ -154,4 +155,14 @@ class RequestTest extends PHPUnit\Framework\TestCase
         $request = new Request();
         self::assertEquals('http', $request->scheme);
     }
+
+	public function testInitUrlSameAsBaseDirectory() {
+		$request = new Request([
+			'url' => '/vagrant/public/flightphp',
+			'base' => '/vagrant/public',
+			'query' => new Collection(),
+			'type' => ''
+		]);
+		$this->assertEquals('/flightphp', $request->url);
+	}
 }
