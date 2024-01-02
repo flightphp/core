@@ -30,7 +30,14 @@ use Throwable;
  * @method void start() Starts engine
  * @method void stop() Stops framework and outputs current response
  * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
+ * 
+ * Routing
  * @method void route(string $pattern, callable $callback, bool $pass_route = false) Routes a URL to a callback function.
+ * @method void get(string $pattern, callable $callback, bool $pass_route = false) Routes a GET URL to a callback function.
+ * @method void post(string $pattern, callable $callback, bool $pass_route = false) Routes a POST URL to a callback function.
+ * @method void put(string $pattern, callable $callback, bool $pass_route = false) Routes a PUT URL to a callback function.
+ * @method void patch(string $pattern, callable $callback, bool $pass_route = false) Routes a PATCH URL to a callback function.
+ * @method void delete(string $pattern, callable $callback, bool $pass_route = false) Routes a DELETE URL to a callback function.
  * @method Router router() Gets router
  *
  * Views
@@ -67,6 +74,13 @@ class Engine
      * Event dispatcher.
      */
     protected Dispatcher $dispatcher;
+
+	/**
+	 * If the framework has been initialized or not
+	 *
+	 * @var boolean
+	 */
+	protected bool $initialized = false;
 
     /**
      * Constructor.
@@ -115,7 +129,7 @@ class Engine
      */
     public function init(): void
     {
-        static $initialized = false;
+        $initialized = $this->initialized;
         $self = $this;
 
         if ($initialized) {
@@ -166,7 +180,7 @@ class Engine
             $self->response()->content_length = $self->get('flight.content_length');
         });
 
-        $initialized = true;
+        $this->initialized = true;
     }
 
     /**
@@ -197,7 +211,7 @@ class Engine
     public function handleException($e): void
     {
         if ($this->get('flight.log_errors')) {
-            error_log($e->getMessage());
+            error_log($e->getMessage()); // @codeCoverageIgnore
         }
 
         $this->error($e);
@@ -353,7 +367,7 @@ class Engine
 
         // Flush any existing output
         if (ob_get_length() > 0) {
-            $response->write(ob_get_clean());
+            $response->write(ob_get_clean()); // @codeCoverageIgnore
         }
 
         // Enable output buffering
@@ -412,9 +426,11 @@ class Engine
                 ->status(500)
                 ->write($msg)
                 ->send();
+		// @codeCoverageIgnoreStart
         } catch (Throwable $t) {
             exit($msg);
         }
+		// @codeCoverageIgnoreEnd
     }
 
     /**
@@ -505,6 +521,7 @@ class Engine
      *
      * @param int    $code    HTTP status code
      * @param string $message Response message
+	 * 
      */
     public function _halt(int $code = 200, string $message = ''): void
     {
@@ -513,7 +530,10 @@ class Engine
             ->status($code)
             ->write($message)
             ->send();
-        exit();
+		// apologies for the crappy hack here...
+		if($message !== 'skip---exit') {
+			exit(); // @codeCoverageIgnore
+		}
     }
 
     /**

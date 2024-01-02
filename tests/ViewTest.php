@@ -101,7 +101,8 @@ class ViewTest extends PHPUnit\Framework\TestCase
 
 	public function testGetTemplateAbsolutePath() {
 		$tmpfile = tmpfile();
-		$file_path = stream_get_meta_data($tmpfile)['uri'].'.php';
+		$this->view->extension = '';
+		$file_path = stream_get_meta_data($tmpfile)['uri'];
 		$this->assertEquals($file_path, $this->view->getTemplate($file_path));
 	}
 

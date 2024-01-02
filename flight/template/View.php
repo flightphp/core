@@ -186,11 +186,13 @@ class View
             $file .= $ext;
         }
 
-        if (('/' == substr($file, 0, 1))) {
+		$is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+
+        if (('/' == substr($file, 0, 1)) || ($is_windows === true && ':' == substr($file, 1, 1))) {
             return $file;
         }
 
-        return $this->path . '/' . $file;
+        return $this->path . DIRECTORY_SEPARATOR . $file;
     }
 
     /**
