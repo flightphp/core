@@ -202,7 +202,8 @@ class View
      */
     public function e($str)
     {
-        echo htmlentities($str);
-        return htmlentities($str);
+		$value = htmlentities($str);
+        echo $value;
+        return $value;
     }
 }

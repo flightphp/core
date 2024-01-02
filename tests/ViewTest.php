@@ -33,6 +33,21 @@ class ViewTest extends PHPUnit\Framework\TestCase
         $this->assertNull($this->view->get('test'));
     }
 
+	public function testMultipleVariables() {
+		$this->view->set([
+			'test' => 123,
+			'foo' => 'bar'
+		]);
+
+		$this->assertEquals(123, $this->view->get('test'));
+		$this->assertEquals('bar', $this->view->get('foo'));
+
+		$this->view->clear();
+
+		$this->assertNull($this->view->get('test'));
+		$this->assertNull($this->view->get('foo'));
+	}
+
     // Check if template files exist
     public function testTemplateExists()
     {
@@ -47,6 +62,13 @@ class ViewTest extends PHPUnit\Framework\TestCase
 
         $this->expectOutputString('Hello, Bob!');
     }
+
+	public function testRenderBadFilePath() {
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage('Template file not found: '.__DIR__ . '/views/badfile.php');
+
+		$this->view->render('badfile');
+	}
 
     // Fetch template output
     public function testFetch()
@@ -76,4 +98,22 @@ class ViewTest extends PHPUnit\Framework\TestCase
 
         $this->expectOutputString('Hello world, Bob!');
     }
+
+	public function testGetTemplateAbsolutePath() {
+		$tmpfile = tmpfile();
+		$file_path = stream_get_meta_data($tmpfile)['uri'].'.php';
+		$this->assertEquals($file_path, $this->view->getTemplate($file_path));
+	}
+
+	public function testE() {
+		$this->expectOutputString('&lt;script&gt;');
+		$result = $this->view->e('<script>');
+		$this->assertEquals('&lt;script&gt;', $result);
+	}
+
+	public function testENoNeedToEscape() {
+		$this->expectOutputString('script');
+		$result = $this->view->e('script');
+		$this->assertEquals('script', $result);
+	}
 }
