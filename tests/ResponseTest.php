@@ -17,21 +17,10 @@ class ResponseTest extends PHPUnit\Framework\TestCase
     {
 		$_SERVER = [];
 		$_REQUEST = [];
-        // $_SERVER['REQUEST_URI'] = '/';
-        // $_SERVER['SCRIPT_NAME'] = '/index.php';
-        // $_SERVER['REQUEST_METHOD'] = 'GET';
-        // $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-        // $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
-        // $_SERVER['HTTP_X_FORWARDED_FOR'] = '32.32.32.32';
-        // $_SERVER['HTTP_HOST'] = 'example.com';
-        // $_SERVER['CONTENT_TYPE'] = '';
-
         $_GET = [];
         $_POST = [];
         $_COOKIE = [];
         $_FILES = [];
-
-        // $this->request = new Request();
     }
 
 	protected function tearDown(): void {

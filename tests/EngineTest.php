@@ -183,4 +183,86 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		$engine->halt(500, 'skip---exit');
 		$this->assertEquals(500, $engine->response()->status());
 	}
+
+	public function testRedirect() {
+		$engine = new Engine();
+		$engine->redirect('https://github.com', 302);
+		$this->assertEquals('https://github.com', $engine->response()->headers()['Location']);
+		$this->assertEquals(302, $engine->response()->status());
+	}
+
+	public function testRedirectWithBaseUrl() {
+		$engine = new Engine();
+		$engine->set('flight.base_url', '/subdirectory');
+		$engine->redirect('/someRoute', 301);
+		$this->assertEquals('/subdirectory/someRoute', $engine->response()->headers()['Location']);
+		$this->assertEquals(301, $engine->response()->status());
+	}
+
+	public function testJson() {
+		$engine = new Engine();
+		$engine->json(['key1' => 'value1', 'key2' => 'value2']);
+		$this->expectOutputString('{"key1":"value1","key2":"value2"}');
+		$this->assertEquals('application/json; charset=utf-8', $engine->response()->headers()['Content-Type']);
+		$this->assertEquals(200, $engine->response()->status());
+	}
+
+	public function testJsonP() {
+		$engine = new Engine();
+		$engine->request()->query['jsonp'] = 'whatever';
+		$engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
+		$this->expectOutputString('whatever({"key1":"value1","key2":"value2"});');
+		$this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
+		$this->assertEquals(200, $engine->response()->status());
+	}
+
+	public function testJsonPBadParam() {
+		$engine = new Engine();
+		$engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
+		$this->expectOutputString('({"key1":"value1","key2":"value2"});');
+		$this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
+		$this->assertEquals(200, $engine->response()->status());
+	}
+
+	public function testEtagSimple() {
+		$engine = new Engine();
+		$engine->etag('etag');
+		$this->assertEquals('etag', $engine->response()->headers()['ETag']);
+	}
+
+	public function testEtagWithHttpIfNoneMatch() {
+		// just need this not to exit...
+		$engine = new class extends Engine {
+			public function _halt(int $code = 200, string $message = ''): void
+			{
+				$this->response()->status($code);
+				$this->response()->write($message);
+			}
+		};
+		$_SERVER['HTTP_IF_NONE_MATCH'] = 'etag';
+		$engine->etag('etag');
+		$this->assertEquals('etag', $engine->response()->headers()['ETag']);
+		$this->assertEquals(304, $engine->response()->status());
+	}
+
+	public function testLastModifiedSimple() {
+		$engine = new Engine();
+		$engine->lastModified(1234567890);
+		$this->assertEquals('Fri, 13 Feb 2009 23:31:30 GMT', $engine->response()->headers()['Last-Modified']);
+	}
+
+	public function testLastModifiedWithHttpIfModifiedSince() {
+		// just need this not to exit...
+		$engine = new class extends Engine {
+			public function _halt(int $code = 200, string $message = ''): void
+			{
+				$this->response()->status($code);
+				$this->response()->write($message);
+			}
+		};
+		$_SERVER['HTTP_IF_MODIFIED_SINCE'] = 'Fri, 13 Feb 2009 23:31:30 GMT';
+		$engine->lastModified(1234567890);
+		$this->assertEquals('Fri, 13 Feb 2009 23:31:30 GMT', $engine->response()->headers()['Last-Modified']);
+		$this->assertEquals(304, $engine->response()->status());
+	}
 }
