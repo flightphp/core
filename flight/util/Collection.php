@@ -16,7 +16,7 @@ use Iterator;
 use JsonSerializable;
 
 if (!interface_exists('JsonSerializable')) {
-    require_once __DIR__ . '/LegacyJsonSerializable.php';
+    require_once __DIR__ . '/LegacyJsonSerializable.php'; // @codeCoverageIgnore
 }
 
 /**
