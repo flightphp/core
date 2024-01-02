@@ -44,6 +44,61 @@ class DispatcherTest extends PHPUnit\Framework\TestCase
         self::assertEquals('hello', $result);
     }
 
+    public function testHasEvent()
+    {
+        $this->dispatcher->set('map-event', function () {
+            return 'hello';
+        });
+
+		$result = $this->dispatcher->has('map-event');
+
+		$this->assertTrue($result);
+    }
+
+	public function testClearAllRegisteredEvents() {
+		$this->dispatcher->set('map-event', function () {
+			return 'hello';
+		});
+
+		$this->dispatcher->set('map-event-2', function () {
+			return 'there';
+		});
+
+		$this->dispatcher->clear();
+
+		$result = $this->dispatcher->has('map-event');
+		$this->assertFalse($result);
+		$result = $this->dispatcher->has('map-event-2');
+		$this->assertFalse($result);
+	}
+
+	public function testClearDeclaredRegisteredEvent() {
+		$this->dispatcher->set('map-event', function () {
+			return 'hello';
+		});
+
+		$this->dispatcher->set('map-event-2', function () {
+			return 'there';
+		});
+
+		$this->dispatcher->clear('map-event');
+
+		$result = $this->dispatcher->has('map-event');
+		$this->assertFalse($result);
+		$result = $this->dispatcher->has('map-event-2');
+		$this->assertTrue($result);
+	}
+
+	// Map a static function
+	public function testStaticFunctionMapping()
+	{
+		$this->dispatcher->set('map2', 'Hello::sayHi');
+
+		$result = $this->dispatcher->run('map2');
+
+		self::assertEquals('hello', $result);
+	}
+
     // Map a class method
     public function testClassMethodMapping()
     {
@@ -95,4 +150,31 @@ class DispatcherTest extends PHPUnit\Framework\TestCase
 
         $this->dispatcher->execute(['NonExistentClass', 'nonExistentMethod']);
     }
+
+	public function testCallFunction4Params() {
+		$closure = function($param1, $params2, $params3, $param4) {
+			return 'hello'.$param1.$params2.$params3.$param4;
+		};
+		$params = ['param1', 'param2', 'param3', 'param4'];
+		$result = $this->dispatcher->callFunction($closure, $params);
+		$this->assertEquals('helloparam1param2param3param4', $result);
+	}
+
+	public function testCallFunction5Params() {
+		$closure = function($param1, $params2, $params3, $param4, $param5) {
+			return 'hello'.$param1.$params2.$params3.$param4.$param5;
+		};
+		$params = ['param1', 'param2', 'param3', 'param4', 'param5'];
+		$result = $this->dispatcher->callFunction($closure, $params);
+		$this->assertEquals('helloparam1param2param3param4param5', $result);
+	}
+
+	public function testCallFunction6Params() {
+		$closure = function($param1, $params2, $params3, $param4, $param5, $param6) {
+			return 'hello'.$param1.$params2.$params3.$param4.$param5.$param6;
+		};
+		$params = ['param1', 'param2', 'param3', 'param4', 'param5', 'param6'];
+		$result = $this->dispatcher->callFunction($closure, $params);
+		$this->assertEquals('helloparam1param2param3param4param5param6', $result);
+	}
 }
