@@ -7,9 +7,7 @@
  */
 
 use flight\net\Request;
-
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/autoload.php';
+use flight\util\Collection;
 
 class RequestTest extends PHPUnit\Framework\TestCase
 {
@@ -17,6 +15,8 @@ class RequestTest extends PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
+		$_SERVER = [];
+		$_REQUEST = [];
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -33,6 +33,11 @@ class RequestTest extends PHPUnit\Framework\TestCase
 
         $this->request = new Request();
     }
+
+	protected function tearDown(): void {
+		unset($_REQUEST);
+		unset($_SERVER);
+	}
 
     public function testDefaults()
     {
@@ -150,4 +155,42 @@ class RequestTest extends PHPUnit\Framework\TestCase
         $request = new Request();
         self::assertEquals('http', $request->scheme);
     }
+
+	public function testInitUrlSameAsBaseDirectory() {
+		$request = new Request([
+			'url' => '/vagrant/public/flightphp',
+			'base' => '/vagrant/public',
+			'query' => new Collection(),
+			'type' => ''
+		]);
+		$this->assertEquals('/flightphp', $request->url);
+	}
+
+	public function testInitNoUrl() {
+		$request = new Request([
+			'url' => '',
+			'base' => '/vagrant/public',
+			'type' => ''
+		]);
+		$this->assertEquals('/', $request->url);
+	}
+
+	public function testInitWithJsonBody() {
+		// create dummy file to pull request body from
+		$tmpfile = tmpfile();
+		$stream_path = stream_get_meta_data($tmpfile)['uri'];
+		file_put_contents($stream_path, '{"foo":"bar"}');
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$request = new Request([
+			'url' => '/something/fancy',
+			'base' => '/vagrant/public',
+			'type' => 'application/json',
+			'length' => 13,
+			'data' => new Collection(),
+			'query' => new Collection(),
+			'stream_path' => $stream_path
+		]);
+		$this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
+		$this->assertEquals('{"foo":"bar"}', $request->getBody());
+	}
 }

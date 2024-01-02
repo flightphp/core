@@ -11,30 +11,32 @@ declare(strict_types=1);
 namespace flight\util;
 
 use ArrayAccess;
-use function count;
 use Countable;
 use Iterator;
 use JsonSerializable;
 
 if (!interface_exists('JsonSerializable')) {
-    require_once __DIR__ . '/LegacyJsonSerializable.php';
+    require_once __DIR__ . '/LegacyJsonSerializable.php'; // @codeCoverageIgnore
 }
 
 /**
  * The Collection class allows you to access a set of data
  * using both array and object notation.
+ * @implements ArrayAccess<string, mixed>
+ * @implements Iterator<string, mixed>
  */
 final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 {
     /**
      * Collection data.
+     * @var array<string, mixed>
      */
     private array $data;
 
     /**
      * Constructor.
      *
-     * @param array $data Initial data
+     * @param array<string, mixed> $data Initial data
      */
     public function __construct(array $data = [])
     {
@@ -102,11 +104,11 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
     /**
      * Sets an item at the offset.
      *
-     * @param string $offset Offset
+     * @param ?string $offset Offset
      * @param mixed  $value  Value
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (null === $offset) {
             $this->data[] = $value;
@@ -169,13 +171,11 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
 
     /**
      * Gets the next collection value.
-     *
-     * @return mixed Value
      */
     #[\ReturnTypeWillChange]
-    public function next()
+    public function next(): void
     {
-        return next($this->data);
+        next($this->data);
     }
 
     /**
@@ -187,7 +187,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
     {
         $key = key($this->data);
 
-        return null !== $key && false !== $key;
+        return null !== $key;
     }
 
     /**
@@ -203,7 +203,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
     /**
      * Gets the item keys.
      *
-     * @return array Collection keys
+     * @return array<int, string> Collection keys
      */
     public function keys(): array
     {
@@ -213,7 +213,7 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
     /**
      * Gets the collection data.
      *
-     * @return array Collection data
+     * @return array<string, mixed> Collection data
      */
     public function getData(): array
     {
@@ -223,19 +223,15 @@ final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializ
     /**
      * Sets the collection data.
      *
-     * @param array $data New collection data
+     * @param array<string, mixed> $data New collection data
      */
     public function setData(array $data): void
     {
         $this->data = $data;
     }
 
-    /**
-     * Gets the collection data which can be serialized to JSON.
-     *
-     * @return array Collection data which can be serialized by <b>json_encode</b>
-     */
-    public function jsonSerialize(): array
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
     {
         return $this->data;
     }

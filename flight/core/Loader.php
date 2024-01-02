@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace flight\core;
 
+use Closure;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
@@ -24,26 +25,30 @@ class Loader
 {
     /**
      * Registered classes.
+     * @var array<string, array{class-string, array<int, mixed>, ?callable}> $classes
      */
     protected array $classes = [];
 
     /**
      * Class instances.
+     * @var array<string, object>
      */
     protected array $instances = [];
 
     /**
      * Autoload directories.
+     * @var array<int, string>
      */
     protected static array $dirs = [];
 
     /**
      * Registers a class.
+     * @template T of object
      *
      * @param string          $name     Registry name
-     * @param callable|string $class    Class name or function to instantiate class
-     * @param array           $params   Class initialization parameters
-     * @param callable|null   $callback $callback Function to call after object instantiation
+     * @param class-string<T> $class    Class name or function to instantiate class
+     * @param array<int, mixed>           $params   Class initialization parameters
+     * @param ?callable(T $instance): void   $callback $callback Function to call after object instantiation
      */
     public function register(string $name, $class, array $params = [], ?callable $callback = null): void
     {
@@ -77,7 +82,7 @@ class Loader
         $obj = null;
 
         if (isset($this->classes[$name])) {
-            [$class, $params, $callback] = $this->classes[$name];
+            [0 => $class, 1 => $params, 2 => $callback] = $this->classes[$name];
 
             $exists = isset($this->instances[$name]);
 
@@ -116,15 +121,16 @@ class Loader
 
     /**
      * Gets a new instance of a class.
+     * @template T of object
      *
-     * @param callable|string $class  Class name or callback function to instantiate class
-     * @param array           $params Class initialization parameters
+     * @param class-string<T>|Closure(): class-string<T> $class  Class name or callback function to instantiate class
+     * @param array<int, string>           $params Class initialization parameters
      *
      * @throws Exception
      *
-     * @return object Class instance
+     * @return T Class instance
      */
-    public function newInstance($class, array $params = []): object
+    public function newInstance($class, array $params = [])
     {
         if (\is_callable($class)) {
             return \call_user_func_array($class, $params);
@@ -135,6 +141,7 @@ class Loader
                 return new $class();
             case 1:
                 return new $class($params[0]);
+			// @codeCoverageIgnoreStart
             case 2:
                 return new $class($params[0], $params[1]);
             case 3:
@@ -143,6 +150,7 @@ class Loader
                 return new $class($params[0], $params[1], $params[2], $params[3]);
             case 5:
                 return new $class($params[0], $params[1], $params[2], $params[3], $params[4]);
+			// @codeCoverageIgnoreEnd
             default:
                 try {
                     $refClass = new ReflectionClass($class);
@@ -179,14 +187,14 @@ class Loader
      * Starts/stops autoloader.
      *
      * @param bool  $enabled Enable/disable autoloading
-     * @param mixed $dirs    Autoload directories
+     * @param string|iterable<int, string> $dirs    Autoload directories
      */
     public static function autoload(bool $enabled = true, $dirs = []): void
     {
         if ($enabled) {
             spl_autoload_register([__CLASS__, 'loadClass']);
         } else {
-            spl_autoload_unregister([__CLASS__, 'loadClass']);
+            spl_autoload_unregister([__CLASS__, 'loadClass']); // @codeCoverageIgnore
         }
 
         if (!empty($dirs)) {
@@ -216,7 +224,7 @@ class Loader
     /**
      * Adds a directory for autoloading classes.
      *
-     * @param mixed $dir Directory path
+     * @param string|iterable<int, string> $dir Directory path
      */
     public static function addDirectory($dir): void
     {

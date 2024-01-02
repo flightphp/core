@@ -18,23 +18,24 @@ use flight\util\Collection;
  * are stored and accessible via the Request object.
  *
  * The default request properties are:
- *   url - The URL being requested
- *   base - The parent subdirectory of the URL
- *   method - The request method (GET, POST, PUT, DELETE)
- *   referrer - The referrer URL
- *   ip - IP address of the client
- *   ajax - Whether the request is an AJAX request
- *   scheme - The server protocol (http, https)
- *   user_agent - Browser information
- *   type - The content type
- *   length - The content length
- *   query - Query string parameters
- *   data - Post parameters
- *   cookies - Cookie parameters
- *   files - Uploaded files
- *   secure - Connection is secure
- *   accept - HTTP accept parameters
- *   proxy_ip - Proxy IP address of the client
+ *
+ *   - **url** - The URL being requested
+ *   - **base** - The parent subdirectory of the URL
+ *   - **method** - The request method (GET, POST, PUT, DELETE)
+ *   - **referrer** - The referrer URL
+ *   - **ip** - IP address of the client
+ *   - **ajax** - Whether the request is an AJAX request
+ *   - **scheme** - The server protocol (http, https)
+ *   - **user_agent** - Browser information
+ *   - **type** - The content type
+ *   - **length** - The content length
+ *   - **query** - Query string parameters
+ *   - **data** - Post parameters
+ *   - **cookies** - Cookie parameters
+ *   - **files** - Uploaded files
+ *   - **secure** - Connection is secure
+ *   - **accept** - HTTP accept parameters
+ *   - **proxy_ip** - Proxy IP address of the client
  */
 final class Request
 {
@@ -129,11 +130,24 @@ final class Request
     public string $host;
 
     /**
+     * Stream path for where to pull the request body from
+     *
+     * @var string
+     */
+    private string $stream_path = 'php://input';
+
+    /**
+     * @var string Raw HTTP request body
+     */
+    public string $body = '';
+
+    /**
      * Constructor.
      *
-     * @param array $config Request configuration
+     * @param array<string, mixed> $config Request configuration
+     * @param string
      */
-    public function __construct(array $config = [])
+    public function __construct($config = array())
     {
         // Default properties
         if (empty($config)) {
@@ -165,7 +179,8 @@ final class Request
     /**
      * Initialize request properties.
      *
-     * @param array $properties Array of request properties
+     * @param array<string, mixed> $properties Array of request properties
+     * @return static
      */
     public function init(array $properties = [])
     {
@@ -175,6 +190,9 @@ final class Request
         }
 
         // Get the requested URL without the base directory
+		// This rewrites the url in case the public url and base directories match 
+		// (such as installing on a subdirectory in a web server)
+		// @see testInitUrlSameAsBaseDirectory
         if ('/' !== $this->base && '' !== $this->base && 0 === strpos($this->url, $this->base)) {
             $this->url = substr($this->url, \strlen($this->base));
         }
@@ -191,7 +209,7 @@ final class Request
 
         // Check for JSON input
         if (0 === strpos($this->type, 'application/json')) {
-            $body = self::getBody();
+            $body = $this->getBody();
             if ('' !== $body && null !== $body) {
                 $data = json_decode($body, true);
                 if (is_array($data)) {
@@ -199,6 +217,8 @@ final class Request
                 }
             }
         }
+
+        return $this;
     }
 
     /**
@@ -206,19 +226,21 @@ final class Request
      *
      * @return string Raw HTTP request body
      */
-    public static function getBody(): ?string
+    public function getBody(): ?string
     {
-        static $body;
+        $body = $this->body;
 
-        if (null !== $body) {
+        if ('' !== $body) {
             return $body;
         }
 
         $method = self::getMethod();
 
         if ('POST' === $method || 'PUT' === $method || 'DELETE' === $method || 'PATCH' === $method) {
-            $body = file_get_contents('php://input');
+            $body = file_get_contents($this->stream_path);
         }
+
+        $this->body = $body;
 
         return $body;
     }
@@ -287,11 +309,11 @@ final class Request
      *
      * @param string $url URL string
      *
-     * @return array Query parameters
+     * @return array<string, int|string|array<int|string, int|string>>
      */
     public static function parseQuery(string $url): array
     {
-        $params = [];
+        $params = array();
 
         $args = parse_url($url);
         if (isset($args['query'])) {

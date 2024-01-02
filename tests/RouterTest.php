@@ -10,9 +10,6 @@ use flight\core\Dispatcher;
 use flight\net\Request;
 use flight\net\Router;
 
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/../flight/autoload.php';
-
 class RouterTest extends PHPUnit\Framework\TestCase
 {
     private Router $router;
@@ -23,10 +20,17 @@ class RouterTest extends PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
+		$_SERVER = [];
+		$_REQUEST = [];
         $this->router = new Router();
         $this->request = new Request();
         $this->dispatcher = new Dispatcher();
     }
+
+	protected function tearDown(): void {
+		unset($_REQUEST);
+		unset($_SERVER);
+	}
 
     // Simple output
     public function ok()
@@ -96,6 +100,16 @@ class RouterTest extends PHPUnit\Framework\TestCase
     public function testPathRoute()
     {
         $this->router->map('/path', [$this, 'ok']);
+        $this->request->url = '/path';
+
+        $this->check('OK');
+    }
+
+	// Simple path with trailing slash
+	// Simple path
+    public function testPathRouteTrailingSlash()
+    {
+        $this->router->map('/path/', [$this, 'ok']);
         $this->request->url = '/path';
 
         $this->check('OK');
@@ -293,4 +307,49 @@ class RouterTest extends PHPUnit\Framework\TestCase
 
         $this->check('цветя');
     }
+
+	public function testGetAndClearRoutes() {
+		$this->router->map('/path1', [$this, 'ok']);
+		$this->router->map('/path2', [$this, 'ok']);
+		$this->router->map('/path3', [$this, 'ok']);
+		$this->router->map('/path4', [$this, 'ok']);
+		$this->router->map('/path5', [$this, 'ok']);
+		$this->router->map('/path6', [$this, 'ok']);
+		$this->router->map('/path7', [$this, 'ok']);
+		$this->router->map('/path8', [$this, 'ok']);
+		$this->router->map('/path9', [$this, 'ok']);
+		
+		$routes = $this->router->getRoutes();
+		$this->assertEquals(9, count($routes));
+
+		$this->router->clear();
+
+		$this->assertEquals(0, count($this->router->getRoutes()));
+	}
+
+	public function testResetRoutes() {
+		$router = new class extends Router {
+			public function getIndex() {
+				return $this->index;
+			}
+		};
+
+		$router->map('/path1', [$this, 'ok']);
+		$router->map('/path2', [$this, 'ok']);
+		$router->map('/path3', [$this, 'ok']);
+		$router->map('/path4', [$this, 'ok']);
+		$router->map('/path5', [$this, 'ok']);
+		$router->map('/path6', [$this, 'ok']);
+		$router->map('/path7', [$this, 'ok']);
+		$router->map('/path8', [$this, 'ok']);
+		$router->map('/path9', [$this, 'ok']);
+		
+		$router->next();
+		$router->next();
+		$router->next();
+
+		$this->assertEquals(3, $router->getIndex());
+		$router->reset();
+		$this->assertEquals(0, $router->getIndex());
+	}
 }

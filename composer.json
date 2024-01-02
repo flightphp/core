@@ -1,6 +1,6 @@
 {
-    "name": "mikecao/flight",
-    "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications.",
+    "name": "flightphp/core",
+    "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications. This is the maintained fork of mikecao/flight",
     "homepage": "http://flightphp.com",
     "license": "MIT",
     "authors": [
@@ -9,16 +9,52 @@
             "email": "mike@mikecao.com",
             "homepage": "http://www.mikecao.com/",
             "role": "Original Developer"
+        },
+        {
+            "name": "Franyer Sánchez",
+            "email": "franyeradriansanchez@gmail.com",
+            "homepage": "https://faslatam.000webhostapp.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "n0nag0n",
+            "email": "n0nag0n@sky-9.com",
+            "role": "Maintainer"
         }
     ],
     "require": {
-        "php": "^7.4|^8.0|^8.1",
+        "php": "^7.4|^8.0|^8.1|^8.2",
         "ext-json": "*"
     },
     "autoload": {
-        "files": [ "flight/autoload.php", "flight/Flight.php" ]
+        "files": [
+            "flight/autoload.php",
+            "flight/Flight.php"
+        ]
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5"
-    }
+        "phpunit/phpunit": "^9.5",
+        "phpstan/phpstan": "^1.10",
+        "phpstan/extension-installer": "^1.3"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+		"test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage",
+        "lint": "phpstan --no-progress -cphpstan.neon"
+    },
+    "suggest": {
+        "phpstan/phpstan": "PHP Static Analysis Tool",
+		"latte/latte": "Latte template engine"
+    },
+	"suggest-dev": {
+		"tracy/tracy": "Tracy debugger"
+	},
+	"replace": {
+		"mikecao/flight": "2.0.2"
+	}
 }
