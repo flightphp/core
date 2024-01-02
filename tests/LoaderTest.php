@@ -10,6 +10,7 @@ use flight\core\Loader;
 
 require_once __DIR__ . '/classes/User.php';
 require_once __DIR__ . '/classes/Factory.php';
+require_once __DIR__ . '/classes/TesterClass.php';
 
 class LoaderTest extends PHPUnit\Framework\TestCase
 {
@@ -117,4 +118,42 @@ class LoaderTest extends PHPUnit\Framework\TestCase
         self::assertIsObject($obj);
         self::assertInstanceOf(Factory::class, $obj);
     }
+
+	public function testUnregisterClass() {
+		$this->loader->register('g', 'User');
+		$current_class = $this->loader->get('g');
+		$this->assertEquals([ 'User', [], null ], $current_class);
+		$this->loader->unregister('g');
+		$unregistered_class_result = $this->loader->get('g');
+		$this->assertNull($unregistered_class_result);
+	}
+
+	public function testNewInstance6Params() {
+		$TesterClass = $this->loader->newInstance('TesterClass', ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
+		$this->assertEquals('Bob', $TesterClass->param1);
+		$this->assertEquals('Fred', $TesterClass->param2);
+		$this->assertEquals('Joe', $TesterClass->param3);
+		$this->assertEquals('Jane', $TesterClass->param4);
+		$this->assertEquals('Sally', $TesterClass->param5);
+		$this->assertEquals('Suzie', $TesterClass->param6);
+	}
+
+	public function testNewInstance6ParamsBadClass() {
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage('Cannot instantiate BadClass');
+		$TesterClass = $this->loader->newInstance('BadClass', ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
+	}
+
+	public function testAddDirectoryAsArray() {
+		$loader = new class extends Loader {
+			public function getDirectories() {
+				return self::$dirs;
+			}
+		};
+		$loader->addDirectory([__DIR__ . '/classes']);
+		self::assertEquals([
+			dirname(__DIR__),
+			__DIR__ . '/classes'
+		], $loader->getDirectories());
+	}
 }

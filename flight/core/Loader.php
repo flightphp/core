@@ -141,6 +141,7 @@ class Loader
                 return new $class();
             case 1:
                 return new $class($params[0]);
+			// @codeCoverageIgnoreStart
             case 2:
                 return new $class($params[0], $params[1]);
             case 3:
@@ -149,6 +150,7 @@ class Loader
                 return new $class($params[0], $params[1], $params[2], $params[3]);
             case 5:
                 return new $class($params[0], $params[1], $params[2], $params[3], $params[4]);
+			// @codeCoverageIgnoreEnd
             default:
                 try {
                     $refClass = new ReflectionClass($class);
@@ -192,7 +194,7 @@ class Loader
         if ($enabled) {
             spl_autoload_register([__CLASS__, 'loadClass']);
         } else {
-            spl_autoload_unregister([__CLASS__, 'loadClass']);
+            spl_autoload_unregister([__CLASS__, 'loadClass']); // @codeCoverageIgnore
         }
 
         if (!empty($dirs)) {
