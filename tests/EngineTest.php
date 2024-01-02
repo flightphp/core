@@ -179,8 +179,6 @@ class EngineTest extends PHPUnit\Framework\TestCase
 				}
 			};
 		});
-		// need to add another one of these because _stop() stops and gets clean, but $response->send() does too.....
-		//ob_start();
 		$this->expectOutputString('skip---exit');
 		$engine->halt(500, 'skip---exit');
 		$this->assertEquals(500, $engine->response()->status());
