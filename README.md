@@ -43,7 +43,7 @@ If you're using [Composer](https://getcomposer.org/), you can run the following
 command:
 
 ```bash
-composer require n0nag0n/flight
+composer require flightphp/core
 ```
 
 OR you can [download](https://github.com/n0nag0n/flight/archive/master.zip)
