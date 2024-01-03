@@ -208,6 +208,12 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('OK');
     }
 
+	public function testWildcardDuplicate() {
+		$this->router->map('/account/*' , [$this, 'ok']);
+		$this->request->url = '/account/account/account';
+		$this->check('OK');
+	}
+
     // Check if route object was passed
     public function testRouteObjectPassing()
     {
