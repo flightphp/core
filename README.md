@@ -1,7 +1,7 @@
-![](https://user-images.githubusercontent.com/104888/50957476-9c4acb80-14be-11e9-88ce-6447364dc1bb.png)
-![](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
-![](https://img.shields.io/matrix/flight-php-framework%3Amatrix.org?server_fqdn=matrix.org&style=social&logo=matrix)
-[![HitCount](https://hits.dwyl.com/flightphp/core.svg?style=flat-square&show=unique)](http://hits.dwyl.com/flightphp/core)
+![PHPStan: enabled](https://user-images.githubusercontent.com/104888/50957476-9c4acb80-14be-11e9-88ce-6447364dc1bb.png)
+![PHPStan: level 6](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
+![Matrix](https://img.shields.io/matrix/flight-php-framework%3Amatrix.org?server_fqdn=matrix.org&style=social&logo=matrix)
+[![Hit Count](https://hits.dwyl.com/flightphp/core.svg?style=flat-square&show=unique)](http://hits.dwyl.com/flightphp/core)
 
 # What is Flight?
 
@@ -11,12 +11,12 @@ quickly and easily build RESTful web applications.
 Chat with us on Matrix IRC [#flight-php-framework:matrix.org](https://matrix.to/#/#flight-php-framework:matrix.org)
 
 # Basic Usage
-```php
 
+```php
 // if installed with composer
 require 'vendor/autoload.php';
 // or if installed manually by zip file
-//require 'flight/Flight.php';
+// require 'flight/Flight.php';
 
 Flight::route('/', function() {
   echo 'hello world!';
@@ -37,19 +37,19 @@ Flight is released under the [MIT](http://flightphp.com/license) license.
 
 # Installation
 
-1\. Download the files.
+**1\. Download the files.**
 
-If you're using [Composer](https://getcomposer.org/), you can run the following
+If you're using [Composer](https://getcomposer.org), you can run the following
 command:
 
 ```bash
-composer require n0nag0n/flight
+composer require flightphp/core
 ```
 
-OR you can [download](https://github.com/n0nag0n/flight/archive/master.zip)
+OR you can [download](https://github.com/flightphp/core/archive/master.zip)
 them directly and extract them to your web directory.
 
-2\. Configure your webserver.
+**2\. Configure your webserver.**
 
 For *Apache*, edit your `.htaccess` file with the following:
 
@@ -60,19 +60,26 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
 ```
 
-**Note**: If you need to use flight in a subdirectory add the line
-`RewriteBase /subdir/` just after `RewriteEngine On`.
+> **Note**: If you need to use flight in a subdirectory add the line
+> `RewriteBase /subdir/` just after `RewriteEngine On`.
+> **Note**: If you want to protect all server files, like a db or env file.
+> Put this in your `.htaccess` file:
+
+```
+RewriteEngine On
+RewriteRule ^(.*)$ index.php
+```
 
 For *Nginx*, add the following to your server declaration:
 
 ```
 server {
   location / {
-  try_files $uri $uri/ /index.php;
+    try_files $uri $uri/ /index.php;
   }
 }
 ```
-3\. Create your `index.php` file.
+**3\. Create your `index.php` file.**
 
 First include the framework.
 
@@ -124,31 +131,32 @@ Or a class method:
 
 ```php
 class Greeting {
-  public static function hello() {
+  static function hello() {
     echo 'hello world!';
   }
 }
 
-Flight::route('/', array('Greeting', 'hello'));
+Flight::route('/', [Greeting::class, 'hello']);
 ```
 
 Or an object method:
 
 ```php
-class Greeting
-{
-  public function __construct() {
+class Greeting {
+  private $name;
+
+  function __construct() {
     $this->name = 'John Doe';
   }
 
-  public function hello() {
-    echo "Hello, {$this->name}!";
+  function hello() {
+    echo "Hello, $this->name!";
   }
 }
 
-$greeting = new Greeting();
+$greeting = new Greeting;
 
-Flight::route('/', array($greeting, 'hello'));
+Flight::route('/', [$greeting, 'hello']);
 ```
 
 Routes are matched in the order they are defined. The first route to match a
@@ -193,7 +201,7 @@ You can specify named parameters in your routes which will be passed along to
 your callback function.
 
 ```php
-Flight::route('/@name/@id', function(string $name, string $id) {
+Flight::route('/@name/@id', function (string $name, string $id) {
   echo "hello, $name ($id)!";
 });
 ```
@@ -202,7 +210,7 @@ You can also include regular expressions with your named parameters by using
 the `:` delimiter:
 
 ```php
-Flight::route('/@name/@id:[0-9]{3}', function(string $name, string $id) {
+Flight::route('/@name/@id:[0-9]{3}', function (string $name, string $id) {
   // This will match /bob/123
   // But will not match /bob/12345
 });
@@ -257,7 +265,7 @@ your callback function.
 ```php
 Flight::route('/user/@name', function (string $name) {
   // Check some condition
-  if ($name != "Bob") {
+  if ($name !== "Bob") {
     // Continue to next route
     return true;
   }
@@ -303,7 +311,7 @@ To map your own custom method, you use the `map` function:
 
 ```php
 // Map your method
-Flight::map('hello', function ($name) {
+Flight::map('hello', function (string $name) {
   echo "hello $name!";
 });
 
@@ -317,7 +325,7 @@ To register your own class, you use the `register` function:
 
 ```php
 // Register your class
-Flight::register('user', 'User');
+Flight::register('user', User::class);
 
 // Get an instance of your class
 $user = Flight::user();
@@ -330,7 +338,7 @@ Here's an example of loading a database connection:
 
 ```php
 // Register class with constructor parameters
-Flight::register('db', 'PDO', array('mysql:host=localhost;dbname=test','user','pass'));
+Flight::register('db', PDO::class, ['mysql:host=localhost;dbname=test', 'user', 'pass']);
 
 // Get an instance of your class
 // This will create an object with the defined parameters
@@ -346,9 +354,14 @@ new object. The callback function takes one parameter, an instance of the new ob
 
 ```php
 // The callback will be passed the object that was constructed
-Flight::register('db', 'PDO', array('mysql:host=localhost;dbname=test','user','pass'), function (PDO $db): void {
-  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-});
+Flight::register(
+  'db',
+  PDO::class,
+  ['mysql:host=localhost;dbname=test', 'user', 'pass'],
+  function (PDO $db) {
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  }
+);
 ```
 
 By default, every time you load your class you will get a shared instance.
@@ -375,7 +388,7 @@ method which sends a generic `HTTP 404` response. You can override this behavior
 by using the `map` method:
 
 ```php
-Flight::map('notFound', function(){
+Flight::map('notFound', function() {
   // Display custom 404 page
   include 'errors/404.html';
 });
@@ -386,7 +399,7 @@ For example you can replace the default Router class with your own custom class:
 
 ```php
 // Register your custom class
-Flight::register('router', 'MyRouter');
+Flight::register('router', MyRouter::class);
 
 // When Flight loads the Router instance, it will load your class
 $myrouter = Flight::router();
@@ -404,7 +417,7 @@ methods as well as any custom methods that you've mapped.
 A filter function looks like this:
 
 ```php
-function (array &$params, string &$output) {
+function (array &$params, string &$output): bool {
   // Filter code
 }
 ```
@@ -414,7 +427,7 @@ Using the passed in variables you can manipulate the input parameters and/or the
 You can have a filter run before a method by doing:
 
 ```php
-Flight::before('start', function (array &$params, string &$output) {
+Flight::before('start', function (array &$params, string &$output): bool {
   // Do something
 });
 ```
@@ -422,7 +435,7 @@ Flight::before('start', function (array &$params, string &$output) {
 You can have a filter run after a method by doing:
 
 ```php
-Flight::after('start', function (array &$params, string &$output) {
+Flight::after('start', function (array &$params, string &$output): bool {
   // Do something
 });
 ```
@@ -434,20 +447,22 @@ Here's an example of the filtering process:
 
 ```php
 // Map a custom method
-Flight::map('hello', function ($name) {
+Flight::map('hello', function (string $name) {
   return "Hello, $name!";
 });
 
 // Add a before filter
-Flight::before('hello', function (array &$params, string &$output) {
+Flight::before('hello', function (array &$params, string &$output): bool {
   // Manipulate the parameter
   $params[0] = 'Fred';
+  return true;
 });
 
 // Add an after filter
-Flight::after('hello', function (array &$params, string &$output) {
+Flight::after('hello', function (array &$params, string &$output): bool {
   // Manipulate the output
   $output .= " Have a nice day!";
+  return true;
 });
 
 // Invoke the custom method
@@ -464,8 +479,9 @@ If you have defined multiple filters, you can break the chain by returning `fals
 in any of your filter functions:
 
 ```php
-Flight::before('start', function (array &$params, string &$output){
+Flight::before('start', function (array &$params, string &$output): bool {
   echo 'one';
+  return true;
 });
 
 Flight::before('start', function (array &$params, string &$output): bool {
@@ -476,8 +492,9 @@ Flight::before('start', function (array &$params, string &$output): bool {
 });
 
 // This will not get called
-Flight::before('start', function (array &$params, string &$output){
+Flight::before('start', function (array &$params, string &$output): bool {
   echo 'three';
+  return true;
 });
 ```
 
@@ -526,7 +543,7 @@ template call the `render` method with the name of the template file and optiona
 template data:
 
 ```php
-Flight::render('hello.php', array('name' => 'Bob'));
+Flight::render('hello.php', ['name' => 'Bob']);
 ```
 
 The template data you pass in is automatically injected into the template and can
@@ -534,7 +551,7 @@ be reference like a local variable. Template files are simply PHP files. If the
 content of the `hello.php` template file is:
 
 ```php
-Hello, <?php echo $name; ?>!
+Hello, <?= $name ?>!
 ```
 
 The output would be:
@@ -572,15 +589,15 @@ content. To render content to be used in a layout, you can pass in an optional
 parameter to the `render` method.
 
 ```php
-Flight::render('header', array('heading' => 'Hello'), 'header_content');
-Flight::render('body', array('body' => 'World'), 'body_content');
+Flight::render('header', ['heading' => 'Hello'], 'headerContent');
+Flight::render('body', ['body' => 'World'], 'bodyContent');
 ```
 
-Your view will then have saved variables called `header_content` and `body_content`.
+Your view will then have saved variables called `headerContent` and `bodyContent`.
 You can then render your layout by doing:
 
 ```php
-Flight::render('layout', array('title' => 'Home Page'));
+Flight::render('layout', ['title' => 'Home Page']);
 ```
 
 If the template files looks like this:
@@ -588,13 +605,13 @@ If the template files looks like this:
 `header.php`:
 
 ```php
-<h1><?php echo $heading; ?></h1>
+<h1><?= $heading ?></h1>
 ```
 
 `body.php`:
 
 ```php
-<div><?php echo $body; ?></div>
+<div><?= $body ?></div>
 ```
 
 `layout.php`:
@@ -602,11 +619,11 @@ If the template files looks like this:
 ```php
 <html>
   <head>
-    <title><?php echo $title; ?></title>
+    <title><?= $title ?></title>
   </head>
   <body>
-    <?php echo $header_content; ?>
-    <?php echo $body_content; ?>
+    <?= $headerContent ?>
+    <?= $bodyContent ?>
   </body>
 </html>
 ```
@@ -636,11 +653,11 @@ require './Smarty/libs/Smarty.class.php';
 
 // Register Smarty as the view class
 // Also pass a callback function to configure Smarty on load
-Flight::register('view', 'Smarty', array(), function (Smarty $smarty) {
-  $smarty->setTemplateDir() = './templates/';
-  $smarty->setCompileDir() = './templates_c/';
-  $smarty->setConfigDir() = './config/';
-  $smarty->setCacheDir() = './cache/';
+Flight::register('view', Smarty::class, [], function (Smarty $smarty) {
+  $smarty->setTemplateDir('./templates/');
+  $smarty->setCompileDir('./templates_c/');
+  $smarty->setConfigDir('./config/');
+  $smarty->setCacheDir('./cache/');
 });
 
 // Assign template data
@@ -653,7 +670,7 @@ Flight::view()->display('hello.tpl');
 For completeness, you should also override Flight's default render method:
 
 ```php
-Flight::map('render', function($template, $data){
+Flight::map('render', function(string $template, array $data): void {
   Flight::view()->assign($data);
   Flight::view()->display($template);
 });
@@ -669,9 +686,9 @@ response with some error information.
 You can override this behavior for your own needs:
 
 ```php
-Flight::map('error', function(Throwable $ex){
+Flight::map('error', function (Throwable $error) {
   // Handle error
-  echo $ex->getTraceAsString();
+  echo $error->getTraceAsString();
 });
 ```
 
@@ -837,19 +854,19 @@ Flight provides support for sending JSON and JSONP responses. To send a JSON res
 pass some data to be JSON encoded:
 
 ```php
-Flight::json(array('id' => 123));
+Flight::json(['id' => 123]);
 ```
 
 For JSONP requests you, can optionally pass in the query parameter name you are
 using to define your callback function:
 
 ```php
-Flight::jsonp(array('id' => 123), 'q');
+Flight::jsonp(['id' => 123], 'q');
 ```
 
 So, when making a GET request using `?q=my_func`, you should receive the output:
 
-```
+```javascript
 my_func({"id":123});
 ```
 
@@ -906,7 +923,7 @@ Flight::halt(int $code = 200, string $message = '') // Stop the framework with a
 Flight::route(string $pattern, callable $callback, bool $pass_route = false) // Maps a URL pattern to a callback.
 Flight::redirect(string $url, int $code) // Redirects to another URL.
 Flight::render(string $file, array $data, ?string $key = null) // Renders a template file.
-Flight::error(Throwable $exception) // Sends an HTTP 500 response.
+Flight::error(Throwable $error) // Sends an HTTP 500 response.
 Flight::notFound() // Sends an HTTP 404 response.
 Flight::etag(string $id, string $type = 'string') // Performs ETag HTTP caching.
 Flight::lastModified(int $time) // Performs last modified HTTP caching.
