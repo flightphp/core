@@ -358,4 +358,49 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$router->reset();
 		$this->assertEquals(0, $router->getIndex());
 	}
+
+	// Passing URL parameters
+    public function testGroupRoutes()
+    {
+		$this->router->group('/user', function(Router $router) {
+			$router->map('/@id', function ($id) {
+				echo $id;
+			});
+			$router->map('/@id/@name', function ($id, $name) {
+				echo $id . $name;
+			});
+		});
+        $this->request->url = '/user/123';
+        $this->check('123');
+    }
+
+	public function testGroupRoutesMultiParams()
+    {
+		$this->router->group('/user', function(Router $router) {
+			$router->map('/@id', function ($id) {
+				echo $id;
+			});
+			$router->map('/@id/@name', function ($id, $name) {
+				echo $id . $name;
+			});
+		});
+        $this->request->url = '/user/123/abc';
+        $this->check('123abc');
+    }
+
+	public function testGroupNestedRoutes()
+    {
+		$this->router->group('/client', function(Router $router) {
+			$router->group('/user', function(Router $router) {
+				$router->map('/@id', function ($id) {
+					echo $id;
+				});
+				$router->map('/@id/@name', function ($id, $name) {
+					echo $id . $name;
+				});
+			});
+		});
+        $this->request->url = '/client/user/123/abc';
+        $this->check('123abc');
+    }
 }

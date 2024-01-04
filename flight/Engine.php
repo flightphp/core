@@ -33,6 +33,7 @@ use Throwable;
  * 
  * Routing
  * @method void route(string $pattern, callable $callback, bool $pass_route = false) Routes a URL to a callback function.
+ * @method void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
  * @method void get(string $pattern, callable $callback, bool $pass_route = false) Routes a GET URL to a callback function.
  * @method void post(string $pattern, callable $callback, bool $pass_route = false) Routes a POST URL to a callback function.
  * @method void put(string $pattern, callable $callback, bool $pass_route = false) Routes a PUT URL to a callback function.
@@ -151,7 +152,7 @@ class Engine
         $methods = [
             'start', 'stop', 'route', 'halt', 'error', 'notFound',
             'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
-            'post', 'put', 'patch', 'delete',
+            'post', 'put', 'patch', 'delete', 'group',
         ];
         foreach ($methods as $name) {
             $this->dispatcher->set($name, [$this, '_' . $name]);
@@ -466,6 +467,17 @@ class Engine
     public function _route(string $pattern, callable $callback, bool $pass_route = false): void
     {
         $this->router()->map($pattern, $callback, $pass_route);
+    }
+
+	/**
+     * Routes a URL to a callback function.
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callable $callback   Callback function that includes the Router class as first parameter
+     */
+    public function _group(string $pattern, callable $callback): void
+    {
+        $this->router()->group($pattern, $callback);
     }
 
     /**

@@ -96,4 +96,26 @@ class FlightTest extends PHPUnit\Framework\TestCase
 
         Flight::doesNotExist();
     }
+
+	public function testStaticRoute() {
+		Flight::route('/test', function() {
+			echo 'test';
+		});
+		Flight::request()->url = '/test';
+		Flight::start();
+
+		$this->expectOutputString('test');
+	}
+
+	public function testStaticRouteGroup() {
+		Flight::group('/group', function() {
+			Flight::route('/test', function() {
+				echo 'test';
+			});
+		});
+		Flight::request()->url = '/group/test';
+		Flight::start();
+
+		$this->expectOutputString('test');
+	}
 }

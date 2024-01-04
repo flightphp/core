@@ -24,6 +24,7 @@ use flight\template\View;
  * @method  static void halt(int $code = 200, string $message = '') Stop the framework with an optional status code and message.
  *
  * @method  static void route(string $pattern, callable $callback, bool $pass_route = false) Maps a URL pattern to a callback.
+ * @method  static void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
  * @method  static Router router() Returns Router instance.
  *
  * @method  static void map(string $name, callable $callback) Creates a custom framework method.

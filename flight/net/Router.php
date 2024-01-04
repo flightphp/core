@@ -32,6 +32,13 @@ class Router
      */
     protected int $index = 0;
 
+	/**
+	 * When groups are used, this is mapped against all the routes
+	 *
+	 * @var string
+	 */
+	protected string $group_prefix = '';
+
     /**
      * Gets mapped routes.
      *
@@ -59,7 +66,7 @@ class Router
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false): void
     {
-        $url = trim($pattern);
+        $url = $this->group_prefix.trim($pattern);
         $methods = ['*'];
 
         if (false !== strpos($url, ' ')) {
@@ -70,6 +77,20 @@ class Router
 
         $this->routes[] = new Route($url, $callback, $methods, $pass_route);
     }
+
+	/**
+	 * Group together a set of routes
+	 *
+	 * @param string   $group_prefix group URL prefix (such as /api/v1)
+	 * @param callable $callback     The necessary calling that holds the Router class
+	 * @return void
+	 */
+	public function group(string $group_prefix, callable $callback): void {
+		$old_group_prefix = $this->group_prefix;
+		$this->group_prefix .= $group_prefix;
+		$callback($this);
+		$this->group_prefix = $old_group_prefix;
+	}
 
     /**
      * Routes the current request.
