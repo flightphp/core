@@ -102,9 +102,10 @@ class FlightTest extends PHPUnit\Framework\TestCase
 			echo 'test';
 		});
 		Flight::request()->url = '/test';
+		
+		$this->expectOutputString('test');
 		Flight::start();
 
-		$this->expectOutputString('test');
 	}
 
 	public function testStaticRouteGroup() {
@@ -114,8 +115,9 @@ class FlightTest extends PHPUnit\Framework\TestCase
 			});
 		});
 		Flight::request()->url = '/group/test';
-		Flight::start();
 
 		$this->expectOutputString('test');
+		Flight::start();
+
 	}
 }
