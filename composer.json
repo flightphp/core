@@ -23,7 +23,7 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0|^8.1|^8.2",
+        "php": "^7.4|^8.0|^8.1|^8.2|^8.3",
         "ext-json": "*"
     },
     "autoload": {
@@ -48,7 +48,6 @@
         "lint": "phpstan --no-progress -cphpstan.neon"
     },
     "suggest": {
-        "phpstan/phpstan": "PHP Static Analysis Tool",
 		"latte/latte": "Latte template engine"
     },
 	"suggest-dev": {
