@@ -5,7 +5,7 @@ namespace flight\database;
 use PDO;
 use PDOStatement;
 
-class Pdo_Wrapper extends PDO {
+class PdoWrapper extends PDO {
 
 	/**
 	 * How you create the connection for the database
@@ -15,7 +15,7 @@ class Pdo_Wrapper extends PDO {
 	 * @param string $password - Ex: 'password'
 	 * @param array $options - PDO options you can pass in
 	 */
-	public function __construct(string $dsn, string $username, string $password, array $options = []) {
+	public function __construct(string $dsn, ?string $username = null, ?string $password = null, array $options = []) {
 		parent::__construct($dsn, $username, $password, $options);
 	}
 

@@ -386,7 +386,7 @@ query your database.
 
 ```php
 // Register the PDO helper class
-Flight::register('db', \flight\database\Pdo_Wrapper::class, ['mysql:host=localhost;dbname=cool_db_name', 'user', 'pass', [
+Flight::register('db', \flight\database\PdoWrapper::class, ['mysql:host=localhost;dbname=cool_db_name', 'user', 'pass', [
 		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'utf8mb4\'',
 		PDO::ATTR_EMULATE_PREPARES => false,
 		PDO::ATTR_STRINGIFY_FETCHES => false,
@@ -412,6 +412,8 @@ Flight::route('/users', function () {
 
 	// Special IN() syntax to help out (make sure IN is in caps)
 	$users = Flight::db()->fetchAll('SELECT * FROM users WHERE id IN (?)', [[1,2,3,4,5]]);
+	// you could also do this
+	$users = Flight::db()->fetchAll('SELECT * FROM users WHERE id IN (?)', [ '1,2,3,4,5']);
 	
 	// Insert a new user
 	Flight::db()->runQuery("INSERT INTO users (name, email) VALUES (?, ?)", ['Bob', 'bob@example.com']);
