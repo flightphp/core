@@ -63,10 +63,11 @@ class Router
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+	 * @return void
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false): void
     {
-        $url = $this->group_prefix.trim($pattern);
+        $url = trim($pattern);
         $methods = ['*'];
 
         if (false !== strpos($url, ' ')) {
@@ -75,8 +76,68 @@ class Router
             $methods = explode('|', $method);
         }
 
-        $this->routes[] = new Route($url, $callback, $methods, $pass_route);
+        $this->routes[] = new Route($this->group_prefix.$url, $callback, $methods, $pass_route);
     }
+
+	/**
+	 * Creates a GET based route
+	 *
+	 * @param string   $pattern    URL pattern to match
+     * @param callable $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+	 * @return void
+	 */
+	public function get(string $pattern, callable $callback, bool $pass_route = false): void {
+		$this->map('GET ' . $pattern, $callback, $pass_route);
+	}
+
+	/**
+	 * Creates a POST based route
+	 *
+	 * @param string   $pattern    URL pattern to match
+	 * @param callable $callback   Callback function
+	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @return void
+	 */
+	public function post(string $pattern, callable $callback, bool $pass_route = false): void {
+		$this->map('POST ' . $pattern, $callback, $pass_route);
+	}
+
+	/**
+	 * Creates a PUT based route
+	 *
+	 * @param string   $pattern    URL pattern to match
+	 * @param callable $callback   Callback function
+	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @return void
+	 */
+	public function put(string $pattern, callable $callback, bool $pass_route = false): void {
+		$this->map('PUT ' . $pattern, $callback, $pass_route);
+	}
+
+	/**
+	 * Creates a PATCH based route
+	 *
+	 * @param string   $pattern    URL pattern to match
+	 * @param callable $callback   Callback function
+	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @return void
+	 */
+	public function patch(string $pattern, callable $callback, bool $pass_route = false): void {
+		$this->map('PATCH ' . $pattern, $callback, $pass_route);
+	}
+
+	/**
+	 * Creates a DELETE based route
+	 *
+	 * @param string   $pattern    URL pattern to match
+	 * @param callable $callback   Callback function
+	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @return void
+	 */
+	public function delete(string $pattern, callable $callback, bool $pass_route = false): void {
+		$this->map('DELETE ' . $pattern, $callback, $pass_route);
+	}
 
 	/**
 	 * Group together a set of routes

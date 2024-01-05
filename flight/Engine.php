@@ -34,7 +34,6 @@ use Throwable;
  * Routing
  * @method void route(string $pattern, callable $callback, bool $pass_route = false) Routes a URL to a callback function.
  * @method void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
- * @method void get(string $pattern, callable $callback, bool $pass_route = false) Routes a GET URL to a callback function.
  * @method void post(string $pattern, callable $callback, bool $pass_route = false) Routes a POST URL to a callback function.
  * @method void put(string $pattern, callable $callback, bool $pass_route = false) Routes a PUT URL to a callback function.
  * @method void patch(string $pattern, callable $callback, bool $pass_route = false) Routes a PATCH URL to a callback function.
