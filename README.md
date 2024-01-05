@@ -27,6 +27,19 @@ Flight::start();
 
 [Learn more](http://flightphp.com/learn)
 
+# Need some inspiration?
+
+While these are not officially sponsored by the FlightPHP Team, these could give you ideas on how to structure your own projects that are built with Flight!
+
+- https://github.com/markhughes/flight-skeleton - Basic Skeleton App
+- https://github.com/Skayo/FlightWiki - Example Wiki
+- https://github.com/itinnovator/myphp-app - The IT-Innovator PHP Framework Application
+- https://github.com/casgin/LittleEducationalCMS - LittleEducationalCMS (Spanish)
+- https://github.com/chiccomagnus/PGAPI - Italian Yellow Pages API
+- https://github.com/recepuncu/cms - Generic Content Management System (with....very little documentation)
+- https://github.com/ycrao/tinyme - A tiny php framework based on Flight and medoo.
+- https://github.com/paddypei/Flight-MVC - Example MVC Application
+
 # Requirements
 
 Flight requires `PHP 7.4` or greater.
