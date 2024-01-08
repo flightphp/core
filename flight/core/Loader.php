@@ -204,6 +204,8 @@ class Loader
 
     /**
      * Autoloads classes.
+	 * 
+	 * Classes are not allowed to have underscores in their names.
      *
      * @param string $class Class name
      */

@@ -33,6 +33,7 @@
         ]
     },
     "require-dev": {
+		"ext-pdo_sqlite": "*",
         "phpunit/phpunit": "^9.5",
         "phpstan/phpstan": "^1.10",
         "phpstan/extension-installer": "^1.3"
