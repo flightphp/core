@@ -106,11 +106,19 @@ class RouterTest extends PHPUnit\Framework\TestCase
     }
 
 	// Simple path with trailing slash
-	// Simple path
     public function testPathRouteTrailingSlash()
     {
         $this->router->map('/path/', [$this, 'ok']);
         $this->request->url = '/path';
+
+        $this->check('OK');
+    }
+
+	public function testGetRouteShortcut()
+    {
+        $this->router->get('/path', [$this, 'ok']);
+        $this->request->url = '/path';
+        $this->request->method = 'GET';
 
         $this->check('OK');
     }
@@ -125,6 +133,15 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('OK');
     }
 
+    public function testPostRouteShortcut()
+    {
+        $this->router->post('/path', [$this, 'ok']);
+        $this->request->url = '/path';
+        $this->request->method = 'POST';
+
+        $this->check('OK');
+    }
+
     // Either GET or POST route
     public function testGetPostRoute()
     {
@@ -134,6 +151,30 @@ class RouterTest extends PHPUnit\Framework\TestCase
 
         $this->check('OK');
     }
+
+	public function testPutRouteShortcut() {
+		$this->router->put('/path', [$this, 'ok']);
+		$this->request->url = '/path';
+		$this->request->method = 'PUT';
+
+		$this->check('OK');
+	}
+
+	public function testPatchRouteShortcut() {
+		$this->router->patch('/path', [$this, 'ok']);
+		$this->request->url = '/path';
+		$this->request->method = 'PATCH';
+
+		$this->check('OK');
+	}
+
+	public function testDeleteRouteShortcut() {
+		$this->router->delete('/path', [$this, 'ok']);
+		$this->request->url = '/path';
+		$this->request->method = 'DELETE';
+
+		$this->check('OK');
+	}
 
     // Test regular expression matching
     public function testRegEx()
@@ -207,6 +248,12 @@ class RouterTest extends PHPUnit\Framework\TestCase
 
         $this->check('OK');
     }
+
+	public function testWildcardDuplicate() {
+		$this->router->map('/account/*' , [$this, 'ok']);
+		$this->request->url = '/account/account/account';
+		$this->check('OK');
+	}
 
     // Check if route object was passed
     public function testRouteObjectPassing()
@@ -352,4 +399,66 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$router->reset();
 		$this->assertEquals(0, $router->getIndex());
 	}
+
+	// Passing URL parameters
+    public function testGroupRoutes()
+    {
+		$this->router->group('/user', function(Router $router) {
+			$router->map('/@id', function ($id) {
+				echo $id;
+			});
+			$router->map('/@id/@name', function ($id, $name) {
+				echo $id . $name;
+			});
+		});
+        $this->request->url = '/user/123';
+        $this->check('123');
+    }
+
+	public function testGroupRoutesMultiParams()
+    {
+		$this->router->group('/user', function(Router $router) {
+			$router->map('/@id', function ($id) {
+				echo $id;
+			});
+			$router->map('/@id/@name', function ($id, $name) {
+				echo $id . $name;
+			});
+		});
+        $this->request->url = '/user/123/abc';
+        $this->check('123abc');
+    }
+
+	public function testGroupNestedRoutes()
+    {
+		$this->router->group('/client', function(Router $router) {
+			$router->group('/user', function(Router $router) {
+				$router->map('/@id', function ($id) {
+					echo $id;
+				});
+				$router->map('/@id/@name', function ($id, $name) {
+					echo $id . $name;
+				});
+			});
+		});
+        $this->request->url = '/client/user/123/abc';
+        $this->check('123abc');
+    }
+
+	public function testGroupNestedRoutesWithCustomMethods()
+    {
+		$this->router->group('/client', function(Router $router) {
+			$router->group('/user', function(Router $router) {
+				$router->get('/@id', function ($id) {
+					echo $id;
+				});
+				$router->post('/@id/@name', function ($id, $name) {
+					echo $id . $name;
+				});
+			});
+		});
+        $this->request->url = '/client/user/123/abc';
+		$this->request->method = 'POST';
+        $this->check('123abc');
+    }
 }

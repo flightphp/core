@@ -1,5 +1,6 @@
 <?php
 
+use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
 use flight\net\Router;
@@ -18,11 +19,13 @@ class FlightTest extends PHPUnit\Framework\TestCase
 		$_SERVER = [];
 		$_REQUEST = [];
         Flight::init();
+		Flight::setEngine(new Engine());
     }
 
 	protected function tearDown(): void {
 		unset($_REQUEST);
 		unset($_SERVER);
+		Flight::clear();
 	}
 
     // Checks that default components are loaded
@@ -96,4 +99,92 @@ class FlightTest extends PHPUnit\Framework\TestCase
 
         Flight::doesNotExist();
     }
+
+	public function testStaticRoute() {
+		Flight::route('/test', function() {
+			echo 'test';
+		});
+		Flight::request()->url = '/test';
+
+		$this->expectOutputString('test');
+		Flight::start();
+	}
+
+	public function testStaticRouteGroup() {
+		Flight::group('/group', function() {
+			Flight::route('/test', function() {
+				echo 'test';
+			});
+		});
+		Flight::request()->url = '/group/test';
+
+		$this->expectOutputString('test');
+		Flight::start();
+	}
+
+	public function testStaticRouteGet() {
+
+		// can't actually get "get" because that gets a variable
+		Flight::route('GET /test', function() {
+			echo 'test get';
+		});
+
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		Flight::request()->url = '/test';
+
+		$this->expectOutputString('test get');
+		Flight::start();
+	}
+
+	public function testStaticRoutePost() {
+
+		Flight::post('/test', function() {
+			echo 'test post';
+		});
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		Flight::request()->url = '/test';
+
+		$this->expectOutputString('test post');
+		Flight::start();
+	}
+
+	public function testStaticRoutePut() {
+		
+		Flight::put('/test', function() {
+			echo 'test put';
+		});
+
+		$_SERVER['REQUEST_METHOD'] = 'PUT';
+		Flight::request()->url = '/test';
+
+		$this->expectOutputString('test put');
+		Flight::start();
+	}
+
+	public function testStaticRoutePatch() {
+		
+		Flight::patch('/test', function() {
+			echo 'test patch';
+		});
+
+		$_SERVER['REQUEST_METHOD'] = 'PATCH';
+		Flight::request()->url = '/test';
+
+		$this->expectOutputString('test patch');
+		Flight::start();
+	}
+
+	public function testStaticRouteDelete() {
+		
+		Flight::delete('/test', function() {
+			echo 'test delete';
+		});
+
+		$_SERVER['REQUEST_METHOD'] = 'DELETE';
+		Flight::request()->url = '/test';
+
+		$this->expectOutputString('test delete');
+		Flight::start();
+	}
 }

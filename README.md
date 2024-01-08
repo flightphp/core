@@ -312,6 +312,68 @@ Flight::route('/', function(\flight\net\Route $route) {
 }, true);
 ```
 
+## Route Grouping
+
+There may be times when you want to group related routes together (such as `/api/v1`).
+You can do this by using the `group` method:
+
+```php
+Flight::group('/api/v1', function () {
+  Flight::route('/users', function () {
+	// Matches /api/v1/users
+  });
+
+  Flight::route('/posts', function () {
+	// Matches /api/v1/posts
+  });
+});
+```
+
+You can even nest groups of groups:
+
+```php
+Flight::group('/api', function () {
+  Flight::group('/v1', function () {
+	// Flight::get() gets variables, it doesn't set a route! See object context below
+	Flight::route('GET /users', function () {
+	  // Matches GET /api/v1/users
+	});
+
+	Flight::post('/posts', function () {
+	  // Matches POST /api/v1/posts
+	});
+
+	Flight::put('/posts/1', function () {
+	  // Matches PUT /api/v1/posts
+	});
+  });
+  Flight::group('/v2', function () {
+
+	// Flight::get() gets variables, it doesn't set a route! See object context below
+	Flight::route('GET /users', function () {
+	  // Matches GET /api/v2/users
+	});
+  });
+});
+```
+
+### Grouping with Object Context
+
+You can still use route grouping with the `Engine` object in the following way:
+
+```php
+$app = new \flight\Engine();
+$app->group('/api/v1', function (Router $router) {
+  $router->get('/users', function () {
+	// Matches GET /api/v1/users
+  });
+
+  $router->post('/posts', function () {
+	// Matches POST /api/v1/posts
+  });
+});
+```
+
 # Extending
 
 Flight is designed to be an extensible framework. The framework comes with a set

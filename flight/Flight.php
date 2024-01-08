@@ -24,6 +24,11 @@ use flight\template\View;
  * @method  static void halt(int $code = 200, string $message = '') Stop the framework with an optional status code and message.
  *
  * @method  static void route(string $pattern, callable $callback, bool $pass_route = false) Maps a URL pattern to a callback.
+ * @method  static void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
+ * @method void post(string $pattern, callable $callback, bool $pass_route = false) Routes a POST URL to a callback function.
+ * @method void put(string $pattern, callable $callback, bool $pass_route = false) Routes a PUT URL to a callback function.
+ * @method void patch(string $pattern, callable $callback, bool $pass_route = false) Routes a PATCH URL to a callback function.
+ * @method void delete(string $pattern, callable $callback, bool $pass_route = false) Routes a DELETE URL to a callback function.
  * @method  static Router router() Returns Router instance.
  *
  * @method  static void map(string $name, callable $callback) Creates a custom framework method.
@@ -123,11 +128,22 @@ class Flight
         if (!$initialized) {
             require_once __DIR__ . '/autoload.php';
 
-            self::$engine = new Engine();
+            self::setEngine(new Engine());
 
             $initialized = true;
         }
 
         return self::$engine;
     }
+
+	/**
+	 * Set the engine instance
+	 *
+	 * @param Engine $engine Vroom vroom!
+	 * @return void
+	 */
+	public static function setEngine(Engine $engine): void
+	{
+		self::$engine = $engine;
+	}
 }
