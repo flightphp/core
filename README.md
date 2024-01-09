@@ -27,6 +27,10 @@ Flight::start();
 
 [Learn more](http://flightphp.com/learn)
 
+# Want to setup a Skeleton/Boilerplate project quickly?
+
+Head over to the [flightphp/skeleton](https://github.com/flightphp/skeleton) repo to get started!
+
 # Need some inspiration?
 
 While these are not officially sponsored by the FlightPHP Team, these could give you ideas on how to structure your own projects that are built with Flight!
@@ -119,6 +123,10 @@ Finally, start the framework.
 ```php
 Flight::start();
 ```
+
+## Skeleton App
+
+Additionally you could install a skeleton app. Go to [flightphp/skeleton](https://github.com/flightphp/skeleton) for instructions on how to get started!
 
 # Routing
 
