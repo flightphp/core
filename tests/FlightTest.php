@@ -187,4 +187,10 @@ class FlightTest extends PHPUnit\Framework\TestCase
 		$this->expectOutputString('test delete');
 		Flight::start();
 	}
+
+	public function testGetUrl() {
+		Flight::route('/path1/@param:[a-zA-Z0-9]{2,3}', function() { echo 'I win'; }, false, 'path1');
+		$url = Flight::getUrl('path1', [ 'param' => 123 ]);
+		$this->assertEquals('/path1/123', $url);
+	}
 }

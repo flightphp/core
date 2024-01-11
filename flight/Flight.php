@@ -23,13 +23,14 @@ use flight\template\View;
  * @method  static void stop() Stops the framework and sends a response.
  * @method  static void halt(int $code = 200, string $message = '') Stop the framework with an optional status code and message.
  *
- * @method  static void route(string $pattern, callable $callback, bool $pass_route = false) Maps a URL pattern to a callback.
+ * @method  static void route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Maps a URL pattern to a callback with all applicable methods.
  * @method  static void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
- * @method void post(string $pattern, callable $callback, bool $pass_route = false) Routes a POST URL to a callback function.
- * @method void put(string $pattern, callable $callback, bool $pass_route = false) Routes a PUT URL to a callback function.
- * @method void patch(string $pattern, callable $callback, bool $pass_route = false) Routes a PATCH URL to a callback function.
- * @method void delete(string $pattern, callable $callback, bool $pass_route = false) Routes a DELETE URL to a callback function.
- * @method  static Router router() Returns Router instance.
+ * @method void post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
+ * @method void put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
+ * @method void patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
+ * @method void delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
+ * @method static Router router() Returns Router instance.
+ * @method string getUrl(string $alias) Gets a url from an alias
  *
  * @method  static void map(string $name, callable $callback) Creates a custom framework method.
  *
