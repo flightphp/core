@@ -145,7 +145,6 @@ final class Request
      * Constructor.
      *
      * @param array<string, mixed> $config Request configuration
-     * @param string
      */
     public function __construct($config = array())
     {
@@ -210,7 +209,7 @@ final class Request
         // Check for JSON input
         if (0 === strpos($this->type, 'application/json')) {
             $body = $this->getBody();
-            if ('' !== $body && null !== $body) {
+            if ('' !== $body) {
                 $data = json_decode($body, true);
                 if (is_array($data)) {
                     $this->data->setData($data);
@@ -226,7 +225,7 @@ final class Request
      *
      * @return string Raw HTTP request body
      */
-    public function getBody(): ?string
+    public function getBody(): string
     {
         $body = $this->body;
 

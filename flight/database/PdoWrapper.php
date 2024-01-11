@@ -13,7 +13,7 @@ class PdoWrapper extends PDO {
 	 * @param string $dsn - Ex: 'mysql:host=localhost;port=3306;dbname=testdb;charset=utf8mb4'
 	 * @param string $username - Ex: 'root'
 	 * @param string $password - Ex: 'password'
-	 * @param array $options - PDO options you can pass in
+	 * @param array<int,mixed> $options - PDO options you can pass in
 	 */
 	public function __construct(string $dsn, ?string $username = null, ?string $password = null, array $options = []) {
 		parent::__construct($dsn, $username, $password, $options);
@@ -31,7 +31,7 @@ class PdoWrapper extends PDO {
 	 * 	$db->runQuery("UPDATE table SET name = ? WHERE id = ?", [ $name, $id ]);
 	 *
 	 * @param string $sql 		- Ex: "SELECT * FROM table WHERE something = ?"
-	 * @param array $params 	- Ex: [ $something ]
+	 * @param array<int|string,mixed> $params 	- Ex: [ $something ]
 	 * @return PDOStatement
 	 */
 	public function runQuery(string $sql, array $params = []): PDOStatement {
@@ -49,12 +49,12 @@ class PdoWrapper extends PDO {
 	 * Ex: $id = $db->fetchField("SELECT id FROM table WHERE something = ?", [ $something ]);
 	 * 
 	 * @param string $sql   - Ex: "SELECT id FROM table WHERE something = ?"
-	 * @param array $params - Ex: [ $something ]
+	 * @param array<int|string,mixed> $params - Ex: [ $something ]
 	 * @return mixed
 	 */
 	public function fetchField(string $sql, array $params = []) {
 		$data = $this->fetchRow($sql, $params);
-		return is_array($data) ? reset($data) : null;
+		return reset($data);
 	}
 
 	/**
@@ -63,13 +63,13 @@ class PdoWrapper extends PDO {
 	 * Ex: $row = $db->fetchRow("SELECT * FROM table WHERE something = ?", [ $something ]);
 	 *
 	 * @param string $sql   - Ex: "SELECT * FROM table WHERE something = ?"
-	 * @param array $params - Ex: [ $something ]
-	 * @return array
+	 * @param array<int|string,mixed> $params - Ex: [ $something ]
+	 * @return array<string,mixed>
 	 */
 	public function fetchRow(string $sql, array $params = []): array {
 		$sql .= stripos($sql, 'LIMIT') === false ? ' LIMIT 1' : '';
 		$result = $this->fetchAll($sql, $params);
-		return is_array($result) && count($result) ? $result[0] : [];
+		return count($result) > 0 ? $result[0] : [];
 	}
 
 	/**
@@ -81,8 +81,8 @@ class PdoWrapper extends PDO {
 	 * }
 	 *
 	 * @param string $sql   - Ex: "SELECT * FROM table WHERE something = ?"
-	 * @param array $params	- Ex: [ $something ]
-	 * @return array<int,array>
+	 * @param array<int|string,mixed> $params	- Ex: [ $something ]
+	 * @return array<int,array<string,mixed>>
 	 */
 	public function fetchAll(string $sql, array $params = []): array {
 		$processed_sql_data = $this->processInStatementSql($sql, $params);
@@ -101,8 +101,8 @@ class PdoWrapper extends PDO {
 	 * 		Converts this to "SELECT * FROM table WHERE id = ? AND something IN(?,?,?)"
 	 *
 	 * @param string $sql	 the sql statement
-	 * @param array  $params the params for the sql statement
-	 * @return array{sql:string,params:array}
+	 * @param array<int|string,mixed>  $params the params for the sql statement
+	 * @return array<string,string|array<int|string,mixed>>
 	 */
 	protected function processInStatementSql(string $sql, array $params = []): array {
 

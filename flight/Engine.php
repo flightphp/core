@@ -32,13 +32,14 @@ use Throwable;
  * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
  * 
  * Routing
- * @method void route(string $pattern, callable $callback, bool $pass_route = false) Routes a URL to a callback function.
+ * @method void route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a URL to a callback function with all applicable methods
  * @method void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
- * @method void post(string $pattern, callable $callback, bool $pass_route = false) Routes a POST URL to a callback function.
- * @method void put(string $pattern, callable $callback, bool $pass_route = false) Routes a PUT URL to a callback function.
- * @method void patch(string $pattern, callable $callback, bool $pass_route = false) Routes a PATCH URL to a callback function.
- * @method void delete(string $pattern, callable $callback, bool $pass_route = false) Routes a DELETE URL to a callback function.
+ * @method void post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
+ * @method void put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
+ * @method void patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
+ * @method void delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
  * @method Router router() Gets router
+ * @method string getUrl(string $alias) Gets a url from an alias
  *
  * Views
  * @method void render(string $file, array $data = null, string $key = null) Renders template
@@ -151,7 +152,7 @@ class Engine
         $methods = [
             'start', 'stop', 'route', 'halt', 'error', 'notFound',
             'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
-            'post', 'put', 'patch', 'delete', 'group',
+            'post', 'put', 'patch', 'delete', 'group', 'getUrl',
         ];
         foreach ($methods as $name) {
             $this->dispatcher->set($name, [$this, '_' . $name]);
@@ -462,10 +463,11 @@ class Engine
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+	 * @param string   $alias      the alias for the route
      */
-    public function _route(string $pattern, callable $callback, bool $pass_route = false): void
+    public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): void
     {
-        $this->router()->map($pattern, $callback, $pass_route);
+        $this->router()->map($pattern, $callback, $pass_route, $alias);
     }
 
 	/**
@@ -701,4 +703,16 @@ class Engine
             $this->halt(304);
         }
     }
+
+	/**
+	 * Gets a url from an alias that's supplied.
+	 *
+	 * @param string $alias the route alias
+	 * @param array<string,mixed> the params for the route if applicable
+	 * @return string
+	 */
+	public function _getUrl(string $alias, array $params = []): string
+	{
+		return $this->router()->getUrlByAlias($alias, $params);
+	}
 }

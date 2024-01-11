@@ -265,4 +265,11 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('Fri, 13 Feb 2009 23:31:30 GMT', $engine->response()->headers()['Last-Modified']);
 		$this->assertEquals(304, $engine->response()->status());
 	}
+
+	public function testGetUrl() {
+		$engine = new Engine;
+		$engine->route('/path1/@param:[0-9]{3}', function() { echo 'I win'; }, false, 'path1');
+		$url = $engine->getUrl('path1', [ 'param' => 123 ]);
+		$this->assertEquals('/path1/123', $url);
+	}
 }
