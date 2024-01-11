@@ -382,6 +382,33 @@ $app->group('/api/v1', function (Router $router) {
 });
 ```
 
+## Route Aliasing
+
+You can assign an alias to a route, so that the URL can dynamically be generated later in your code (like a template for instance).
+
+```php
+Flight::route('/users/@id', function($id) { echo 'user:'.$id; }, false, 'user_view');
+
+// later in code somewhere
+Flight::getUrl('user_view', [ 'id' => 5 ]); // will return '/users/5'
+```
+
+This is especially helpful if your URL happens to change. In the above example, lets say that users was moved to `/admin/users/@id` instead.
+With aliasing in place, you don't have to change anywhere you reference the alias because the alias will now return `/admin/users/5` like in the 
+example above.
+
+Route aliasing still works in groups as well:
+
+```php
+Flight::group('/users', function() {
+    Flight::route('/@id', function($id) { echo 'user:'.$id; }, false, 'user_view');
+});
+
+
+// later in code somewhere
+Flight::getUrl('user_view', [ 'id' => 5 ]); // will return '/users/5'
+```
+
 # Extending
 
 Flight is designed to be an extensible framework. The framework comes with a set
