@@ -45,7 +45,7 @@ class Router
     /**
      * Gets mapped routes.
      *
-     * @return array<int, Route> Array of routes
+     * @return array<int,Route> Array of routes
      */
     public function getRoutes(): array
     {
@@ -89,10 +89,11 @@ class Router
 	 * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+	 * @param string   $alias 	   Alias for the route
 	 * @return void
 	 */
-	public function get(string $pattern, callable $callback, bool $pass_route = false): void {
-		$this->map('GET ' . $pattern, $callback, $pass_route);
+	public function get(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): void {
+		$this->map('GET ' . $pattern, $callback, $pass_route, $alias);
 	}
 
 	/**
@@ -101,10 +102,11 @@ class Router
 	 * @param string   $pattern    URL pattern to match
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @param string   $alias 	   Alias for the route
 	 * @return void
 	 */
-	public function post(string $pattern, callable $callback, bool $pass_route = false): void {
-		$this->map('POST ' . $pattern, $callback, $pass_route);
+	public function post(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): void {
+		$this->map('POST ' . $pattern, $callback, $pass_route, $alias);
 	}
 
 	/**
@@ -113,10 +115,11 @@ class Router
 	 * @param string   $pattern    URL pattern to match
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @param string   $alias 	   Alias for the route
 	 * @return void
 	 */
-	public function put(string $pattern, callable $callback, bool $pass_route = false): void {
-		$this->map('PUT ' . $pattern, $callback, $pass_route);
+	public function put(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): void {
+		$this->map('PUT ' . $pattern, $callback, $pass_route, $alias);
 	}
 
 	/**
@@ -125,10 +128,11 @@ class Router
 	 * @param string   $pattern    URL pattern to match
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @param string   $alias 	   Alias for the route
 	 * @return void
 	 */
-	public function patch(string $pattern, callable $callback, bool $pass_route = false): void {
-		$this->map('PATCH ' . $pattern, $callback, $pass_route);
+	public function patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): void {
+		$this->map('PATCH ' . $pattern, $callback, $pass_route, $alias);
 	}
 
 	/**
@@ -137,10 +141,11 @@ class Router
 	 * @param string   $pattern    URL pattern to match
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
+	 * @param string   $alias 	   Alias for the route
 	 * @return void
 	 */
-	public function delete(string $pattern, callable $callback, bool $pass_route = false): void {
-		$this->map('DELETE ' . $pattern, $callback, $pass_route);
+	public function delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): void {
+		$this->map('DELETE ' . $pattern, $callback, $pass_route, $alias);
 	}
 
 	/**

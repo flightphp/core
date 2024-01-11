@@ -25,12 +25,12 @@ use flight\template\View;
  *
  * @method  static void route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Maps a URL pattern to a callback with all applicable methods.
  * @method  static void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
- * @method void post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
- * @method void put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
- * @method void patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
- * @method void delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
- * @method static Router router() Returns Router instance.
- * @method string getUrl(string $alias) Gets a url from an alias
+ * @method  static void post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
+ * @method  static void put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
+ * @method  static void patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
+ * @method  static void delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
+ * @method  static Router router() Returns Router instance.
+ * @method  static string getUrl(string $alias) Gets a url from an alias
  *
  * @method  static void map(string $name, callable $callback) Creates a custom framework method.
  *

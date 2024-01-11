@@ -541,4 +541,13 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$url = $this->router->getUrlByAlias('path1');
 		$this->assertEquals('/path1', $url);
 	}
+
+	public function testGetUrlByAliasWithGroupSimpleParams() {
+		$this->router->group('/path1/@id', function($router) {
+			$router->get('/@name', [$this, 'ok'], false, 'path1');
+		});
+		$url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
+		
+		$this->assertEquals('/path1/123/abc', $url);
+	}
 }

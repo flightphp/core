@@ -193,4 +193,31 @@ class FlightTest extends PHPUnit\Framework\TestCase
 		$url = Flight::getUrl('path1', [ 'param' => 123 ]);
 		$this->assertEquals('/path1/123', $url);
 	}
+
+	public function testRouteGetUrlWithGroupSimpleParams() {
+		Flight::group('/path1/@id', function() {
+			Flight::route('/@name', function() { echo 'whatever'; }, false, 'path1');
+		});
+		$url = Flight::getUrl('path1', ['id' => 123, 'name' => 'abc']);
+		
+		$this->assertEquals('/path1/123/abc', $url);
+	}
+
+	public function testRouteGetUrlNestedGroups() {
+		Flight::group('/user', function () {
+			Flight::group('/all_users', function () {
+				Flight::group('/check_user', function () {
+					Flight::group('/check_one', function () {
+						Flight::route("/normalpath", function () {
+							echo "normalpath";
+						},false,"normalpathalias");
+					});
+				});
+			});
+		});
+
+		$url = Flight::getUrl('normalpathalias');
+		
+		$this->assertEquals('/user/all_users/check_user/check_one/normalpath', $url);
+	}
 }
