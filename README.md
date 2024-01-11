@@ -1058,6 +1058,7 @@ Flight::start() // Starts the framework.
 Flight::stop() // Stops the framework and sends a response.
 Flight::halt(int $code = 200, string $message = '') // Stop the framework with an optional status code and message.
 Flight::route(string $pattern, callable $callback, bool $pass_route = false) // Maps a URL pattern to a callback.
+Flight::group(string $pattern, callable $callback) // Creates groupping for urls, pattern must be a string.
 Flight::redirect(string $url, int $code) // Redirects to another URL.
 Flight::render(string $file, array $data, ?string $key = null) // Renders a template file.
 Flight::error(Throwable $error) // Sends an HTTP 500 response.
