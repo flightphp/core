@@ -500,14 +500,32 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('/path1/123', $url);
 	}
 
+	public function testGetUrlByAliasSimpleParamsWithNumber() {
+		$this->router->map('/path1/@id1', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
+		$this->assertEquals('/path1/123', $url);
+	}
+
 	public function testGetUrlByAliasSimpleOptionalParamsWithParam() {
 		$this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
 		$url = $this->router->getUrlByAlias('path1', ['id' => 123]);
 		$this->assertEquals('/path1/123', $url);
 	}
 
+	public function testGetUrlByAliasSimpleOptionalParamsWithNumberWithParam() {
+		$this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
+		$this->assertEquals('/path1/123', $url);
+	}
+
 	public function testGetUrlByAliasSimpleOptionalParamsNoParam() {
 		$this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1');
+		$this->assertEquals('/path1', $url);
+	}
+
+	public function testGetUrlByAliasSimpleOptionalParamsWithNumberNoParam() {
+		$this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
 		$url = $this->router->getUrlByAlias('path1');
 		$this->assertEquals('/path1', $url);
 	}
@@ -521,6 +539,12 @@ class RouterTest extends PHPUnit\Framework\TestCase
 	public function testGetUrlByAliasMultipleComplexParams() {
 		$this->router->map('/path1/@id:[0-9]+/@name:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
 		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
+		$this->assertEquals('/path1/123/abc', $url);
+	}
+
+	public function testGetUrlByAliasMultipleComplexParamsWithNumbers() {
+		$this->router->map('/path1/@5id:[0-9]+/@n1ame:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['5id' => '123', 'n1ame' => 'abc']);
 		$this->assertEquals('/path1/123/abc', $url);
 	}
 
