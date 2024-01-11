@@ -500,6 +500,18 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('/path1/123', $url);
 	}
 
+	public function testGetUrlByAliasSimpleOptionalParamsWithParam() {
+		$this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id' => 123]);
+		$this->assertEquals('/path1/123', $url);
+	}
+
+	public function testGetUrlByAliasSimpleOptionalParamsNoParam() {
+		$this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1');
+		$this->assertEquals('/path1', $url);
+	}
+
 	public function testGetUrlByAliasMultipleParams() {
 		$this->router->map('/path1/@id/@name', [$this, 'ok'], false, 'path1');
 		$url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
@@ -510,5 +522,23 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$this->router->map('/path1/@id:[0-9]+/@name:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
 		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
 		$this->assertEquals('/path1/123/abc', $url);
+	}
+
+	public function testGetUrlByAliasMultipleComplexOptionalParamsMissingOne() {
+		$this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
+		$this->assertEquals('/path1/123/abc', $url);
+	}
+
+	public function testGetUrlByAliasMultipleComplexOptionalParamsAllParams() {
+		$this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc', 'crazy' => 'xyz']);
+		$this->assertEquals('/path1/123/abc/xyz', $url);
+	}
+
+	public function testGetUrlByAliasMultipleComplexOptionalParamsNoParams() {
+		$this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1');
+		$this->assertEquals('/path1', $url);
 	}
 }

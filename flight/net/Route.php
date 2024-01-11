@@ -178,11 +178,16 @@ final class Route
 	 * @return string
 	 */
 	public function hydrateUrl(array $params = []): string {
-		$url = preg_replace_callback("/(?:@([a-zA-Z]+)(?:\:([^\/]+))?)?/i", function($match) use ($params) {
+		$url = preg_replace_callback("/(?:@([a-zA-Z]+)(?:\:([^\/]+))?\)*)/i", function($match) use ($params) {
 			if(isset($match[1]) && isset($params[$match[1]])) {
 				return $params[$match[1]];
 			}
 		}, $this->pattern);
+
+		// catches potential optional parameter
+		$url = str_replace('(/', '/', $url);
+		// trim any trailing slashes
+		$url = rtrim($url, '/');
 		return $url;
 	}
 }
