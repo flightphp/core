@@ -255,6 +255,13 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$this->check('OK');
 	}
 
+	public function testRouteWithLongQueryParamWithMultilineEncoded() 
+	{
+		$this->router->map('GET /api/intune/hey', [$this, 'ok']);
+		$this->request->url = '/api/intune/hey?error=access_denied&error_description=AADSTS65004%3a+User+declined+to+consent+to+access+the+app.%0d%0aTrace+ID%3a+747c0cc1-ccbd-4e53-8e2f-48812eb24100%0d%0aCorrelation+ID%3a+362e3cb3-20ef-400b-904e-9983bd989184%0d%0aTimestamp%3a+2022-09-08+09%3a58%3a12Z&error_uri=https%3a%2f%2flogin.microsoftonline.com%2ferror%3fcode%3d65004&admin_consent=True&state=x2EUE0fcSj#';
+		$this->check('OK');
+	}
+
     // Check if route object was passed
     public function testRouteObjectPassing()
     {

@@ -135,7 +135,7 @@ final class Route
         }
 
         // Attempt to match route and named parameters
-        if (preg_match('#^' . $regex . '(?:\?.*)?$#' . (($case_sensitive) ? '' : 'i'), $url, $matches)) {
+        if (preg_match('#^' . $regex . '(?:\?[\s\S]*)?$#' . (($case_sensitive) ? '' : 'i'), $url, $matches)) {
             foreach ($ids as $k => $v) {
                 $this->params[$k] = (\array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
             }
