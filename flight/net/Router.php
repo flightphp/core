@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace flight\net;
 
+use Exception;
+use flight\net\Route;
+
 /**
  * The Router class is responsible for routing an HTTP request to
  * an assigned callback function. The Router tries to match the
@@ -63,9 +66,10 @@ class Router
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+	 * @param string   $route_alias Alias for the route
 	 * @return void
      */
-    public function map(string $pattern, callable $callback, bool $pass_route = false): void
+    public function map(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
     {
         $url = trim($pattern);
         $methods = ['*'];
@@ -76,7 +80,7 @@ class Router
             $methods = explode('|', $method);
         }
 
-        $this->routes[] = new Route($this->group_prefix.$url, $callback, $methods, $pass_route);
+        $this->routes[] = new Route($this->group_prefix.$url, $callback, $methods, $pass_route, $route_alias);
     }
 
 	/**
@@ -172,6 +176,42 @@ class Router
 
         return false;
     }
+
+	/**
+	 * Gets the URL for a given route alias
+	 *
+	 * @param string $alias  the alias to match
+	 * @param array<string,mixed>  $params the parameters to pass to the route
+	 * @return string
+	 */
+	public function getUrlByAlias(string $alias, array $params = []): string {
+		while ($route = $this->current()) {
+            if ($route->matchAlias($alias)) {
+                return $route->hydrateUrl($params);
+            }
+            $this->next();
+        }
+		
+		throw new Exception('No route found with alias: ' . $alias);
+	}
+
+	/**
+	 * Rewinds the current route index.
+	 */
+	public function rewind(): void
+	{
+		$this->index = 0;
+	}
+
+	/**
+	 * Checks if more routes can be iterated.
+	 *
+	 * @return bool More routes
+	 */
+	public function valid(): bool
+	{
+		return isset($this->routes[$this->index]);
+	}
 
     /**
      * Gets the current route.

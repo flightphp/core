@@ -461,4 +461,54 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$this->request->method = 'POST';
         $this->check('123abc');
     }
+
+	public function testRewindAndValid() {
+		$this->router->map('/path1', [$this, 'ok']);
+		$this->router->map('/path2', [$this, 'ok']);
+		$this->router->map('/path3', [$this, 'ok']);
+		
+		$this->router->next();
+		$this->router->next();
+		$result = $this->router->valid();
+		$this->assertTrue($result);
+		$this->router->next();
+		$result = $this->router->valid();
+		$this->assertFalse($result);
+
+		$this->router->rewind();
+		$result = $this->router->valid();
+		$this->assertTrue($result);
+
+	}
+
+	public function testGetUrlByAliasNoMatches() {
+		$this->router->map('/path1', [$this, 'ok'], false, 'path1');
+		$this->expectException(\Exception::class);
+		$this->expectExceptionMessage('No route found with alias: path2');
+		$this->router->getUrlByAlias('path2');
+	}
+
+	public function testGetUrlByAliasNoParams() {
+		$this->router->map('/path1', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1');
+		$this->assertEquals('/path1', $url);
+	}
+
+	public function testGetUrlByAliasSimpleParams() {
+		$this->router->map('/path1/@id', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id' => 123]);
+		$this->assertEquals('/path1/123', $url);
+	}
+
+	public function testGetUrlByAliasMultipleParams() {
+		$this->router->map('/path1/@id/@name', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
+		$this->assertEquals('/path1/123/abc', $url);
+	}
+
+	public function testGetUrlByAliasMultipleComplexParams() {
+		$this->router->map('/path1/@id:[0-9]+/@name:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
+		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
+		$this->assertEquals('/path1/123/abc', $url);
+	}
 }

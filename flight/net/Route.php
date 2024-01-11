@@ -52,6 +52,11 @@ final class Route
      */
     public bool $pass = false;
 
+	/**
+	 * @var string The alias is a way to identify the route using a simple name ex: 'login' instead of /admin/login
+	 */
+	public string $alias = '';
+
     /**
      * Constructor.
      *
@@ -60,12 +65,13 @@ final class Route
      * @param array<int, string>  $methods  HTTP methods
      * @param bool   $pass     Pass self in callback parameters
      */
-    public function __construct(string $pattern, $callback, array $methods, bool $pass)
+    public function __construct(string $pattern, $callback, array $methods, bool $pass, string $alias = '')
     {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
         $this->pass = $pass;
+		$this->alias = $alias;
     }
 
     /**
@@ -153,4 +159,30 @@ final class Route
     {
         return \count(array_intersect([$method, '*'], $this->methods)) > 0;
     }
+
+	/**
+	 * Checks if an alias matches the route alias.
+	 *
+	 * @param string $alias [description]
+	 * @return boolean
+	 */
+	public function matchAlias(string $alias): bool
+	{
+		return $this->alias === $alias;
+	}
+
+	/**
+	 * Hydrates the route url with the given parameters
+	 *
+	 * @param array<string,mixed> $params the parameters to pass to the route
+	 * @return string
+	 */
+	public function hydrateUrl(array $params = []): string {
+		$url = preg_replace_callback("/(?:@([a-zA-Z]+)(?:\:([^\/]+))?)?/i", function($match) use ($params) {
+			if(isset($match[1]) && isset($params[$match[1]])) {
+				return $params[$match[1]];
+			}
+		}, $this->pattern);
+		return $url;
+	}
 }
