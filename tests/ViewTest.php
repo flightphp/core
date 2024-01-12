@@ -130,15 +130,15 @@ class ViewTest extends PHPUnit\Framework\TestCase
             }
         };
 
-        self::assertSame(
+        $this->assertSame(
             'C:/xampp/htdocs/libs/Flight/core/index.php',
             $viewMock::normalizePath('C:\xampp\htdocs\libs\Flight/core/index.php', '/')
         );
-        self::assertSame(
+        $this->assertSame(
             'C:\xampp\htdocs\libs\Flight\core\index.php',
             $viewMock::normalizePath('C:/xampp/htdocs/libs/Flight\core\index.php', '\\')
         );
-        self::assertSame(
+        $this->assertSame(
             'C:°xampp°htdocs°libs°Flight°core°index.php',
             $viewMock::normalizePath('C:/xampp/htdocs/libs/Flight\core\index.php', '°')
         );
