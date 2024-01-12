@@ -212,10 +212,6 @@ class View
 
     protected static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
     {
-        if ($separator === '/') {
-            return str_replace(['\\', '/'], $separator, $path);
-        }
-
-        return str_replace(['/', '\\'], $separator, $path);
+        return str_replace(['\\', '/'], $separator, $path);
     }
 }
