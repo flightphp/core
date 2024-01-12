@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace flight;
 
+use Closure;
 use ErrorException;
 use Exception;
 use flight\core\Dispatcher;
@@ -19,6 +20,7 @@ use flight\net\Response;
 use flight\net\Router;
 use flight\template\View;
 use Throwable;
+use flight\net\Route;
 
 /**
  * The Engine class contains the core functionality of the framework.
@@ -32,12 +34,12 @@ use Throwable;
  * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
  * 
  * Routing
- * @method void route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a URL to a callback function with all applicable methods
+ * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a URL to a callback function with all applicable methods
  * @method void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
- * @method void post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
- * @method void put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
- * @method void patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
- * @method void delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
+ * @method Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
+ * @method Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
+ * @method Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
+ * @method Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
  *
@@ -375,6 +377,7 @@ class Engine
         ob_start();
 
         // Route the request
+		$failed_middleware_check = false;
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
@@ -383,11 +386,60 @@ class Engine
                 $params[] = $route;
             }
 
+			// Run any before middlewares
+			if(count($route->middleware) > 0) {
+				foreach($route->middleware as $middleware) {
+
+					$middleware_object = (is_callable($middleware) === true ? $middleware : (method_exists($middleware, 'before') === true ? [ $middleware, 'before' ]: false));
+
+					if($middleware_object === false) {
+						continue;
+					}
+
+					// It's assumed if you don't declare before, that it will be assumed as the before method
+					$middleware_result = $this->dispatcher->execute(
+						$middleware_object,
+						$params
+					);
+
+					if ($middleware_result === false) {
+						$failed_middleware_check = true;
+						break 2;
+					}
+				}
+			}
+
             // Call route handler
             $continue = $this->dispatcher->execute(
                 $route->callback,
                 $params
             );
+			
+
+			// Run any before middlewares
+			if(count($route->middleware) > 0) {
+				
+				// process the middleware in reverse order now
+				foreach(array_reverse($route->middleware) as $middleware) {
+
+					// must be an object. No functions allowed here
+					$middleware_object = is_object($middleware) === true && !($middleware instanceof Closure) && method_exists($middleware, 'after') === true ? [ $middleware, 'after' ] : false;
+
+					// has to have the after method, otherwise just skip it
+					if($middleware_object === false) {
+						continue;
+					}
+
+					$middleware_result = $this->dispatcher->execute(
+						$middleware_object,
+						$params
+					);
+					if ($middleware_result === false) {
+						$failed_middleware_check = true;
+						break 2;
+					}
+				}
+			}
 
             $dispatched = true;
 
@@ -400,7 +452,9 @@ class Engine
             $dispatched = false;
         }
 
-        if (!$dispatched) {
+		if($failed_middleware_check === true) {
+			$this->halt(403, 'Forbidden');
+		} else if($dispatched === false) {
             $this->notFound();
         }
     }
@@ -464,10 +518,11 @@ class Engine
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
 	 * @param string   $alias      the alias for the route
+	 * @return Route
      */
-    public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): void
+    public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
     {
-        $this->router()->map($pattern, $callback, $pass_route, $alias);
+        return $this->router()->map($pattern, $callback, $pass_route, $alias);
     }
 
 	/**

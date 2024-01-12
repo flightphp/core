@@ -272,4 +272,77 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		$url = $engine->getUrl('path1', [ 'param' => 123 ]);
 		$this->assertEquals('/path1/123', $url);
 	}
+
+	public function testMiddlewareCallableFunction() {
+		$engine = new Engine();
+		$engine->route('/path1/@id', function($id) { echo 'OK'.$id; })
+			->addMiddleware(function($id) { echo 'before'.$id; });
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('before123OK123');
+	}
+
+	public function testMiddlewareCallableFunctionReturnFalse() {
+		$engine = new class extends Engine {
+			public function _halt(int $code = 200, string $message = ''): void
+			{
+				$this->response()->status($code);
+				$this->response()->write($message);
+			}
+		};
+		$engine->route('/path1/@id', function($id) { echo 'OK'.$id; })
+			->addMiddleware(function($id) { echo 'before'.$id; return false; });
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('Forbiddenbefore123');
+		$this->assertEquals(403, $engine->response()->status());
+	}
+
+	public function testMiddlewareClassBefore() {
+		$middleware = new class {
+			public function before($id) {
+				echo 'before'.$id;
+			}
+		};
+		$engine = new Engine();
+		
+		$engine->route('/path1/@id',  function($id) { echo 'OK'.$id; })
+			->addMiddleware($middleware);
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('before123OK123');
+	}
+
+	public function testMiddlewareClassBeforeAndAfter() {
+		$middleware = new class {
+			public function before($id) {
+				echo 'before'.$id;
+			}
+			public function after($id) {
+				echo 'after'.$id;
+			}
+		};
+		$engine = new Engine();
+		
+		$engine->route('/path1/@id',  function($id) { echo 'OK'.$id; })
+			->addMiddleware($middleware);
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('before123OK123after123');
+	}
+
+	public function testMiddlewareClassAfter() {
+		$middleware = new class {
+			public function after($id) {
+				echo 'after'.$id;
+			}
+		};
+		$engine = new Engine();
+		
+		$engine->route('/path1/@id',  function($id) { echo 'OK'.$id; })
+			->addMiddleware($middleware);
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('OK123after123');
+	}
 }

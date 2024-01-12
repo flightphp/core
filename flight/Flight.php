@@ -14,6 +14,7 @@ use flight\net\Request;
 use flight\net\Response;
 use flight\net\Router;
 use flight\template\View;
+use flight\net\Route;
 
 /**
  * The Flight class is a static representation of the framework.
@@ -23,12 +24,12 @@ use flight\template\View;
  * @method  static void stop() Stops the framework and sends a response.
  * @method  static void halt(int $code = 200, string $message = '') Stop the framework with an optional status code and message.
  *
- * @method  static void route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Maps a URL pattern to a callback with all applicable methods.
+ * @method  static Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Maps a URL pattern to a callback with all applicable methods.
  * @method  static void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
- * @method  static void post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
- * @method  static void put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
- * @method  static void patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
- * @method  static void delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
+ * @method  static Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
+ * @method  static Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
+ * @method  static Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
+ * @method  static Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
  * @method  static Router router() Returns Router instance.
  * @method  static string getUrl(string $alias) Gets a url from an alias
  *
