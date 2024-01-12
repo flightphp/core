@@ -707,9 +707,8 @@ class Engine
 	/**
 	 * Gets a url from an alias that's supplied.
 	 *
-	 * @param string $alias the route alias
-	 * @param array<string,mixed> the params for the route if applicable
-	 * @return string
+	 * @param string $alias the route alias.
+	 * @param array<string, mixed> $params The params for the route if applicable.
 	 */
 	public function _getUrl(string $alias, array $params = []): string
 	{
