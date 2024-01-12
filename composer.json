@@ -49,11 +49,9 @@
         "lint": "phpstan --no-progress -cphpstan.neon"
     },
     "suggest": {
-		"latte/latte": "Latte template engine"
-    },
-	"suggest-dev": {
+		"latte/latte": "Latte template engine",
 		"tracy/tracy": "Tracy debugger"
-	},
+    },
 	"replace": {
 		"mikecao/flight": "2.0.2"
 	}
