@@ -1,4 +1,7 @@
 <?php
+
+use flight\template\View;
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -65,7 +68,7 @@ class ViewTest extends PHPUnit\Framework\TestCase
 
 	public function testRenderBadFilePath() {
 		$this->expectException(Exception::class);
-		$this->expectExceptionMessage('Template file not found: '.__DIR__ . '/views/badfile.php');
+		$this->expectExceptionMessage('Template file not found: ' . __DIR__ . DIRECTORY_SEPARATOR . 'views'. DIRECTORY_SEPARATOR . 'badfile.php');
 
 		$this->view->render('badfile');
 	}
@@ -117,4 +120,27 @@ class ViewTest extends PHPUnit\Framework\TestCase
 		$result = $this->view->e('script');
 		$this->assertEquals('script', $result);
 	}
+
+    public function testNormalizePath(): void
+    {
+        $viewMock = new class extends View {
+            public static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
+            {
+                return parent::normalizePath($path, $separator);
+            }
+        };
+
+        self::assertSame(
+            'C:/xampp/htdocs/libs/Flight/core/index.php',
+            $viewMock::normalizePath('C:\xampp\htdocs\libs\Flight/core/index.php', '/')
+        );
+        self::assertSame(
+            'C:\xampp\htdocs\libs\Flight\core\index.php',
+            $viewMock::normalizePath('C:/xampp/htdocs/libs/Flight\core\index.php', '\\')
+        );
+        self::assertSame(
+            'C:°xampp°htdocs°libs°Flight°core°index.php',
+            $viewMock::normalizePath('C:/xampp/htdocs/libs/Flight\core\index.php', '°')
+        );
+    }
 }

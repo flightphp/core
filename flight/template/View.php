@@ -130,6 +130,7 @@ class View
         $this->template = $this->getTemplate($file);
 
         if (!file_exists($this->template)) {
+            $this->template = self::normalizePath($this->template);
             throw new \Exception("Template file not found: {$this->template}.");
         }
 
@@ -207,5 +208,14 @@ class View
 		$value = htmlentities($str);
         echo $value;
         return $value;
+    }
+
+    protected static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
+    {
+        if ($separator === '/') {
+            return str_replace(['\\', '/'], $separator, $path);
+        }
+
+        return str_replace(['/', '\\'], $separator, $path);
     }
 }
