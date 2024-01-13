@@ -35,7 +35,7 @@ use flight\net\Route;
  * 
  * Routing
  * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a URL to a callback function with all applicable methods
- * @method void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
+ * @method void  group(string $pattern, callable $callback, array $group_middlewares = []) Groups a set of routes together under a common prefix.
  * @method Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
  * @method Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
  * @method Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
@@ -397,10 +397,7 @@ class Engine
 					}
 
 					// It's assumed if you don't declare before, that it will be assumed as the before method
-					$middleware_result = $this->dispatcher->execute(
-						$middleware_object,
-						$params
-					);
+					$middleware_result = $middleware_object($route->params);
 
 					if ($middleware_result === false) {
 						$failed_middleware_check = true;
@@ -430,10 +427,8 @@ class Engine
 						continue;
 					}
 
-					$middleware_result = $this->dispatcher->execute(
-						$middleware_object,
-						$params
-					);
+					$middleware_result = $middleware_object($route->params);
+
 					if ($middleware_result === false) {
 						$failed_middleware_check = true;
 						break 2;
@@ -528,12 +523,13 @@ class Engine
 	/**
      * Routes a URL to a callback function.
      *
-     * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function that includes the Router class as first parameter
+     * @param string   		  $pattern    			URL pattern to match
+     * @param callable 		  $callback   			Callback function that includes the Router class as first parameter
+	 * @param array<callable> $group_middlewares 	The middleware to be applied to the route
      */
-    public function _group(string $pattern, callable $callback): void
+    public function _group(string $pattern, callable $callback, array $group_middlewares = []): void
     {
-        $this->router()->group($pattern, $callback);
+        $this->router()->group($pattern, $callback, $group_middlewares);
     }
 
     /**

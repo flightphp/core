@@ -25,7 +25,7 @@ use flight\net\Route;
  * @method  static void halt(int $code = 200, string $message = '') Stop the framework with an optional status code and message.
  *
  * @method  static Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Maps a URL pattern to a callback with all applicable methods.
- * @method  static void group(string $pattern, callable $callback) Groups a set of routes together under a common prefix.
+ * @method  static void  group(string $pattern, callable $callback, array $group_middlewares = []) Groups a set of routes together under a common prefix.
  * @method  static Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
  * @method  static Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
  * @method  static Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
