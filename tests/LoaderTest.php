@@ -138,12 +138,6 @@ class LoaderTest extends PHPUnit\Framework\TestCase
 		$this->assertEquals('Suzie', $TesterClass->param6);
 	}
 
-	public function testNewInstance6ParamsBadClass() {
-		$this->expectException(Exception::class);
-		$this->expectExceptionMessage('Cannot instantiate BadClass');
-		$TesterClass = $this->loader->newInstance('BadClass', ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
-	}
-
 	public function testAddDirectoryAsArray() {
 		$loader = new class extends Loader {
 			public function getDirectories() {

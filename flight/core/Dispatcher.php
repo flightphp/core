@@ -53,7 +53,8 @@ class Dispatcher
         }
 
         // Run requested method
-        $output = self::execute($this->get($name), $params);
+		$callback = $this->get($name);
+        $output = $callback(...$params);
 
         // Run post-filters
         if (!empty($this->filters[$name]['after'])) {
@@ -140,7 +141,7 @@ class Dispatcher
     {
         $args = [&$params, &$output];
         foreach ($filters as $callback) {
-            $continue = self::execute($callback, $args);
+            $continue = $callback(...$args);
             if (false === $continue) {
                 break;
             }
@@ -178,27 +179,7 @@ class Dispatcher
      */
     public static function callFunction($func, array &$params = [])
     {
-        // Call static method
-        if (\is_string($func) && false !== strpos($func, '::')) {
-            return \call_user_func_array($func, $params);
-        }
-
-        switch (\count($params)) {
-            case 0:
-                return $func();
-            case 1:
-                return $func($params[0]);
-            case 2:
-                return $func($params[0], $params[1]);
-            case 3:
-                return $func($params[0], $params[1], $params[2]);
-            case 4:
-                return $func($params[0], $params[1], $params[2], $params[3]);
-            case 5:
-                return $func($params[0], $params[1], $params[2], $params[3], $params[4]);
-            default:
-                return \call_user_func_array($func, $params);
-        }
+		return call_user_func_array($func, $params);
     }
 
     /**
@@ -215,37 +196,9 @@ class Dispatcher
 
         $instance = \is_object($class);
 
-        switch (\count($params)) {
-            case 0:
-                return ($instance) ?
-                    $class->$method() :
-                    $class::$method();
-            case 1:
-                return ($instance) ?
-                    $class->$method($params[0]) :
-                    $class::$method($params[0]);
-            case 2:
-                return ($instance) ?
-                    $class->$method($params[0], $params[1]) :
-                    $class::$method($params[0], $params[1]);
-            case 3:
-                return ($instance) ?
-                    $class->$method($params[0], $params[1], $params[2]) :
-                    $class::$method($params[0], $params[1], $params[2]);
-			// This will be refactored soon enough
-			// @codeCoverageIgnoreStart
-            case 4:
-                return ($instance) ?
-                    $class->$method($params[0], $params[1], $params[2], $params[3]) :
-                    $class::$method($params[0], $params[1], $params[2], $params[3]);
-            case 5:
-                return ($instance) ?
-                    $class->$method($params[0], $params[1], $params[2], $params[3], $params[4]) :
-                    $class::$method($params[0], $params[1], $params[2], $params[3], $params[4]);
-            default:
-                return \call_user_func_array($func, $params);
-			// @codeCoverageIgnoreEnd
-        }
+		return ($instance) ?
+			$class->$method(...$params) :
+			$class::$method();
     }
 
     /**

@@ -57,6 +57,11 @@ final class Route
 	 */
 	public string $alias = '';
 
+	/**
+	 * @var array<callable> The middleware to be applied to the route
+	 */
+	public array $middleware = [];
+
     /**
      * Constructor.
      *
@@ -189,5 +194,30 @@ final class Route
 		// trim any trailing slashes
 		$url = rtrim($url, '/');
 		return $url;
+	}
+
+	/**
+	 * Sets the route alias
+	 *
+	 * @return self
+	 */
+	public function setAlias(string $alias): self {
+		$this->alias = $alias;
+		return $this;
+	}
+
+	/**
+	 * Sets the route middleware
+	 *
+	 * @param array<callable>|callable $middleware
+	 * @return self
+	 */
+	public function addMiddleware($middleware): self {
+		if(is_array($middleware) === true) {
+			$this->middleware = array_merge($this->middleware, $middleware);
+		} else {
+			$this->middleware[] = $middleware;
+		}
+		return $this;
 	}
 }

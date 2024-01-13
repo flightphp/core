@@ -298,6 +298,18 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check();
     }
 
+	public function testRouteBeingReturned() {
+		$route = $this->router->map('/hi', function() {});
+		$route_in_router = $this->router->getRoutes()[0];
+		$this->assertSame($route, $route_in_router);
+	}
+
+	public function testRouteSetAlias() {
+		$route = $this->router->map('/hi', function() {});
+		$route->setAlias('hello');
+		$this->assertEquals('hello', $route->alias);
+	}
+
     // Test splat
     public function testSplatWildcard()
     {

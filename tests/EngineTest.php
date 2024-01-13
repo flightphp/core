@@ -272,4 +272,165 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		$url = $engine->getUrl('path1', [ 'param' => 123 ]);
 		$this->assertEquals('/path1/123', $url);
 	}
+
+	public function testMiddlewareCallableFunction() {
+		$engine = new Engine();
+		$engine->route('/path1/@id', function($id) { echo 'OK'.$id; })
+			->addMiddleware(function($params) { echo 'before'.$params['id']; });
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('before123OK123');
+	}
+
+	public function testMiddlewareCallableFunctionReturnFalse() {
+		$engine = new class extends Engine {
+			public function _halt(int $code = 200, string $message = ''): void
+			{
+				$this->response()->status($code);
+				$this->response()->write($message);
+			}
+		};
+		$engine->route('/path1/@id', function($id) { echo 'OK'.$id; })
+			->addMiddleware(function($params) { echo 'before'.$params['id']; return false; });
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('Forbiddenbefore123');
+		$this->assertEquals(403, $engine->response()->status());
+	}
+
+	public function testMiddlewareClassBefore() {
+		$middleware = new class {
+			public function before($params) {
+				echo 'before'.$params['id'];
+			}
+		};
+		$engine = new Engine();
+		
+		$engine->route('/path1/@id',  function($id) { echo 'OK'.$id; })
+			->addMiddleware($middleware);
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('before123OK123');
+	}
+
+	public function testMiddlewareClassBeforeAndAfter() {
+		$middleware = new class {
+			public function before($params) {
+				echo 'before'.$params['id'];
+			}
+			public function after($params) {
+				echo 'after'.$params['id'];
+			}
+		};
+		$engine = new Engine();
+		
+		$engine->route('/path1/@id',  function($id) { echo 'OK'.$id; })
+			->addMiddleware($middleware);
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('before123OK123after123');
+	}
+
+	public function testMiddlewareClassAfter() {
+		$middleware = new class {
+			public function after($params) {
+				
+				echo 'after'.$params['id'];
+			}
+		};
+		$engine = new Engine();
+		
+		$engine->route('/path1/@id',  function($id) { echo 'OK'.$id; })
+			->addMiddleware($middleware);
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('OK123after123');
+	}
+
+	public function testMiddlewareClassAfterFailedCheck() {
+		$middleware = new class {
+			public function after($params) {
+				echo 'after'.$params['id'];
+				return false;
+			}
+		};
+		$engine = new class extends Engine {
+			public function _halt(int $code = 200, string $message = ''): void
+			{
+				$this->response()->status($code);
+				$this->response()->write($message);
+			}
+		};
+		
+		$engine->route('/path1/@id',  function($id) { echo 'OK'.$id; })
+			->addMiddleware($middleware);
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->assertEquals(403, $engine->response()->status());
+		$this->expectOutputString('ForbiddenOK123after123');
+	}
+
+	public function testMiddlewareCallableFunctionMultiple() {
+		$engine = new Engine();
+		$engine->route('/path1/@id', function($id) { echo 'OK'.$id; })
+			->addMiddleware(function($params) { echo 'before1'.$params['id']; })
+			->addMiddleware(function($params) { echo 'before2'.$params['id']; });
+		$engine->request()->url = '/path1/123';
+		$engine->start();
+		$this->expectOutputString('before1123before2123OK123');
+	}
+
+	// Pay attention to the order on how the middleware is executed in this test.
+	public function testMiddlewareClassCallableRouteMultiple() {
+		$middleware = new class {
+			public function before($params) {
+				echo 'before'.$params['another_id'];
+			}
+			public function after($params) {
+				echo 'after'.$params['id'];
+			}
+		};
+		$middleware2 = new class {
+			public function before($params) {
+				echo 'before'.$params['id'];
+			}
+			public function after($params) {
+				echo 'after'.$params['id'].$params['another_id'];
+			}
+		};
+		$engine = new Engine();
+		$engine->route('/path1/@id/subpath1/@another_id',  function() { echo 'OK'; })->addMiddleware([ $middleware, $middleware2 ]);
+		
+		$engine->request()->url = '/path1/123/subpath1/456';
+		$engine->start();
+		$this->expectOutputString('before456before123OKafter123456after123');
+	}
+
+	public function testMiddlewareClassGroupRouteMultipleBooyah() {
+		$middleware = new class {
+			public function before($params) {
+				echo 'before'.$params['another_id'];
+			}
+			public function after($params) {
+				echo 'after'.$params['id'];
+			}
+		};
+		$middleware2 = new class {
+			public function before($params) {
+				echo 'before'.$params['id'];
+			}
+			public function after($params) {
+				echo 'after'.$params['id'].$params['another_id'];
+			}
+		};
+		$engine = new Engine();
+		$engine->group('/path1/@id', function($router) {
+			$router->map('/subpath1/@another_id',  function() { echo 'OK'; });
+			$router->map('/@cool_id',  function() { echo 'OK'; });
+		}, [ $middleware, $middleware2 ]);
+		
+		$engine->request()->url = '/path1/123/subpath1/456';
+		$engine->start();
+		$this->expectOutputString('before456before123OKafter123456after123');
+	}
 }
