@@ -468,6 +468,13 @@ class RouterTest extends PHPUnit\Framework\TestCase
 		$this->request->method = 'POST';
         $this->check('123abc');
     }
+	
+	public function testGetUrlByAliasBadReferenceButCatchRecommendation() {
+		$this->router->map('/path1', [$this, 'ok'], false, 'path1');
+		$this->expectException(\Exception::class);
+		$this->expectExceptionMessage('No route found with alias: \'path2\'. Did you mean \'path1\'?');
+		$this->router->getUrlByAlias('path2');
+	}
 
 	public function testRewindAndValid() {
 		$this->router->map('/path1', [$this, 'ok']);
@@ -491,7 +498,7 @@ class RouterTest extends PHPUnit\Framework\TestCase
 	public function testGetUrlByAliasNoMatches() {
 		$this->router->map('/path1', [$this, 'ok'], false, 'path1');
 		$this->expectException(\Exception::class);
-		$this->expectExceptionMessage('No route found with alias: path2');
+		$this->expectExceptionMessage('No route found with alias: \'path2\'');
 		$this->router->getUrlByAlias('path2');
 	}
 

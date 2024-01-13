@@ -190,14 +190,32 @@ class Router
 	 * @return string
 	 */
 	public function getUrlByAlias(string $alias, array $params = []): string {
-		while ($route = $this->current()) {
-            if ($route->matchAlias($alias)) {
-                return $route->hydrateUrl($params);
-            }
-            $this->next();
-        }
+		$potential_aliases = [];
+		foreach($this->routes as $route) {
+			$potential_aliases[] = $route->alias;
+			if ($route->matchAlias($alias)) {
+				return $route->hydrateUrl($params);
+			}
+
+		}
+
+		// use a levenshtein to find the closest match and make a recommendation
+		$closest_match = '';
+		$closest_match_distance = 0;
+		foreach($potential_aliases as $potential_alias) {
+			$levenshtein_distance = levenshtein($alias, $potential_alias);
+			if($levenshtein_distance > $closest_match_distance) {
+				$closest_match = $potential_alias;
+				$closest_match_distance = $levenshtein_distance;
+			}
+		}
+
+		$exception_message = 'No route found with alias: \'' . $alias . '\'.';
+		if($closest_match !== '') {
+			$exception_message .= ' Did you mean \'' . $closest_match . '\'?';
+		}
 		
-		throw new Exception('No route found with alias: ' . $alias);
+		throw new Exception($exception_message);
 	}
 
 	/**

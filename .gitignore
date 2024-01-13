@@ -7,3 +7,4 @@ coverage/
 .vscode/settings.json
 *.sublime-workspace
 .vscode/
+clover.xml
