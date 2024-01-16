@@ -25,7 +25,7 @@ Flight::route('/', function() {
 Flight::start();
 ```
 
-[Learn more](http://flightphp.com/learn)
+[Learn more](https://docs.flightphp.com/learn)
 
 # Want to setup a Skeleton/Boilerplate project quickly?
 
@@ -50,7 +50,7 @@ Flight requires `PHP 7.4` or greater.
 
 # License
 
-Flight is released under the [MIT](http://flightphp.com/license) license.
+Flight is released under the [MIT](http://docs.flightphp.com/license) license.
 
 # Installation
 
