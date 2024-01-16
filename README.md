@@ -586,7 +586,7 @@ Flight::route('/users', function () {
 	
 	// Insert a new user
 	Flight::db()->runQuery("INSERT INTO users (name, email) VALUES (?, ?)", ['Bob', 'bob@example.com']);
-	$insert_id = $Flight::db()->lastInsertId();
+	$insert_id = Flight::db()->lastInsertId();
 
 	// Update a user
 	Flight::db()->runQuery("UPDATE users SET name = ? WHERE id = ?", ['Bob', 123]);
