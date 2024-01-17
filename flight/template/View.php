@@ -17,24 +17,24 @@ namespace flight\template;
  */
 class View
 {
-    /** Location of view templates. */
-    public string $path;
+    /** @var string Location of view templates. */
+    public $path;
 
-    /** File extension. */
-    public string $extension = '.php';
+    /** @var string File extension. */
+    public $extension = '.php';
 
     /** @var array<string, mixed> View variables. */
-    protected array $vars = [];
+    protected $vars = [];
 
-    /** Template file. */
-    private string $template;
+    /** @var string Template file. */
+    private $template;
 
     /**
      * Constructor.
      *
      * @param string $path Path to templates directory
      */
-    public function __construct(string $path = '.')
+    public function __construct($path = '.')
     {
         $this->path = $path;
     }
@@ -42,9 +42,11 @@ class View
     /**
      * Gets a template variable.
      *
+     * @param string $key
+     *
      * @return mixed Variable value or `null` if doesn't exists
      */
-    public function get(string $key)
+    public function get($key)
     {
         return $this->vars[$key] ?? null;
     }
@@ -56,7 +58,7 @@ class View
      * @param mixed $value Value
      * @return $this
      */
-    public function set($key, $value = null): self
+    public function set($key, $value = null)
     {
         if (\is_iterable($key)) {
             foreach ($key as $k => $v) {
@@ -72,9 +74,11 @@ class View
     /**
      * Checks if a template variable is set.
      *
+     * @param string $key
+     *
      * @return bool If key exists
      */
-    public function has(string $key): bool
+    public function has($key)
     {
         return isset($this->vars[$key]);
     }
@@ -82,9 +86,11 @@ class View
     /**
      * Unsets a template variable. If no key is passed in, clear all variables.
      *
+     * @param ?string $key
+     *
      * @return $this
      */
-    public function clear(?string $key = null): self
+    public function clear($key = null)
     {
         if (null === $key) {
             $this->vars = [];
@@ -99,17 +105,18 @@ class View
      * Renders a template.
      *
      * @param string $file Template file
-     * @param array<string, mixed> $data Template data
+     * @param ?array<string, mixed> $data Template data
      *
+     * @return void
      * @throws \Exception If template not found
      */
-    public function render(string $file, ?array $data = null): void
+    public function render($file, $data = null)
     {
         $this->template = $this->getTemplate($file);
 
         if (!\file_exists($this->template)) {
-            $this->template = self::normalizePath($this->template);
-            throw new \Exception("Template file not found: {$this->template}.");
+            $normalized_path = self::normalizePath($this->template);
+            throw new \Exception("Template file not found: {$normalized_path}.");
         }
 
         if (\is_array($data)) {
@@ -129,7 +136,7 @@ class View
      *
      * @return string Output of template
      */
-    public function fetch(string $file, ?array $data = null): string
+    public function fetch($file, $data = null)
     {
         \ob_start();
 
@@ -145,7 +152,7 @@ class View
      *
      * @return bool Template file exists
      */
-    public function exists(string $file): bool
+    public function exists($file)
     {
         return \file_exists($this->getTemplate($file));
     }
@@ -157,7 +164,7 @@ class View
      *
      * @return string Template file location
      */
-    public function getTemplate(string $file): string
+    public function getTemplate($file)
     {
         $ext = $this->extension;
 
@@ -181,14 +188,20 @@ class View
      *
      * @return string Escaped string
      */
-    public function e(string $str): string
+    public function e($str)
     {
 		$value = \htmlentities($str);
         echo $value;
         return $value;
     }
 
-    protected static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
+    /**
+     * @param string $path An unnormalized path.
+     * @param string $separator Path separator.
+     *
+     * @return string Normalized path.
+     */
+    protected static function normalizePath($path, $separator = DIRECTORY_SEPARATOR)
     {
         return \str_replace(['\\', '/'], $separator, $path);
     }
