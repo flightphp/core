@@ -17,32 +17,16 @@ namespace flight\template;
  */
 class View
 {
-    /**
-     * Location of view templates.
-     *
-     * @var string
-     */
+    /** @var string Location of view templates. */
     public $path;
 
-    /**
-     * File extension.
-     *
-     * @var string
-     */
+    /** @var string File extension. */
     public $extension = '.php';
 
-    /**
-     * View variables.
-     *
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> View variables. */
     protected $vars = [];
 
-    /**
-     * Template file.
-     *
-     * @var string
-     */
+    /** @var string Template file. */
     private $template;
 
     /**
@@ -58,9 +42,9 @@ class View
     /**
      * Gets a template variable.
      *
-     * @param string $key Key
+     * @param string $key
      *
-     * @return mixed Value
+     * @return mixed Variable value or `null` if doesn't exists
      */
     public function get($key)
     {
@@ -70,13 +54,13 @@ class View
     /**
      * Sets a template variable.
      *
-     * @param string|iterable<string, mixed>  $key   Key
+     * @param string|iterable<string, mixed> $key
      * @param mixed $value Value
-     * @return static
+     * @return $this
      */
     public function set($key, $value = null)
     {
-        if (\is_array($key) || \is_object($key)) {
+        if (\is_iterable($key)) {
             foreach ($key as $k => $v) {
                 $this->vars[$k] = $v;
             }
@@ -90,7 +74,7 @@ class View
     /**
      * Checks if a template variable is set.
      *
-     * @param string $key Key
+     * @param string $key
      *
      * @return bool If key exists
      */
@@ -102,8 +86,9 @@ class View
     /**
      * Unsets a template variable. If no key is passed in, clear all variables.
      *
-     * @param string $key Key
-     * @return static
+     * @param ?string $key
+     *
+     * @return $this
      */
     public function clear($key = null)
     {
@@ -120,24 +105,25 @@ class View
      * Renders a template.
      *
      * @param string $file Template file
-     * @param array<string, mixed>  $data Template data
+     * @param ?array<string, mixed> $data Template data
      *
-     * @throws \Exception If template not found
      * @return void
+     * @throws \Exception If template not found
      */
     public function render($file, $data = null)
     {
         $this->template = $this->getTemplate($file);
 
-        if (!file_exists($this->template)) {
-            throw new \Exception("Template file not found: {$this->template}.");
+        if (!\file_exists($this->template)) {
+            $normalized_path = self::normalizePath($this->template);
+            throw new \Exception("Template file not found: {$normalized_path}.");
         }
 
         if (\is_array($data)) {
-            $this->vars = array_merge($this->vars, $data);
+            $this->vars = \array_merge($this->vars, $data);
         }
 
-        extract($this->vars);
+        \extract($this->vars);
 
         include $this->template;
     }
@@ -146,17 +132,17 @@ class View
      * Gets the output of a template.
      *
      * @param string $file Template file
-     * @param array<string, mixed>  $data Template data
+     * @param ?array<string, mixed> $data Template data
      *
      * @return string Output of template
      */
     public function fetch($file, $data = null)
     {
-        ob_start();
+        \ob_start();
 
         $this->render($file, $data);
 
-        return ob_get_clean();
+        return \ob_get_clean();
     }
 
     /**
@@ -168,7 +154,7 @@ class View
      */
     public function exists($file)
     {
-        return file_exists($this->getTemplate($file));
+        return \file_exists($this->getTemplate($file));
     }
 
     /**
@@ -182,13 +168,13 @@ class View
     {
         $ext = $this->extension;
 
-        if (!empty($ext) && (substr($file, -1 * \strlen($ext)) != $ext)) {
+        if (!empty($ext) && (\substr($file, -1 * \strlen($ext)) != $ext)) {
             $file .= $ext;
         }
 
-		$is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+		$is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
 
-        if (('/' == substr($file, 0, 1)) || ($is_windows === true && ':' == substr($file, 1, 1))) {
+        if (('/' == \substr($file, 0, 1)) || ($is_windows === true && ':' == \substr($file, 1, 1))) {
             return $file;
         }
 
@@ -204,8 +190,19 @@ class View
      */
     public function e($str)
     {
-		$value = htmlentities($str);
+		$value = \htmlentities($str);
         echo $value;
         return $value;
+    }
+
+    /**
+     * @param string $path An unnormalized path.
+     * @param string $separator Path separator.
+     *
+     * @return string Normalized path.
+     */
+    protected static function normalizePath($path, $separator = DIRECTORY_SEPARATOR)
+    {
+        return \str_replace(['\\', '/'], $separator, $path);
     }
 }
