@@ -146,7 +146,7 @@ final class Request
      *
      * @param array<string, mixed> $config Request configuration
      */
-    public function __construct($config = array())
+    public function __construct($config = [])
     {
         // Default properties
         if (empty($config)) {
@@ -312,7 +312,7 @@ final class Request
      */
     public static function parseQuery(string $url): array
     {
-        $params = array();
+        $params = [];
 
         $args = parse_url($url);
         if (isset($args['query'])) {

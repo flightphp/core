@@ -173,8 +173,8 @@ class Engine
         $this->before('start', function () use ($self) {
             // Enable error handling
             if ($self->get('flight.handle_errors')) {
-                set_error_handler(array($self, 'handleError'));
-                set_exception_handler(array($self, 'handleException'));
+                set_error_handler([$self, 'handleError']);
+                set_exception_handler([$self, 'handleException']);
             }
 
             // Set case-sensitivity

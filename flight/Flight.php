@@ -98,7 +98,7 @@ class Flight
      * @param  ?Closure(T $instance): void $callback Perform actions with the instance
      * @return void
      */
-    static function register($name, $class, $params = array(), $callback = null)
+    static function register($name, $class, $params = [], $callback = null)
     {
         static::__callStatic('register', func_get_args());
     }

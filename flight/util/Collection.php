@@ -15,10 +15,6 @@ use Countable;
 use Iterator;
 use JsonSerializable;
 
-if (!interface_exists('JsonSerializable')) {
-    require_once __DIR__ . '/LegacyJsonSerializable.php'; // @codeCoverageIgnore
-}
-
 /**
  * The Collection class allows you to access a set of data
  * using both array and object notation.
