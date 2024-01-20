@@ -1166,7 +1166,7 @@ as an object instance.
 ```php
 require 'flight/autoload.php';
 
-$app = new flight\Engine();
+$app = Flight::app();
 
 $app->route('/', function () {
   echo 'hello world!';
