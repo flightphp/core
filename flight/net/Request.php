@@ -37,7 +37,7 @@ use flight\util\Collection;
  *   - **accept** - HTTP accept parameters
  *   - **proxy_ip** - Proxy IP address of the client
  */
-final class Request
+class Request
 {
     /**
      * @var string URL being requested

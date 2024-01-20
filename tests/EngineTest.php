@@ -227,7 +227,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 	public function testEtagSimple() {
 		$engine = new Engine();
 		$engine->etag('etag');
-		$this->assertEquals('etag', $engine->response()->headers()['ETag']);
+		$this->assertEquals('"etag"', $engine->response()->headers()['ETag']);
 	}
 
 	public function testEtagWithHttpIfNoneMatch() {
@@ -241,7 +241,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		};
 		$_SERVER['HTTP_IF_NONE_MATCH'] = 'etag';
 		$engine->etag('etag');
-		$this->assertEquals('etag', $engine->response()->headers()['ETag']);
+		$this->assertEquals('"etag"', $engine->response()->headers()['ETag']);
 		$this->assertEquals(304, $engine->response()->status());
 	}
 

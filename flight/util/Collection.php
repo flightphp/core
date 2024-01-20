@@ -21,7 +21,7 @@ use JsonSerializable;
  * @implements ArrayAccess<string, mixed>
  * @implements Iterator<string, mixed>
  */
-final class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
+class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 {
     /**
      * Collection data.

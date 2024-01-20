@@ -61,8 +61,17 @@ class Flight
 {
     /**
      * Framework engine.
+	 * 
+	 * @var Engine $engine
      */
     private static Engine $engine;
+
+	/**
+	 * Whether or not the app has been initialized
+	 *
+	 * @var boolean
+	 */
+	private static bool $initialized = false;
 
 	/**
 	 * Don't allow object instantiation
@@ -98,7 +107,7 @@ class Flight
      * @param  ?Closure(T $instance): void $callback Perform actions with the instance
      * @return void
      */
-    static function register($name, $class, $params = [], $callback = null)
+    public static function register($name, $class, $params = [], $callback = null)
     {
         static::__callStatic('register', func_get_args());
     }
@@ -125,14 +134,12 @@ class Flight
      */
     public static function app(): Engine
     {
-        static $initialized = false;
-
-        if (!$initialized) {
+        if (!self::$initialized) {
             require_once __DIR__ . '/autoload.php';
 
             self::setEngine(new Engine());
 
-            $initialized = true;
+            self::$initialized = true;
         }
 
         return self::$engine;

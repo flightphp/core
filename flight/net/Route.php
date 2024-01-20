@@ -15,7 +15,7 @@ namespace flight\net;
  * an assigned callback function. The Router tries to match the
  * requested URL against a series of URL patterns.
  */
-final class Route
+class Route
 {
     /**
      * @var string URL pattern

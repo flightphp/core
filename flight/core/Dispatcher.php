@@ -43,7 +43,7 @@ class Dispatcher
      *
      * @return mixed|null Output of callback
      */
-    final public function run(string $name, array $params = [])
+    public function run(string $name, array $params = [])
     {
         $output = '';
 
@@ -70,7 +70,7 @@ class Dispatcher
      * @param string   $name     Event name
      * @param callable $callback Callback function
      */
-    final public function set(string $name, callable $callback): void
+    public function set(string $name, callable $callback): void
     {
         $this->events[$name] = $callback;
     }
@@ -82,7 +82,7 @@ class Dispatcher
      *
      * @return callable $callback Callback function
      */
-    final public function get(string $name): ?callable
+    public function get(string $name): ?callable
     {
         return $this->events[$name] ?? null;
     }
@@ -94,7 +94,7 @@ class Dispatcher
      *
      * @return bool Event status
      */
-    final public function has(string $name): bool
+    public function has(string $name): bool
     {
         return isset($this->events[$name]);
     }
@@ -105,7 +105,7 @@ class Dispatcher
      *
      * @param string|null $name Event name
      */
-    final public function clear(?string $name = null): void
+    public function clear(?string $name = null): void
     {
         if (null !== $name) {
             unset($this->events[$name]);
@@ -123,7 +123,7 @@ class Dispatcher
      * @param string   $type     Filter type
      * @param callable $callback Callback function
      */
-    final public function hook(string $name, string $type, callable $callback): void
+    public function hook(string $name, string $type, callable $callback): void
     {
         $this->filters[$name][$type][] = $callback;
     }
@@ -137,7 +137,7 @@ class Dispatcher
      *
      * @throws Exception
      */
-    final public function filter(array $filters, array &$params, &$output): void
+    public function filter(array $filters, array &$params, &$output): void
     {
         $args = [&$params, &$output];
         foreach ($filters as $callback) {
@@ -204,7 +204,7 @@ class Dispatcher
     /**
      * Resets the object to the initial state.
      */
-    final public function reset(): void
+    public function reset(): void
     {
         $this->events = [];
         $this->filters = [];
