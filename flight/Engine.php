@@ -728,7 +728,7 @@ class Engine
     {
         $id = (('weak' === $type) ? 'W/' : '') . $id;
 
-        $this->response()->header('ETag', $id);
+        $this->response()->header('ETag', '"'.str_replace('"', '\"', $id).'"');
 
         if (
             isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
