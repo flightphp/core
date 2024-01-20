@@ -147,7 +147,7 @@ class Response
      * @param array<string, int|string>|string $name  Header name or array of names and values
      * @param string|null  $value Header value
      *
-     * @return static Self reference
+     * @return self
      */
     public function header($name, ?string $value = null)
     {

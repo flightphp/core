@@ -179,7 +179,7 @@ final class Request
      * Initialize request properties.
      *
      * @param array<string, mixed> $properties Array of request properties
-     * @return static
+     * @return self
      */
     public function init(array $properties = [])
     {
@@ -267,7 +267,7 @@ final class Request
      */
     public static function getProxyIpAddress(): string
     {
-        static $forwarded = [
+        $forwarded = [
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
             'HTTP_X_FORWARDED',
