@@ -45,7 +45,7 @@ class Router
 	/**
 	 * Group Middleware
 	 *
-	 * @var array
+	 * @var array<int,mixed>
 	 */
 	protected array $group_middlewares = [];
 
@@ -169,7 +169,7 @@ class Router
 	 *
 	 * @param string   $group_prefix group URL prefix (such as /api/v1)
 	 * @param callable $callback     The necessary calling that holds the Router class
-	 * @param array<int,mixed>  $middlewares The middlewares to be applied to the group Ex: [ $middleware1, $middleware2 ]
+	 * @param array<int,callable|object>  $group_middlewares The middlewares to be applied to the group Ex: [ $middleware1, $middleware2 ]
 	 * @return void
 	 */
 	public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void {

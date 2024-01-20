@@ -58,7 +58,7 @@ final class Route
 	public string $alias = '';
 
 	/**
-	 * @var array<callable> The middleware to be applied to the route
+	 * @var array<int,callable|object> The middleware to be applied to the route
 	 */
 	public array $middleware = [];
 
