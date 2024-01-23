@@ -117,7 +117,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		$engine->getLoader()->register('response', function() {
 			return new class extends \flight\net\Response {
 				public function __construct() {}
-				public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+				public function setRealHeader($header_string, $replace = true, $response_code = 0)
 				{
 					return $this;
 				}
@@ -173,7 +173,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		$engine->getLoader()->register('response', function() {
 			return new class extends \flight\net\Response {
 				public function __construct() {}
-				public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+				public function setRealHeader($header_string, $replace = true, $response_code = 0)
 				{
 					return $this;
 				}

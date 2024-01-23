@@ -6,9 +6,7 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-use flight\net\Request;
 use flight\net\Response;
-use flight\util\Collection;
 
 class ResponseTest extends PHPUnit\Framework\TestCase
 {
@@ -164,14 +162,14 @@ class ResponseTest extends PHPUnit\Framework\TestCase
 		$response = new class extends Response {
 			protected $test_sent_headers = [];
 
-			protected array $headers = [
+			protected $headers = [
 				'Cache-Control' => [
 					'no-store, no-cache, must-revalidate',
 					'post-check=0, pre-check=0',
 					'max-age=0',
 				]
 			];
-			public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+			public function setRealHeader($header_string, $replace = true, $response_code = 0)
 			{
 				$this->test_sent_headers[] = $header_string;
 				return $this;
@@ -208,7 +206,7 @@ class ResponseTest extends PHPUnit\Framework\TestCase
 		$response = new class extends Response {
 			protected $test_sent_headers = [];
 
-			public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+			public function setRealHeader($header_string, $replace = true, $response_code = 0)
 			{
 				$this->test_sent_headers[] = $header_string;
 				return $this;

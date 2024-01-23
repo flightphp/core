@@ -20,14 +20,14 @@ use Exception;
 class Response
 {
     /**
-     * header Content-Length.
+     * @var bool Has Content-Length.
      */
-    public bool $content_length = true;
+    public $content_length = true;
 
     /**
      * @var array<int, ?string> HTTP status codes
      */
-    public static array $codes = [
+    public static $codes = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
@@ -100,33 +100,32 @@ class Response
     /**
      * @var int HTTP status
      */
-    protected int $status = 200;
+    protected $status = 200;
 
     /**
      * @var array<string, int|string|array<int, string>> HTTP headers
      */
-    protected array $headers = [];
+    protected $headers = [];
 
     /**
      * @var string HTTP response body
      */
-    protected string $body = '';
+    protected $body = '';
 
     /**
      * @var bool HTTP response sent
      */
-    protected bool $sent = false;
+    protected $sent = false;
 
     /**
      * Sets the HTTP status of the response.
      *
-     * @param int|null $code HTTP status code.
-     *
-     * @throws Exception If invalid status code
+     * @param ?int $code HTTP status code.
      *
      * @return int|static Self reference
+     * @throws Exception If invalid status code
      */
-    public function status(?int $code = null)
+    public function status($code = null)
     {
         if (null === $code) {
             return $this->status;
@@ -145,11 +144,11 @@ class Response
      * Adds a header to the response.
      *
      * @param array<string, int|string>|string $name  Header name or array of names and values
-     * @param string|null  $value Header value
+     * @param ?string  $value Header value
      *
      * @return self
      */
-    public function header($name, ?string $value = null)
+    public function header($name, $value = null)
     {
         if (\is_array($name)) {
             foreach ($name as $k => $v) {
@@ -178,7 +177,7 @@ class Response
      *
      * @return Response Self reference
      */
-    public function write(string $str): self
+    public function write($str)
     {
         $this->body .= $str;
 
@@ -190,7 +189,7 @@ class Response
      *
      * @return Response Self reference
      */
-    public function clear(): self
+    public function clear()
     {
         $this->status = 200;
         $this->headers = [];
@@ -206,7 +205,7 @@ class Response
      *
      * @return Response Self reference
      */
-    public function cache($expires): self
+    public function cache($expires)
     {
         if (false === $expires) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
@@ -233,7 +232,7 @@ class Response
      *
      * @return Response Self reference
      */
-    public function sendHeaders(): self
+    public function sendHeaders()
     {
         // Send status code header
         if (false !== strpos(\PHP_SAPI, 'cgi')) {
@@ -292,7 +291,7 @@ class Response
 	 * @return self
 	 * @codeCoverageIgnore
 	 */
-	public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self {
+	public function setRealHeader($header_string, $replace = true, $response_code = 0) {
 		header($header_string, $replace, $response_code);
 		return $this;
 	}
@@ -302,7 +301,7 @@ class Response
      *
      * @return int Content length
      */
-    public function getContentLength(): int
+    public function getContentLength()
     {
         return \extension_loaded('mbstring') ?
             mb_strlen($this->body, 'latin1') :
@@ -310,17 +309,17 @@ class Response
     }
 
     /**
-     * Gets whether response body was sent.
+     * @return bool Gets whether response body was sent.
      */
-    public function sent(): bool
+    public function sent()
     {
         return $this->sent;
     }
 
     /**
-     * Sends a HTTP response.
+     * @return void Sends a HTTP response.
      */
-    public function send(): void
+    public function send()
     {
         if (ob_get_length() > 0) {
             ob_end_clean(); // @codeCoverageIgnore
