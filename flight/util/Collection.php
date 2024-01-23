@@ -27,14 +27,14 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      * Collection data.
      * @var array<string, mixed>
      */
-    private array $data;
+    private $data;
 
     /**
      * Constructor.
      *
      * @param array<string, mixed> $data Initial data
      */
-    public function __construct(array $data = [])
+    public function __construct($data = [])
     {
         $this->data = $data;
     }
@@ -46,7 +46,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @return mixed Value
      */
-    public function __get(string $key)
+    public function __get($key)
     {
         return $this->data[$key] ?? null;
     }
@@ -57,7 +57,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      * @param string $key   Key
      * @param mixed  $value Value
      */
-    public function __set(string $key, $value): void
+    public function __set($key, $value)
     {
         $this->data[$key] = $value;
     }
@@ -65,11 +65,11 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     /**
      * Checks if an item exists.
      *
-     * @param string $key Key
+     * @param string $key
      *
      * @return bool Item status
      */
-    public function __isset(string $key): bool
+    public function __isset($key)
     {
         return isset($this->data[$key]);
     }
@@ -79,7 +79,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @param string $key Key
      */
-    public function __unset(string $key): void
+    public function __unset($key)
     {
         unset($this->data[$key]);
     }
@@ -104,7 +104,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      * @param mixed  $value  Value
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value): void
+    public function offsetSet($offset, $value)
     {
         if (null === $offset) {
             $this->data[] = $value;
@@ -120,7 +120,8 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @return bool Item status
      */
-    public function offsetExists($offset): bool
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset)
     {
         return isset($this->data[$offset]);
     }
@@ -130,7 +131,8 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @param string $offset Offset
      */
-    public function offsetUnset($offset): void
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset)
     {
         unset($this->data[$offset]);
     }
@@ -138,7 +140,8 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     /**
      * Resets the collection.
      */
-    public function rewind(): void
+    #[\ReturnTypeWillChange]
+    public function rewind()
     {
         reset($this->data);
     }
@@ -169,7 +172,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      * Gets the next collection value.
      */
     #[\ReturnTypeWillChange]
-    public function next(): void
+    public function next()
     {
         next($this->data);
     }
@@ -179,7 +182,8 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @return bool Key status
      */
-    public function valid(): bool
+    #[\ReturnTypeWillChange]
+    public function valid()
     {
         $key = key($this->data);
 
@@ -191,7 +195,8 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @return int Collection size
      */
-    public function count(): int
+    #[\ReturnTypeWillChange]
+    public function count()
     {
         return \count($this->data);
     }
@@ -201,7 +206,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @return array<int, string> Collection keys
      */
-    public function keys(): array
+    public function keys()
     {
         return array_keys($this->data);
     }
@@ -211,7 +216,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @return array<string, mixed> Collection data
      */
-    public function getData(): array
+    public function getData()
     {
         return $this->data;
     }
@@ -221,7 +226,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      *
      * @param array<string, mixed> $data New collection data
      */
-    public function setData(array $data): void
+    public function setData($data)
     {
         $this->data = $data;
     }
@@ -235,7 +240,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     /**
      * Removes all items from the collection.
      */
-    public function clear(): void
+    public function clear()
     {
         $this->data = [];
     }

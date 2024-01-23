@@ -12,10 +12,13 @@
                     "intelephense.format.braces": "psr12",
                 },
             },
-            "formatters":
-            {
-				"embedding.php": "LSP-intelephense"
-			},
+            "formatters": {
+                "embedding.php": "LSP-intelephense",
+                "source.json.sublime": "LSP-json",
+            },
+            "LSP-tailwindcss": {
+                "enabled": false,
+            },
         },
     },
 }
