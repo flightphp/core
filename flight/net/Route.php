@@ -20,7 +20,7 @@ class Route
     /**
      * @var string URL pattern
      */
-    public string $pattern;
+    public $pattern;
 
     /**
      * @var mixed Callback function
@@ -30,37 +30,37 @@ class Route
     /**
      * @var array<int, string> HTTP methods
      */
-    public array $methods = [];
+    public $methods = [];
 
     /**
      * @var array<int, ?string> Route parameters
      */
-    public array $params = [];
+    public $params = [];
 
     /**
-     * @var string|null Matching regular expression
+     * @var ?string Matching regular expression
      */
-    public ?string $regex = null;
+    public $regex = null;
 
     /**
      * @var string URL splat content
      */
-    public string $splat = '';
+    public $splat = '';
 
     /**
      * @var bool Pass self in callback parameters
      */
-    public bool $pass = false;
+    public $pass = false;
 
 	/**
 	 * @var string The alias is a way to identify the route using a simple name ex: 'login' instead of /admin/login
 	 */
-	public string $alias = '';
+	public $alias = '';
 
 	/**
 	 * @var array<int,callable|object> The middleware to be applied to the route
 	 */
-	public array $middleware = [];
+	public $middleware = [];
 
     /**
      * Constructor.
@@ -70,7 +70,7 @@ class Route
      * @param array<int, string>  $methods  HTTP methods
      * @param bool   $pass     Pass self in callback parameters
      */
-    public function __construct(string $pattern, $callback, array $methods, bool $pass, string $alias = '')
+    public function __construct($pattern, $callback, $methods, $pass, $alias = '')
     {
         $this->pattern = $pattern;
         $this->callback = $callback;
@@ -87,7 +87,7 @@ class Route
      *
      * @return bool Match status
      */
-    public function matchUrl(string $url, bool $case_sensitive = false): bool
+    public function matchUrl($url, $case_sensitive = false)
     {
         // Wildcard or exact match
         if ('*' === $this->pattern || $this->pattern === $url) {
@@ -160,7 +160,7 @@ class Route
      *
      * @return bool Match status
      */
-    public function matchMethod(string $method): bool
+    public function matchMethod($method)
     {
         return \count(array_intersect([$method, '*'], $this->methods)) > 0;
     }
@@ -169,9 +169,9 @@ class Route
 	 * Checks if an alias matches the route alias.
 	 *
 	 * @param string $alias [description]
-	 * @return boolean
+	 * @return bool
 	 */
-	public function matchAlias(string $alias): bool
+	public function matchAlias($alias)
 	{
 		return $this->alias === $alias;
 	}
@@ -182,7 +182,7 @@ class Route
 	 * @param array<string,mixed> $params the parameters to pass to the route
 	 * @return string
 	 */
-	public function hydrateUrl(array $params = []): string {
+	public function hydrateUrl($params = []) {
 		$url = preg_replace_callback("/(?:@([a-zA-Z0-9]+)(?:\:([^\/]+))?\)*)/i", function($match) use ($params) {
 			if(isset($match[1]) && isset($params[$match[1]])) {
 				return $params[$match[1]];
@@ -198,10 +198,12 @@ class Route
 
 	/**
 	 * Sets the route alias
+     *
+     * @param string $alias
 	 *
 	 * @return self
 	 */
-	public function setAlias(string $alias): self {
+	public function setAlias($alias) {
 		$this->alias = $alias;
 		return $this;
 	}
@@ -212,7 +214,7 @@ class Route
 	 * @param array<callable>|callable $middleware
 	 * @return self
 	 */
-	public function addMiddleware($middleware): self {
+	public function addMiddleware($middleware) {
 		if(is_array($middleware) === true) {
 			$this->middleware = array_merge($this->middleware, $middleware);
 		} else {
