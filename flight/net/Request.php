@@ -42,104 +42,104 @@ class Request
     /**
      * @var string URL being requested
      */
-    public string $url;
+    public $url;
 
     /**
      * @var string Parent subdirectory of the URL
      */
-    public string $base;
+    public $base;
 
     /**
      * @var string Request method (GET, POST, PUT, DELETE)
      */
-    public string $method;
+    public $method;
 
     /**
      * @var string Referrer URL
      */
-    public string $referrer;
+    public $referrer;
 
     /**
      * @var string IP address of the client
      */
-    public string $ip;
+    public $ip;
 
     /**
      * @var bool Whether the request is an AJAX request
      */
-    public bool $ajax;
+    public $ajax;
 
     /**
      * @var string Server protocol (http, https)
      */
-    public string $scheme;
+    public $scheme;
 
     /**
      * @var string Browser information
      */
-    public string $user_agent;
+    public $user_agent;
 
     /**
      * @var string Content type
      */
-    public string $type;
+    public $type;
 
     /**
      * @var int Content length
      */
-    public int $length;
+    public $length;
 
     /**
      * @var Collection Query string parameters
      */
-    public Collection $query;
+    public $query;
 
     /**
      * @var Collection Post parameters
      */
-    public Collection $data;
+    public $data;
 
     /**
      * @var Collection Cookie parameters
      */
-    public Collection $cookies;
+    public $cookies;
 
     /**
      * @var Collection Uploaded files
      */
-    public Collection $files;
+    public $files;
 
     /**
      * @var bool Whether the connection is secure
      */
-    public bool $secure;
+    public $secure;
 
     /**
      * @var string HTTP accept parameters
      */
-    public string $accept;
+    public $accept;
 
     /**
      * @var string Proxy IP address of the client
      */
-    public string $proxy_ip;
+    public $proxy_ip;
 
     /**
      * @var string HTTP host name
      */
-    public string $host;
+    public $host;
 
     /**
      * Stream path for where to pull the request body from
      *
      * @var string
      */
-    private string $stream_path = 'php://input';
+    private $stream_path = 'php://input';
 
     /**
      * @var string Raw HTTP request body
      */
-    public string $body = '';
+    public $body = '';
 
     /**
      * Constructor.
@@ -181,7 +181,7 @@ class Request
      * @param array<string, mixed> $properties Array of request properties
      * @return self
      */
-    public function init(array $properties = [])
+    public function init($properties = [])
     {
         // Set all the defined properties
         foreach ($properties as $name => $value) {
@@ -225,7 +225,7 @@ class Request
      *
      * @return string Raw HTTP request body
      */
-    public function getBody(): string
+    public function getBody()
     {
         $body = $this->body;
 
@@ -246,8 +246,10 @@ class Request
 
     /**
      * Gets the request method.
+     *
+     * @return string
      */
-    public static function getMethod(): string
+    public static function getMethod()
     {
         $method = self::getVar('REQUEST_METHOD', 'GET');
 
@@ -265,7 +267,7 @@ class Request
      *
      * @return string IP address
      */
-    public static function getProxyIpAddress(): string
+    public static function getProxyIpAddress()
     {
         $forwarded = [
             'HTTP_CLIENT_IP',
@@ -298,7 +300,7 @@ class Request
      *
      * @return mixed Server variable value
      */
-    public static function getVar(string $var, $default = '')
+    public static function getVar($var, $default = '')
     {
         return $_SERVER[$var] ?? $default;
     }
@@ -310,7 +312,7 @@ class Request
      *
      * @return array<string, int|string|array<int|string, int|string>>
      */
-    public static function parseQuery(string $url): array
+    public static function parseQuery($url)
     {
         $params = [];
 
@@ -322,7 +324,8 @@ class Request
         return $params;
     }
 
-    public static function getScheme(): string
+    /** @return 'http'|'https' */
+    public static function getScheme()
     {
         if (
             (isset($_SERVER['HTTPS']) && 'on' === strtolower($_SERVER['HTTPS']))
