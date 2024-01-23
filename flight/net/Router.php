@@ -21,40 +21,40 @@ use flight\net\Route;
 class Router
 {
     /**
-     * Case sensitive matching.
+     * @var bool Case sensitive matching.
      */
-    public bool $case_sensitive = false;
+    public $case_sensitive = false;
     /**
      * Mapped routes.
      * @var array<int,Route>
      */
-    protected array $routes = [];
+    protected $routes = [];
 
     /**
-     * Pointer to current route.
+     * @var int Pointer to current route.
      */
-    protected int $index = 0;
+    protected $index = 0;
 
 	/**
 	 * When groups are used, this is mapped against all the routes
 	 *
 	 * @var string
 	 */
-	protected string $group_prefix = '';
+	protected $group_prefix = '';
 
 	/**
 	 * Group Middleware
 	 *
 	 * @var array<int,mixed>
 	 */
-	protected array $group_middlewares = [];
+	protected $group_middlewares = [];
 
     /**
      * Gets mapped routes.
      *
      * @return array<int,Route> Array of routes
      */
-    public function getRoutes(): array
+    public function getRoutes()
     {
         return $this->routes;
     }
@@ -62,7 +62,7 @@ class Router
     /**
      * Clears all routes in the router.
      */
-    public function clear(): void
+    public function clear()
     {
         $this->routes = [];
     }
@@ -76,7 +76,7 @@ class Router
 	 * @param string   $route_alias Alias for the route
 	 * @return Route
      */
-    public function map(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): Route
+    public function map($pattern, $callback, $pass_route = false, $route_alias = '')
     {
         $url = trim($pattern);
         $methods = ['*'];
@@ -108,7 +108,7 @@ class Router
 	 * @param string   $alias 	   Alias for the route
 	 * @return Route
 	 */
-	public function get(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
+	public function get($pattern, $callback, $pass_route = false, $alias = '') {
 		return $this->map('GET ' . $pattern, $callback, $pass_route, $alias);
 	}
 
@@ -121,7 +121,7 @@ class Router
 	 * @param string   $alias 	   Alias for the route
 	 * @return Route
 	 */
-	public function post(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
+	public function post($pattern, $callback, $pass_route = false, $alias = '') {
 		return $this->map('POST ' . $pattern, $callback, $pass_route, $alias);
 	}
 
@@ -134,7 +134,7 @@ class Router
 	 * @param string   $alias 	   Alias for the route
 	 * @return Route
 	 */
-	public function put(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
+	public function put($pattern, $callback, $pass_route = false, $alias = '') {
 		return $this->map('PUT ' . $pattern, $callback, $pass_route, $alias);
 	}
 
@@ -147,7 +147,7 @@ class Router
 	 * @param string   $alias 	   Alias for the route
 	 * @return Route
 	 */
-	public function patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
+	public function patch($pattern, $callback, $pass_route = false, $alias = '') {
 		return $this->map('PATCH ' . $pattern, $callback, $pass_route, $alias);
 	}
 
@@ -160,7 +160,7 @@ class Router
 	 * @param string   $alias 	   Alias for the route
 	 * @return Route
 	 */
-	public function delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
+	public function delete($pattern, $callback, $pass_route = false, $alias = '') {
 		return $this->map('DELETE ' . $pattern, $callback, $pass_route, $alias);
 	}
 
@@ -172,7 +172,7 @@ class Router
 	 * @param array<int,callable|object>  $group_middlewares The middlewares to be applied to the group Ex: [ $middleware1, $middleware2 ]
 	 * @return void
 	 */
-	public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void {
+	public function group($group_prefix, $callback, $group_middlewares = []) {
 		$old_group_prefix = $this->group_prefix;
 		$old_group_middlewares = $this->group_middlewares;
 		$this->group_prefix .= $group_prefix;
@@ -189,7 +189,7 @@ class Router
      *
      * @return bool|Route Matching route or false if no match
      */
-    public function route(Request $request)
+    public function route($request)
     {
         $url_decoded = urldecode($request->url);
         while ($route = $this->current()) {
@@ -209,7 +209,7 @@ class Router
 	 * @param array<string,mixed>  $params the parameters to pass to the route
 	 * @return string
 	 */
-	public function getUrlByAlias(string $alias, array $params = []): string {
+	public function getUrlByAlias($alias, $params = []) {
 		$potential_aliases = [];
 		foreach($this->routes as $route) {
 			$potential_aliases[] = $route->alias;
@@ -241,7 +241,7 @@ class Router
 	/**
 	 * Rewinds the current route index.
 	 */
-	public function rewind(): void
+	public function rewind()
 	{
 		$this->index = 0;
 	}
@@ -251,7 +251,7 @@ class Router
 	 *
 	 * @return bool More routes
 	 */
-	public function valid(): bool
+	public function valid()
 	{
 		return isset($this->routes[$this->index]);
 	}
@@ -269,7 +269,7 @@ class Router
     /**
      * Gets the next route.
      */
-    public function next(): void
+    public function next()
     {
         $this->index++;
     }
@@ -277,7 +277,7 @@ class Router
     /**
      * Reset to the first route.
      */
-    public function reset(): void
+    public function reset()
     {
         $this->index = 0;
     }
