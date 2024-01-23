@@ -102,6 +102,8 @@ class Dispatcher
      * Clears an event. If no name is given, all events are removed.
      *
      * @param ?string $name Event name
+     *
+     * @return void
      */
     public function clear($name = null)
     {
@@ -120,6 +122,8 @@ class Dispatcher
      * @param string   $name     Event name
      * @param string   $type     Filter type
      * @param callable $callback Callback function
+     *
+     * @return void
      */
     public function hook($name, $type, $callback)
     {
@@ -133,6 +137,7 @@ class Dispatcher
      * @param array<int, mixed> $params  Method parameters
      * @param mixed $output  Method output
      *
+     * @return void
      * @throws Exception
      */
     public function filter($filters, &$params, &$output)
@@ -200,6 +205,8 @@ class Dispatcher
 
     /**
      * Resets the object to the initial state.
+     *
+     * @return void
      */
     public function reset()
     {

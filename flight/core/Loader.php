@@ -47,6 +47,8 @@ class Loader
      * @param class-string<T> $class    Class name or function to instantiate class
      * @param array<int, mixed>           $params   Class initialization parameters
      * @param ?callable(T $instance): void   $callback $callback Function to call after object instantiation
+     *
+     * @return void
      */
     public function register($name, $class, $params = [], $callback = null)
     {
@@ -59,6 +61,8 @@ class Loader
      * Unregisters a class.
      *
      * @param string $name Registry name
+     *
+     * @return void
      */
     public function unregister($name)
     {
@@ -147,6 +151,8 @@ class Loader
 
     /**
      * Resets the object to the initial state.
+     *
+     * @return void
      */
     public function reset()
     {
@@ -161,6 +167,8 @@ class Loader
      *
      * @param bool  $enabled Enable/disable autoloading
      * @param string|iterable<int, string> $dirs    Autoload directories
+     *
+     * @return void
      */
     public static function autoload($enabled = true, $dirs = [])
     {
@@ -181,6 +189,8 @@ class Loader
 	 * Classes are not allowed to have underscores in their names.
      *
      * @param string $class Class name
+     *
+     * @return void
      */
     public static function loadClass($class)
     {
@@ -200,6 +210,8 @@ class Loader
      * Adds a directory for autoloading classes.
      *
      * @param string|iterable<int, string> $dir Directory path
+     *
+     * @return void
      */
     public static function addDirectory($dir)
     {

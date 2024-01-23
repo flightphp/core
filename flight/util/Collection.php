@@ -225,6 +225,8 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      * Sets the collection data.
      *
      * @param array<string, mixed> $data New collection data
+     *
+     * @return void
      */
     public function setData($data)
     {
@@ -239,6 +241,8 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 
     /**
      * Removes all items from the collection.
+     *
+     * @return void
      */
     public function clear()
     {

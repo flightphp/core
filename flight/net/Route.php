@@ -69,6 +69,7 @@ class Route
      * @param callable  $callback Callback function
      * @param array<int, string>  $methods  HTTP methods
      * @param bool   $pass     Pass self in callback parameters
+     * @param string $alias
      */
     public function __construct($pattern, $callback, $methods, $pass, $alias = '')
     {

@@ -129,6 +129,8 @@ class Engine
 
     /**
      * Initializes the framework.
+     *
+     * @return void
      */
     public function init()
     {
@@ -210,6 +212,8 @@ class Engine
      * Custom exception handler. Logs exceptions.
      *
      * @param Throwable $e Thrown exception
+     *
+     * @return void
      */
     public function handleException($e)
     {
@@ -226,6 +230,7 @@ class Engine
      * @param string   $name     Method name
      * @param callable $callback Callback function
      *
+     * @return void
      * @throws Exception If trying to map over a framework method
      */
     public function map($name, $callback)
@@ -246,6 +251,7 @@ class Engine
      * @param array<int, mixed> $params   Class initialization parameters
      * @param ?callable(T $instance): void $callback Function to call after object instantiation
      *
+     * @return void
      * @throws Exception If trying to map over a framework method
      */
     public function register($name, $class, $params = [], $callback = null)
@@ -262,6 +268,8 @@ class Engine
      *
      * @param string   $name     Method name
      * @param callable $callback Callback function
+     *
+     * @return void
      */
     public function before($name, $callback)
     {
@@ -273,6 +281,8 @@ class Engine
      *
      * @param string   $name     Method name
      * @param callable $callback Callback function
+     *
+     * @return void
      */
     public function after($name, $callback)
     {
@@ -299,7 +309,9 @@ class Engine
      * Sets a variable.
      *
      * @param mixed      $key
-     * @param mixed|null $value Value
+     * @param mixed|null $value
+     *
+     * @return void
      */
     public function set($key, $value = null)
     {
@@ -328,6 +340,8 @@ class Engine
      * Unsets a variable. If no key is passed in, clear all variables.
      *
      * @param ?string $key
+     *
+     * @return void
      */
     public function clear($key = null)
     {
@@ -342,6 +356,8 @@ class Engine
      * Adds a path for class autoloading.
      *
      * @param string $dir Directory path
+     *
+     * @return void
      */
     public function path($dir)
     {
@@ -353,6 +369,7 @@ class Engine
     /**
      * Starts the framework.
      *
+     * @return void
      * @throws Exception
      */
     public function _start()
@@ -488,6 +505,7 @@ class Engine
      *
      * @param ?int $code HTTP status code
      *
+     * @return void
      * @throws Exception
      */
     public function _stop($code = null)
@@ -526,6 +544,8 @@ class Engine
      * @param string   		  $pattern    			URL pattern to match
      * @param callable 		  $callback   			Callback function that includes the Router class as first parameter
 	 * @param array<callable> $group_middlewares 	The middleware to be applied to the route
+     *
+     * @return void
      */
     public function _group($pattern, $callback, $group_middlewares = [])
     {
@@ -538,6 +558,8 @@ class Engine
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+     *
+     * @return void
      */
     public function _post($pattern, $callback, $pass_route = false)
     {
@@ -550,6 +572,8 @@ class Engine
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+     *
+     * @return void
      */
     public function _put($pattern, $callback, $pass_route = false)
     {
@@ -562,6 +586,8 @@ class Engine
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+     *
+     * @return void
      */
     public function _patch($pattern, $callback, $pass_route = false)
     {
@@ -574,6 +600,8 @@ class Engine
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
+     *
+     * @return void
      */
     public function _delete($pattern, $callback, $pass_route = false)
     {
@@ -585,7 +613,8 @@ class Engine
      *
      * @param int    $code    HTTP status code
      * @param string $message Response message
-	 * 
+     *
+     * @return void
      */
     public function _halt($code = 200, $message = '')
     {
@@ -602,6 +631,8 @@ class Engine
 
     /**
      * Sends an HTTP 404 response when a URL is not found.
+     *
+     * @return void
      */
     public function _notFound()
     {
@@ -621,6 +652,8 @@ class Engine
      *
      * @param string $url  URL
      * @param int    $code HTTP status code
+     *
+     * @return void
      */
     public function _redirect($url, $code = 303)
     {
@@ -649,6 +682,7 @@ class Engine
      * @param ?array<string, mixed> $data Template data
      * @param ?string $key  View variable name
      *
+     * @return void
      * @throws Exception
      */
     public function _render($file, $data = null, $key = null)
@@ -669,6 +703,7 @@ class Engine
      * @param string $charset Charset
      * @param int    $option  Bitmask Json constant such as JSON_HEX_QUOT
      *
+     * @return void
      * @throws Exception
      */
     public function _json(
@@ -697,6 +732,7 @@ class Engine
      * @param string $charset Charset
      * @param int    $option  Bitmask Json constant such as JSON_HEX_QUOT
      *
+     * @return void
      * @throws Exception
      */
     public function _jsonp(
@@ -723,6 +759,8 @@ class Engine
      *
      * @param string $id   ETag identifier
      * @param string $type ETag type
+     *
+     * @return void
      */
     public function _etag($id, $type = 'strong')
     {
@@ -742,6 +780,8 @@ class Engine
      * Handles last modified HTTP caching.
      *
      * @param int $time Unix timestamp
+     *
+     * @return void
      */
     public function _lastModified($time)
     {
@@ -760,6 +800,8 @@ class Engine
 	 *
 	 * @param string $alias the route alias.
 	 * @param array<string, mixed> $params The params for the route if applicable.
+     *
+     * @return string
 	 */
 	public function _getUrl($alias, $params = [])
 	{

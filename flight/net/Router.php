@@ -61,6 +61,8 @@ class Router
 
     /**
      * Clears all routes in the router.
+     *
+     * @return void
      */
     public function clear()
     {
@@ -240,6 +242,8 @@ class Router
 
 	/**
 	 * Rewinds the current route index.
+     *
+     * @return void
 	 */
 	public function rewind()
 	{
@@ -268,6 +272,8 @@ class Router
 
     /**
      * Gets the next route.
+     *
+     * @return void
      */
     public function next()
     {
@@ -276,6 +282,8 @@ class Router
 
     /**
      * Reset to the first route.
+     *
+     * @return void
      */
     public function reset()
     {
