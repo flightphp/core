@@ -2,6 +2,7 @@
     "folders": [
         {
             "path": ".",
+            "name": "FlightPHP/Core",
         }
     ],
     "settings": {
@@ -19,6 +20,21 @@
             "LSP-tailwindcss": {
                 "enabled": false,
             },
+            "LSP-html": {
+                "enabled": false
+            },
         },
     },
+    "build_systems": [
+        {
+            "name": "Linter - HARD",
+            "shell_cmd": "composer lint -- --no-ansi -lmax",
+            "quiet": true,
+        },
+        {
+            "name": "Linter - Default",
+            "shell_cmd": "composer lint -- --no-ansi",
+            "quiet": true,
+        }
+    ],
 }
