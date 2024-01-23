@@ -25,13 +25,13 @@ class Dispatcher
      * Mapped events.
      * @var array<string, callable>
      */
-    protected array $events = [];
+    protected $events = [];
 
     /**
      * Method filters.
      * @var array<string, array<'before'|'after', array<int, callable>>>
      */
-    protected array $filters = [];
+    protected $filters = [];
 
     /**
      * Dispatches an event.
@@ -39,11 +39,10 @@ class Dispatcher
      * @param string $name   Event name
      * @param array<int, mixed>  $params Callback parameters
      *
-     * @throws Exception
-     *
      * @return mixed|null Output of callback
+     * @throws Exception
      */
-    public function run(string $name, array $params = [])
+    public function run($name, $params = [])
     {
         $output = '';
 
@@ -70,7 +69,7 @@ class Dispatcher
      * @param string   $name     Event name
      * @param callable $callback Callback function
      */
-    public function set(string $name, callable $callback): void
+    public function set($name, $callback): void
     {
         $this->events[$name] = $callback;
     }
@@ -80,9 +79,9 @@ class Dispatcher
      *
      * @param string $name Event name
      *
-     * @return callable $callback Callback function
+     * @return ?callable $callback Callback function
      */
-    public function get(string $name): ?callable
+    public function get($name)
     {
         return $this->events[$name] ?? null;
     }
@@ -94,18 +93,17 @@ class Dispatcher
      *
      * @return bool Event status
      */
-    public function has(string $name): bool
+    public function has($name)
     {
         return isset($this->events[$name]);
     }
 
     /**
-     * Clears an event. If no name is given,
-     * all events are removed.
+     * Clears an event. If no name is given, all events are removed.
      *
-     * @param string|null $name Event name
+     * @param ?string $name Event name
      */
-    public function clear(?string $name = null): void
+    public function clear($name = null)
     {
         if (null !== $name) {
             unset($this->events[$name]);
@@ -123,7 +121,7 @@ class Dispatcher
      * @param string   $type     Filter type
      * @param callable $callback Callback function
      */
-    public function hook(string $name, string $type, callable $callback): void
+    public function hook($name, $type, $callback)
     {
         $this->filters[$name][$type][] = $callback;
     }
@@ -137,7 +135,7 @@ class Dispatcher
      *
      * @throws Exception
      */
-    public function filter(array $filters, array &$params, &$output): void
+    public function filter($filters, &$params, &$output)
     {
         $args = [&$params, &$output];
         foreach ($filters as $callback) {
@@ -154,11 +152,10 @@ class Dispatcher
      * @param callable|array<class-string|object, string> $callback Callback function
      * @param array<int, mixed>          $params   Function parameters
      *
-     * @throws Exception
-     *
      * @return mixed Function results
+     * @throws Exception
      */
-    public static function execute($callback, array &$params = [])
+    public static function execute($callback, &$params = [])
     {
         if (\is_callable($callback)) {
             return \is_array($callback) ?
@@ -177,7 +174,7 @@ class Dispatcher
      *
      * @return mixed Function results
      */
-    public static function callFunction($func, array &$params = [])
+    public static function callFunction($func, &$params = [])
     {
 		return call_user_func_array($func, $params);
     }
@@ -190,7 +187,7 @@ class Dispatcher
      *
      * @return mixed Function results
      */
-    public static function invokeMethod($func, array &$params = [])
+    public static function invokeMethod($func, &$params = [])
     {
         [$class, $method] = $func;
 
@@ -204,7 +201,7 @@ class Dispatcher
     /**
      * Resets the object to the initial state.
      */
-    public function reset(): void
+    public function reset()
     {
         $this->events = [];
         $this->filters = [];
