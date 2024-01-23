@@ -35,27 +35,27 @@ use flight\net\Route;
  *
  * @method  static void map(string $name, callable $callback) Creates a custom framework method.
  *
- * @method  static void before($name, $callback) Adds a filter before a framework method.
- * @method  static void after($name, $callback) Adds a filter after a framework method.
+ * @method  static void before(string $name, callable(array &$params, string &$output): void|false $callback) Adds a filter before a framework method.
+ * @method  static void after(string $name, callable(array &$params, string &$output): void|false $callback) Adds a filter after a framework method.
  *
- * @method  static void set($key, $value) Sets a variable.
- * @method  static mixed get($key) Gets a variable.
- * @method  static bool has($key) Checks if a variable is set.
- * @method  static void clear($key = null) Clears a variable.
+ * @method  static void set(string $key, mixed $value) Sets a variable.
+ * @method  static mixed get(string $key) Gets a variable.
+ * @method  static bool has(string $key) Checks if a variable is set.
+ * @method  static void clear(?string $key = null) Clears a variable.
  *
- * @method  static void render($file, array $data = null, $key = null) Renders a template file.
+ * @method  static void render(string $file, array $data = null, ?string $key = null) Renders a template file.
  * @method  static View view() Returns View instance.
  *
  * @method  static Request request() Returns Request instance.
  * @method  static Response response() Returns Response instance.
- * @method  static void redirect($url, $code = 303) Redirects to another URL.
- * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
- * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
- * @method  static void error($exception) Sends an HTTP 500 response.
+ * @method  static void redirect(string $url, int $code = 303) Redirects to another URL.
+ * @method  static void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512) Sends a JSON response.
+ * @method  static void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512) Sends a JSONP response.
+ * @method  static void error(Throwable $exception) Sends an HTTP 500 response.
  * @method  static void notFound() Sends an HTTP 404 response.
  *
- * @method  static void etag($id, $type = 'strong') Performs ETag HTTP caching.
- * @method  static void lastModified($time) Performs last modified HTTP caching.
+ * @method  static void etag(string $id, string $type = 'strong') Performs ETag HTTP caching.
+ * @method  static void lastModified(int $time) Performs last modified HTTP caching.
  */
 class Flight
 {
