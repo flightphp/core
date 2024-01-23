@@ -64,14 +64,14 @@ class Flight
 	 * 
 	 * @var Engine $engine
      */
-    private static Engine $engine;
+    private static $engine;
 
 	/**
 	 * Whether or not the app has been initialized
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
-	private static bool $initialized = false;
+	private static $initialized = false;
 
 	/**
 	 * Don't allow object instantiation
@@ -118,11 +118,10 @@ class Flight
      * @param string $name   Method name
      * @param array<int, mixed>  $params Method parameters
      *
-     * @throws Exception
-     *
      * @return mixed Callback results
+     * @throws Exception
      */
-    public static function __callStatic(string $name, array $params)
+    public static function __callStatic($name, $params)
     {
         $app = self::app();
 
@@ -132,7 +131,7 @@ class Flight
     /**
      * @return Engine Application instance
      */
-    public static function app(): Engine
+    public static function app()
     {
         if (!self::$initialized) {
             require_once __DIR__ . '/autoload.php';
@@ -151,7 +150,7 @@ class Flight
 	 * @param Engine $engine Vroom vroom!
 	 * @return void
 	 */
-	public static function setEngine(Engine $engine): void
+	public static function setEngine($engine)
 	{
 		self::$engine = $engine;
 	}
