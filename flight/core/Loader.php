@@ -12,8 +12,6 @@ namespace flight\core;
 
 use Closure;
 use Exception;
-use ReflectionClass;
-use ReflectionException;
 
 /**
  * The Loader class is responsible for loading objects. It maintains
@@ -27,19 +25,19 @@ class Loader
      * Registered classes.
      * @var array<string, array{class-string, array<int, mixed>, ?callable}> $classes
      */
-    protected array $classes = [];
+    protected $classes = [];
 
     /**
      * Class instances.
      * @var array<string, object>
      */
-    protected array $instances = [];
+    protected $instances = [];
 
     /**
      * Autoload directories.
      * @var array<int, string>
      */
-    protected static array $dirs = [];
+    protected array $dirs = [];
 
     /**
      * Registers a class.
@@ -50,7 +48,7 @@ class Loader
      * @param array<int, mixed>           $params   Class initialization parameters
      * @param ?callable(T $instance): void   $callback $callback Function to call after object instantiation
      */
-    public function register(string $name, $class, array $params = [], ?callable $callback = null): void
+    public function register($name, $class, $params = [], $callback = null)
     {
         unset($this->instances[$name]);
 
@@ -62,7 +60,7 @@ class Loader
      *
      * @param string $name Registry name
      */
-    public function unregister(string $name): void
+    public function unregister($name)
     {
         unset($this->classes[$name]);
     }
@@ -73,11 +71,10 @@ class Loader
      * @param string $name   Method name
      * @param bool   $shared Shared instance
      *
+     * @return ?object Class instance
      * @throws Exception
-     *
-     * @return object Class instance
      */
-    public function load(string $name, bool $shared = true): ?object
+    public function load($name, $shared = true)
     {
         $obj = null;
 
@@ -112,9 +109,9 @@ class Loader
      *
      * @param string $name Instance name
      *
-     * @return object Class instance
+     * @return ?object Class instance
      */
-    public function getInstance(string $name): ?object
+    public function getInstance($name)
     {
         return $this->instances[$name] ?? null;
     }
@@ -126,11 +123,10 @@ class Loader
      * @param class-string<T>|Closure(): class-string<T> $class  Class name or callback function to instantiate class
      * @param array<int, string>           $params Class initialization parameters
      *
-     * @throws Exception
-     *
      * @return T Class instance
+     * @throws Exception
      */
-    public function newInstance($class, array $params = [])
+    public function newInstance($class, $params = [])
     {
         if (\is_callable($class)) {
             return \call_user_func_array($class, $params);
@@ -144,7 +140,7 @@ class Loader
      *
      * @return mixed Class information or null if not registered
      */
-    public function get(string $name)
+    public function get($name)
     {
         return $this->classes[$name] ?? null;
     }
@@ -152,7 +148,7 @@ class Loader
     /**
      * Resets the object to the initial state.
      */
-    public function reset(): void
+    public function reset()
     {
         $this->classes = [];
         $this->instances = [];
@@ -166,7 +162,7 @@ class Loader
      * @param bool  $enabled Enable/disable autoloading
      * @param string|iterable<int, string> $dirs    Autoload directories
      */
-    public static function autoload(bool $enabled = true, $dirs = []): void
+    public static function autoload($enabled = true, $dirs = [])
     {
         if ($enabled) {
             spl_autoload_register([__CLASS__, 'loadClass']);
@@ -186,7 +182,7 @@ class Loader
      *
      * @param string $class Class name
      */
-    public static function loadClass(string $class): void
+    public static function loadClass($class)
     {
         $class_file = str_replace(['\\', '_'], '/', $class) . '.php';
 
@@ -205,7 +201,7 @@ class Loader
      *
      * @param string|iterable<int, string> $dir Directory path
      */
-    public static function addDirectory($dir): void
+    public static function addDirectory($dir)
     {
         if (\is_array($dir) || \is_object($dir)) {
             foreach ($dir as $value) {
