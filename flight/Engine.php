@@ -66,24 +66,24 @@ class Engine
      * Stored variables.
      * @var array<string, mixed>
      */
-    protected array $vars;
+    protected $vars;
 
     /**
-     * Class loader.
+     * @var Loader Class loader.
      */
-    protected Loader $loader;
+    protected $loader;
 
     /**
-     * Event dispatcher.
+     * @var Dispatcher Event dispatcher.
      */
-    protected Dispatcher $dispatcher;
+    protected $dispatcher;
 
 	/**
 	 * If the framework has been initialized or not
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
-	protected bool $initialized = false;
+	protected $initialized = false;
 
     /**
      * Constructor.
@@ -108,7 +108,7 @@ class Engine
      *
      * @return mixed Callback results
      */
-    public function __call(string $name, array $params)
+    public function __call($name, $params)
     {
         $callback = $this->dispatcher->get($name);
 
@@ -130,7 +130,7 @@ class Engine
     /**
      * Initializes the framework.
      */
-    public function init(): void
+    public function init()
     {
         $initialized = $this->initialized;
         $self = $this;
@@ -197,7 +197,7 @@ class Engine
      * @throws ErrorException
      * @return bool
      */
-    public function handleError(int $errno, string $errstr, string $errfile, int $errline)
+    public function handleError($errno, $errstr, $errfile, $errline)
     {
         if ($errno & error_reporting()) {
             throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
@@ -211,7 +211,7 @@ class Engine
      *
      * @param Throwable $e Thrown exception
      */
-    public function handleException($e): void
+    public function handleException($e)
     {
         if ($this->get('flight.log_errors')) {
             error_log($e->getMessage()); // @codeCoverageIgnore
@@ -228,7 +228,7 @@ class Engine
      *
      * @throws Exception If trying to map over a framework method
      */
-    public function map(string $name, callable $callback): void
+    public function map($name, $callback)
     {
         if (method_exists($this, $name)) {
             throw new Exception('Cannot override an existing framework method.');
@@ -248,7 +248,7 @@ class Engine
      *
      * @throws Exception If trying to map over a framework method
      */
-    public function register(string $name, string $class, array $params = [], ?callable $callback = null): void
+    public function register($name, $class, $params = [], $callback = null)
     {
         if (method_exists($this, $name)) {
             throw new Exception('Cannot override an existing framework method.');
@@ -263,7 +263,7 @@ class Engine
      * @param string   $name     Method name
      * @param callable $callback Callback function
      */
-    public function before(string $name, callable $callback): void
+    public function before($name, $callback)
     {
         $this->dispatcher->hook($name, 'before', $callback);
     }
@@ -274,7 +274,7 @@ class Engine
      * @param string   $name     Method name
      * @param callable $callback Callback function
      */
-    public function after(string $name, callable $callback): void
+    public function after($name, $callback)
     {
         $this->dispatcher->hook($name, 'after', $callback);
     }
@@ -282,11 +282,11 @@ class Engine
     /**
      * Gets a variable.
      *
-     * @param string|null $key Key
+     * @param ?string $key
      *
-     * @return array|mixed|null
+     * @return mixed Variable value or `NULL` if $key isn't found.
      */
-    public function get(?string $key = null)
+    public function get($key = null)
     {
         if (null === $key) {
             return $this->vars;
@@ -298,10 +298,10 @@ class Engine
     /**
      * Sets a variable.
      *
-     * @param mixed      $key   Key
+     * @param mixed      $key
      * @param mixed|null $value Value
      */
-    public function set($key, $value = null): void
+    public function set($key, $value = null)
     {
         if (\is_array($key) || \is_object($key)) {
             foreach ($key as $k => $v) {
@@ -315,11 +315,11 @@ class Engine
     /**
      * Checks if a variable has been set.
      *
-     * @param string $key Key
+     * @param string $key
      *
      * @return bool Variable status
      */
-    public function has(string $key): bool
+    public function has($key)
     {
         return isset($this->vars[$key]);
     }
@@ -327,9 +327,9 @@ class Engine
     /**
      * Unsets a variable. If no key is passed in, clear all variables.
      *
-     * @param string|null $key Key
+     * @param ?string $key
      */
-    public function clear(?string $key = null): void
+    public function clear($key = null)
     {
         if (null === $key) {
             $this->vars = [];
@@ -343,7 +343,7 @@ class Engine
      *
      * @param string $dir Directory path
      */
-    public function path(string $dir): void
+    public function path($dir)
     {
         $this->loader->addDirectory($dir);
     }
@@ -355,7 +355,7 @@ class Engine
      *
      * @throws Exception
      */
-    public function _start(): void
+    public function _start()
     {
         $dispatched = false;
         $self = $this;
@@ -486,11 +486,11 @@ class Engine
     /**
      * Stops the framework and outputs the current response.
      *
-     * @param int|null $code HTTP status code
+     * @param ?int $code HTTP status code
      *
      * @throws Exception
      */
-    public function _stop(?int $code = null): void
+    public function _stop($code = null)
     {
         $response = $this->response();
 
@@ -515,7 +515,7 @@ class Engine
 	 * @param string   $alias      the alias for the route
 	 * @return Route
      */
-    public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function _route($pattern, $callback, $pass_route = false, $alias = '')
     {
         return $this->router()->map($pattern, $callback, $pass_route, $alias);
     }
@@ -527,7 +527,7 @@ class Engine
      * @param callable 		  $callback   			Callback function that includes the Router class as first parameter
 	 * @param array<callable> $group_middlewares 	The middleware to be applied to the route
      */
-    public function _group(string $pattern, callable $callback, array $group_middlewares = []): void
+    public function _group($pattern, $callback, $group_middlewares = [])
     {
         $this->router()->group($pattern, $callback, $group_middlewares);
     }
@@ -539,7 +539,7 @@ class Engine
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
-    public function _post(string $pattern, callable $callback, bool $pass_route = false): void
+    public function _post($pattern, $callback, $pass_route = false)
     {
         $this->router()->map('POST ' . $pattern, $callback, $pass_route);
     }
@@ -551,7 +551,7 @@ class Engine
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
-    public function _put(string $pattern, callable $callback, bool $pass_route = false): void
+    public function _put($pattern, $callback, $pass_route = false)
     {
         $this->router()->map('PUT ' . $pattern, $callback, $pass_route);
     }
@@ -563,7 +563,7 @@ class Engine
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
-    public function _patch(string $pattern, callable $callback, bool $pass_route = false): void
+    public function _patch($pattern, $callback, $pass_route = false)
     {
         $this->router()->map('PATCH ' . $pattern, $callback, $pass_route);
     }
@@ -575,7 +575,7 @@ class Engine
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
      */
-    public function _delete(string $pattern, callable $callback, bool $pass_route = false): void
+    public function _delete($pattern, $callback, $pass_route = false)
     {
         $this->router()->map('DELETE ' . $pattern, $callback, $pass_route);
     }
@@ -587,7 +587,7 @@ class Engine
      * @param string $message Response message
 	 * 
      */
-    public function _halt(int $code = 200, string $message = ''): void
+    public function _halt($code = 200, $message = '')
     {
         $this->response()
             ->clear()
@@ -603,7 +603,7 @@ class Engine
     /**
      * Sends an HTTP 404 response when a URL is not found.
      */
-    public function _notFound(): void
+    public function _notFound()
     {
         $this->response()
             ->clear()
@@ -622,7 +622,7 @@ class Engine
      * @param string $url  URL
      * @param int    $code HTTP status code
      */
-    public function _redirect(string $url, int $code = 303): void
+    public function _redirect($url, $code = 303)
     {
         $base = $this->get('flight.base_url');
 
@@ -647,11 +647,11 @@ class Engine
      *
      * @param string      $file Template file
      * @param ?array<string, mixed> $data Template data
-     * @param string|null $key  View variable name
+     * @param ?string $key  View variable name
      *
      * @throws Exception
      */
-    public function _render(string $file, ?array $data = null, ?string $key = null): void
+    public function _render($file, $data = null, $key = null)
     {
         if (null !== $key) {
             $this->view()->set($key, $this->view()->fetch($file, $data));
@@ -673,11 +673,11 @@ class Engine
      */
     public function _json(
         $data,
-        int $code = 200,
-        bool $encode = true,
-        string $charset = 'utf-8',
-        int $option = 0
-    ): void {
+        $code = 200,
+        $encode = true,
+        $charset = 'utf-8',
+        $option = 0
+    ) {
         $json = $encode ? json_encode($data, $option) : $data;
 
         $this->response()
@@ -701,12 +701,12 @@ class Engine
      */
     public function _jsonp(
         $data,
-        string $param = 'jsonp',
-        int $code = 200,
-        bool $encode = true,
-        string $charset = 'utf-8',
-        int $option = 0
-    ): void {
+        $param = 'jsonp',
+        $code = 200,
+        $encode = true,
+        $charset = 'utf-8',
+        $option = 0
+    ) {
         $json = $encode ? json_encode($data, $option) : $data;
 
         $callback = $this->request()->query[$param];
@@ -724,7 +724,7 @@ class Engine
      * @param string $id   ETag identifier
      * @param string $type ETag type
      */
-    public function _etag(string $id, string $type = 'strong'): void
+    public function _etag($id, $type = 'strong')
     {
         $id = (('weak' === $type) ? 'W/' : '') . $id;
 
@@ -743,7 +743,7 @@ class Engine
      *
      * @param int $time Unix timestamp
      */
-    public function _lastModified(int $time): void
+    public function _lastModified($time)
     {
         $this->response()->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $time));
 
@@ -761,7 +761,7 @@ class Engine
 	 * @param string $alias the route alias.
 	 * @param array<string, mixed> $params The params for the route if applicable.
 	 */
-	public function _getUrl(string $alias, array $params = []): string
+	public function _getUrl($alias, $params = [])
 	{
 		return $this->router()->getUrlByAlias($alias, $params);
 	}

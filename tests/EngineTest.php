@@ -233,7 +233,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 	public function testEtagWithHttpIfNoneMatch() {
 		// just need this not to exit...
 		$engine = new class extends Engine {
-			public function _halt(int $code = 200, string $message = ''): void
+			public function _halt($code = 200, $message = '')
 			{
 				$this->response()->status($code);
 				$this->response()->write($message);
@@ -254,7 +254,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 	public function testLastModifiedWithHttpIfModifiedSince() {
 		// just need this not to exit...
 		$engine = new class extends Engine {
-			public function _halt(int $code = 200, string $message = ''): void
+			public function _halt($code = 200, $message = '')
 			{
 				$this->response()->status($code);
 				$this->response()->write($message);
@@ -284,7 +284,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 
 	public function testMiddlewareCallableFunctionReturnFalse() {
 		$engine = new class extends Engine {
-			public function _halt(int $code = 200, string $message = ''): void
+			public function _halt($code = 200, $message = '')
 			{
 				$this->response()->status($code);
 				$this->response()->write($message);
@@ -355,7 +355,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
 			}
 		};
 		$engine = new class extends Engine {
-			public function _halt(int $code = 200, string $message = ''): void
+			public function _halt($code = 200, $message = '')
 			{
 				$this->response()->status($code);
 				$this->response()->write($message);
