@@ -37,7 +37,7 @@ class Loader
      * Autoload directories.
      * @var array<int, string>
      */
-    protected array $dirs = [];
+    protected static array $dirs = [];
 
     /**
      * Registers a class.
