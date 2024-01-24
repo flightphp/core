@@ -2,7 +2,7 @@
 /**
  * Flight: An extensible micro-framework.
  *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @copyright   Copyright (c) 2024, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
 

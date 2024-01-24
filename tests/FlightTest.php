@@ -9,7 +9,7 @@ use flight\template\View;
 /**
  * Flight: An extensible micro-framework.
  *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
+ * @copyright   Copyright (c) 2024, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
 class FlightTest extends PHPUnit\Framework\TestCase
