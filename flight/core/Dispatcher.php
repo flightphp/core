@@ -41,7 +41,7 @@ class Dispatcher
      *
      * @throws Exception
      *
-     * @return mixed|null Output of callback
+     * @return mixed Output of callback
      */
     public function run(string $name, array $params = [])
     {
@@ -80,7 +80,7 @@ class Dispatcher
      *
      * @param string $name Event name
      *
-     * @return callable $callback Callback function
+     * @return ?callable $callback Callback function
      */
     public function get(string $name): ?callable
     {
@@ -100,10 +100,9 @@ class Dispatcher
     }
 
     /**
-     * Clears an event. If no name is given,
-     * all events are removed.
+     * Clears an event. If no name is given, all events are removed.
      *
-     * @param string|null $name Event name
+     * @param ?string $name Event name
      */
     public function clear(?string $name = null): void
     {
