@@ -115,9 +115,8 @@ class EngineTest extends PHPUnit\Framework\TestCase
 		};
 		// doing this so we can overwrite some parts of the response
 		$engine->getLoader()->register('response', function() {
-			return new class extends \flight\net\Response {
-				public function __construct() {}
-				public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+			return new class extends Response {
+				public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
 				{
 					return $this;
 				}
