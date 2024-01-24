@@ -12,8 +12,6 @@ namespace flight\core;
 
 use Closure;
 use Exception;
-use ReflectionClass;
-use ReflectionException;
 
 /**
  * The Loader class is responsible for loading objects. It maintains
@@ -50,7 +48,7 @@ class Loader
      * @param array<int, mixed>           $params   Class initialization parameters
      * @param ?callable(T $instance): void   $callback $callback Function to call after object instantiation
      */
-    public function register(string $name, $class, array $params = [], ?callable $callback = null): void
+    public function register(string $name, string $class, array $params = [], ?callable $callback = null): void
     {
         unset($this->instances[$name]);
 
@@ -75,7 +73,7 @@ class Loader
      *
      * @throws Exception
      *
-     * @return object Class instance
+     * @return ?object Class instance
      */
     public function load(string $name, bool $shared = true): ?object
     {
@@ -112,7 +110,7 @@ class Loader
      *
      * @param string $name Instance name
      *
-     * @return object Class instance
+     * @return ?object Class instance
      */
     public function getInstance(string $name): ?object
     {
