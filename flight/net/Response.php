@@ -98,7 +98,7 @@ class Response
         511 => 'Network Authentication Required',
     ];
     /**
-     * @var int HTTP status
+     * HTTP status
      */
     protected int $status = 200;
 
@@ -108,23 +108,23 @@ class Response
     protected array $headers = [];
 
     /**
-     * @var string HTTP response body
+     * HTTP response body
      */
     protected string $body = '';
 
     /**
-     * @var bool HTTP response sent
+     * HTTP response sent
      */
     protected bool $sent = false;
 
     /**
      * Sets the HTTP status of the response.
      *
-     * @param int|null $code HTTP status code.
+     * @param ?int $code HTTP status code.
      *
      * @throws Exception If invalid status code
      *
-     * @return int|static Self reference
+     * @return int|$this Self reference
      */
     public function status(?int $code = null)
     {
@@ -145,11 +145,11 @@ class Response
      * Adds a header to the response.
      *
      * @param array<string, int|string>|string $name  Header name or array of names and values
-     * @param string|null  $value Header value
+     * @param ?string  $value Header value
      *
-     * @return self
+     * @return $this
      */
-    public function header($name, ?string $value = null)
+    public function header($name, ?string $value = null): self
     {
         if (\is_array($name)) {
             foreach ($name as $k => $v) {
@@ -166,7 +166,7 @@ class Response
      * Returns the headers from the response.
      * @return array<string, int|string|array<int, string>>
      */
-    public function headers()
+    public function headers(): array
     {
         return $this->headers;
     }
@@ -176,7 +176,7 @@ class Response
      *
      * @param string $str Response content
      *
-     * @return Response Self reference
+     * @return $this Self reference
      */
     public function write(string $str): self
     {
@@ -188,7 +188,7 @@ class Response
     /**
      * Clears the response.
      *
-     * @return Response Self reference
+     * @return $this Self reference
      */
     public function clear(): self
     {
@@ -204,7 +204,7 @@ class Response
      *
      * @param int|string|false $expires Expiration time as time() or as strtotime() string value
      *
-     * @return Response Self reference
+     * @return $this Self reference
      */
     public function cache($expires): self
     {
@@ -231,7 +231,7 @@ class Response
     /**
      * Sends HTTP headers.
      *
-     * @return Response Self reference
+     * @return $this Self reference
      */
     public function sendHeaders(): self
     {
@@ -289,7 +289,7 @@ class Response
 	 * @param string $header_string The header string you would pass to header()
 	 * @param bool $replace The optional replace parameter indicates whether the header should replace a previous similar header, or add a second header of the same type. By default it will replace, but if you pass in false as the second argument you can force multiple headers of the same type.
 	 * @param int $response_code The response code to send
-	 * @return self
+	 * @return $this
 	 * @codeCoverageIgnore
 	 */
 	public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self {
@@ -299,8 +299,6 @@ class Response
 
     /**
      * Gets the content length.
-     *
-     * @return int Content length
      */
     public function getContentLength(): int
     {
