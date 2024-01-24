@@ -42,9 +42,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     /**
      * Gets an item.
      *
-     * @param string $key Key
-     *
-     * @return mixed Value
+     * @return mixed Value if `$key` exists in collection data, otherwise returns `NULL`
      */
     public function __get(string $key)
     {
@@ -54,7 +52,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     /**
      * Set an item.
      *
-     * @param string $key   Key
      * @param mixed  $value Value
      */
     public function __set(string $key, $value): void
@@ -64,10 +61,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 
     /**
      * Checks if an item exists.
-     *
-     * @param string $key Key
-     *
-     * @return bool Item status
      */
     public function __isset(string $key): bool
     {
@@ -76,8 +69,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 
     /**
      * Removes an item.
-     *
-     * @param string $key Key
      */
     public function __unset(string $key): void
     {
@@ -116,9 +107,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     /**
      * Checks if an item exists at the offset.
      *
-     * @param string $offset Offset
-     *
-     * @return bool Item status
+     * @param string $offset
      */
     public function offsetExists($offset): bool
     {
@@ -128,7 +117,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     /**
      * Removes an item at the offset.
      *
-     * @param string $offset Offset
+     * @param string $offset
      */
     public function offsetUnset($offset): void
     {
@@ -176,8 +165,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 
     /**
      * Checks if the current collection key is valid.
-     *
-     * @return bool Key status
      */
     public function valid(): bool
     {
@@ -188,8 +175,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 
     /**
      * Gets the size of the collection.
-     *
-     * @return int Collection size
      */
     public function count(): int
     {
