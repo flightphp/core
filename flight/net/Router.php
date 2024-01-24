@@ -25,8 +25,7 @@ class Router
      */
     public bool $case_sensitive = false;
     /**
-     * Mapped routes.
-     * @var array<int,Route>
+     * @var array<int,Route> Mapped routes.
      */
     protected array $routes = [];
 
@@ -37,8 +36,6 @@ class Router
 
 	/**
 	 * When groups are used, this is mapped against all the routes
-	 *
-	 * @var string
 	 */
 	protected string $group_prefix = '';
 
@@ -74,7 +71,6 @@ class Router
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
 	 * @param string   $route_alias Alias for the route
-	 * @return Route
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
@@ -106,7 +102,6 @@ class Router
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
 	 * @param string   $alias 	   Alias for the route
-	 * @return Route
 	 */
 	public function get(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
 		return $this->map('GET ' . $pattern, $callback, $pass_route, $alias);
@@ -119,7 +114,6 @@ class Router
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
 	 * @param string   $alias 	   Alias for the route
-	 * @return Route
 	 */
 	public function post(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
 		return $this->map('POST ' . $pattern, $callback, $pass_route, $alias);
@@ -132,7 +126,6 @@ class Router
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
 	 * @param string   $alias 	   Alias for the route
-	 * @return Route
 	 */
 	public function put(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
 		return $this->map('PUT ' . $pattern, $callback, $pass_route, $alias);
@@ -145,7 +138,6 @@ class Router
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
 	 * @param string   $alias 	   Alias for the route
-	 * @return Route
 	 */
 	public function patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
 		return $this->map('PATCH ' . $pattern, $callback, $pass_route, $alias);
@@ -158,7 +150,6 @@ class Router
 	 * @param callable $callback   Callback function
 	 * @param bool     $pass_route Pass the matching route object to the callback
 	 * @param string   $alias 	   Alias for the route
-	 * @return Route
 	 */
 	public function delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
 		return $this->map('DELETE ' . $pattern, $callback, $pass_route, $alias);
@@ -170,7 +161,6 @@ class Router
 	 * @param string   $group_prefix group URL prefix (such as /api/v1)
 	 * @param callable $callback     The necessary calling that holds the Router class
 	 * @param array<int,callable|object>  $group_middlewares The middlewares to be applied to the group Ex: [ $middleware1, $middleware2 ]
-	 * @return void
 	 */
 	public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void {
 		$old_group_prefix = $this->group_prefix;
@@ -185,9 +175,7 @@ class Router
     /**
      * Routes the current request.
      *
-     * @param Request $request Request object
-     *
-     * @return bool|Route Matching route or false if no match
+     * @return false|Route Matching route or false if no match
      */
     public function route(Request $request)
     {
@@ -207,7 +195,6 @@ class Router
 	 *
 	 * @param string $alias  the alias to match
 	 * @param array<string,mixed>  $params the parameters to pass to the route
-	 * @return string
 	 */
 	public function getUrlByAlias(string $alias, array $params = []): string {
 		$potential_aliases = [];
@@ -259,7 +246,7 @@ class Router
     /**
      * Gets the current route.
      *
-     * @return bool|Route
+     * @return false|Route
      */
     public function current()
     {
