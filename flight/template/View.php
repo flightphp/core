@@ -17,24 +17,24 @@ namespace flight\template;
  */
 class View
 {
-    /** @var string Location of view templates. */
-    public $path;
+    /** Location of view templates. */
+    public string $path;
 
-    /** @var string File extension. */
-    public $extension = '.php';
+    /** File extension. */
+    public string $extension = '.php';
 
     /** @var array<string, mixed> View variables. */
-    protected $vars = [];
+    protected array $vars = [];
 
-    /** @var string Template file. */
-    private $template;
+    /** Template file. */
+    private string $template;
 
     /**
      * Constructor.
      *
      * @param string $path Path to templates directory
      */
-    public function __construct($path = '.')
+    public function __construct(string $path = '.')
     {
         $this->path = $path;
     }
@@ -42,11 +42,9 @@ class View
     /**
      * Gets a template variable.
      *
-     * @param string $key
-     *
      * @return mixed Variable value or `null` if doesn't exists
      */
-    public function get($key)
+    public function get(string $key)
     {
         return $this->vars[$key] ?? null;
     }
@@ -58,7 +56,7 @@ class View
      * @param mixed $value Value
      * @return $this
      */
-    public function set($key, $value = null)
+    public function set($key, $value = null): self
     {
         if (\is_iterable($key)) {
             foreach ($key as $k => $v) {
@@ -74,11 +72,9 @@ class View
     /**
      * Checks if a template variable is set.
      *
-     * @param string $key
-     *
      * @return bool If key exists
      */
-    public function has($key)
+    public function has(string $key): bool
     {
         return isset($this->vars[$key]);
     }
@@ -86,11 +82,9 @@ class View
     /**
      * Unsets a template variable. If no key is passed in, clear all variables.
      *
-     * @param ?string $key
-     *
      * @return $this
      */
-    public function clear($key = null)
+    public function clear(?string $key = null): self
     {
         if (null === $key) {
             $this->vars = [];
@@ -107,10 +101,9 @@ class View
      * @param string $file Template file
      * @param ?array<string, mixed> $data Template data
      *
-     * @return void
      * @throws \Exception If template not found
      */
-    public function render($file, $data = null)
+    public function render(string $file, ?array $data = null): void
     {
         $this->template = $this->getTemplate($file);
 
@@ -136,7 +129,7 @@ class View
      *
      * @return string Output of template
      */
-    public function fetch($file, $data = null)
+    public function fetch(string $file, ?array $data = null): string
     {
         \ob_start();
 
@@ -152,7 +145,7 @@ class View
      *
      * @return bool Template file exists
      */
-    public function exists($file)
+    public function exists(string $file): bool
     {
         return \file_exists($this->getTemplate($file));
     }
@@ -164,7 +157,7 @@ class View
      *
      * @return string Template file location
      */
-    public function getTemplate($file)
+    public function getTemplate(string $file): string
     {
         $ext = $this->extension;
 
@@ -188,20 +181,14 @@ class View
      *
      * @return string Escaped string
      */
-    public function e($str)
+    public function e(string $str): string
     {
 		$value = \htmlentities($str);
         echo $value;
         return $value;
     }
 
-    /**
-     * @param string $path An unnormalized path.
-     * @param string $separator Path separator.
-     *
-     * @return string Normalized path.
-     */
-    protected static function normalizePath($path, $separator = DIRECTORY_SEPARATOR)
+    protected static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
     {
         return \str_replace(['\\', '/'], $separator, $path);
     }

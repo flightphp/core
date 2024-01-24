@@ -124,7 +124,7 @@ class ViewTest extends PHPUnit\Framework\TestCase
     public function testNormalizePath(): void
     {
         $viewMock = new class extends View {
-            public static function normalizePath($path, $separator = DIRECTORY_SEPARATOR)
+            public static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
             {
                 return parent::normalizePath($path, $separator);
             }
