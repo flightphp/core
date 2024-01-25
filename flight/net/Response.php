@@ -309,6 +309,16 @@ class Response
             \strlen($this->body);
     }
 
+	/**
+	 * Gets the response body
+	 *
+	 * @return string
+	 */
+	public function getBody(): string
+	{
+		return $this->body;
+	}
+
     /**
      * Gets whether response body was sent.
      */

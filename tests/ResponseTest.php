@@ -86,24 +86,14 @@ class ResponseTest extends PHPUnit\Framework\TestCase
 
     public function testWrite()
     {
-        $response = new class extends Response {
-            public function getBody()
-            {
-                return $this->body;
-            }
-        };
+        $response = new Response();
         $response->write('test');
         $this->assertEquals('test', $response->getBody());
     }
 
     public function testWriteEmptyString()
     {
-        $response = new class extends Response {
-            public function getBody()
-            {
-                return $this->body;
-            }
-        };
+        $response = new Response();
         $response->write('');
         $this->assertEquals('', $response->getBody());
     }
@@ -116,12 +106,7 @@ class ResponseTest extends PHPUnit\Framework\TestCase
 
     public function testClear()
     {
-        $response = new class extends Response {
-            public function getBody()
-            {
-                return $this->body;
-            }
-        };
+        $response = new Response();
         $response->write('test');
         $response->status(404);
         $response->header('Content-Type', 'text/html');

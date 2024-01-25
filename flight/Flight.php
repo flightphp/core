@@ -113,6 +113,17 @@ class Flight
         static::__callStatic('register', func_get_args());
     }
 
+	/**
+	 * Unregisters a class.
+	 *
+	 * @param string $name Method name
+	 * @return void
+	 */
+	public static function unregister($name): void
+	{
+		static::__callStatic('unregister', func_get_args());
+	}
+
     /**
      * Handles calls to static methods.
      *

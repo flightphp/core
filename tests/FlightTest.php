@@ -78,6 +78,12 @@ class FlightTest extends PHPUnit\Framework\TestCase
         self::assertTrue(count($loaders) > 0);
         self::assertIsObject($user);
         self::assertInstanceOf(User::class, $user);
+
+		Flight::unregister('user');
+
+		self::expectException(Exception::class);
+		self::expectExceptionMessage('user must be a mapped method.');
+		$user = Flight::user();
     }
 
     // Map a function

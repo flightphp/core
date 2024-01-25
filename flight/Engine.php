@@ -259,6 +259,17 @@ class Engine
     }
 
     /**
+     * Unregisters a class to a framework method
+     *
+     * @param string $name Method Name
+     * @return void
+     */
+    public function unregister(string $name): void
+    {
+        $this->loader->unregister($name);
+    }
+
+    /**
      * Adds a pre-filter to a method.
      *
      * @param string   $name     Method name
