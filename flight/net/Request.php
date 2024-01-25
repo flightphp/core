@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -187,9 +188,9 @@ class Request
         }
 
         // Get the requested URL without the base directory
-		// This rewrites the url in case the public url and base directories match 
-		// (such as installing on a subdirectory in a web server)
-		// @see testInitUrlSameAsBaseDirectory
+        // This rewrites the url in case the public url and base directories match
+        // (such as installing on a subdirectory in a web server)
+        // @see testInitUrlSameAsBaseDirectory
         if ('/' !== $this->base && '' !== $this->base && 0 === strpos($this->url, $this->base)) {
             $this->url = substr($this->url, \strlen($this->base));
         }

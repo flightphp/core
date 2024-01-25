@@ -16,17 +16,18 @@ class FlightTest extends PHPUnit\Framework\TestCase
 {
     protected function setUp(): void
     {
-		$_SERVER = [];
-		$_REQUEST = [];
+        $_SERVER = [];
+        $_REQUEST = [];
         Flight::init();
-		Flight::setEngine(new Engine());
+        Flight::setEngine(new Engine());
     }
 
-	protected function tearDown(): void {
-		unset($_REQUEST);
-		unset($_SERVER);
-		Flight::clear();
-	}
+    protected function tearDown(): void
+    {
+        unset($_REQUEST);
+        unset($_SERVER);
+        Flight::clear();
+    }
 
     // Checks that default components are loaded
     public function testDefaultComponents()
@@ -100,124 +101,138 @@ class FlightTest extends PHPUnit\Framework\TestCase
         Flight::doesNotExist();
     }
 
-	public function testStaticRoute() {
-		Flight::route('/test', function() {
-			echo 'test';
-		});
-		Flight::request()->url = '/test';
+    public function testStaticRoute()
+    {
+        Flight::route('/test', function () {
+            echo 'test';
+        });
+        Flight::request()->url = '/test';
 
-		$this->expectOutputString('test');
-		Flight::start();
-	}
+        $this->expectOutputString('test');
+        Flight::start();
+    }
 
-	public function testStaticRouteGroup() {
-		Flight::group('/group', function() {
-			Flight::route('/test', function() {
-				echo 'test';
-			});
-		});
-		Flight::request()->url = '/group/test';
+    public function testStaticRouteGroup()
+    {
+        Flight::group('/group', function () {
+            Flight::route('/test', function () {
+                echo 'test';
+            });
+        });
+        Flight::request()->url = '/group/test';
 
-		$this->expectOutputString('test');
-		Flight::start();
-	}
+        $this->expectOutputString('test');
+        Flight::start();
+    }
 
-	public function testStaticRouteGet() {
+    public function testStaticRouteGet()
+    {
 
-		// can't actually get "get" because that gets a variable
-		Flight::route('GET /test', function() {
-			echo 'test get';
-		});
+        // can't actually get "get" because that gets a variable
+        Flight::route('GET /test', function () {
+            echo 'test get';
+        });
 
-		$_SERVER['REQUEST_METHOD'] = 'GET';
-		Flight::request()->url = '/test';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        Flight::request()->url = '/test';
 
-		$this->expectOutputString('test get');
-		Flight::start();
-	}
+        $this->expectOutputString('test get');
+        Flight::start();
+    }
 
-	public function testStaticRoutePost() {
+    public function testStaticRoutePost()
+    {
 
-		Flight::post('/test', function() {
-			echo 'test post';
-		});
+        Flight::post('/test', function () {
+            echo 'test post';
+        });
 
-		$_SERVER['REQUEST_METHOD'] = 'POST';
-		Flight::request()->url = '/test';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        Flight::request()->url = '/test';
 
-		$this->expectOutputString('test post');
-		Flight::start();
-	}
+        $this->expectOutputString('test post');
+        Flight::start();
+    }
 
-	public function testStaticRoutePut() {
-		
-		Flight::put('/test', function() {
-			echo 'test put';
-		});
+    public function testStaticRoutePut()
+    {
 
-		$_SERVER['REQUEST_METHOD'] = 'PUT';
-		Flight::request()->url = '/test';
+        Flight::put('/test', function () {
+            echo 'test put';
+        });
 
-		$this->expectOutputString('test put');
-		Flight::start();
-	}
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
+        Flight::request()->url = '/test';
 
-	public function testStaticRoutePatch() {
-		
-		Flight::patch('/test', function() {
-			echo 'test patch';
-		});
+        $this->expectOutputString('test put');
+        Flight::start();
+    }
 
-		$_SERVER['REQUEST_METHOD'] = 'PATCH';
-		Flight::request()->url = '/test';
+    public function testStaticRoutePatch()
+    {
 
-		$this->expectOutputString('test patch');
-		Flight::start();
-	}
+        Flight::patch('/test', function () {
+            echo 'test patch';
+        });
 
-	public function testStaticRouteDelete() {
-		
-		Flight::delete('/test', function() {
-			echo 'test delete';
-		});
+        $_SERVER['REQUEST_METHOD'] = 'PATCH';
+        Flight::request()->url = '/test';
 
-		$_SERVER['REQUEST_METHOD'] = 'DELETE';
-		Flight::request()->url = '/test';
+        $this->expectOutputString('test patch');
+        Flight::start();
+    }
 
-		$this->expectOutputString('test delete');
-		Flight::start();
-	}
+    public function testStaticRouteDelete()
+    {
 
-	public function testGetUrl() {
-		Flight::route('/path1/@param:[a-zA-Z0-9]{2,3}', function() { echo 'I win'; }, false, 'path1');
-		$url = Flight::getUrl('path1', [ 'param' => 123 ]);
-		$this->assertEquals('/path1/123', $url);
-	}
+        Flight::delete('/test', function () {
+            echo 'test delete';
+        });
 
-	public function testRouteGetUrlWithGroupSimpleParams() {
-		Flight::group('/path1/@id', function() {
-			Flight::route('/@name', function() { echo 'whatever'; }, false, 'path1');
-		});
-		$url = Flight::getUrl('path1', ['id' => 123, 'name' => 'abc']);
-		
-		$this->assertEquals('/path1/123/abc', $url);
-	}
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        Flight::request()->url = '/test';
 
-	public function testRouteGetUrlNestedGroups() {
-		Flight::group('/user', function () {
-			Flight::group('/all_users', function () {
-				Flight::group('/check_user', function () {
-					Flight::group('/check_one', function () {
-						Flight::route("/normalpath", function () {
-							echo "normalpath";
-						},false,"normalpathalias");
-					});
-				});
-			});
-		});
+        $this->expectOutputString('test delete');
+        Flight::start();
+    }
 
-		$url = Flight::getUrl('normalpathalias');
-		
-		$this->assertEquals('/user/all_users/check_user/check_one/normalpath', $url);
-	}
+    public function testGetUrl()
+    {
+        Flight::route('/path1/@param:[a-zA-Z0-9]{2,3}', function () {
+            echo 'I win';
+        }, false, 'path1');
+        $url = Flight::getUrl('path1', [ 'param' => 123 ]);
+        $this->assertEquals('/path1/123', $url);
+    }
+
+    public function testRouteGetUrlWithGroupSimpleParams()
+    {
+        Flight::group('/path1/@id', function () {
+            Flight::route('/@name', function () {
+                echo 'whatever';
+            }, false, 'path1');
+        });
+        $url = Flight::getUrl('path1', ['id' => 123, 'name' => 'abc']);
+
+        $this->assertEquals('/path1/123/abc', $url);
+    }
+
+    public function testRouteGetUrlNestedGroups()
+    {
+        Flight::group('/user', function () {
+            Flight::group('/all_users', function () {
+                Flight::group('/check_user', function () {
+                    Flight::group('/check_one', function () {
+                        Flight::route("/normalpath", function () {
+                            echo "normalpath";
+                        }, false, "normalpathalias");
+                    });
+                });
+            });
+        });
+
+        $url = Flight::getUrl('normalpathalias');
+
+        $this->assertEquals('/user/all_users/check_user/check_one/normalpath', $url);
+    }
 }

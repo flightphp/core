@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -20,17 +21,18 @@ class RouterTest extends PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-		$_SERVER = [];
-		$_REQUEST = [];
+        $_SERVER = [];
+        $_REQUEST = [];
         $this->router = new Router();
         $this->request = new Request();
         $this->dispatcher = new Dispatcher();
     }
 
-	protected function tearDown(): void {
-		unset($_REQUEST);
-		unset($_SERVER);
-	}
+    protected function tearDown(): void
+    {
+        unset($_REQUEST);
+        unset($_SERVER);
+    }
 
     // Simple output
     public function ok()
@@ -105,7 +107,7 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('OK');
     }
 
-	// Simple path with trailing slash
+    // Simple path with trailing slash
     public function testPathRouteTrailingSlash()
     {
         $this->router->map('/path/', [$this, 'ok']);
@@ -114,7 +116,7 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('OK');
     }
 
-	public function testGetRouteShortcut()
+    public function testGetRouteShortcut()
     {
         $this->router->get('/path', [$this, 'ok']);
         $this->request->url = '/path';
@@ -152,29 +154,32 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('OK');
     }
 
-	public function testPutRouteShortcut() {
-		$this->router->put('/path', [$this, 'ok']);
-		$this->request->url = '/path';
-		$this->request->method = 'PUT';
+    public function testPutRouteShortcut()
+    {
+        $this->router->put('/path', [$this, 'ok']);
+        $this->request->url = '/path';
+        $this->request->method = 'PUT';
 
-		$this->check('OK');
-	}
+        $this->check('OK');
+    }
 
-	public function testPatchRouteShortcut() {
-		$this->router->patch('/path', [$this, 'ok']);
-		$this->request->url = '/path';
-		$this->request->method = 'PATCH';
+    public function testPatchRouteShortcut()
+    {
+        $this->router->patch('/path', [$this, 'ok']);
+        $this->request->url = '/path';
+        $this->request->method = 'PATCH';
 
-		$this->check('OK');
-	}
+        $this->check('OK');
+    }
 
-	public function testDeleteRouteShortcut() {
-		$this->router->delete('/path', [$this, 'ok']);
-		$this->request->url = '/path';
-		$this->request->method = 'DELETE';
+    public function testDeleteRouteShortcut()
+    {
+        $this->router->delete('/path', [$this, 'ok']);
+        $this->request->url = '/path';
+        $this->request->method = 'DELETE';
 
-		$this->check('OK');
-	}
+        $this->check('OK');
+    }
 
     // Test regular expression matching
     public function testRegEx()
@@ -249,18 +254,19 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('OK');
     }
 
-	public function testWildcardDuplicate() {
-		$this->router->map('/account/*' , [$this, 'ok']);
-		$this->request->url = '/account/account/account';
-		$this->check('OK');
-	}
+    public function testWildcardDuplicate()
+    {
+        $this->router->map('/account/*', [$this, 'ok']);
+        $this->request->url = '/account/account/account';
+        $this->check('OK');
+    }
 
-	public function testRouteWithLongQueryParamWithMultilineEncoded() 
-	{
-		$this->router->map('GET /api/intune/hey', [$this, 'ok']);
-		$this->request->url = '/api/intune/hey?error=access_denied&error_description=AADSTS65004%3a+User+declined+to+consent+to+access+the+app.%0d%0aTrace+ID%3a+747c0cc1-ccbd-4e53-8e2f-48812eb24100%0d%0aCorrelation+ID%3a+362e3cb3-20ef-400b-904e-9983bd989184%0d%0aTimestamp%3a+2022-09-08+09%3a58%3a12Z&error_uri=https%3a%2f%2flogin.microsoftonline.com%2ferror%3fcode%3d65004&admin_consent=True&state=x2EUE0fcSj#';
-		$this->check('OK');
-	}
+    public function testRouteWithLongQueryParamWithMultilineEncoded()
+    {
+        $this->router->map('GET /api/intune/hey', [$this, 'ok']);
+        $this->request->url = '/api/intune/hey?error=access_denied&error_description=AADSTS65004%3a+User+declined+to+consent+to+access+the+app.%0d%0aTrace+ID%3a+747c0cc1-ccbd-4e53-8e2f-48812eb24100%0d%0aCorrelation+ID%3a+362e3cb3-20ef-400b-904e-9983bd989184%0d%0aTimestamp%3a+2022-09-08+09%3a58%3a12Z&error_uri=https%3a%2f%2flogin.microsoftonline.com%2ferror%3fcode%3d65004&admin_consent=True&state=x2EUE0fcSj#';
+        $this->check('OK');
+    }
 
     // Check if route object was passed
     public function testRouteObjectPassing()
@@ -298,17 +304,21 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check();
     }
 
-	public function testRouteBeingReturned() {
-		$route = $this->router->map('/hi', function() {});
-		$route_in_router = $this->router->getRoutes()[0];
-		$this->assertSame($route, $route_in_router);
-	}
+    public function testRouteBeingReturned()
+    {
+        $route = $this->router->map('/hi', function () {
+        });
+        $route_in_router = $this->router->getRoutes()[0];
+        $this->assertSame($route, $route_in_router);
+    }
 
-	public function testRouteSetAlias() {
-		$route = $this->router->map('/hi', function() {});
-		$route->setAlias('hello');
-		$this->assertEquals('hello', $route->alias);
-	}
+    public function testRouteSetAlias()
+    {
+        $route = $this->router->map('/hi', function () {
+        });
+        $route->setAlias('hello');
+        $this->assertEquals('hello', $route->alias);
+    }
 
     // Test splat
     public function testSplatWildcard()
@@ -374,230 +384,249 @@ class RouterTest extends PHPUnit\Framework\TestCase
         $this->check('цветя');
     }
 
-	public function testGetAndClearRoutes() {
-		$this->router->map('/path1', [$this, 'ok']);
-		$this->router->map('/path2', [$this, 'ok']);
-		$this->router->map('/path3', [$this, 'ok']);
-		$this->router->map('/path4', [$this, 'ok']);
-		$this->router->map('/path5', [$this, 'ok']);
-		$this->router->map('/path6', [$this, 'ok']);
-		$this->router->map('/path7', [$this, 'ok']);
-		$this->router->map('/path8', [$this, 'ok']);
-		$this->router->map('/path9', [$this, 'ok']);
-		
-		$routes = $this->router->getRoutes();
-		$this->assertEquals(9, count($routes));
+    public function testGetAndClearRoutes()
+    {
+        $this->router->map('/path1', [$this, 'ok']);
+        $this->router->map('/path2', [$this, 'ok']);
+        $this->router->map('/path3', [$this, 'ok']);
+        $this->router->map('/path4', [$this, 'ok']);
+        $this->router->map('/path5', [$this, 'ok']);
+        $this->router->map('/path6', [$this, 'ok']);
+        $this->router->map('/path7', [$this, 'ok']);
+        $this->router->map('/path8', [$this, 'ok']);
+        $this->router->map('/path9', [$this, 'ok']);
 
-		$this->router->clear();
+        $routes = $this->router->getRoutes();
+        $this->assertEquals(9, count($routes));
 
-		$this->assertEquals(0, count($this->router->getRoutes()));
-	}
+        $this->router->clear();
 
-	public function testResetRoutes() {
-		$router = new class extends Router {
-			public function getIndex() {
-				return $this->index;
-			}
-		};
+        $this->assertEquals(0, count($this->router->getRoutes()));
+    }
 
-		$router->map('/path1', [$this, 'ok']);
-		$router->map('/path2', [$this, 'ok']);
-		$router->map('/path3', [$this, 'ok']);
-		$router->map('/path4', [$this, 'ok']);
-		$router->map('/path5', [$this, 'ok']);
-		$router->map('/path6', [$this, 'ok']);
-		$router->map('/path7', [$this, 'ok']);
-		$router->map('/path8', [$this, 'ok']);
-		$router->map('/path9', [$this, 'ok']);
-		
-		$router->next();
-		$router->next();
-		$router->next();
+    public function testResetRoutes()
+    {
+        $router = new class extends Router {
+            public function getIndex()
+            {
+                return $this->index;
+            }
+        };
 
-		$this->assertEquals(3, $router->getIndex());
-		$router->reset();
-		$this->assertEquals(0, $router->getIndex());
-	}
+        $router->map('/path1', [$this, 'ok']);
+        $router->map('/path2', [$this, 'ok']);
+        $router->map('/path3', [$this, 'ok']);
+        $router->map('/path4', [$this, 'ok']);
+        $router->map('/path5', [$this, 'ok']);
+        $router->map('/path6', [$this, 'ok']);
+        $router->map('/path7', [$this, 'ok']);
+        $router->map('/path8', [$this, 'ok']);
+        $router->map('/path9', [$this, 'ok']);
 
-	// Passing URL parameters
+        $router->next();
+        $router->next();
+        $router->next();
+
+        $this->assertEquals(3, $router->getIndex());
+        $router->reset();
+        $this->assertEquals(0, $router->getIndex());
+    }
+
+    // Passing URL parameters
     public function testGroupRoutes()
     {
-		$this->router->group('/user', function(Router $router) {
-			$router->map('/@id', function ($id) {
-				echo $id;
-			});
-			$router->map('/@id/@name', function ($id, $name) {
-				echo $id . $name;
-			});
-		});
+        $this->router->group('/user', function (Router $router) {
+            $router->map('/@id', function ($id) {
+                echo $id;
+            });
+            $router->map('/@id/@name', function ($id, $name) {
+                echo $id . $name;
+            });
+        });
         $this->request->url = '/user/123';
         $this->check('123');
     }
 
-	public function testGroupRoutesMultiParams()
+    public function testGroupRoutesMultiParams()
     {
-		$this->router->group('/user', function(Router $router) {
-			$router->map('/@id', function ($id) {
-				echo $id;
-			});
-			$router->map('/@id/@name', function ($id, $name) {
-				echo $id . $name;
-			});
-		});
+        $this->router->group('/user', function (Router $router) {
+            $router->map('/@id', function ($id) {
+                echo $id;
+            });
+            $router->map('/@id/@name', function ($id, $name) {
+                echo $id . $name;
+            });
+        });
         $this->request->url = '/user/123/abc';
         $this->check('123abc');
     }
 
-	public function testGroupNestedRoutes()
+    public function testGroupNestedRoutes()
     {
-		$this->router->group('/client', function(Router $router) {
-			$router->group('/user', function(Router $router) {
-				$router->map('/@id', function ($id) {
-					echo $id;
-				});
-				$router->map('/@id/@name', function ($id, $name) {
-					echo $id . $name;
-				});
-			});
-		});
+        $this->router->group('/client', function (Router $router) {
+            $router->group('/user', function (Router $router) {
+                $router->map('/@id', function ($id) {
+                    echo $id;
+                });
+                $router->map('/@id/@name', function ($id, $name) {
+                    echo $id . $name;
+                });
+            });
+        });
         $this->request->url = '/client/user/123/abc';
         $this->check('123abc');
     }
 
-	public function testGroupNestedRoutesWithCustomMethods()
+    public function testGroupNestedRoutesWithCustomMethods()
     {
-		$this->router->group('/client', function(Router $router) {
-			$router->group('/user', function(Router $router) {
-				$router->get('/@id', function ($id) {
-					echo $id;
-				});
-				$router->post('/@id/@name', function ($id, $name) {
-					echo $id . $name;
-				});
-			});
-		});
+        $this->router->group('/client', function (Router $router) {
+            $router->group('/user', function (Router $router) {
+                $router->get('/@id', function ($id) {
+                    echo $id;
+                });
+                $router->post('/@id/@name', function ($id, $name) {
+                    echo $id . $name;
+                });
+            });
+        });
         $this->request->url = '/client/user/123/abc';
-		$this->request->method = 'POST';
+        $this->request->method = 'POST';
         $this->check('123abc');
     }
-	
-	public function testGetUrlByAliasBadReferenceButCatchRecommendation() {
-		$this->router->map('/path1', [$this, 'ok'], false, 'path1');
-		$this->expectException(\Exception::class);
-		$this->expectExceptionMessage('No route found with alias: \'path2\'. Did you mean \'path1\'?');
-		$this->router->getUrlByAlias('path2');
-	}
 
-	public function testRewindAndValid() {
-		$this->router->map('/path1', [$this, 'ok']);
-		$this->router->map('/path2', [$this, 'ok']);
-		$this->router->map('/path3', [$this, 'ok']);
-		
-		$this->router->next();
-		$this->router->next();
-		$result = $this->router->valid();
-		$this->assertTrue($result);
-		$this->router->next();
-		$result = $this->router->valid();
-		$this->assertFalse($result);
+    public function testGetUrlByAliasBadReferenceButCatchRecommendation()
+    {
+        $this->router->map('/path1', [$this, 'ok'], false, 'path1');
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No route found with alias: \'path2\'. Did you mean \'path1\'?');
+        $this->router->getUrlByAlias('path2');
+    }
 
-		$this->router->rewind();
-		$result = $this->router->valid();
-		$this->assertTrue($result);
+    public function testRewindAndValid()
+    {
+        $this->router->map('/path1', [$this, 'ok']);
+        $this->router->map('/path2', [$this, 'ok']);
+        $this->router->map('/path3', [$this, 'ok']);
 
-	}
+        $this->router->next();
+        $this->router->next();
+        $result = $this->router->valid();
+        $this->assertTrue($result);
+        $this->router->next();
+        $result = $this->router->valid();
+        $this->assertFalse($result);
 
-	public function testGetUrlByAliasNoMatches() {
-		$this->router->map('/path1', [$this, 'ok'], false, 'path1');
-		$this->expectException(\Exception::class);
-		$this->expectExceptionMessage('No route found with alias: \'path2\'');
-		$this->router->getUrlByAlias('path2');
-	}
+        $this->router->rewind();
+        $result = $this->router->valid();
+        $this->assertTrue($result);
+    }
 
-	public function testGetUrlByAliasNoParams() {
-		$this->router->map('/path1', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1');
-		$this->assertEquals('/path1', $url);
-	}
+    public function testGetUrlByAliasNoMatches()
+    {
+        $this->router->map('/path1', [$this, 'ok'], false, 'path1');
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('No route found with alias: \'path2\'');
+        $this->router->getUrlByAlias('path2');
+    }
 
-	public function testGetUrlByAliasSimpleParams() {
-		$this->router->map('/path1/@id', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id' => 123]);
-		$this->assertEquals('/path1/123', $url);
-	}
+    public function testGetUrlByAliasNoParams()
+    {
+        $this->router->map('/path1', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1');
+        $this->assertEquals('/path1', $url);
+    }
 
-	public function testGetUrlByAliasSimpleParamsWithNumber() {
-		$this->router->map('/path1/@id1', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
-		$this->assertEquals('/path1/123', $url);
-	}
+    public function testGetUrlByAliasSimpleParams()
+    {
+        $this->router->map('/path1/@id', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id' => 123]);
+        $this->assertEquals('/path1/123', $url);
+    }
 
-	public function testGetUrlByAliasSimpleOptionalParamsWithParam() {
-		$this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id' => 123]);
-		$this->assertEquals('/path1/123', $url);
-	}
+    public function testGetUrlByAliasSimpleParamsWithNumber()
+    {
+        $this->router->map('/path1/@id1', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
+        $this->assertEquals('/path1/123', $url);
+    }
 
-	public function testGetUrlByAliasSimpleOptionalParamsWithNumberWithParam() {
-		$this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
-		$this->assertEquals('/path1/123', $url);
-	}
+    public function testGetUrlByAliasSimpleOptionalParamsWithParam()
+    {
+        $this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id' => 123]);
+        $this->assertEquals('/path1/123', $url);
+    }
 
-	public function testGetUrlByAliasSimpleOptionalParamsNoParam() {
-		$this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1');
-		$this->assertEquals('/path1', $url);
-	}
+    public function testGetUrlByAliasSimpleOptionalParamsWithNumberWithParam()
+    {
+        $this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
+        $this->assertEquals('/path1/123', $url);
+    }
 
-	public function testGetUrlByAliasSimpleOptionalParamsWithNumberNoParam() {
-		$this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1');
-		$this->assertEquals('/path1', $url);
-	}
+    public function testGetUrlByAliasSimpleOptionalParamsNoParam()
+    {
+        $this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1');
+        $this->assertEquals('/path1', $url);
+    }
 
-	public function testGetUrlByAliasMultipleParams() {
-		$this->router->map('/path1/@id/@name', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
-		$this->assertEquals('/path1/123/abc', $url);
-	}
+    public function testGetUrlByAliasSimpleOptionalParamsWithNumberNoParam()
+    {
+        $this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1');
+        $this->assertEquals('/path1', $url);
+    }
 
-	public function testGetUrlByAliasMultipleComplexParams() {
-		$this->router->map('/path1/@id:[0-9]+/@name:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
-		$this->assertEquals('/path1/123/abc', $url);
-	}
+    public function testGetUrlByAliasMultipleParams()
+    {
+        $this->router->map('/path1/@id/@name', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
+        $this->assertEquals('/path1/123/abc', $url);
+    }
 
-	public function testGetUrlByAliasMultipleComplexParamsWithNumbers() {
-		$this->router->map('/path1/@5id:[0-9]+/@n1ame:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['5id' => '123', 'n1ame' => 'abc']);
-		$this->assertEquals('/path1/123/abc', $url);
-	}
+    public function testGetUrlByAliasMultipleComplexParams()
+    {
+        $this->router->map('/path1/@id:[0-9]+/@name:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
+        $this->assertEquals('/path1/123/abc', $url);
+    }
 
-	public function testGetUrlByAliasMultipleComplexOptionalParamsMissingOne() {
-		$this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
-		$this->assertEquals('/path1/123/abc', $url);
-	}
+    public function testGetUrlByAliasMultipleComplexParamsWithNumbers()
+    {
+        $this->router->map('/path1/@5id:[0-9]+/@n1ame:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['5id' => '123', 'n1ame' => 'abc']);
+        $this->assertEquals('/path1/123/abc', $url);
+    }
 
-	public function testGetUrlByAliasMultipleComplexOptionalParamsAllParams() {
-		$this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc', 'crazy' => 'xyz']);
-		$this->assertEquals('/path1/123/abc/xyz', $url);
-	}
+    public function testGetUrlByAliasMultipleComplexOptionalParamsMissingOne()
+    {
+        $this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
+        $this->assertEquals('/path1/123/abc', $url);
+    }
 
-	public function testGetUrlByAliasMultipleComplexOptionalParamsNoParams() {
-		$this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
-		$url = $this->router->getUrlByAlias('path1');
-		$this->assertEquals('/path1', $url);
-	}
+    public function testGetUrlByAliasMultipleComplexOptionalParamsAllParams()
+    {
+        $this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc', 'crazy' => 'xyz']);
+        $this->assertEquals('/path1/123/abc/xyz', $url);
+    }
 
-	public function testGetUrlByAliasWithGroupSimpleParams() {
-		$this->router->group('/path1/@id', function($router) {
-			$router->get('/@name', [$this, 'ok'], false, 'path1');
-		});
-		$url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
-		
-		$this->assertEquals('/path1/123/abc', $url);
-	}
+    public function testGetUrlByAliasMultipleComplexOptionalParamsNoParams()
+    {
+        $this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
+        $url = $this->router->getUrlByAlias('path1');
+        $this->assertEquals('/path1', $url);
+    }
+
+    public function testGetUrlByAliasWithGroupSimpleParams()
+    {
+        $this->router->group('/path1/@id', function ($router) {
+            $router->get('/@name', [$this, 'ok'], false, 'path1');
+        });
+        $url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
+
+        $this->assertEquals('/path1/123/abc', $url);
+    }
 }

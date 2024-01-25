@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -34,17 +35,17 @@ class Router
      */
     protected int $index = 0;
 
-	/**
-	 * When groups are used, this is mapped against all the routes
-	 */
-	protected string $group_prefix = '';
+    /**
+     * When groups are used, this is mapped against all the routes
+     */
+    protected string $group_prefix = '';
 
-	/**
-	 * Group Middleware
-	 *
-	 * @var array<int,mixed>
-	 */
-	protected array $group_middlewares = [];
+    /**
+     * Group Middleware
+     *
+     * @var array<int,mixed>
+     */
+    protected array $group_middlewares = [];
 
     /**
      * Gets mapped routes.
@@ -70,7 +71,7 @@ class Router
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
-	 * @param string   $route_alias Alias for the route
+     * @param string   $route_alias Alias for the route
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
@@ -83,94 +84,100 @@ class Router
             $methods = explode('|', $method);
         }
 
-		$route = new Route($this->group_prefix.$url, $callback, $methods, $pass_route, $route_alias);
+        $route = new Route($this->group_prefix . $url, $callback, $methods, $pass_route, $route_alias);
 
-		// to handle group middleware
-		foreach($this->group_middlewares as $gm) {
-			$route->addMiddleware($gm);
-		}
+        // to handle group middleware
+        foreach ($this->group_middlewares as $gm) {
+            $route->addMiddleware($gm);
+        }
 
         $this->routes[] = $route;
 
-		return $route;
+        return $route;
     }
 
-	/**
-	 * Creates a GET based route
-	 *
-	 * @param string   $pattern    URL pattern to match
+    /**
+     * Creates a GET based route
+     *
+     * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
-	 * @param string   $alias 	   Alias for the route
-	 */
-	public function get(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
-		return $this->map('GET ' . $pattern, $callback, $pass_route, $alias);
-	}
+     * @param string   $alias      Alias for the route
+     */
+    public function get(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    {
+        return $this->map('GET ' . $pattern, $callback, $pass_route, $alias);
+    }
 
-	/**
-	 * Creates a POST based route
-	 *
-	 * @param string   $pattern    URL pattern to match
-	 * @param callable $callback   Callback function
-	 * @param bool     $pass_route Pass the matching route object to the callback
-	 * @param string   $alias 	   Alias for the route
-	 */
-	public function post(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
-		return $this->map('POST ' . $pattern, $callback, $pass_route, $alias);
-	}
+    /**
+     * Creates a POST based route
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callable $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string   $alias      Alias for the route
+     */
+    public function post(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    {
+        return $this->map('POST ' . $pattern, $callback, $pass_route, $alias);
+    }
 
-	/**
-	 * Creates a PUT based route
-	 *
-	 * @param string   $pattern    URL pattern to match
-	 * @param callable $callback   Callback function
-	 * @param bool     $pass_route Pass the matching route object to the callback
-	 * @param string   $alias 	   Alias for the route
-	 */
-	public function put(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
-		return $this->map('PUT ' . $pattern, $callback, $pass_route, $alias);
-	}
+    /**
+     * Creates a PUT based route
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callable $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string   $alias      Alias for the route
+     */
+    public function put(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    {
+        return $this->map('PUT ' . $pattern, $callback, $pass_route, $alias);
+    }
 
-	/**
-	 * Creates a PATCH based route
-	 *
-	 * @param string   $pattern    URL pattern to match
-	 * @param callable $callback   Callback function
-	 * @param bool     $pass_route Pass the matching route object to the callback
-	 * @param string   $alias 	   Alias for the route
-	 */
-	public function patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
-		return $this->map('PATCH ' . $pattern, $callback, $pass_route, $alias);
-	}
+    /**
+     * Creates a PATCH based route
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callable $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string   $alias      Alias for the route
+     */
+    public function patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    {
+        return $this->map('PATCH ' . $pattern, $callback, $pass_route, $alias);
+    }
 
-	/**
-	 * Creates a DELETE based route
-	 *
-	 * @param string   $pattern    URL pattern to match
-	 * @param callable $callback   Callback function
-	 * @param bool     $pass_route Pass the matching route object to the callback
-	 * @param string   $alias 	   Alias for the route
-	 */
-	public function delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route {
-		return $this->map('DELETE ' . $pattern, $callback, $pass_route, $alias);
-	}
+    /**
+     * Creates a DELETE based route
+     *
+     * @param string   $pattern    URL pattern to match
+     * @param callable $callback   Callback function
+     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string   $alias      Alias for the route
+     */
+    public function delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    {
+        return $this->map('DELETE ' . $pattern, $callback, $pass_route, $alias);
+    }
 
-	/**
-	 * Group together a set of routes
-	 *
-	 * @param string   $group_prefix group URL prefix (such as /api/v1)
-	 * @param callable $callback     The necessary calling that holds the Router class
-	 * @param array<int,callable|object>  $group_middlewares The middlewares to be applied to the group Ex: [ $middleware1, $middleware2 ]
-	 */
-	public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void {
-		$old_group_prefix = $this->group_prefix;
-		$old_group_middlewares = $this->group_middlewares;
-		$this->group_prefix .= $group_prefix;
-		$this->group_middlewares = array_merge($this->group_middlewares, $group_middlewares);
-		$callback($this);
-		$this->group_prefix = $old_group_prefix;
-		$this->group_middlewares = $old_group_middlewares;
-	}
+    /**
+     * Group together a set of routes
+     *
+     * @param string   $group_prefix group URL prefix (such as /api/v1)
+     * @param callable $callback     The necessary calling that holds the Router class
+     * @param array<int,callable|object>  $group_middlewares The middlewares to be applied to the group Ex: [ $middleware1, $middleware2 ]
+     */
+    public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void
+    {
+        $old_group_prefix = $this->group_prefix;
+        $old_group_middlewares = $this->group_middlewares;
+        $this->group_prefix .= $group_prefix;
+        $this->group_middlewares = array_merge($this->group_middlewares, $group_middlewares);
+        $callback($this);
+        $this->group_prefix = $old_group_prefix;
+        $this->group_middlewares = $old_group_middlewares;
+    }
 
     /**
      * Routes the current request.
@@ -190,58 +197,58 @@ class Router
         return false;
     }
 
-	/**
-	 * Gets the URL for a given route alias
-	 *
-	 * @param string $alias  the alias to match
-	 * @param array<string,mixed>  $params the parameters to pass to the route
-	 */
-	public function getUrlByAlias(string $alias, array $params = []): string {
-		$potential_aliases = [];
-		foreach($this->routes as $route) {
-			$potential_aliases[] = $route->alias;
-			if ($route->matchAlias($alias)) {
-				return $route->hydrateUrl($params);
-			}
+    /**
+     * Gets the URL for a given route alias
+     *
+     * @param string $alias  the alias to match
+     * @param array<string,mixed>  $params the parameters to pass to the route
+     */
+    public function getUrlByAlias(string $alias, array $params = []): string
+    {
+        $potential_aliases = [];
+        foreach ($this->routes as $route) {
+            $potential_aliases[] = $route->alias;
+            if ($route->matchAlias($alias)) {
+                return $route->hydrateUrl($params);
+            }
+        }
 
-		}
+        // use a levenshtein to find the closest match and make a recommendation
+        $closest_match = '';
+        $closest_match_distance = 0;
+        foreach ($potential_aliases as $potential_alias) {
+            $levenshtein_distance = levenshtein($alias, $potential_alias);
+            if ($levenshtein_distance > $closest_match_distance) {
+                $closest_match = $potential_alias;
+                $closest_match_distance = $levenshtein_distance;
+            }
+        }
 
-		// use a levenshtein to find the closest match and make a recommendation
-		$closest_match = '';
-		$closest_match_distance = 0;
-		foreach($potential_aliases as $potential_alias) {
-			$levenshtein_distance = levenshtein($alias, $potential_alias);
-			if($levenshtein_distance > $closest_match_distance) {
-				$closest_match = $potential_alias;
-				$closest_match_distance = $levenshtein_distance;
-			}
-		}
+        $exception_message = 'No route found with alias: \'' . $alias . '\'.';
+        if ($closest_match !== '') {
+            $exception_message .= ' Did you mean \'' . $closest_match . '\'?';
+        }
 
-		$exception_message = 'No route found with alias: \'' . $alias . '\'.';
-		if($closest_match !== '') {
-			$exception_message .= ' Did you mean \'' . $closest_match . '\'?';
-		}
-		
-		throw new Exception($exception_message);
-	}
+        throw new Exception($exception_message);
+    }
 
-	/**
-	 * Rewinds the current route index.
-	 */
-	public function rewind(): void
-	{
-		$this->index = 0;
-	}
+    /**
+     * Rewinds the current route index.
+     */
+    public function rewind(): void
+    {
+        $this->index = 0;
+    }
 
-	/**
-	 * Checks if more routes can be iterated.
-	 *
-	 * @return bool More routes
-	 */
-	public function valid(): bool
-	{
-		return isset($this->routes[$this->index]);
-	}
+    /**
+     * Checks if more routes can be iterated.
+     *
+     * @return bool More routes
+     */
+    public function valid(): bool
+    {
+        return isset($this->routes[$this->index]);
+    }
 
     /**
      * Gets the current route.

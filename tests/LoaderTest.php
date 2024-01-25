@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -119,35 +120,39 @@ class LoaderTest extends PHPUnit\Framework\TestCase
         self::assertInstanceOf(Factory::class, $obj);
     }
 
-	public function testUnregisterClass() {
-		$this->loader->register('g', 'User');
-		$current_class = $this->loader->get('g');
-		$this->assertEquals([ 'User', [], null ], $current_class);
-		$this->loader->unregister('g');
-		$unregistered_class_result = $this->loader->get('g');
-		$this->assertNull($unregistered_class_result);
-	}
+    public function testUnregisterClass()
+    {
+        $this->loader->register('g', 'User');
+        $current_class = $this->loader->get('g');
+        $this->assertEquals([ 'User', [], null ], $current_class);
+        $this->loader->unregister('g');
+        $unregistered_class_result = $this->loader->get('g');
+        $this->assertNull($unregistered_class_result);
+    }
 
-	public function testNewInstance6Params() {
-		$TesterClass = $this->loader->newInstance('TesterClass', ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
-		$this->assertEquals('Bob', $TesterClass->param1);
-		$this->assertEquals('Fred', $TesterClass->param2);
-		$this->assertEquals('Joe', $TesterClass->param3);
-		$this->assertEquals('Jane', $TesterClass->param4);
-		$this->assertEquals('Sally', $TesterClass->param5);
-		$this->assertEquals('Suzie', $TesterClass->param6);
-	}
+    public function testNewInstance6Params()
+    {
+        $TesterClass = $this->loader->newInstance('TesterClass', ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
+        $this->assertEquals('Bob', $TesterClass->param1);
+        $this->assertEquals('Fred', $TesterClass->param2);
+        $this->assertEquals('Joe', $TesterClass->param3);
+        $this->assertEquals('Jane', $TesterClass->param4);
+        $this->assertEquals('Sally', $TesterClass->param5);
+        $this->assertEquals('Suzie', $TesterClass->param6);
+    }
 
-	public function testAddDirectoryAsArray() {
-		$loader = new class extends Loader {
-			public function getDirectories() {
-				return self::$dirs;
-			}
-		};
-		$loader->addDirectory([__DIR__ . '/classes']);
-		self::assertEquals([
-			dirname(__DIR__),
-			__DIR__ . '/classes'
-		], $loader->getDirectories());
-	}
+    public function testAddDirectoryAsArray()
+    {
+        $loader = new class extends Loader {
+            public function getDirectories()
+            {
+                return self::$dirs;
+            }
+        };
+        $loader->addDirectory([__DIR__ . '/classes']);
+        self::assertEquals([
+            dirname(__DIR__),
+            __DIR__ . '/classes'
+        ], $loader->getDirectories());
+    }
 }

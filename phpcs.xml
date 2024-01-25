@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="pcsg-generated-ruleset">
+    <description>Created with the PHP Coding Standard Generator. http://edorian.github.io/php-coding-standard-generator/</description>
+    <arg name="colors"/>
+    <arg name="tab-width" value="4"/>
+	<rule ref="PSR12"/>
+	<!-- <rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/> -->
+	<file>flight/</file>
+	<file>tests/</file>
+</ruleset>
