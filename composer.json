@@ -32,6 +32,14 @@
             "flight/Flight.php"
         ]
     },
+    "autoload-dev": {
+        "classmap": [
+            "tests/classes/User.php",
+            "tests/classes/Hello.php",
+            "tests/classes/Factory.php",
+            "tests/classes/TesterClass.php"
+        ]
+    },
     "require-dev": {
         "ext-pdo_sqlite": "*",
         "phpunit/phpunit": "^9.5",
