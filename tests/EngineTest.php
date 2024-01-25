@@ -1,8 +1,5 @@
 <?php
 
-use flight\Engine;
-use flight\net\Response;
-
 /**
  * Flight: An extensible micro-framework.
  *
@@ -10,8 +7,11 @@ use flight\net\Response;
  * @license     MIT, http://flightphp.com/license
  */
 
+use flight\Engine;
+use flight\net\Response;
+use PHPUnit\Framework\TestCase;
 
-class EngineTest extends PHPUnit\Framework\TestCase
+class EngineTest extends TestCase
 {
     public function setUp(): void
     {
@@ -22,6 +22,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
     {
         $_SERVER = [];
     }
+
     public function testInitBeforeStart()
     {
         $engine = new class extends Engine {
@@ -123,7 +124,7 @@ class EngineTest extends PHPUnit\Framework\TestCase
             echo 'i ran';
             return true;
         }, true);
-        $this->expectOutputString('<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ');
+        $this->expectOutputString('<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>');
         $engine->start();
     }
 
@@ -206,16 +207,21 @@ class EngineTest extends PHPUnit\Framework\TestCase
         };
         // doing this so we can overwrite some parts of the response
         $engine->getLoader()->register('response', function () {
-            return new class extends \flight\net\Response {
+            return new class extends Response {
                 public function __construct()
                 {
                 }
-                public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
-                {
+
+                public function setRealHeader(
+                    string $header_string,
+                    bool $replace = true,
+                    int $response_code = 0
+                ): self {
                     return $this;
                 }
             };
         });
+
         $this->expectOutputString('skip---exit');
         $engine->halt(500, 'skip---exit');
         $this->assertEquals(500, $engine->response()->status());
