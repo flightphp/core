@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -61,34 +62,34 @@ class Flight
 {
     /**
      * Framework engine.
-	 * 
-	 * @var Engine $engine
+     *
+     * @var Engine $engine
      */
     private static Engine $engine;
 
-	/**
-	 * Whether or not the app has been initialized
-	 *
-	 * @var boolean
-	 */
-	private static bool $initialized = false;
+    /**
+     * Whether or not the app has been initialized
+     *
+     * @var boolean
+     */
+    private static bool $initialized = false;
 
-	/**
-	 * Don't allow object instantiation
-	 * 
-	 * @codeCoverageIgnore
-	 * @return void
-	 */
+    /**
+     * Don't allow object instantiation
+     *
+     * @codeCoverageIgnore
+     * @return void
+     */
     private function __construct()
     {
     }
 
-	/**
-	 * Forbid cloning the class
-	 *
-	 * @codeCoverageIgnore
-	 * @return void
-	 */
+    /**
+     * Forbid cloning the class
+     *
+     * @codeCoverageIgnore
+     * @return void
+     */
     private function __clone()
     {
     }
@@ -145,14 +146,14 @@ class Flight
         return self::$engine;
     }
 
-	/**
-	 * Set the engine instance
-	 *
-	 * @param Engine $engine Vroom vroom!
-	 * @return void
-	 */
-	public static function setEngine(Engine $engine): void
-	{
-		self::$engine = $engine;
-	}
+    /**
+     * Set the engine instance
+     *
+     * @param Engine $engine Vroom vroom!
+     * @return void
+     */
+    public static function setEngine(Engine $engine): void
+    {
+        self::$engine = $engine;
+    }
 }

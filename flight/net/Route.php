@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -52,15 +53,15 @@ class Route
      */
     public bool $pass = false;
 
-	/**
-	 * The alias is a way to identify the route using a simple name ex: 'login' instead of /admin/login
-	 */
-	public string $alias = '';
+    /**
+     * The alias is a way to identify the route using a simple name ex: 'login' instead of /admin/login
+     */
+    public string $alias = '';
 
-	/**
-	 * @var array<int,callable|object> The middleware to be applied to the route
-	 */
-	public array $middleware = [];
+    /**
+     * @var array<int,callable|object> The middleware to be applied to the route
+     */
+    public array $middleware = [];
 
     /**
      * Constructor.
@@ -76,7 +77,7 @@ class Route
         $this->callback = $callback;
         $this->methods = $methods;
         $this->pass = $pass;
-		$this->alias = $alias;
+        $this->alias = $alias;
     }
 
     /**
@@ -165,55 +166,58 @@ class Route
         return \count(array_intersect([$method, '*'], $this->methods)) > 0;
     }
 
-	/**
-	 * Checks if an alias matches the route alias.
-	 */
-	public function matchAlias(string $alias): bool
-	{
-		return $this->alias === $alias;
-	}
+    /**
+     * Checks if an alias matches the route alias.
+     */
+    public function matchAlias(string $alias): bool
+    {
+        return $this->alias === $alias;
+    }
 
-	/**
-	 * Hydrates the route url with the given parameters
-	 *
-	 * @param array<string,mixed> $params the parameters to pass to the route
-	 */
-	public function hydrateUrl(array $params = []): string {
-		$url = preg_replace_callback("/(?:@([a-zA-Z0-9]+)(?:\:([^\/]+))?\)*)/i", function($match) use ($params) {
-			if(isset($match[1]) && isset($params[$match[1]])) {
-				return $params[$match[1]];
-			}
-		}, $this->pattern);
+    /**
+     * Hydrates the route url with the given parameters
+     *
+     * @param array<string,mixed> $params the parameters to pass to the route
+     */
+    public function hydrateUrl(array $params = []): string
+    {
+        $url = preg_replace_callback("/(?:@([a-zA-Z0-9]+)(?:\:([^\/]+))?\)*)/i", function ($match) use ($params) {
+            if (isset($match[1]) && isset($params[$match[1]])) {
+                return $params[$match[1]];
+            }
+        }, $this->pattern);
 
-		// catches potential optional parameter
-		$url = str_replace('(/', '/', $url);
-		// trim any trailing slashes
-		$url = rtrim($url, '/');
-		return $url;
-	}
+        // catches potential optional parameter
+        $url = str_replace('(/', '/', $url);
+        // trim any trailing slashes
+        $url = rtrim($url, '/');
+        return $url;
+    }
 
-	/**
-	 * Sets the route alias
-	 *
-	 * @return $this
-	 */
-	public function setAlias(string $alias): self {
-		$this->alias = $alias;
-		return $this;
-	}
+    /**
+     * Sets the route alias
+     *
+     * @return $this
+     */
+    public function setAlias(string $alias): self
+    {
+        $this->alias = $alias;
+        return $this;
+    }
 
-	/**
-	 * Sets the route middleware
-	 *
-	 * @param array<int, callable>|callable $middleware
-	 * @return $this
-	 */
-	public function addMiddleware($middleware): self {
-		if(is_array($middleware) === true) {
-			$this->middleware = array_merge($this->middleware, $middleware);
-		} else {
-			$this->middleware[] = $middleware;
-		}
-		return $this;
-	}
+    /**
+     * Sets the route middleware
+     *
+     * @param array<int, callable>|callable $middleware
+     * @return $this
+     */
+    public function addMiddleware($middleware): self
+    {
+        if (is_array($middleware) === true) {
+            $this->middleware = array_merge($this->middleware, $middleware);
+        } else {
+            $this->middleware[] = $middleware;
+        }
+        return $this;
+    }
 }

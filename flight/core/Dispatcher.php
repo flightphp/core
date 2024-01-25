@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -53,7 +54,7 @@ class Dispatcher
         }
 
         // Run requested method
-		$callback = $this->get($name);
+        $callback = $this->get($name);
         $output = $callback(...$params);
 
         // Run post-filters
@@ -178,7 +179,7 @@ class Dispatcher
      */
     public static function callFunction($func, array &$params = [])
     {
-		return call_user_func_array($func, $params);
+        return call_user_func_array($func, $params);
     }
 
     /**
@@ -195,9 +196,9 @@ class Dispatcher
 
         $instance = \is_object($class);
 
-		return ($instance) ?
-			$class->$method(...$params) :
-			$class::$method();
+        return ($instance) ?
+            $class->$method(...$params) :
+            $class::$method();
     }
 
     /**

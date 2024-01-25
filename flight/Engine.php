@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -32,7 +33,7 @@ use flight\net\Route;
  * @method void start() Starts engine
  * @method void stop() Stops framework and outputs current response
  * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
- * 
+ *
  * Routing
  * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a URL to a callback function with all applicable methods
  * @method void  group(string $pattern, callable $callback, array $group_middlewares = []) Groups a set of routes together under a common prefix.
@@ -78,12 +79,12 @@ class Engine
      */
     protected Dispatcher $dispatcher;
 
-	/**
-	 * If the framework has been initialized or not
-	 *
-	 * @var boolean
-	 */
-	protected bool $initialized = false;
+    /**
+     * If the framework has been initialized or not
+     *
+     * @var boolean
+     */
+    protected bool $initialized = false;
 
     /**
      * Constructor.
@@ -377,7 +378,7 @@ class Engine
         ob_start();
 
         // Route the request
-		$failed_middleware_check = false;
+        $failed_middleware_check = false;
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
@@ -386,55 +387,52 @@ class Engine
                 $params[] = $route;
             }
 
-			// Run any before middlewares
-			if(count($route->middleware) > 0) {
-				foreach($route->middleware as $middleware) {
+            // Run any before middlewares
+            if (count($route->middleware) > 0) {
+                foreach ($route->middleware as $middleware) {
+                    $middleware_object = (is_callable($middleware) === true ? $middleware : (method_exists($middleware, 'before') === true ? [ $middleware, 'before' ] : false));
 
-					$middleware_object = (is_callable($middleware) === true ? $middleware : (method_exists($middleware, 'before') === true ? [ $middleware, 'before' ]: false));
+                    if ($middleware_object === false) {
+                        continue;
+                    }
 
-					if($middleware_object === false) {
-						continue;
-					}
+                    // It's assumed if you don't declare before, that it will be assumed as the before method
+                    $middleware_result = $middleware_object($route->params);
 
-					// It's assumed if you don't declare before, that it will be assumed as the before method
-					$middleware_result = $middleware_object($route->params);
-
-					if ($middleware_result === false) {
-						$failed_middleware_check = true;
-						break 2;
-					}
-				}
-			}
+                    if ($middleware_result === false) {
+                        $failed_middleware_check = true;
+                        break 2;
+                    }
+                }
+            }
 
             // Call route handler
             $continue = $this->dispatcher->execute(
                 $route->callback,
                 $params
             );
-			
 
-			// Run any before middlewares
-			if(count($route->middleware) > 0) {
-				
-				// process the middleware in reverse order now
-				foreach(array_reverse($route->middleware) as $middleware) {
 
-					// must be an object. No functions allowed here
-					$middleware_object = is_object($middleware) === true && !($middleware instanceof Closure) && method_exists($middleware, 'after') === true ? [ $middleware, 'after' ] : false;
+            // Run any before middlewares
+            if (count($route->middleware) > 0) {
+                // process the middleware in reverse order now
+                foreach (array_reverse($route->middleware) as $middleware) {
+                    // must be an object. No functions allowed here
+                    $middleware_object = is_object($middleware) === true && !($middleware instanceof Closure) && method_exists($middleware, 'after') === true ? [ $middleware, 'after' ] : false;
 
-					// has to have the after method, otherwise just skip it
-					if($middleware_object === false) {
-						continue;
-					}
+                    // has to have the after method, otherwise just skip it
+                    if ($middleware_object === false) {
+                        continue;
+                    }
 
-					$middleware_result = $middleware_object($route->params);
+                    $middleware_result = $middleware_object($route->params);
 
-					if ($middleware_result === false) {
-						$failed_middleware_check = true;
-						break 2;
-					}
-				}
-			}
+                    if ($middleware_result === false) {
+                        $failed_middleware_check = true;
+                        break 2;
+                    }
+                }
+            }
 
             $dispatched = true;
 
@@ -447,9 +445,9 @@ class Engine
             $dispatched = false;
         }
 
-		if($failed_middleware_check === true) {
-			$this->halt(403, 'Forbidden');
-		} else if($dispatched === false) {
+        if ($failed_middleware_check === true) {
+            $this->halt(403, 'Forbidden');
+        } elseif ($dispatched === false) {
             $this->notFound();
         }
     }
@@ -476,11 +474,11 @@ class Engine
                 ->status(500)
                 ->write($msg)
                 ->send();
-		// @codeCoverageIgnoreStart
+        // @codeCoverageIgnoreStart
         } catch (Throwable $t) {
             exit($msg);
         }
-		// @codeCoverageIgnoreEnd
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -512,20 +510,20 @@ class Engine
      * @param string   $pattern    URL pattern to match
      * @param callable $callback   Callback function
      * @param bool     $pass_route Pass the matching route object to the callback
-	 * @param string   $alias      the alias for the route
-	 * @return Route
+     * @param string   $alias      the alias for the route
+     * @return Route
      */
     public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->router()->map($pattern, $callback, $pass_route, $alias);
     }
 
-	/**
+    /**
      * Routes a URL to a callback function.
      *
-     * @param string   		  $pattern    			URL pattern to match
-     * @param callable 		  $callback   			Callback function that includes the Router class as first parameter
-	 * @param array<callable> $group_middlewares 	The middleware to be applied to the route
+     * @param string          $pattern              URL pattern to match
+     * @param callable        $callback             Callback function that includes the Router class as first parameter
+     * @param array<callable> $group_middlewares    The middleware to be applied to the route
      */
     public function _group(string $pattern, callable $callback, array $group_middlewares = []): void
     {
@@ -585,7 +583,7 @@ class Engine
      *
      * @param int    $code    HTTP status code
      * @param string $message Response message
-	 * 
+     *
      */
     public function _halt(int $code = 200, string $message = ''): void
     {
@@ -594,10 +592,10 @@ class Engine
             ->status($code)
             ->write($message)
             ->send();
-		// apologies for the crappy hack here...
-		if($message !== 'skip---exit') {
-			exit(); // @codeCoverageIgnore
-		}
+        // apologies for the crappy hack here...
+        if ($message !== 'skip---exit') {
+            exit(); // @codeCoverageIgnore
+        }
     }
 
     /**
@@ -728,7 +726,7 @@ class Engine
     {
         $id = (('weak' === $type) ? 'W/' : '') . $id;
 
-        $this->response()->header('ETag', '"'.str_replace('"', '\"', $id).'"');
+        $this->response()->header('ETag', '"' . str_replace('"', '\"', $id) . '"');
 
         if (
             isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
@@ -755,14 +753,14 @@ class Engine
         }
     }
 
-	/**
-	 * Gets a url from an alias that's supplied.
-	 *
-	 * @param string $alias the route alias.
-	 * @param array<string, mixed> $params The params for the route if applicable.
-	 */
-	public function _getUrl(string $alias, array $params = []): string
-	{
-		return $this->router()->getUrlByAlias($alias, $params);
-	}
+    /**
+     * Gets a url from an alias that's supplied.
+     *
+     * @param string $alias the route alias.
+     * @param array<string, mixed> $params The params for the route if applicable.
+     */
+    public function _getUrl(string $alias, array $params = []): string
+    {
+        return $this->router()->getUrlByAlias($alias, $params);
+    }
 }

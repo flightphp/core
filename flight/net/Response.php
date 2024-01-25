@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -237,7 +238,7 @@ class Response
     {
         // Send status code header
         if (false !== strpos(\PHP_SAPI, 'cgi')) {
-			// @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
             $this->setRealHeader(
                 sprintf(
                     'Status: %d %s',
@@ -246,7 +247,7 @@ class Response
                 ),
                 true
             );
-			// @codeCoverageIgnoreEnd
+            // @codeCoverageIgnoreEnd
         } else {
             $this->setRealHeader(
                 sprintf(
@@ -283,19 +284,20 @@ class Response
         return $this;
     }
 
-	/**
-	 * Sets a real header. Mostly used for test mocking.
-	 *
-	 * @param string $header_string The header string you would pass to header()
-	 * @param bool $replace The optional replace parameter indicates whether the header should replace a previous similar header, or add a second header of the same type. By default it will replace, but if you pass in false as the second argument you can force multiple headers of the same type.
-	 * @param int $response_code The response code to send
-	 * @return $this
-	 * @codeCoverageIgnore
-	 */
-	public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self {
-		header($header_string, $replace, $response_code);
-		return $this;
-	}
+    /**
+     * Sets a real header. Mostly used for test mocking.
+     *
+     * @param string $header_string The header string you would pass to header()
+     * @param bool $replace The optional replace parameter indicates whether the header should replace a previous similar header, or add a second header of the same type. By default it will replace, but if you pass in false as the second argument you can force multiple headers of the same type.
+     * @param int $response_code The response code to send
+     * @return $this
+     * @codeCoverageIgnore
+     */
+    public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
+    {
+        header($header_string, $replace, $response_code);
+        return $this;
+    }
 
     /**
      * Gets the content length.

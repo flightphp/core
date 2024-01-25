@@ -1,3 +1,5 @@
 <?php
 
-class ReturnTypeWillChange {}
+class ReturnTypeWillChange
+{
+}

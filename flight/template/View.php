@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -165,7 +166,7 @@ class View
             $file .= $ext;
         }
 
-		$is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
+        $is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
 
         if (('/' == \substr($file, 0, 1)) || ($is_windows === true && ':' == \substr($file, 1, 1))) {
             return $file;
@@ -183,7 +184,7 @@ class View
      */
     public function e(string $str): string
     {
-		$value = \htmlentities($str);
+        $value = \htmlentities($str);
         echo $value;
         return $value;
     }

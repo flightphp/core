@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Flight: An extensible micro-framework.
  *
@@ -134,7 +135,7 @@ class Loader
             return \call_user_func_array($class, $params);
         }
 
-		return new $class(...$params);
+        return new $class(...$params);
     }
 
     /**
@@ -179,8 +180,8 @@ class Loader
 
     /**
      * Autoloads classes.
-	 * 
-	 * Classes are not allowed to have underscores in their names.
+     *
+     * Classes are not allowed to have underscores in their names.
      *
      * @param string $class Class name
      */
