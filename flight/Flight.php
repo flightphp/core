@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
+
+declare(strict_types=1);
 
 use flight\core\Dispatcher;
 use flight\Engine;
@@ -150,7 +150,6 @@ class Flight
      * Set the engine instance
      *
      * @param Engine $engine Vroom vroom!
-     * @return void
      */
     public static function setEngine(Engine $engine): void
     {
