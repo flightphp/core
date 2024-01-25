@@ -32,6 +32,14 @@
             "flight/Flight.php"
         ]
     },
+    "autoload-dev": {
+        "classmap": [
+            "tests/classes/User.php",
+            "tests/classes/Hello.php",
+            "tests/classes/Factory.php",
+            "tests/classes/TesterClass.php"
+        ]
+    },
     "require-dev": {
         "ext-pdo_sqlite": "*",
         "phpunit/phpunit": "^9.5",
@@ -49,8 +57,8 @@
         "test": "phpunit",
         "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
         "lint": "phpstan --no-progress -cphpstan.neon",
-		"beautify": "phpcbf --standard=phpcs.xml",
-		"phpcs": "phpcs --standard=phpcs.xml"
+        "beautify": "phpcbf --standard=phpcs.xml",
+        "phpcs": "phpcs --standard=phpcs.xml"
     },
     "suggest": {
         "latte/latte": "Latte template engine",

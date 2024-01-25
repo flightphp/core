@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
+
+declare(strict_types=1);
 
 namespace flight;
 
@@ -390,7 +390,11 @@ class Engine
             // Run any before middlewares
             if (count($route->middleware) > 0) {
                 foreach ($route->middleware as $middleware) {
-                    $middleware_object = (is_callable($middleware) === true ? $middleware : (method_exists($middleware, 'before') === true ? [ $middleware, 'before' ] : false));
+                    $middleware_object = (is_callable($middleware) === true
+                        ? $middleware
+                        : (method_exists($middleware, 'before') === true
+                            ? [$middleware, 'before']
+                            : false));
 
                     if ($middleware_object === false) {
                         continue;
@@ -418,7 +422,15 @@ class Engine
                 // process the middleware in reverse order now
                 foreach (array_reverse($route->middleware) as $middleware) {
                     // must be an object. No functions allowed here
-                    $middleware_object = is_object($middleware) === true && !($middleware instanceof Closure) && method_exists($middleware, 'after') === true ? [ $middleware, 'after' ] : false;
+                    $middleware_object = false;
+
+                    if (
+                        is_object($middleware) === true
+                        && !($middleware instanceof Closure)
+                        && method_exists($middleware, 'after') === true
+                    ) {
+                        $middleware_object = [$middleware, 'after'];
+                    }
 
                     // has to have the after method, otherwise just skip it
                     if ($middleware_object === false) {
@@ -474,7 +486,7 @@ class Engine
                 ->status(500)
                 ->write($msg)
                 ->send();
-        // @codeCoverageIgnoreStart
+            // @codeCoverageIgnoreStart
         } catch (Throwable $t) {
             exit($msg);
         }
@@ -608,8 +620,7 @@ class Engine
             ->status(404)
             ->write(
                 '<h1>404 Not Found</h1>' .
-                    '<h3>The page you have requested could not be found.</h3>' .
-                    str_repeat(' ', 512)
+                    '<h3>The page you have requested could not be found.</h3>'
             )
             ->send();
     }

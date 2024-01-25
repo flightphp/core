@@ -1,23 +1,15 @@
 <?php
 
 use flight\template\View;
+use PHPUnit\Framework\TestCase;
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-class ViewTest extends PHPUnit\Framework\TestCase
+class ViewTest extends TestCase
 {
-    /**
-     * @var \flight\template\View
-     */
-    private $view;
+    private View $view;
 
     protected function setUp(): void
     {
-        $this->view = new \flight\template\View();
+        $this->view = new View();
         $this->view->path = __DIR__ . '/views';
     }
 
@@ -70,7 +62,13 @@ class ViewTest extends PHPUnit\Framework\TestCase
     public function testRenderBadFilePath()
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Template file not found: ' . __DIR__ . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'badfile.php');
+        $exception_message = sprintf(
+            'Template file not found: %s%sviews%sbadfile.php',
+            __DIR__,
+            DIRECTORY_SEPARATOR,
+            DIRECTORY_SEPARATOR
+        );
+        $this->expectExceptionMessage($exception_message);
 
         $this->view->render('badfile');
     }
@@ -128,7 +126,8 @@ class ViewTest extends PHPUnit\Framework\TestCase
 
     public function testNormalizePath(): void
     {
-        $viewMock = new class extends View {
+        $viewMock = new class extends View
+        {
             public static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
             {
                 return parent::normalizePath($path, $separator);

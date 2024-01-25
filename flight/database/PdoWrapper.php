@@ -111,10 +111,11 @@ class PdoWrapper extends PDO
      */
     protected function processInStatementSql(string $sql, array $params = []): array
     {
-
-        // Handle "IN(?)". This is to be used with a comma delimited string, but can also be used with an array.
-        // Remove the spaces in variations of "IN ( ? )" where the space after IN is optional, and any number of spaces before and after the question mark is optional.
-        // Then loop through each "IN(?)" in the query and replace the single question mark with the correct number of question marks.
+        /* Handle "IN(?)". This is to be used with a comma delimited string, but can also be used with an array.
+        Remove the spaces in variations of "IN ( ? )" where the space after IN is optional, and any number of
+        spaces before and after the question mark is optional.
+        Then loop through each "IN(?)" in the query and replace the single question mark with the correct
+        number of question marks. */
         $sql = preg_replace('/IN\s*\(\s*\?\s*\)/i', 'IN(?)', $sql);
         $current_index = 0;
         while (($current_index = strpos($sql, 'IN(?)', $current_index)) !== false) {

@@ -8,12 +8,9 @@
  */
 
 use flight\core\Loader;
+use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/classes/User.php';
-require_once __DIR__ . '/classes/Factory.php';
-require_once __DIR__ . '/classes/TesterClass.php';
-
-class LoaderTest extends PHPUnit\Framework\TestCase
+class LoaderTest extends TestCase
 {
     private Loader $loader;
 

@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
+
+declare(strict_types=1);
 
 namespace flight\net;
 
@@ -166,7 +166,8 @@ class Router
      *
      * @param string   $group_prefix group URL prefix (such as /api/v1)
      * @param callable $callback     The necessary calling that holds the Router class
-     * @param array<int,callable|object>  $group_middlewares The middlewares to be applied to the group Ex: [ $middleware1, $middleware2 ]
+     * @param array<int, callable|object> $group_middlewares The middlewares to be
+     * applied to the group Ex: [ $middleware1, $middleware2 ]
      */
     public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void
     {

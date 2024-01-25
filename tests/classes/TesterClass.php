@@ -8,6 +8,7 @@ class TesterClass
     public $param4;
     public $param5;
     public $param6;
+
     public function __construct($param1, $param2, $param3, $param4, $param5, $param6)
     {
         $this->param1 = $param1;
@@ -17,4 +18,4 @@ class TesterClass
         $this->param5 = $param5;
         $this->param6 = $param6;
     }
-};
+}

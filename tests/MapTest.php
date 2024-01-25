@@ -8,10 +8,9 @@
  */
 
 use flight\Engine;
+use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/classes/Hello.php';
-
-class MapTest extends PHPUnit\Framework\TestCase
+class MapTest extends TestCase
 {
     private Engine $app;
 

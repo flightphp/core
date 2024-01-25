@@ -1,13 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
+
+declare(strict_types=1);
 
 namespace flight\net;
 
@@ -288,7 +288,10 @@ class Response
      * Sets a real header. Mostly used for test mocking.
      *
      * @param string $header_string The header string you would pass to header()
-     * @param bool $replace The optional replace parameter indicates whether the header should replace a previous similar header, or add a second header of the same type. By default it will replace, but if you pass in false as the second argument you can force multiple headers of the same type.
+     * @param bool $replace The optional replace parameter indicates whether the
+     * header should replace a previous similar header, or add a second header of
+     * the same type. By default it will replace, but if you pass in false as the
+     * second argument you can force multiple headers of the same type.
      * @param int $response_code The response code to send
      * @return $this
      * @codeCoverageIgnore
