@@ -2,6 +2,7 @@
     "folders": [
         {
             "path": ".",
+            "name": "FlightPHP/Core",
         }
     ],
     "settings": {
@@ -12,10 +13,29 @@
                     "intelephense.format.braces": "psr12",
                 },
             },
-            "formatters":
-            {
-				"embedding.php": "LSP-intelephense"
-			},
+            "formatters": {
+                "embedding.php": "LSP-intelephense",
+                "source.json.composer": "LSP-json",
+                "source.json.sublime": "LSP-json",
+            },
+            "LSP-html": {
+                "enabled": false
+            },
+            "LSP-tailwindcss": {
+                "enabled": false
+            },
         },
     },
+    "build_systems": [
+        {
+            "name": "Linter - HARD",
+            "quiet": true,
+            "shell_cmd": "composer lint -- --no-ansi -lmax"
+        },
+        {
+            "name": "Linter - Default",
+            "quiet": true,
+            "shell_cmd": "composer lint -- --no-ansi"
+        }
+    ],
 }

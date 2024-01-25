@@ -18,7 +18,7 @@ namespace flight\net;
 class Route
 {
     /**
-     * @var string URL pattern
+     * URL pattern
      */
     public string $pattern;
 
@@ -38,22 +38,22 @@ class Route
     public array $params = [];
 
     /**
-     * @var string|null Matching regular expression
+     * Matching regular expression
      */
     public ?string $regex = null;
 
     /**
-     * @var string URL splat content
+     * URL splat content
      */
     public string $splat = '';
 
     /**
-     * @var bool Pass self in callback parameters
+     * Pass self in callback parameters
      */
     public bool $pass = false;
 
 	/**
-	 * @var string The alias is a way to identify the route using a simple name ex: 'login' instead of /admin/login
+	 * The alias is a way to identify the route using a simple name ex: 'login' instead of /admin/login
 	 */
 	public string $alias = '';
 
@@ -70,7 +70,7 @@ class Route
      * @param array<int, string>  $methods  HTTP methods
      * @param bool   $pass     Pass self in callback parameters
      */
-    public function __construct(string $pattern, $callback, array $methods, bool $pass, string $alias = '')
+    public function __construct(string $pattern, callable $callback, array $methods, bool $pass, string $alias = '')
     {
         $this->pattern = $pattern;
         $this->callback = $callback;
@@ -167,9 +167,6 @@ class Route
 
 	/**
 	 * Checks if an alias matches the route alias.
-	 *
-	 * @param string $alias [description]
-	 * @return boolean
 	 */
 	public function matchAlias(string $alias): bool
 	{
@@ -180,7 +177,6 @@ class Route
 	 * Hydrates the route url with the given parameters
 	 *
 	 * @param array<string,mixed> $params the parameters to pass to the route
-	 * @return string
 	 */
 	public function hydrateUrl(array $params = []): string {
 		$url = preg_replace_callback("/(?:@([a-zA-Z0-9]+)(?:\:([^\/]+))?\)*)/i", function($match) use ($params) {
@@ -199,7 +195,7 @@ class Route
 	/**
 	 * Sets the route alias
 	 *
-	 * @return self
+	 * @return $this
 	 */
 	public function setAlias(string $alias): self {
 		$this->alias = $alias;
@@ -209,8 +205,8 @@ class Route
 	/**
 	 * Sets the route middleware
 	 *
-	 * @param array<callable>|callable $middleware
-	 * @return self
+	 * @param array<int, callable>|callable $middleware
+	 * @return $this
 	 */
 	public function addMiddleware($middleware): self {
 		if(is_array($middleware) === true) {

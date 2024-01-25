@@ -40,104 +40,102 @@ use flight\util\Collection;
 class Request
 {
     /**
-     * @var string URL being requested
+     * URL being requested
      */
     public string $url;
 
     /**
-     * @var string Parent subdirectory of the URL
+     * Parent subdirectory of the URL
      */
     public string $base;
 
     /**
-     * @var string Request method (GET, POST, PUT, DELETE)
+     * Request method (GET, POST, PUT, DELETE)
      */
     public string $method;
 
     /**
-     * @var string Referrer URL
+     * Referrer URL
      */
     public string $referrer;
 
     /**
-     * @var string IP address of the client
+     * IP address of the client
      */
     public string $ip;
 
     /**
-     * @var bool Whether the request is an AJAX request
+     * Whether the request is an AJAX request
      */
     public bool $ajax;
 
     /**
-     * @var string Server protocol (http, https)
+     * Server protocol (http, https)
      */
     public string $scheme;
 
     /**
-     * @var string Browser information
+     * Browser information
      */
     public string $user_agent;
 
     /**
-     * @var string Content type
+     * Content type
      */
     public string $type;
 
     /**
-     * @var int Content length
+     * Content length
      */
     public int $length;
 
     /**
-     * @var Collection Query string parameters
+     * Query string parameters
      */
     public Collection $query;
 
     /**
-     * @var Collection Post parameters
+     * Post parameters
      */
     public Collection $data;
 
     /**
-     * @var Collection Cookie parameters
+     * Cookie parameters
      */
     public Collection $cookies;
 
     /**
-     * @var Collection Uploaded files
+     * Uploaded files
      */
     public Collection $files;
 
     /**
-     * @var bool Whether the connection is secure
+     * Whether the connection is secure
      */
     public bool $secure;
 
     /**
-     * @var string HTTP accept parameters
+     * HTTP accept parameters
      */
     public string $accept;
 
     /**
-     * @var string Proxy IP address of the client
+     * Proxy IP address of the client
      */
     public string $proxy_ip;
 
     /**
-     * @var string HTTP host name
+     * HTTP host name
      */
     public string $host;
 
     /**
      * Stream path for where to pull the request body from
-     *
-     * @var string
      */
     private string $stream_path = 'php://input';
 
     /**
-     * @var string Raw HTTP request body
+     * Raw HTTP request body
      */
     public string $body = '';
 
@@ -146,7 +144,7 @@ class Request
      *
      * @param array<string, mixed> $config Request configuration
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         // Default properties
         if (empty($config)) {
@@ -179,9 +177,9 @@ class Request
      * Initialize request properties.
      *
      * @param array<string, mixed> $properties Array of request properties
-     * @return self
+     * @return $this
      */
-    public function init(array $properties = [])
+    public function init(array $properties = []): self
     {
         // Set all the defined properties
         foreach ($properties as $name => $value) {
@@ -322,6 +320,7 @@ class Request
         return $params;
     }
 
+    /** @return 'http'|'https' */
     public static function getScheme(): string
     {
         if (
