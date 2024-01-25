@@ -49,8 +49,8 @@
         "test": "phpunit",
         "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
         "lint": "phpstan --no-progress -cphpstan.neon",
-		"beautify": "phpcbf --standard=phpcs.xml",
-		"phpcs": "phpcs --standard=phpcs.xml"
+        "beautify": "phpcbf --standard=phpcs.xml",
+        "phpcs": "phpcs --standard=phpcs.xml"
     },
     "suggest": {
         "latte/latte": "Latte template engine",
