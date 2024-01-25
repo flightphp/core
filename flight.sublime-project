@@ -42,6 +42,11 @@
             "name": "Linter - Default",
             "quiet": true,
             "shell_cmd": "composer lint -- --no-ansi | composer phpcs -- --no-colors",
+        },
+        {
+            "name": "Format",
+            "quiet": true,
+            "shell_cmd": "composer beautify -- --no-colors"
         }
     ],
 }
