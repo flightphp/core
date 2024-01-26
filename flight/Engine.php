@@ -258,15 +258,10 @@ class Engine
         $this->loader->register($name, $class, $params, $callback);
     }
 
-    /**
-     * Unregisters a class to a framework method
-     *
-     * @param string $name Method Name
-     * @return void
-     */
-    public function unregister(string $name): void
+    /** Unregisters a class to a framework method. */
+    public function unregister(string $methodName): void
     {
-        $this->loader->unregister($name);
+        $this->loader->unregister($methodName);
     }
 
     /**
