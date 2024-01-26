@@ -258,6 +258,12 @@ class Engine
         $this->loader->register($name, $class, $params, $callback);
     }
 
+    /** Unregisters a class to a framework method. */
+    public function unregister(string $methodName): void
+    {
+        $this->loader->unregister($methodName);
+    }
+
     /**
      * Adds a pre-filter to a method.
      *
