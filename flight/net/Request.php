@@ -316,6 +316,24 @@ class Request
     }
 
     /**
+     * Gets all the request headers
+     *
+     * @return array<string, string|int>
+     */
+    public static function getHeaders(): array
+    {
+        $headers = [];
+        foreach ($_SERVER as $key => $value) {
+            if (0 === strpos($key, 'HTTP_')) {
+                // converts headers like HTTP_CUSTOM_HEADER to Custom-Header
+                $key = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+                $headers[$key] = $value;
+            }
+        }
+        return $headers;
+    }
+
+    /**
      * Parse query parameters from a URL.
      *
      * @param string $url URL string
