@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-
 declare(strict_types=1);
 
 namespace flight\net;
@@ -18,6 +11,9 @@ use flight\net\Route;
  * The Router class is responsible for routing an HTTP request to
  * an assigned callback function. The Router tries to match the
  * requested URL against a series of URL patterns.
+ *
+ * @license MIT, http://flightphp.com/license
+ * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  */
 class Router
 {

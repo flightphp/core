@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-
 declare(strict_types=1);
 
 namespace flight;
@@ -28,36 +21,46 @@ use flight\net\Route;
  * It is responsible for loading an HTTP request, running the assigned services,
  * and generating an HTTP response.
  *
- * Core methods
+ * @license MIT, http://flightphp.com/license
+ * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  *
+ * # Core methods
  * @method void start() Starts engine
  * @method void stop() Stops framework and outputs current response
  * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
  *
- * Routing
- * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a URL to a callback function with all applicable methods
- * @method void  group(string $pattern, callable $callback, array $group_middlewares = []) Groups a set of routes together under a common prefix.
- * @method Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
- * @method Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
- * @method Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
- * @method Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
+ * # Routing
+ * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a URL to a callback function with all applicable methods
+ * @method void group(string $pattern, callable $callback, array $group_middlewares = [])
+ * Groups a set of routes together under a common prefix.
+ * @method Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a POST URL to a callback function.
+ * @method Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a PUT URL to a callback function.
+ * @method Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a PATCH URL to a callback function.
+ * @method Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a DELETE URL to a callback function.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
  *
- * Views
+ * # Views
  * @method void render(string $file, array $data = null, string $key = null) Renders template
  * @method View view() Gets current view
  *
- * Request-response
+ * # Request-Response
  * @method Request request() Gets current request
  * @method Response response() Gets current response
  * @method void error(Throwable $e) Sends an HTTP 500 response for any errors.
  * @method void notFound() Sends an HTTP 404 response when a URL is not found.
  * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
- * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSON response.
- * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSONP response.
+ * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * Sends a JSON response.
+ * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200,
+ * bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSONP response.
  *
- * HTTP caching
+ * # HTTP caching
  * @method void etag($id, string $type = 'strong') Handles ETag HTTP caching.
  * @method void lastModified(int $time) Handles last modified HTTP caching.
  */
@@ -602,7 +605,6 @@ class Engine
      *
      * @param int    $code    HTTP status code
      * @param string $message Response message
-     *
      */
     public function _halt(int $code = 200, string $message = ''): void
     {

@@ -1,24 +1,21 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 namespace tests;
 
 use Exception;
 use Flight;
+
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
 use flight\net\Router;
 use flight\template\View;
 use tests\classes\User;
+use PHPUnit\Framework\TestCase;
 
-class FlightTest extends \PHPUnit\Framework\TestCase
+class FlightTest extends TestCase
 {
     protected function setUp(): void
     {

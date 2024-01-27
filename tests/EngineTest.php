@@ -1,11 +1,7 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
+
 namespace tests;
 
 use Exception;
@@ -266,7 +262,7 @@ class EngineTest extends TestCase
         $this->assertEquals(200, $engine->response()->status());
     }
 
-    public function testJsonPBadParam()
+    public function testJsonpBadParam()
     {
         $engine = new Engine();
         $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);

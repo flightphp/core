@@ -1,22 +1,15 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 namespace tests;
 
 use flight\Engine;
+use PHPUnit\Framework\TestCase;
 
-class FilterTest extends \PHPUnit\Framework\TestCase
+class FilterTest extends TestCase
 {
-    /**
-     * @var Engine
-     */
-    private $app;
+    private Engine $app;
 
     protected function setUp(): void
     {
@@ -30,7 +23,7 @@ class FilterTest extends \PHPUnit\Framework\TestCase
             return "Hello, $name!";
         });
 
-        $this->app->before('hello', function (&$params, &$output) {
+        $this->app->before('hello', function (&$params) {
             // Manipulate the parameter
             $params[0] = 'Fred';
         });
@@ -52,15 +45,15 @@ class FilterTest extends \PHPUnit\Framework\TestCase
             return "Bye, $name!";
         });
 
-        $this->app->before('bye', function (&$params, &$output) {
+        $this->app->before('bye', function (&$params) {
             $params[0] = 'Bob';
         });
-        $this->app->before('bye', function (&$params, &$output) {
+        $this->app->before('bye', function (&$params) {
             $params[0] = 'Fred';
 
             return false;
         });
-        $this->app->before('bye', function (&$params, &$output) {
+        $this->app->before('bye', function (&$params) {
             $params[0] = 'Ted';
         });
 

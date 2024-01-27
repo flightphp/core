@@ -1,23 +1,16 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 namespace tests;
 
 use flight\database\PdoWrapper;
 use PDOStatement;
+use PHPUnit\Framework\TestCase;
 
-class PdoWrapperTest extends \PHPUnit\Framework\TestCase
+class PdoWrapperTest extends TestCase
 {
-    /**
-     * @var Pdo_Wrapper
-     */
-    private $pdo_wrapper;
+    private PdoWrapper $pdo_wrapper;
 
     protected function setUp(): void
     {

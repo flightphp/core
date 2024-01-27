@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-
 declare(strict_types=1);
 
 use flight\core\Dispatcher;
@@ -19,18 +12,29 @@ use flight\net\Route;
 
 /**
  * The Flight class is a static representation of the framework.
+ * @license MIT, http://flightphp.com/license
+ * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  *
+ * # Core methods
  * @method  static void start() Starts the framework.
  * @method  static void path(string $path) Adds a path for autoloading classes.
  * @method  static void stop() Stops the framework and sends a response.
- * @method  static void halt(int $code = 200, string $message = '') Stop the framework with an optional status code and message.
+ * @method  static void halt(int $code = 200, string $message = '')
+ * Stop the framework with an optional status code and message.
  *
- * @method  static Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Maps a URL pattern to a callback with all applicable methods.
- * @method  static void  group(string $pattern, callable $callback, array $group_middlewares = []) Groups a set of routes together under a common prefix.
- * @method  static Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a POST URL to a callback function.
- * @method  static Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PUT URL to a callback function.
- * @method  static Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a PATCH URL to a callback function.
- * @method  static Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '') Routes a DELETE URL to a callback function.
+ * # Routing
+ * @method  static Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Maps a URL pattern to a callback with all applicable methods.
+ * @method  static void  group(string $pattern, callable $callback, array $group_middlewares = [])
+ * Groups a set of routes together under a common prefix.
+ * @method  static Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a POST URL to a callback function.
+ * @method  static Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a PUT URL to a callback function.
+ * @method  static Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a PATCH URL to a callback function.
+ * @method  static Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * Routes a DELETE URL to a callback function.
  * @method  static Router router() Returns Router instance.
  * @method  static string getUrl(string $alias) Gets a url from an alias
  *
@@ -44,17 +48,22 @@ use flight\net\Route;
  * @method  static bool has($key) Checks if a variable is set.
  * @method  static void clear($key = null) Clears a variable.
  *
+ * # Views
  * @method  static void render($file, array $data = null, $key = null) Renders a template file.
  * @method  static View view() Returns View instance.
  *
+ * # Request-Response
  * @method  static Request request() Returns Request instance.
  * @method  static Response response() Returns Response instance.
  * @method  static void redirect($url, $code = 303) Redirects to another URL.
- * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
- * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
+ * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8",
+ * $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
+ * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true,
+ * $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
  * @method  static void error($exception) Sends an HTTP 500 response.
  * @method  static void notFound() Sends an HTTP 404 response.
  *
+ * # HTTP caching
  * @method  static void etag($id, $type = 'strong') Performs ETag HTTP caching.
  * @method  static void lastModified($time) Performs last modified HTTP caching.
  */
