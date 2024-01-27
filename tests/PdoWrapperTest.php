@@ -98,7 +98,7 @@ class PdoWrapperTest extends TestCase
 
     public function testFetchAllWithInInt()
     {
-        $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE id IN(?)', [ [1,2 ]]);
+        $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE id IN(?   )', [ [1,2 ]]);
         $this->assertEquals(2, count($rows));
     }
 
@@ -110,7 +110,7 @@ class PdoWrapperTest extends TestCase
 
     public function testFetchAllWithInStringCommas()
     {
-        $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE id > ? AND name IN(?)', [ 0, 'one,two' ]);
+        $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE id > ? AND name IN( ?)  ', [ 0, 'one,two' ]);
         $this->assertEquals(2, count($rows));
     }
 }

@@ -155,7 +155,7 @@ class Request
                 'scheme' => self::getScheme(),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
                 'type' => self::getVar('CONTENT_TYPE'),
-                'length' => (int) self::getVar('CONTENT_LENGTH', 0),
+                'length' => intval(self::getVar('CONTENT_LENGTH', 0)),
                 'query' => new Collection($_GET),
                 'data' => new Collection($_POST),
                 'cookies' => new Collection($_COOKIE),
@@ -174,7 +174,8 @@ class Request
      * Initialize request properties.
      *
      * @param array<string, mixed> $properties Array of request properties
-     * @return $this
+     *
+     * @return self
      */
     public function init(array $properties = []): self
     {
@@ -303,6 +304,7 @@ class Request
      *
      * @param string $header  Header name. Can be caps, lowercase, or mixed.
      * @param string $default Default value if the header does not exist
+     *
      * @return string
      */
     public static function getHeader(string $header, $default = ''): string
@@ -348,7 +350,11 @@ class Request
         return $params;
     }
 
-    /** @return 'http'|'https' */
+    /**
+     * Gets the URL Scheme
+     *
+     * @return string 'http'|'https'
+     */
     public static function getScheme(): string
     {
         if (

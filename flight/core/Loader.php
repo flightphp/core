@@ -20,30 +20,36 @@ class Loader
 {
     /**
      * Registered classes.
+     *
      * @var array<string, array{class-string|Closure(): object, array<int, mixed>, ?callable}> $classes
      */
     protected array $classes = [];
 
     /**
      * Class instances.
+     *
      * @var array<string, object>
      */
     protected array $instances = [];
 
     /**
      * Autoload directories.
+     *
      * @var array<int, string>
      */
     protected static array $dirs = [];
 
     /**
      * Registers a class.
-     * @template T of object
      *
      * @param string          $name     Registry name
      * @param class-string<T>|Closure(): T $class    Class name or function to instantiate class
      * @param array<int, mixed>           $params   Class initialization parameters
      * @param ?callable(T $instance): void   $callback $callback Function to call after object instantiation
+     *
+     * @template T of object
+     *
+     * @return void
      */
     public function register(string $name, $class, array $params = [], ?callable $callback = null): void
     {
@@ -116,10 +122,11 @@ class Loader
 
     /**
      * Gets a new instance of a class.
-     * @template T of object
      *
      * @param class-string<T>|Closure(): class-string<T> $class  Class name or callback function to instantiate class
      * @param array<int, string>           $params Class initialization parameters
+     *
+     * @template T of object
      *
      * @throws Exception
      *
@@ -135,6 +142,8 @@ class Loader
     }
 
     /**
+     * Gets a registered callable
+     *
      * @param string $name Registry name
      *
      * @return mixed Class information or null if not registered

@@ -6,7 +6,6 @@ namespace tests;
 
 use Exception;
 use Flight;
-
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;

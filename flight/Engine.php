@@ -57,8 +57,7 @@ use flight\net\Route;
  * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
  * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * Sends a JSON response.
- * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200,
- * bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSONP response.
+ * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSONP response.
  *
  * # HTTP caching
  * @method void etag($id, string $type = 'strong') Handles ETag HTTP caching.

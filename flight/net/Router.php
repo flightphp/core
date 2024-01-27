@@ -21,8 +21,11 @@ class Router
      * Case sensitive matching.
      */
     public bool $case_sensitive = false;
+
     /**
-     * @var array<int,Route> Mapped routes.
+     * Mapped routes.
+     *
+     * @var array<int,Route> $routes
      */
     protected array $routes = [];
 

@@ -20,7 +20,11 @@ class View
     /** File extension. */
     public string $extension = '.php';
 
-    /** @var array<string, mixed> View variables. */
+    /**
+     * View variables.
+     *
+     * @var array<string, mixed> $vars
+     */
     protected array $vars = [];
 
     /** Template file. */
@@ -51,7 +55,8 @@ class View
      *
      * @param string|iterable<string, mixed> $key
      * @param mixed $value Value
-     * @return $this
+     *
+     * @return self
      */
     public function set($key, $value = null): self
     {

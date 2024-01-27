@@ -20,17 +20,23 @@ class Route
     public string $pattern;
 
     /**
-     * @var mixed Callback function
+     * Callback function
+     *
+     * @var mixed
      */
     public $callback;
 
     /**
-     * @var array<int, string> HTTP methods
+     * HTTP methods
+     *
+     * @var array<int, string>
      */
     public array $methods = [];
 
     /**
-     * @var array<int, ?string> Route parameters
+     * Route parameters
+     *
+     * @var array<int, ?string>
      */
     public array $params = [];
 
@@ -55,7 +61,9 @@ class Route
     public string $alias = '';
 
     /**
-     * @var array<int,callable|object> The middleware to be applied to the route
+     * The middleware to be applied to the route
+     *
+     * @var array<int,callable|object>
      */
     public array $middleware = [];
 
@@ -95,13 +103,13 @@ class Route
         $last_char = substr($this->pattern, -1);
 
         // Get splat
-        if ('*' === $last_char) {
+        if ($last_char === '*') {
             $n = 0;
             $len = \strlen($url);
             $count = substr_count($this->pattern, '/');
 
             for ($i = 0; $i < $len; $i++) {
-                if ('/' === $url[$i]) {
+                if ($url[$i] === '/') {
                     $n++;
                 }
                 if ($n === $count) {
@@ -109,7 +117,7 @@ class Route
                 }
             }
 
-            $this->splat = (string) substr($url, $i + 1);
+            $this->splat = strval(substr($url, $i + 1));
         }
 
         // Build the regex for matching
@@ -202,8 +210,9 @@ class Route
     /**
      * Sets the route middleware
      *
-     * @param array<int, callable>|callable $middleware
-     * @return $this
+     * @param array<int,callable>|callable $middleware
+     *
+     * @return self
      */
     public function addMiddleware($middleware): self
     {

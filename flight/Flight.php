@@ -56,10 +56,8 @@ use flight\net\Route;
  * @method  static Request request() Returns Request instance.
  * @method  static Response response() Returns Response instance.
  * @method  static void redirect($url, $code = 303) Redirects to another URL.
- * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8",
- * $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
- * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true,
- * $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
+ * @method  static void json($data, $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSON response.
+ * @method  static void jsonp($data, $param = 'jsonp', $code = 200, $encode = true, $charset = "utf8", $encodeOption = 0, $encodeDepth = 512) Sends a JSONP response.
  * @method  static void error($exception) Sends an HTTP 500 response.
  * @method  static void notFound() Sends an HTTP 404 response.
  *
