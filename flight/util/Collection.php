@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-
 declare(strict_types=1);
 
 namespace flight\util;
@@ -19,6 +12,9 @@ use JsonSerializable;
 /**
  * The Collection class allows you to access a set of data
  * using both array and object notation.
+ *
+ * @license MIT, http://flightphp.com/license
+ * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  * @implements ArrayAccess<string, mixed>
  * @implements Iterator<string, mixed>
  */

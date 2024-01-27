@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-
 declare(strict_types=1);
 
 namespace flight\net;
@@ -17,6 +10,9 @@ use flight\util\Collection;
  * The Request class represents an HTTP request. Data from
  * all the super globals $_GET, $_POST, $_COOKIE, and $_FILES
  * are stored and accessible via the Request object.
+ *
+ * @license MIT, http://flightphp.com/license
+ * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  *
  * The default request properties are:
  *

@@ -29,6 +29,7 @@
         <exclude name="Generic.Commenting.DocComment.SpacingBeforeShort" />
         <exclude name="Generic.Commenting.DocComment.ContentAfterOpen" />
         <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman.BraceOnSameLine" />
+        <exclude name="Generic.Commenting.DocComment.ContentBeforeClose" />
     </rule>
     <file>flight/</file>
     <file>tests/</file>

@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-
 declare(strict_types=1);
 
 namespace flight\core;
@@ -19,6 +12,9 @@ use InvalidArgumentException;
  * are simply aliases for class methods or functions. The Dispatcher
  * allows you to hook other functions to an event that can modify the
  * input parameters and/or the output.
+ *
+ * @license MIT, http://flightphp.com/license
+ * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  */
 class Dispatcher
 {
