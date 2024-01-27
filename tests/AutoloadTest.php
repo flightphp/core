@@ -7,9 +7,12 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-use flight\Engine;
+namespace tests;
 
-class AutoloadTest extends PHPUnit\Framework\TestCase
+use flight\Engine;
+use tests\classes\User;
+
+class AutoloadTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Engine
@@ -25,7 +28,7 @@ class AutoloadTest extends PHPUnit\Framework\TestCase
     // Autoload a class
     public function testAutoload()
     {
-        $this->app->register('user', 'User');
+        $this->app->register('user', User::class);
 
         $loaders = spl_autoload_functions();
 

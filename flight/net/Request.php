@@ -303,6 +303,19 @@ class Request
     }
 
     /**
+     * This will pull a header from the request.
+     *
+     * @param string $header  Header name. Can be caps, lowercase, or mixed.
+     * @param string $default Default value if the header does not exist
+     * @return string
+     */
+    public static function getHeader(string $header, $default = ''): string
+    {
+        $header = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+        return self::getVar($header, $default);
+    }
+
+    /**
      * Parse query parameters from a URL.
      *
      * @param string $url URL string

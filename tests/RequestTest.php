@@ -7,10 +7,12 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+namespace tests;
+
 use flight\net\Request;
 use flight\util\Collection;
 
-class RequestTest extends PHPUnit\Framework\TestCase
+class RequestTest extends \PHPUnit\Framework\TestCase
 {
     private Request $request;
 
@@ -197,5 +199,19 @@ class RequestTest extends PHPUnit\Framework\TestCase
         ]);
         $this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
         $this->assertEquals('{"foo":"bar"}', $request->getBody());
+    }
+
+    public function testGetHeader()
+    {
+        $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'custom header value';
+        $request = new Request();
+        $this->assertEquals('custom header value', $request->getHeader('X-Custom-Header'));
+
+        // or the headers that are already in $_SERVER
+        $this->assertEquals('XMLHttpRequest', $request->getHeader('X-REqUesTed-WiTH'));
+        $this->assertEquals('32.32.32.32', $request->getHeader('X-Forwarded-For'));
+
+        // default values
+        $this->assertEquals('default value', $request->getHeader('X-Non-Existent-Header', 'default value'));
     }
 }

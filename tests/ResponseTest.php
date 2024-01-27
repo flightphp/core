@@ -7,11 +7,12 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-use flight\net\Request;
-use flight\net\Response;
-use flight\util\Collection;
+namespace tests;
 
-class ResponseTest extends PHPUnit\Framework\TestCase
+use Exception;
+use flight\net\Response;
+
+class ResponseTest extends \PHPUnit\Framework\TestCase
 {
     protected function setUp(): void
     {

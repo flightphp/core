@@ -1,5 +1,8 @@
 <?php
 
+namespace tests;
+
+use Exception;
 use flight\template\View;
 use PHPUnit\Framework\TestCase;
 

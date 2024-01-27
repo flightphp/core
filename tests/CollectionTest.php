@@ -6,7 +6,10 @@
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
-class CollectionTest extends PHPUnit\Framework\TestCase
+
+namespace tests;
+
+class CollectionTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \flight\util\Collection

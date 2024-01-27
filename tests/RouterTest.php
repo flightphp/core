@@ -7,11 +7,13 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+namespace tests;
+
 use flight\core\Dispatcher;
 use flight\net\Request;
 use flight\net\Router;
 
-class RouterTest extends PHPUnit\Framework\TestCase
+class RouterTest extends \PHPUnit\Framework\TestCase
 {
     private Router $router;
 

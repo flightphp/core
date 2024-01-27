@@ -7,7 +7,10 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+namespace tests;
+
 use flight\Engine;
+use tests\classes\User;
 use PHPUnit\Framework\TestCase;
 
 class RegisterTest extends TestCase
@@ -22,7 +25,7 @@ class RegisterTest extends TestCase
     // Register a class
     public function testRegister()
     {
-        $this->app->register('reg1', 'User');
+        $this->app->register('reg1', User::class);
 
         $user = $this->app->reg1();
 
@@ -34,7 +37,7 @@ class RegisterTest extends TestCase
     // Register a class with constructor parameters
     public function testRegisterWithConstructor()
     {
-        $this->app->register('reg2', 'User', ['Bob']);
+        $this->app->register('reg2', User::class, ['Bob']);
 
         $user = $this->app->reg2();
 
@@ -46,7 +49,7 @@ class RegisterTest extends TestCase
     // Register a class with initialization
     public function testRegisterWithInitialization()
     {
-        $this->app->register('reg3', 'User', ['Bob'], function ($user) {
+        $this->app->register('reg3', User::class, ['Bob'], function ($user) {
             $user->name = 'Fred';
         });
 
@@ -60,7 +63,7 @@ class RegisterTest extends TestCase
     // Get a non-shared instance of a class
     public function testSharedInstance()
     {
-        $this->app->register('reg4', 'User');
+        $this->app->register('reg4', User::class);
 
         $user1 = $this->app->reg4();
         $user2 = $this->app->reg4();
@@ -73,7 +76,7 @@ class RegisterTest extends TestCase
     // Map method takes precedence over register
     public function testMapOverridesRegister()
     {
-        $this->app->register('reg5', 'User');
+        $this->app->register('reg5', User::class);
 
         $user = $this->app->reg5();
 

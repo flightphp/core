@@ -1,18 +1,24 @@
 <?php
 
-use flight\Engine;
-use flight\net\Request;
-use flight\net\Response;
-use flight\net\Router;
-use flight\template\View;
-
 /**
  * Flight: An extensible micro-framework.
  *
  * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
  * @license     MIT, http://flightphp.com/license
  */
-class FlightTest extends PHPUnit\Framework\TestCase
+
+namespace tests;
+
+use Exception;
+use Flight;
+use flight\Engine;
+use flight\net\Request;
+use flight\net\Response;
+use flight\net\Router;
+use flight\template\View;
+use tests\classes\User;
+
+class FlightTest extends \PHPUnit\Framework\TestCase
 {
     protected function setUp(): void
     {
@@ -70,7 +76,7 @@ class FlightTest extends PHPUnit\Framework\TestCase
     {
         Flight::path(__DIR__ . '/classes');
 
-        Flight::register('user', 'User');
+        Flight::register('user', User::class);
         $user = Flight::user();
 
         $loaders = spl_autoload_functions();
@@ -79,11 +85,11 @@ class FlightTest extends PHPUnit\Framework\TestCase
         self::assertIsObject($user);
         self::assertInstanceOf(User::class, $user);
 
-		Flight::unregister('user');
+        Flight::unregister('user');
 
-		self::expectException(Exception::class);
-		self::expectExceptionMessage('user must be a mapped method.');
-		$user = Flight::user();
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('user must be a mapped method.');
+        $user = Flight::user();
     }
 
     // Map a function

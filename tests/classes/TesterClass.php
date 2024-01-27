@@ -1,5 +1,7 @@
 <?php
 
+namespace tests\classes;
+
 class TesterClass
 {
     public $param1;

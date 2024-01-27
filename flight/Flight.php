@@ -58,7 +58,8 @@ use flight\net\Route;
  * @method  static void etag($id, $type = 'strong') Performs ETag HTTP caching.
  * @method  static void lastModified($time) Performs last modified HTTP caching.
  */
-class Flight
+// phpcs:ignoreFile Generic.Files.LineLength.TooLong, PSR1.Classes.ClassDeclaration.MissingNamespace
+class Flight 
 {
     /**
      * Framework engine.

@@ -7,9 +7,13 @@
  * @license     MIT, http://flightphp.com/license
  */
 
-use flight\core\Dispatcher;
+namespace tests;
 
-class DispatcherTest extends PHPUnit\Framework\TestCase
+use Exception;
+use flight\core\Dispatcher;
+use tests\classes\Hello;
+
+class DispatcherTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Dispatcher|null
@@ -95,7 +99,7 @@ class DispatcherTest extends PHPUnit\Framework\TestCase
     // Map a static function
     public function testStaticFunctionMapping()
     {
-        $this->dispatcher->set('map2', 'Hello::sayHi');
+        $this->dispatcher->set('map2', 'tests\classes\Hello::sayHi');
 
         $result = $this->dispatcher->run('map2');
 
@@ -117,7 +121,7 @@ class DispatcherTest extends PHPUnit\Framework\TestCase
     // Map a static class method
     public function testStaticClassMethodMapping()
     {
-        $this->dispatcher->set('map4', ['Hello', 'sayBye']);
+        $this->dispatcher->set('map4', ['\tests\classes\Hello', 'sayBye']);
 
         $result = $this->dispatcher->run('map4');
 

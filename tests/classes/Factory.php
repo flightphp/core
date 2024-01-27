@@ -1,5 +1,7 @@
 <?php
 
+namespace tests\classes;
+
 class Factory
 {
     // Cannot be instantiated

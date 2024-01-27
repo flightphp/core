@@ -7,9 +7,11 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+namespace tests;
+
 use flight\Engine;
 
-class RedirectTest extends PHPUnit\Framework\TestCase
+class RedirectTest extends \PHPUnit\Framework\TestCase
 {
     private Engine $app;
 

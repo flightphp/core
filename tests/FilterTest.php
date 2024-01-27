@@ -7,9 +7,11 @@
  * @license     MIT, http://flightphp.com/license
  */
 
+namespace tests;
+
 use flight\Engine;
 
-class FilterTest extends PHPUnit\Framework\TestCase
+class FilterTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Engine

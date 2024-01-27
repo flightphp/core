@@ -1,7 +1,5 @@
 <?php
 
-use flight\database\PdoWrapper;
-
 /**
  * Flight: An extensible micro-framework.
  *
@@ -9,9 +7,12 @@ use flight\database\PdoWrapper;
  * @license     MIT, http://flightphp.com/license
  */
 
+namespace tests;
 
+use flight\database\PdoWrapper;
+use PDOStatement;
 
-class PdoWrapperTest extends PHPUnit\Framework\TestCase
+class PdoWrapperTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Pdo_Wrapper
