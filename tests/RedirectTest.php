@@ -1,15 +1,11 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2013, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 use flight\Engine;
+use PHPUnit\Framework\TestCase;
 
-class RedirectTest extends PHPUnit\Framework\TestCase
+class RedirectTest extends TestCase
 {
     private Engine $app;
 

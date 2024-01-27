@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-
 declare(strict_types=1);
 
 namespace flight\net;
@@ -17,11 +10,14 @@ use Exception;
  * The Response class represents an HTTP response. The object
  * contains the response headers, HTTP status code, and response
  * body.
+ *
+ * @license MIT, http://flightphp.com/license
+ * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  */
 class Response
 {
     /**
-     * header Content-Length.
+     * Content-Length header.
      */
     public bool $content_length = true;
 
@@ -312,15 +308,15 @@ class Response
             \strlen($this->body);
     }
 
-	/**
-	 * Gets the response body
-	 *
-	 * @return string
-	 */
-	public function getBody(): string
-	{
-		return $this->body;
-	}
+    /**
+     * Gets the response body
+     *
+     * @return string
+     */
+    public function getBody(): string
+    {
+        return $this->body;
+    }
 
     /**
      * Gets whether response body was sent.

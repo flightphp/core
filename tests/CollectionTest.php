@@ -1,21 +1,17 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-class CollectionTest extends PHPUnit\Framework\TestCase
+declare(strict_types=1);
+
+use flight\util\Collection;
+use PHPUnit\Framework\TestCase;
+
+class CollectionTest extends TestCase
 {
-    /**
-     * @var \flight\util\Collection
-     */
-    private $collection;
+    private Collection $collection;
 
     protected function setUp(): void
     {
-        $this->collection = new \flight\util\Collection(['a' => 1, 'b' => 2]);
+        $this->collection = new Collection(['a' => 1, 'b' => 2]);
     }
 
     // Get an item

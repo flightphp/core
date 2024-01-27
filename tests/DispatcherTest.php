@@ -1,19 +1,12 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 use flight\core\Dispatcher;
+use PHPUnit\Framework\TestCase;
 
-class DispatcherTest extends PHPUnit\Framework\TestCase
+class DispatcherTest extends TestCase
 {
-    /**
-     * @var Dispatcher|null
-     */
     private Dispatcher $dispatcher;
 
     protected function setUp(): void
@@ -131,7 +124,7 @@ class DispatcherTest extends PHPUnit\Framework\TestCase
             return "Hello, $name!";
         });
 
-        $this->dispatcher->hook('hello', 'before', function (&$params, &$output) {
+        $this->dispatcher->hook('hello', 'before', function (&$params) {
             // Manipulate the parameter
             $params[0] = 'Fred';
         });

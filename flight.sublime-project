@@ -41,7 +41,12 @@
         {
             "name": "Linter - Default",
             "quiet": true,
-            "shell_cmd": "composer lint -- --no-ansi | composer phpcs -- --no-colors",
+            "shell_cmd": "composer lint -- --no-ansi & composer phpcs -- --no-colors",
+        },
+        {
+            "name": "PHPCS",
+            "quiet": true,
+            "shell_cmd": "composer phpcs -- --no-colors"
         },
         {
             "name": "Format",

@@ -1,17 +1,13 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 use flight\core\Dispatcher;
 use flight\net\Request;
 use flight\net\Router;
+use PHPUnit\Framework\TestCase;
 
-class RouterTest extends PHPUnit\Framework\TestCase
+class RouterTest extends TestCase
 {
     private Router $router;
 
@@ -43,15 +39,14 @@ class RouterTest extends PHPUnit\Framework\TestCase
     // Checks if a route was matched with a given output
     public function check($str = '')
     {
-        /*
-        $route = $this->router->route($this->request);
+
+        /*$route = $this->router->route($this->request);
 
         $params = array_values($route->params);
 
         $this->assertTrue(is_callable($route->callback));
 
-        call_user_func_array($route->callback, $params);
-        */
+        call_user_func_array($route->callback, $params);*/
 
         $this->routeRequest();
         $this->expectOutputString($str);
