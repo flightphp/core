@@ -1,16 +1,12 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 use flight\net\Request;
 use flight\util\Collection;
+use PHPUnit\Framework\TestCase;
 
-class RequestTest extends PHPUnit\Framework\TestCase
+class RequestTest extends TestCase
 {
     private Request $request;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use flight\template\View;
 use PHPUnit\Framework\TestCase;
 
@@ -117,7 +119,7 @@ class ViewTest extends TestCase
         $this->assertEquals('&lt;script&gt;', $result);
     }
 
-    public function testENoNeedToEscape()
+    public function testeNoNeedToEscape()
     {
         $this->expectOutputString('script');
         $result = $this->view->e('script');

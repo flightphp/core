@@ -1,21 +1,17 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
-class VariableTest extends PHPUnit\Framework\TestCase
+declare(strict_types=1);
+
+use flight\Engine;
+use PHPUnit\Framework\TestCase;
+
+class VariableTest extends TestCase
 {
-    /**
-     * @var \flight\Engine
-     */
-    private $app;
+    private Engine $app;
 
     protected function setUp(): void
     {
-        $this->app = new \flight\Engine();
+        $this->app = new Engine();
     }
 
     // Set and get a variable

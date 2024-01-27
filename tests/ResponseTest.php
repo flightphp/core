@@ -1,17 +1,13 @@
 <?php
 
-/**
- * Flight: An extensible micro-framework.
- *
- * @copyright   Copyright (c) 2012, Mike Cao <mike@mikecao.com>
- * @license     MIT, http://flightphp.com/license
- */
+declare(strict_types=1);
 
 use flight\net\Request;
 use flight\net\Response;
 use flight\util\Collection;
+use PHPUnit\Framework\TestCase;
 
-class ResponseTest extends PHPUnit\Framework\TestCase
+class ResponseTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -177,7 +173,7 @@ class ResponseTest extends PHPUnit\Framework\TestCase
                     'max-age=0',
                 ]
             ];
-            public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+            public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
             {
                 $this->test_sent_headers[] = $header_string;
                 return $this;
@@ -216,7 +212,7 @@ class ResponseTest extends PHPUnit\Framework\TestCase
         $response = new class extends Response {
             protected $test_sent_headers = [];
 
-            public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+            public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
             {
                 $this->test_sent_headers[] = $header_string;
                 return $this;
