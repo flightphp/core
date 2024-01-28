@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
+use Exception;
 use flight\Engine;
+use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
 
 class MapTest extends TestCase
@@ -53,7 +57,7 @@ class MapTest extends TestCase
     // Map a static class method
     public function testStaticClassMethodMapping()
     {
-        $this->app->map('map4', ['Hello', 'sayBye']);
+        $this->app->map('map4', [Hello::class, 'sayBye']);
 
         $result = $this->app->map4();
 

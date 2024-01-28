@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
+use Exception;
 use flight\Engine;
 use flight\net\Response;
 use PHPUnit\Framework\TestCase;
 
+// phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
 class EngineTest extends TestCase
 {
     public function setUp(): void

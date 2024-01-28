@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
 use flight\net\Request;
 use flight\util\Collection;
 use PHPUnit\Framework\TestCase;
@@ -193,5 +195,54 @@ class RequestTest extends TestCase
         ]);
         $this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
         $this->assertEquals('{"foo":"bar"}', $request->getBody());
+    }
+
+    public function testGetHeader()
+    {
+        $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'custom header value';
+        $request = new Request();
+        $this->assertEquals('custom header value', $request->getHeader('X-Custom-Header'));
+
+        // or the headers that are already in $_SERVER
+        $this->assertEquals('XMLHttpRequest', $request->getHeader('X-REqUesTed-WiTH'));
+        $this->assertEquals('32.32.32.32', $request->getHeader('X-Forwarded-For'));
+
+        // default values
+        $this->assertEquals('default value', $request->getHeader('X-Non-Existent-Header', 'default value'));
+    }
+
+    public function testGetHeaders()
+    {
+        $_SERVER = [];
+        $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'custom header value';
+        $request = new Request();
+        $this->assertEquals(['X-Custom-Header' => 'custom header value'], $request->getHeaders());
+    }
+
+    public function testGetHeadersWithEmptyServer()
+    {
+        $_SERVER = [];
+        $request = new Request();
+        $this->assertEquals([], $request->getHeaders());
+    }
+
+    public function testGetHeadersWithEmptyHeader()
+    {
+        $_SERVER = [];
+        $_SERVER['HTTP_X_CUSTOM_HEADER'] = '';
+        $request = new Request();
+        $this->assertEquals(['X-Custom-Header' => ''], $request->getHeaders());
+    }
+
+    public function testGetHeadersWithMultipleHeaders()
+    {
+        $_SERVER = [];
+        $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'custom header value';
+        $_SERVER['HTTP_X_CUSTOM_HEADER2'] = 'custom header value 2';
+        $request = new Request();
+        $this->assertEquals([
+            'X-Custom-Header' => 'custom header value',
+            'X-Custom-Header2' => 'custom header value 2'
+        ], $request->getHeaders());
     }
 }

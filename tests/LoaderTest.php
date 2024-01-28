@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
 use flight\core\Loader;
+use tests\classes\Factory;
+use tests\classes\User;
 use PHPUnit\Framework\TestCase;
+use tests\classes\TesterClass;
 
 class LoaderTest extends TestCase
 {
@@ -18,7 +23,7 @@ class LoaderTest extends TestCase
     // Autoload a class
     public function testAutoload()
     {
-        $this->loader->register('tests', 'User');
+        $this->loader->register('tests', User::class);
 
         $test = $this->loader->load('tests');
 
@@ -29,7 +34,7 @@ class LoaderTest extends TestCase
     // Register a class
     public function testRegister()
     {
-        $this->loader->register('a', 'User');
+        $this->loader->register('a', User::class);
 
         $user = $this->loader->load('a');
 
@@ -41,7 +46,7 @@ class LoaderTest extends TestCase
     // Register a class with constructor parameters
     public function testRegisterWithConstructor()
     {
-        $this->loader->register('b', 'User', ['Bob']);
+        $this->loader->register('b', User::class, ['Bob']);
 
         $user = $this->loader->load('b');
 
@@ -53,7 +58,7 @@ class LoaderTest extends TestCase
     // Register a class with initialization
     public function testRegisterWithInitialization()
     {
-        $this->loader->register('c', 'User', ['Bob'], function ($user) {
+        $this->loader->register('c', User::class, ['Bob'], function ($user) {
             $user->name = 'Fred';
         });
 
@@ -67,7 +72,7 @@ class LoaderTest extends TestCase
     // Get a non-shared instance of a class
     public function testSharedInstance()
     {
-        $this->loader->register('d', 'User');
+        $this->loader->register('d', User::class);
 
         $user1 = $this->loader->load('d');
         $user2 = $this->loader->load('d');
@@ -80,7 +85,7 @@ class LoaderTest extends TestCase
     // Gets an object from a factory method
     public function testRegisterUsingCallable()
     {
-        $this->loader->register('e', ['Factory', 'create']);
+        $this->loader->register('e', ['\tests\classes\Factory', 'create']);
 
         $obj = $this->loader->load('e');
 
@@ -114,9 +119,9 @@ class LoaderTest extends TestCase
 
     public function testUnregisterClass()
     {
-        $this->loader->register('g', 'User');
+        $this->loader->register('g', User::class);
         $current_class = $this->loader->get('g');
-        $this->assertEquals([ 'User', [], null ], $current_class);
+        $this->assertEquals([ User::class, [], null ], $current_class);
         $this->loader->unregister('g');
         $unregistered_class_result = $this->loader->get('g');
         $this->assertNull($unregistered_class_result);
@@ -124,7 +129,7 @@ class LoaderTest extends TestCase
 
     public function testNewInstance6Params()
     {
-        $TesterClass = $this->loader->newInstance('TesterClass', ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
+        $TesterClass = $this->loader->newInstance(TesterClass::class, ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
         $this->assertEquals('Bob', $TesterClass->param1);
         $this->assertEquals('Fred', $TesterClass->param2);
         $this->assertEquals('Joe', $TesterClass->param3);

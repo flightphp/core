@@ -20,12 +20,14 @@ class Dispatcher
 {
     /**
      * Mapped events.
+     *
      * @var array<string, callable>
      */
     protected array $events = [];
 
     /**
      * Method filters.
+     *
      * @var array<string, array<'before'|'after', array<int, callable>>>
      */
     protected array $filters = [];

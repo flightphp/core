@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace tests\classes;
+
 class TesterClass
 {
     public $param1;

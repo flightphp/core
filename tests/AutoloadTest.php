@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
 use flight\Engine;
+use tests\classes\User;
 use PHPUnit\Framework\TestCase;
 
 class AutoloadTest extends TestCase
@@ -18,7 +21,7 @@ class AutoloadTest extends TestCase
     // Autoload a class
     public function testAutoload()
     {
-        $this->app->register('user', 'User');
+        $this->app->register('user', User::class);
 
         $loaders = spl_autoload_functions();
 

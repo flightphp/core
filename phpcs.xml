@@ -29,8 +29,14 @@
         <exclude name="Generic.Commenting.DocComment.SpacingBeforeShort" />
         <exclude name="Generic.Commenting.DocComment.ContentAfterOpen" />
         <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman.BraceOnSameLine" />
+		<exclude name="Generic.PHP.DisallowRequestSuperglobal.Found" />
         <exclude name="Generic.Commenting.DocComment.ContentBeforeClose" />
+		<exclude name="Generic.ControlStructures.DisallowYodaConditions.Found" />
+		<exclude name="Generic.Strings.UnnecessaryStringConcat.Found" />
+		<exclude name="Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition" />
     </rule>
     <file>flight/</file>
     <file>tests/</file>
+	<exclude-pattern>tests/views/*</exclude-pattern>
+	<ignore>tests/views/</ignore>
 </ruleset>

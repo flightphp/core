@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
+use Exception;
+use Flight;
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
 use flight\net\Router;
 use flight\template\View;
+use tests\classes\User;
 use PHPUnit\Framework\TestCase;
 
 class FlightTest extends TestCase
@@ -67,7 +72,7 @@ class FlightTest extends TestCase
     {
         Flight::path(__DIR__ . '/classes');
 
-        Flight::register('user', 'User');
+        Flight::register('user', User::class);
         $user = Flight::user();
 
         $loaders = spl_autoload_functions();

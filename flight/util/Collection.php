@@ -22,6 +22,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 {
     /**
      * Collection data.
+     *
      * @var array<string, mixed>
      */
     private array $data;

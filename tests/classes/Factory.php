@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace tests\classes;
+
 class Factory
 {
     // Cannot be instantiated

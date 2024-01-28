@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
 use flight\core\Dispatcher;
 use flight\net\Request;
 use flight\net\Router;

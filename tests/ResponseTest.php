@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-use flight\net\Request;
+namespace tests;
+
+use Exception;
 use flight\net\Response;
-use flight\util\Collection;
 use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase

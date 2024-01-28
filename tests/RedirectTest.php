@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace tests;
+
 use flight\Engine;
 use PHPUnit\Framework\TestCase;
 

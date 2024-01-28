@@ -22,7 +22,9 @@ class Response
     public bool $content_length = true;
 
     /**
-     * @var array<int, ?string> HTTP status codes
+     * HTTP status codes
+     *
+     * @var array<int, ?string> $codes
      */
     public static array $codes = [
         100 => 'Continue',
@@ -100,7 +102,9 @@ class Response
     protected int $status = 200;
 
     /**
-     * @var array<string, int|string|array<int, string>> HTTP headers
+     * HTTP response headers
+     *
+     * @var array<string,int|string|array<int,string>> $headers
      */
     protected array $headers = [];
 
@@ -161,6 +165,7 @@ class Response
 
     /**
      * Returns the headers from the response.
+     *
      * @return array<string, int|string|array<int, string>>
      */
     public function headers(): array
@@ -289,7 +294,9 @@ class Response
      * the same type. By default it will replace, but if you pass in false as the
      * second argument you can force multiple headers of the same type.
      * @param int $response_code The response code to send
-     * @return $this
+     *
+     * @return self
+     *
      * @codeCoverageIgnore
      */
     public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
