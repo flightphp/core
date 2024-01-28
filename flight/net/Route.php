@@ -192,7 +192,9 @@ class Route
         // catches potential optional parameter
         $url = str_replace('(/', '/', $url);
         // trim any trailing slashes
-        $url = rtrim($url, '/');
+		if($url !== '/') {
+	        $url = rtrim($url, '/');
+		}
         return $url;
     }
 
