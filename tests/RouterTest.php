@@ -533,7 +533,7 @@ class RouterTest extends TestCase
         $this->assertTrue($result);
     }
 
-	public function testGetRootUrlByAlias()
+    public function testGetRootUrlByAlias()
     {
         $this->router->map('/', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1');
