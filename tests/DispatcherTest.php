@@ -92,11 +92,11 @@ class DispatcherTest extends TestCase
     // Map a static function
     public function testStaticFunctionMapping()
     {
-        $this->dispatcher->set('map2', 'tests\classes\Hello::sayHi');
+        $this->dispatcher->set('map2', 'tests\classes\Hello::sayBye');
 
         $result = $this->dispatcher->run('map2');
 
-        self::assertEquals('hello', $result);
+        self::assertEquals('goodbye', $result);
     }
 
     // Map a class method
