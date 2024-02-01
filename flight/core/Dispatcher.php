@@ -165,9 +165,13 @@ class Dispatcher
      *
      * @throws Exception If an event throws an `Exception`.
      */
-    public function filter(array $filters, array &$params, &$output): void
+    public static function filter(array $filters, array &$params, &$output): void
     {
-        foreach ($filters as $callback) {
+        foreach ($filters as $key => $callback) {
+            if (!is_callable($callback)) {
+                throw new InvalidArgumentException("Invalid callable \$filters[$key].");
+            }
+
             $continue = $callback($params, $output);
 
             if ($continue === false) {

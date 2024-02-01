@@ -194,6 +194,20 @@ class DispatcherTest extends TestCase
         restore_error_handler();
     }
 
+    public function testItThrowsAnExceptionForInvalidFilters(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid callable $filters[1]');
+
+        $params = [];
+        $output = '';
+        $validCallable = function (): void {
+        };
+        $invalidCallable = 'invalidGlobalFunction';
+
+        Dispatcher::filter([$validCallable, $invalidCallable], $params, $output);
+    }
+
     public function testCallFunction4Params(): void
     {
         $myFunction = function ($param1, $param2, $param3, $param4) {
