@@ -19,40 +19,33 @@ class DispatcherTest extends TestCase
         $this->dispatcher = new Dispatcher();
     }
 
-    // Map a closure
-    public function testClosureMapping()
+    public function testClosureMapping(): void
     {
-        $closure = Closure::fromCallable(function (): string {
+        $this->dispatcher->set('map1', Closure::fromCallable(function (): string {
             return 'hello';
-        });
+        }));
 
-        $this->dispatcher->set('map1', $closure);
-
-        $result = $this->dispatcher->run('map1');
-        self::assertEquals('hello', $result);
+        $this->assertSame('hello', $this->dispatcher->run('map1'));
     }
 
-    // Map a function
-    public function testFunctionMapping()
+    public function testFunctionMapping(): void
     {
         $this->dispatcher->set('map2', function (): string {
             return 'hello';
         });
 
-        $result = $this->dispatcher->run('map2');
-        self::assertEquals('hello', $result);
+        $this->assertSame('hello', $this->dispatcher->run('map2'));
     }
 
-    public function testHasEvent()
+    public function testHasEvent(): void
     {
         $this->dispatcher->set('map-event', function (): void {
         });
 
-        $result = $this->dispatcher->has('map-event');
-        $this->assertTrue($result);
+        $this->assertTrue($this->dispatcher->has('map-event'));
     }
 
-    public function testClearAllRegisteredEvents()
+    public function testClearAllRegisteredEvents(): void
     {
         $customFunction = $anotherFunction = function (): void {
         };
@@ -67,76 +60,61 @@ class DispatcherTest extends TestCase
         $this->assertFalse($this->dispatcher->has('map-event-2'));
     }
 
-    public function testClearDeclaredRegisteredEvent()
+    public function testClearDeclaredRegisteredEvent(): void
     {
-        $this->dispatcher->set('map-event', function () {
-            return 'hello';
-        });
+        $customFunction = $anotherFunction = function (): void {
+        };
 
-        $this->dispatcher->set('map-event-2', function () {
-            return 'there';
-        });
+        $this->dispatcher
+            ->set('map-event', $customFunction)
+            ->set('map-event-2', $anotherFunction);
 
         $this->dispatcher->clear('map-event');
 
-        $result = $this->dispatcher->has('map-event');
-        $this->assertFalse($result);
-        $result = $this->dispatcher->has('map-event-2');
-        $this->assertTrue($result);
+        $this->assertFalse($this->dispatcher->has('map-event'));
+        $this->assertTrue($this->dispatcher->has('map-event-2'));
     }
 
-    // Map a static function
-    public function testStaticFunctionMapping()
+    public function testStaticFunctionMapping(): void
     {
-        $this->dispatcher->set('map2', 'tests\classes\Hello::sayBye');
+        $this->dispatcher->set('map2', Hello::class . '::sayBye');
 
-        $result = $this->dispatcher->run('map2');
-
-        self::assertEquals('goodbye', $result);
+        $this->assertSame('goodbye', $this->dispatcher->run('map2'));
     }
 
-    // Map a class method
-    public function testClassMethodMapping()
+    public function testClassMethodMapping(): void
     {
-        $h = new Hello();
+        $this->dispatcher->set('map3', [new Hello(), 'sayHi']);
 
-        $this->dispatcher->set('map3', [$h, 'sayHi']);
-
-        $result = $this->dispatcher->run('map3');
-
-        self::assertEquals('hello', $result);
+        $this->assertSame('hello', $this->dispatcher->run('map3'));
     }
 
-    // Map a static class method
-    public function testStaticClassMethodMapping()
+    public function testStaticClassMethodMapping(): void
     {
-        $this->dispatcher->set('map4', ['\tests\classes\Hello', 'sayBye']);
+        $this->dispatcher->set('map4', [Hello::class, 'sayBye']);
 
-        $result = $this->dispatcher->run('map4');
-
-        self::assertEquals('goodbye', $result);
+        $this->assertSame('goodbye', $this->dispatcher->run('map4'));
     }
 
-    // Run before and after filters
-    public function testBeforeAndAfter()
+    public function testBeforeAndAfter(): void
     {
-        $this->dispatcher->set('hello', function ($name) {
+        $this->dispatcher->set('hello', function (string $name): string {
             return "Hello, $name!";
         });
 
-        $this->dispatcher->hook('hello', 'before', function (&$params) {
-            // Manipulate the parameter
-            $params[0] = 'Fred';
-        });
-
-        $this->dispatcher->hook('hello', 'after', function (&$params, &$output) {
-            // Manipulate the output
-            $output .= ' Have a nice day!';
-        });
+        $this->dispatcher
+            ->hook('hello', $this->dispatcher::FILTER_BEFORE, function (array &$params): void {
+                // Manipulate the parameter
+                $params[0] = 'Fred';
+            })
+            ->hook('hello', $this->dispatcher::FILTER_AFTER, function (array &$params, string &$output): void {
+                // Manipulate the output
+                $output .= ' Have a nice day!';
+            });
 
         $result = $this->dispatcher->run('hello', ['Bob']);
 
-        self::assertEquals('Hello, Fred! Have a nice day!', $result);
+        $this->assertSame('Hello, Fred! Have a nice day!', $result);
     }
 
     // Test an invalid callback

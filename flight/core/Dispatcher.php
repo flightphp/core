@@ -19,6 +19,9 @@ use InvalidArgumentException;
  */
 class Dispatcher
 {
+    public const FILTER_BEFORE = 'before';
+    public const FILTER_AFTER = 'after';
+
     /**
      * Mapped events.
      *
@@ -125,10 +128,14 @@ class Dispatcher
      * @param string $name Event name
      * @param 'before'|'after' $type Filter type
      * @param Closure(array<int, mixed> &$params, string &$output): (void|false) $callback
+     *
+     * @return $this
      */
-    public function hook(string $name, string $type, callable $callback): void
+    public function hook(string $name, string $type, callable $callback): self
     {
         $this->filters[$name][$type][] = $callback;
+
+        return $this;
     }
 
     /**
