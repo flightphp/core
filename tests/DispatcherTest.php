@@ -7,6 +7,7 @@ namespace tests;
 use Closure;
 use Exception;
 use flight\core\Dispatcher;
+use PharIo\Manifest\InvalidEmailException;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
 
@@ -117,41 +118,96 @@ class DispatcherTest extends TestCase
         $this->assertSame('Hello, Fred! Have a nice day!', $result);
     }
 
-    // Test an invalid callback
-    public function testInvalidCallback()
+    public function testInvalidCallback(): void
     {
         $this->expectException(Exception::class);
 
-        $this->dispatcher->execute(['NonExistentClass', 'nonExistentMethod']);
+        Dispatcher::execute(['NonExistentClass', 'nonExistentMethod']);
     }
 
-    public function testCallFunction4Params()
+    public function testItThrowsAnExceptionWhenRunAnUnregistedEventName(): void
     {
-        $closure = function ($param1, $params2, $params3, $param4) {
-            return 'hello' . $param1 . $params2 . $params3 . $param4;
+        $this->expectException(Exception::class);
+
+        $this->dispatcher->run('nonExistentEvent');
+    }
+
+    public function testWhenAnEventThrowsAnExceptionItPersistUntilNextCatchBlock(): void
+    {
+        $this->dispatcher->set('myMethod', function (): void {
+            throw new Exception('myMethod Exception');
+        });
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('myMethod Exception');
+
+        $this->dispatcher->run('myMethod');
+    }
+
+    public function testWhenAnEventThrowsCustomExceptionItPersistUntilNextCatchBlock(): void
+    {
+        $this->dispatcher->set('checkEmail', function (string $email): void {
+            throw new InvalidEmailException("Invalid email $email");
+        });
+
+        $this->expectException(InvalidEmailException::class);
+        $this->expectExceptionMessage('Invalid email mail@mail,com');
+
+        $this->dispatcher->run('checkEmail', ['mail@mail,com']);
+    }
+
+    public function testItThrowsNoticeForOverrideRegisteredEvents(): void
+    {
+        set_error_handler(function (int $errno, string $errstr): void {
+            $this->assertSame(E_USER_NOTICE, $errno);
+            $this->assertSame("Event 'myMethod' has been overriden!", $errstr);
+        });
+
+        $this->dispatcher->set('myMethod', function (): string {
+            return 'Original';
+        });
+
+        $this->dispatcher->set('myMethod', function (): string {
+            return 'Overriden';
+        });
+
+        $this->assertSame('Overriden', $this->dispatcher->run('myMethod'));
+        restore_error_handler();
+    }
+
+    public function testCallFunction4Params(): void
+    {
+        $myFunction = function ($param1, $param2, $param3, $param4) {
+            return "hello{$param1}{$param2}{$param3}{$param4}";
         };
+
         $params = ['param1', 'param2', 'param3', 'param4'];
-        $result = $this->dispatcher->callFunction($closure, $params);
-        $this->assertEquals('helloparam1param2param3param4', $result);
+        $result = Dispatcher::callFunction($myFunction, $params);
+
+        $this->assertSame('helloparam1param2param3param4', $result);
     }
 
-    public function testCallFunction5Params()
+    public function testCallFunction5Params(): void
     {
-        $closure = function ($param1, $params2, $params3, $param4, $param5) {
-            return 'hello' . $param1 . $params2 . $params3 . $param4 . $param5;
+        $myFunction = function ($param1, $param2, $param3, $param4, $param5) {
+            return "hello{$param1}{$param2}{$param3}{$param4}{$param5}";
         };
+
         $params = ['param1', 'param2', 'param3', 'param4', 'param5'];
-        $result = $this->dispatcher->callFunction($closure, $params);
-        $this->assertEquals('helloparam1param2param3param4param5', $result);
+        $result = Dispatcher::callFunction($myFunction, $params);
+
+        $this->assertSame('helloparam1param2param3param4param5', $result);
     }
 
-    public function testCallFunction6Params()
+    public function testCallFunction6Params(): void
     {
-        $closure = function ($param1, $params2, $params3, $param4, $param5, $param6) {
-            return 'hello' . $param1 . $params2 . $params3 . $param4 . $param5 . $param6;
+        $func = function ($param1, $param2, $param3, $param4, $param5, $param6) {
+            return "hello{$param1}{$param2}{$param3}{$param4}{$param5}{$param6}";
         };
+
         $params = ['param1', 'param2', 'param3', 'param4', 'param5', 'param6'];
-        $result = $this->dispatcher->callFunction($closure, $params);
-        $this->assertEquals('helloparam1param2param3param4param5param6', $result);
+        $result = Dispatcher::callFunction($func, $params);
+
+        $this->assertSame('helloparam1param2param3param4param5param6', $result);
     }
 }

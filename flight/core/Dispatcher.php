@@ -22,45 +22,49 @@ class Dispatcher
     public const FILTER_BEFORE = 'before';
     public const FILTER_AFTER = 'after';
 
-    /**
-     * Mapped events.
-     *
-     * @var array<string, callable>
-     */
+    /** @var array<string, Closure(): (void|mixed)> Mapped events. */
     protected array $events = [];
 
     /**
      * Method filters.
      *
-     * @var array<string, array<'before'|'after', array<int, callable>>>
+     * @var array<string, array<'before'|'after', array<int, Closure(array<int, mixed> &$params, mixed &$output): (void|false)>>>
      */
     protected array $filters = [];
 
     /**
      * Dispatches an event.
      *
-     * @param string $name   Event name
-     * @param array<int, mixed>  $params Callback parameters
-     *
-     * @throws Exception
+     * @param string $name Event name
+     * @param array<int, mixed> $params Callback parameters.
      *
      * @return mixed Output of callback
+     * @throws Exception If event name isn't found or if event throws an `Exception`
      */
     public function run(string $name, array $params = [])
     {
         $output = '';
 
         // Run pre-filters
-        if (!empty($this->filters[$name]['before'])) {
+        $thereAreBeforeFilters = !empty($this->filters[$name]['before']);
+
+        if ($thereAreBeforeFilters) {
             $this->filter($this->filters[$name]['before'], $params, $output);
         }
 
         // Run requested method
         $callback = $this->get($name);
+
+        if ($callback === null) {
+            throw new Exception("Event '$name' isn't found.");
+        }
+
         $output = $callback(...$params);
 
         // Run post-filters
-        if (!empty($this->filters[$name]['after'])) {
+        $thereAreAfterFilters = !empty($this->filters[$name]['after']);
+
+        if ($thereAreAfterFilters) {
             $this->filter($this->filters[$name]['after'], $params, $output);
         }
 
@@ -77,6 +81,10 @@ class Dispatcher
      */
     public function set(string $name, callable $callback): self
     {
+        if ($this->get($name) !== null) {
+            trigger_error("Event '$name' has been overriden!", E_USER_NOTICE);
+        }
+
         $this->events[$name] = $callback;
 
         return $this;
@@ -87,7 +95,7 @@ class Dispatcher
      *
      * @param string $name Event name
      *
-     * @return ?callable $callback Callback function
+     * @return null|(Closure(): (void|mixed)) $callback Callback function
      */
     public function get(string $name): ?callable
     {
@@ -141,18 +149,19 @@ class Dispatcher
     /**
      * Executes a chain of method filters.
      *
-     * @param array<int, callable> $filters Chain of filters
-     * @param array<int, mixed> $params  Method parameters
-     * @param mixed $output  Method output
+     * @param array<int, Closure(array<int, mixed> &$params, mixed &$output): (void|false)> $filters
+     * Chain of filters-
+     * @param array<int, mixed> $params Method parameters
+     * @param mixed $output Method output
      *
-     * @throws Exception
+     * @throws Exception If an event throws an `Exception`.
      */
     public function filter(array $filters, array &$params, &$output): void
     {
-        $args = [&$params, &$output];
         foreach ($filters as $callback) {
-            $continue = $callback(...$args);
-            if (false === $continue) {
+            $continue = $callback($params, $output);
+
+            if ($continue === false) {
                 break;
             }
         }
@@ -161,33 +170,33 @@ class Dispatcher
     /**
      * Executes a callback function.
      *
-     * @param callable|array<class-string|object, string> $callback Callback function
-     * @param array<int, mixed>          $params   Function parameters
-     *
-     * @throws Exception
+     * @param callable-string|(Closure(): mixed)|array{class-string|object, string} $callback
+     * Callback function
+     * @param array<int, mixed> $params Function parameters
      *
      * @return mixed Function results
+     * @throws Exception
      */
     public static function execute($callback, array &$params = [])
     {
-        if (\is_callable($callback)) {
-            return \is_array($callback) ?
-                self::invokeMethod($callback, $params) :
-                self::callFunction($callback, $params);
+        if (!\is_callable($callback)) {
+            throw new InvalidArgumentException('Invalid callback specified.');
         }
 
-        throw new InvalidArgumentException('Invalid callback specified.');
+        return \is_array($callback)
+            ? self::invokeMethod($callback, $params)
+            : self::callFunction($callback, $params);
     }
 
     /**
      * Calls a function.
      *
-     * @param callable|string $func   Name of function to call
-     * @param array<int, mixed>           $params Function parameters
+     * @param callable $func Name of function to call
+     * @param array<int, mixed> &$params Function parameters
      *
      * @return mixed Function results
      */
-    public static function callFunction($func, array &$params = [])
+    public static function callFunction(callable $func, array &$params = [])
     {
         return call_user_func_array($func, $params);
     }
