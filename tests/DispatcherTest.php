@@ -175,6 +175,25 @@ class DispatcherTest extends TestCase
         restore_error_handler();
     }
 
+    public function testItThrowsNoticeForInvalidFilterTypes(): void
+    {
+        set_error_handler(function (int $errno, string $errstr): void {
+            $this->assertSame(E_USER_NOTICE, $errno);
+            $this->assertStringStartsWith("Invalid filter type 'invalid', use ", $errstr);
+        });
+
+        $this->dispatcher
+            ->set('myMethod', function (): string {
+                return 'Original';
+            })
+            ->hook('myMethod', 'invalid', function (array &$params, $output): void {
+                $output = 'Overriden';
+            });
+
+        $this->assertSame('Original', $this->dispatcher->run('myMethod'));
+        restore_error_handler();
+    }
+
     public function testCallFunction4Params(): void
     {
         $myFunction = function ($param1, $param2, $param3, $param4) {

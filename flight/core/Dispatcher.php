@@ -21,6 +21,7 @@ class Dispatcher
 {
     public const FILTER_BEFORE = 'before';
     public const FILTER_AFTER = 'after';
+    private const FILTER_TYPES = [self::FILTER_BEFORE, self::FILTER_AFTER];
 
     /** @var array<string, Closure(): (void|mixed)> Mapped events. */
     protected array $events = [];
@@ -121,13 +122,15 @@ class Dispatcher
      */
     public function clear(?string $name = null): void
     {
-        if (null !== $name) {
+        if ($name !== null) {
             unset($this->events[$name]);
             unset($this->filters[$name]);
-        } else {
-            $this->events = [];
-            $this->filters = [];
+
+            return;
         }
+
+        $this->events = [];
+        $this->filters = [];
     }
 
     /**
@@ -141,6 +144,12 @@ class Dispatcher
      */
     public function hook(string $name, string $type, callable $callback): self
     {
+        if (!in_array($type, self::FILTER_TYPES, true)) {
+            $noticeMessage = "Invalid filter type '$type', use " . join('|', self::FILTER_TYPES);
+
+            trigger_error($noticeMessage, E_USER_NOTICE);
+        }
+
         $this->filters[$name][$type][] = $callback;
 
         return $this;
