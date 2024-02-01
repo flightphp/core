@@ -69,10 +69,14 @@ class Dispatcher
      *
      * @param string   $name     Event name
      * @param callable $callback Callback function
+     *
+     * @return $this
      */
-    public function set(string $name, callable $callback): void
+    public function set(string $name, callable $callback): self
     {
         $this->events[$name] = $callback;
+
+        return $this;
     }
 
     /**

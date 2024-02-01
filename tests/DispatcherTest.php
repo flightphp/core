@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace tests;
 
+use Closure;
 use Exception;
 use flight\core\Dispatcher;
 use tests\classes\Hello;
@@ -21,54 +22,49 @@ class DispatcherTest extends TestCase
     // Map a closure
     public function testClosureMapping()
     {
-        $this->dispatcher->set('map1', function () {
+        $closure = Closure::fromCallable(function (): string {
             return 'hello';
         });
 
-        $result = $this->dispatcher->run('map1');
+        $this->dispatcher->set('map1', $closure);
 
+        $result = $this->dispatcher->run('map1');
         self::assertEquals('hello', $result);
     }
 
     // Map a function
     public function testFunctionMapping()
     {
-        $this->dispatcher->set('map2', function () {
+        $this->dispatcher->set('map2', function (): string {
             return 'hello';
         });
 
         $result = $this->dispatcher->run('map2');
-
         self::assertEquals('hello', $result);
     }
 
     public function testHasEvent()
     {
-        $this->dispatcher->set('map-event', function () {
-            return 'hello';
+        $this->dispatcher->set('map-event', function (): void {
         });
 
         $result = $this->dispatcher->has('map-event');
-
         $this->assertTrue($result);
     }
 
     public function testClearAllRegisteredEvents()
     {
-        $this->dispatcher->set('map-event', function () {
-            return 'hello';
-        });
+        $customFunction = $anotherFunction = function (): void {
+        };
 
-        $this->dispatcher->set('map-event-2', function () {
-            return 'there';
-        });
+        $this->dispatcher
+            ->set('map-event', $customFunction)
+            ->set('map-event-2', $anotherFunction);
 
         $this->dispatcher->clear();
 
-        $result = $this->dispatcher->has('map-event');
-        $this->assertFalse($result);
-        $result = $this->dispatcher->has('map-event-2');
-        $this->assertFalse($result);
+        $this->assertFalse($this->dispatcher->has('map-event'));
+        $this->assertFalse($this->dispatcher->has('map-event-2'));
     }
 
     public function testClearDeclaredRegisteredEvent()
