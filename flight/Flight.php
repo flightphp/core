@@ -68,7 +68,7 @@ use flight\net\Route;
  * @method static void notFound() Sends an HTTP 404 response.
  *
  * # HTTP caching
- * @method static void etag(string $id, 'strong'|'weak' $type = 'strong') Performs ETag HTTP caching.
+ * @method static void etag(string $id, ('strong'|'weak') $type = 'strong') Performs ETag HTTP caching.
  * @method static void lastModified(int $time) Performs last modified HTTP caching.
  */
 class Flight

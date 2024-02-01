@@ -32,7 +32,7 @@ use flight\net\Route;
  * # Routing
  * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
  * Routes a URL to a callback function with all applicable methods
- * @method void group(string $pattern, callable $callback, array $group_middlewares = [])
+ * @method void group(string $pattern, callable $callback, array<int, callable|object> $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
  * @method Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
@@ -46,7 +46,7 @@ use flight\net\Route;
  * @method string getUrl(string $alias) Gets a url from an alias
  *
  * # Views
- * @method void render(string $file, array $data = null, string $key = null) Renders template
+ * @method void render(string $file, ?array $data = null, ?string $key = null) Renders template
  * @method View view() Gets current view
  *
  * # Request-Response
@@ -57,58 +57,41 @@ use flight\net\Route;
  * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
  * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * Sends a JSON response.
- * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSONP response.
+ * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * Sends a JSONP response.
  *
  * # HTTP caching
- * @method void etag($id, string $type = 'strong') Handles ETag HTTP caching.
+ * @method void etag(string $id, ('strong'|'weak') $type = 'strong') Handles ETag HTTP caching.
  * @method void lastModified(int $time) Handles last modified HTTP caching.
  */
 class Engine
 {
-    /**
-     * Stored variables.
-     * @var array<string, mixed>
-     */
-    protected array $vars;
+    /** @var array<string, mixed> Stored variables. */
+    protected array $vars = [];
 
-    /**
-     * Class loader.
-     */
+    /** Class loader. */
     protected Loader $loader;
 
-    /**
-     * Event dispatcher.
-     */
+    /** Event dispatcher. */
     protected Dispatcher $dispatcher;
 
-    /**
-     * If the framework has been initialized or not
-     *
-     * @var boolean
-     */
+    /** If the framework has been initialized or not. */
     protected bool $initialized = false;
 
-    /**
-     * Constructor.
-     */
     public function __construct()
     {
-        $this->vars = [];
-
         $this->loader = new Loader();
         $this->dispatcher = new Dispatcher();
-
         $this->init();
     }
 
     /**
      * Handles calls to class methods.
      *
-     * @param string $name   Method name
-     * @param array<int, mixed>  $params Method parameters
+     * @param string $name Method name
+     * @param array<int, mixed> $params Method parameters
      *
      * @throws Exception
-     *
      * @return mixed Callback results
      */
     public function __call(string $name, array $params)
@@ -120,7 +103,7 @@ class Engine
         }
 
         if (!$this->loader->get($name)) {
-            throw new Exception("{$name} must be a mapped method.");
+            throw new Exception("$name must be a mapped method.");
         }
 
         $shared = empty($params) || $params[0];
@@ -128,11 +111,11 @@ class Engine
         return $this->loader->load($name, $shared);
     }
 
-    // Core Methods
+    //////////////////
+    // Core Methods //
+    //////////////////
 
-    /**
-     * Initializes the framework.
-     */
+    /** Initializes the framework. */
     public function init(): void
     {
         $initialized = $this->initialized;
@@ -148,7 +131,8 @@ class Engine
         $this->loader->register('request', Request::class);
         $this->loader->register('response', Response::class);
         $this->loader->register('router', Router::class);
-        $this->loader->register('view', View::class, [], function ($view) use ($self) {
+
+        $this->loader->register('view', View::class, [], function (View $view) use ($self) {
             $view->path = $self->get('flight.views.path');
             $view->extension = $self->get('flight.views.extension');
         });
@@ -159,6 +143,7 @@ class Engine
             'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
             'post', 'put', 'patch', 'delete', 'group', 'getUrl',
         ];
+
         foreach ($methods as $name) {
             $this->dispatcher->set($name, [$this, '_' . $name]);
         }
@@ -192,15 +177,15 @@ class Engine
     /**
      * Custom error handler. Converts errors into exceptions.
      *
-     * @param int    $errno   Error number
-     * @param string $errstr  Error string
+     * @param int $errno Error number
+     * @param string $errstr Error string
      * @param string $errfile Error file name
-     * @param int    $errline Error file line number
+     * @param int $errline Error file line number
      *
+     * @return false
      * @throws ErrorException
-     * @return bool
      */
-    public function handleError(int $errno, string $errstr, string $errfile, int $errline)
+    public function handleError(int $errno, string $errstr, string $errfile, int $errline): bool
     {
         if ($errno & error_reporting()) {
             throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
@@ -214,7 +199,7 @@ class Engine
      *
      * @param Throwable $e Thrown exception
      */
-    public function handleException($e): void
+    public function handleException(Throwable $e): void
     {
         if ($this->get('flight.log_errors')) {
             error_log($e->getMessage()); // @codeCoverageIgnore
@@ -226,7 +211,7 @@ class Engine
     /**
      * Maps a callback to a framework method.
      *
-     * @param string   $name     Method name
+     * @param string $name Method name
      * @param callable $callback Callback function
      *
      * @throws Exception If trying to map over a framework method
@@ -539,11 +524,10 @@ class Engine
     /**
      * Routes a URL to a callback function.
      *
-     * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
-     * @param bool     $pass_route Pass the matching route object to the callback
-     * @param string   $alias      the alias for the route
-     * @return Route
+     * @param string $pattern URL pattern to match
+     * @param callable $callback Callback function
+     * @param bool $pass_route Pass the matching route object to the callback
+     * @param string $alias The alias for the route
      */
     public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
     {
@@ -553,9 +537,9 @@ class Engine
     /**
      * Routes a URL to a callback function.
      *
-     * @param string          $pattern              URL pattern to match
-     * @param callable        $callback             Callback function that includes the Router class as first parameter
-     * @param array<callable> $group_middlewares    The middleware to be applied to the route
+     * @param string $pattern URL pattern to match
+     * @param callable $callback Callback function that includes the Router class as first parameter
+     * @param array<int, callable|object> $group_middlewares The middleware to be applied to the route
      */
     public function _group(string $pattern, callable $callback, array $group_middlewares = []): void
     {
@@ -565,9 +549,9 @@ class Engine
     /**
      * Routes a URL to a callback function.
      *
-     * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
-     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string $pattern URL pattern to match
+     * @param callable $callback Callback function
+     * @param bool $pass_route Pass the matching route object to the callback
      */
     public function _post(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
     {
@@ -577,9 +561,9 @@ class Engine
     /**
      * Routes a URL to a callback function.
      *
-     * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
-     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string $pattern URL pattern to match
+     * @param callable $callback Callback function
+     * @param bool $pass_route Pass the matching route object to the callback
      */
     public function _put(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
     {
@@ -589,9 +573,9 @@ class Engine
     /**
      * Routes a URL to a callback function.
      *
-     * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
-     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string $pattern URL pattern to match
+     * @param callable $callback Callback function
+     * @param bool $pass_route Pass the matching route object to the callback
      */
     public function _patch(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
     {
@@ -601,9 +585,9 @@ class Engine
     /**
      * Routes a URL to a callback function.
      *
-     * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
-     * @param bool     $pass_route Pass the matching route object to the callback
+     * @param string $pattern URL pattern to match
+     * @param callable $callback Callback function
+     * @param bool $pass_route Pass the matching route object to the callback
      */
     public function _delete(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
     {
@@ -613,7 +597,7 @@ class Engine
     /**
      * Stops processing and returns a given response.
      *
-     * @param int    $code    HTTP status code
+     * @param int $code HTTP status code
      * @param string $message Response message
      */
     public function _halt(int $code = 200, string $message = ''): void
@@ -632,20 +616,18 @@ class Engine
     /** Sends an HTTP 404 response when a URL is not found. */
     public function _notFound(): void
     {
+        $output = '<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>';
+
         $this->response()
             ->clear()
             ->status(404)
-            ->write(
-                '<h1>404 Not Found</h1>' .
-                    '<h3>The page you have requested could not be found.</h3>'
-            )
+            ->write($output)
             ->send();
     }
 
     /**
      * Redirects the current request to another URL.
      *
-     * @param string $url  URL
      * @param int $code HTTP status code
      */
     public function _redirect(string $url, int $code = 303): void

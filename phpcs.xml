@@ -35,6 +35,7 @@
         <exclude name="Generic.Strings.UnnecessaryStringConcat.Found" />
         <exclude name="Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition" />
         <exclude name="Generic.Commenting.DocComment.MissingShort" />
+        <exclude name="Generic.Commenting.DocComment.SpacingBeforeTags" />
     </rule>
     <file>flight/</file>
     <file>tests/</file>
