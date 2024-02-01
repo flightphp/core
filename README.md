@@ -16,7 +16,7 @@ require 'vendor/autoload.php';
 // or if installed manually by zip file
 // require 'flight/Flight.php';
 
-Flight::route('/', function() {
+Flight::route('/', function () {
   echo 'hello world!';
 });
 
@@ -37,9 +37,12 @@ Chat with us on Matrix IRC [#flight-php-framework:matrix.org](https://matrix.to/
 
 # Requirements
 
-Flight requires `PHP 7.4` or greater.
+> [!IMPORTANT]
+> Flight requires `PHP 7.4` or greater.
 
-**Note:** PHP 7.4 is supported because at the current time of writing (2024) PHP 7.4 is the default version for some LTS Linux distributions. Forcing a move to PHP >8 would cause a lot of heartburn for those users. The framework also supports PHP >8.
+**Note:** PHP 7.4 is supported because at the current time of writing (2024) PHP 7.4 is the default version for some LTS Linux distributions. Forcing a move to PHP >8 would cause a lot of heartburn for those users.
+
+The framework also supports PHP >8.
 
 # License
 
