@@ -6,6 +6,7 @@
         }
     ],
     "settings": {
+        "SublimeLinter.linters.phpstan.executable": "${project_path}/vendor/bin/phpstan.bat",
         "LSP": {
             "LSP-intelephense": {
                 "settings": {

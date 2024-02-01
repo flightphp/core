@@ -42,14 +42,12 @@ class Loader
     /**
      * Registers a class.
      *
-     * @param string          $name     Registry name
-     * @param class-string<T>|Closure(): T $class    Class name or function to instantiate class
-     * @param array<int, mixed>           $params   Class initialization parameters
-     * @param ?callable(T $instance): void   $callback $callback Function to call after object instantiation
+     * @param string $name Registry name
+     * @param class-string<T>|Closure(): T $class Class name or function to instantiate class
+     * @param array<int, mixed> $params Class initialization parameters
+     * @param ?Closure(T $instance): void $callback $callback Function to call after object instantiation
      *
      * @template T of object
-     *
-     * @return void
      */
     public function register(string $name, $class, array $params = [], ?callable $callback = null): void
     {

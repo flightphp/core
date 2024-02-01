@@ -164,7 +164,6 @@ class FlightTest extends TestCase
 
     public function testStaticRoutePut()
     {
-
         Flight::put('/test', function () {
             echo 'test put';
         });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace flight\core;
 
+use Closure;
 use Exception;
 use InvalidArgumentException;
 
@@ -117,9 +118,9 @@ class Dispatcher
     /**
      * Hooks a callback to an event.
      *
-     * @param string   $name     Event name
-     * @param string   $type     Filter type
-     * @param callable $callback Callback function
+     * @param string $name Event name
+     * @param 'before'|'after' $type Filter type
+     * @param Closure(array<int, mixed> &$params, string &$output): (void|false) $callback
      */
     public function hook(string $name, string $type, callable $callback): void
     {
