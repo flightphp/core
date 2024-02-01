@@ -63,7 +63,7 @@
     "suggest": {
         "latte/latte": "Latte template engine",
         "tracy/tracy": "Tracy debugger",
-        "phpstan": "PHP Static Analyzer"
+        "phpstan/phpstan": "PHP Static Analyzer"
     },
     "replace": {
         "mikecao/flight": "2.0.2"
