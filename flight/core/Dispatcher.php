@@ -239,10 +239,14 @@ class Dispatcher
 
     /**
      * Resets the object to the initial state.
+     *
+     * @return $this
      */
-    public function reset(): void
+    public function reset(): self
     {
         $this->events = [];
         $this->filters = [];
+
+        return $this;
     }
 }
