@@ -10,6 +10,7 @@ use flight\core\Dispatcher;
 use PharIo\Manifest\InvalidEmailException;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 class DispatcherTest extends TestCase
 {
@@ -120,9 +121,15 @@ class DispatcherTest extends TestCase
 
     public function testInvalidCallback(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(TypeError::class);
 
         Dispatcher::execute(['NonExistentClass', 'nonExistentMethod']);
+    }
+
+    // It will be useful for executing instance Controller methods statically
+    public function testCanExecuteAnNonStaticMethodStatically(): void
+    {
+        $this->assertSame('hello', Dispatcher::execute([Hello::class, 'sayHi']));
     }
 
     public function testItThrowsAnExceptionWhenRunAnUnregistedEventName(): void

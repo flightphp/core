@@ -7,6 +7,7 @@ namespace flight\core;
 use Closure;
 use Exception;
 use InvalidArgumentException;
+use TypeError;
 
 /**
  * The Dispatcher class is responsible for dispatching events. Events
@@ -192,13 +193,15 @@ class Dispatcher
      */
     public static function execute($callback, array &$params = [])
     {
-        if (!\is_callable($callback)) {
+        if (is_string($callback) && !function_exists($callback)) {
             throw new InvalidArgumentException('Invalid callback specified.');
         }
 
-        return \is_array($callback)
-            ? self::invokeMethod($callback, $params)
-            : self::callFunction($callback, $params);
+        if (is_array($callback)) {
+            return self::invokeMethod($callback, $params);
+        }
+
+        return self::callFunction($callback, $params);
     }
 
     /**
@@ -217,20 +220,21 @@ class Dispatcher
     /**
      * Invokes a method.
      *
-     * @param mixed $func   Class method
-     * @param array<int, mixed> $params Class method parameters
+     * @param array{class-string|object, string} $func Class method
+     * @param array<int, mixed> &$params Class method parameters
      *
      * @return mixed Function results
+     * @throws TypeError For unexistent class name.
      */
-    public static function invokeMethod($func, array &$params = [])
+    public static function invokeMethod(array $func, array &$params = [])
     {
         [$class, $method] = $func;
 
-        $instance = \is_object($class);
+        if (is_string($class) && class_exists($class)) {
+            $class = new $class();
+        }
 
-        return ($instance) ?
-            $class->$method(...$params) :
-            $class::$method();
+        return call_user_func_array([$class, $method], $params);
     }
 
     /**
