@@ -190,12 +190,13 @@ class Loader
      */
     public static function loadClass(string $class): void
     {
-        $class_file = str_replace(['\\', '_'], '/', $class) . '.php';
+        $classFile = str_replace(['\\', '_'], '/', $class) . '.php';
 
         foreach (self::$dirs as $dir) {
-            $file = $dir . '/' . $class_file;
-            if (file_exists($file)) {
-                require $file;
+            $filePath = "$dir/$classFile";
+
+            if (file_exists($filePath)) {
+                require_once $filePath;
 
                 return;
             }

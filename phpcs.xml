@@ -36,6 +36,8 @@
         <exclude name="Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition" />
         <exclude name="Generic.Commenting.DocComment.MissingShort" />
         <exclude name="Generic.Commenting.DocComment.SpacingBeforeTags" />
+        <exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceAfterOpen" />
+        <exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceBeforeClose" />
     </rule>
     <file>flight/</file>
     <file>tests/</file>

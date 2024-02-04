@@ -10,6 +10,8 @@ use flight\net\Router;
 use flight\template\View;
 use flight\net\Route;
 
+require_once __DIR__ . '/autoload.php';
+
 /**
  * The Flight class is a static representation of the framework.
  *
