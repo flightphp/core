@@ -7,6 +7,7 @@ namespace flight\core;
 use Closure;
 use Exception;
 use InvalidArgumentException;
+use ReflectionClass;
 use TypeError;
 
 /**
@@ -193,7 +194,12 @@ class Dispatcher
      */
     public static function execute($callback, array &$params = [])
     {
-        if (is_string($callback) && !function_exists($callback)) {
+        $isInvalidFunctionName = (
+            is_string($callback)
+            && !function_exists($callback)
+        );
+
+        if ($isInvalidFunctionName) {
             throw new InvalidArgumentException('Invalid callback specified.');
         }
 
@@ -231,6 +237,23 @@ class Dispatcher
         [$class, $method] = $func;
 
         if (is_string($class) && class_exists($class)) {
+            $constructor = (new ReflectionClass($class))->getConstructor();
+            $constructorParamsNumber = 0;
+
+            if ($constructor !== null) {
+                $constructorParamsNumber = count($constructor->getParameters());
+            }
+
+            if ($constructorParamsNumber > 0) {
+                $exceptionMessage = "Method '$class::$method' cannot be called statically. ";
+                $exceptionMessage .= sprintf(
+                    "$class::__construct require $constructorParamsNumber parameter%s",
+                    $constructorParamsNumber > 1 ? 's' : ''
+                );
+
+                throw new InvalidArgumentException($exceptionMessage, E_ERROR);
+            }
+
             $class = new $class();
         }
 

@@ -145,7 +145,7 @@ class Engine
         ];
 
         foreach ($methods as $name) {
-            $this->dispatcher->set($name, [$this, '_' . $name]);
+            $this->dispatcher->set($name, [$this, "_$name"]);
         }
 
         // Default configuration settings
