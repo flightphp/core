@@ -67,10 +67,10 @@ class Router
     /**
      * Maps a URL pattern to a callback function.
      *
-     * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
-     * @param bool     $pass_route Pass the matching route object to the callback
-     * @param string   $route_alias Alias for the route
+     * @param string $pattern URL pattern to match.
+     * @param callable $callback Callback function.
+     * @param bool $pass_route Pass the matching route object to the callback.
+     * @param string $route_alias Alias for the route.
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
@@ -163,10 +163,10 @@ class Router
     /**
      * Group together a set of routes
      *
-     * @param string   $group_prefix group URL prefix (such as /api/v1)
-     * @param callable $callback     The necessary calling that holds the Router class
-     * @param array<int, callable|object> $group_middlewares The middlewares to be
-     * applied to the group Ex: [ $middleware1, $middleware2 ]
+     * @param string $group_prefix group URL prefix (such as /api/v1)
+     * @param callable $callback The necessary calling that holds the Router class
+     * @param array<int, callable|object> $group_middlewares
+     * The middlewares to be applied to the group. Example: `[$middleware1, $middleware2]`
      */
     public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void
     {

@@ -28,8 +28,7 @@
     },
     "autoload": {
         "files": [
-            "flight/autoload.php",
-            "flight/Flight.php"
+            "flight/autoload.php"
         ]
     },
     "autoload-dev": {

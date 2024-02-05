@@ -8,3 +8,4 @@ parameters:
     paths:
         - flight
         - index.php
+    treatPhpDocTypesAsCertain: false

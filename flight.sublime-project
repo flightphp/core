@@ -6,6 +6,7 @@
         }
     ],
     "settings": {
+        "SublimeLinter.linters.phpstan.executable": "${project_path}/vendor/bin/phpstan.bat",
         "LSP": {
             "LSP-intelephense": {
                 "settings": {
@@ -40,12 +41,12 @@
         },
         {
             "name": "Linter - Default",
-            "quiet": true,
+            "quiet": false,
             "shell_cmd": "composer lint -- --no-ansi & composer phpcs -- --no-colors",
         },
         {
             "name": "PHPCS",
-            "quiet": true,
+            "quiet": false,
             "shell_cmd": "composer phpcs -- --no-colors"
         },
         {
