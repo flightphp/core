@@ -64,7 +64,6 @@ use flight\net\Route;
  * @method void etag(string $id, ('strong'|'weak') $type = 'strong') Handles ETag HTTP caching.
  * @method void lastModified(int $time) Handles last modified HTTP caching.
  */
-// phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
 class Engine
 {
     /** @var array<string, mixed> Stored variables. */
