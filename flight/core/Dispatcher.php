@@ -78,7 +78,7 @@ class Dispatcher
      * Assigns a callback to an event.
      *
      * @param string $name Event name
-     * @param Closure(): (void|mixed)|callable $callback Callback function
+     * @param Closure(): (void|mixed) $callback Callback function
      *
      * @return $this
      */
