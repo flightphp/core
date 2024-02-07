@@ -459,6 +459,41 @@ class RouterTest extends TestCase
         $this->check('123');
     }
 
+    public function testGroupRouteWithEmptyMapPath()
+    {
+        $this->router->group('/user', function (Router $router) {
+            $router->map('', function () {
+                echo "I'm a little teapot";
+            });
+        });
+        $this->request->url = '/user';
+        $this->check('I\'m a little teapot');
+    }
+
+    public function testGroupRouteWithEmptyGetPath()
+    {
+        $this->router->group('/user', function (Router $router) {
+            $router->get('', function () {
+                echo "I'm a little teapot";
+            });
+        });
+        $this->request->url = '/user';
+        $this->request->method = 'GET';
+        $this->check('I\'m a little teapot');
+    }
+
+    public function testGroupRouteWithEmptyMultipleMethodsPath()
+    {
+        $this->router->group('/user', function (Router $router) {
+            $router->map('GET|POST ', function () {
+                echo "I'm a little teapot";
+            });
+        });
+        $this->request->url = '/user';
+        $this->request->method = 'GET';
+        $this->check('I\'m a little teapot');
+    }
+
     public function testGroupRoutesMultiParams()
     {
         $this->router->group('/user', function (Router $router) {

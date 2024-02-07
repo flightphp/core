@@ -47,6 +47,13 @@ class Router
     protected array $group_middlewares = [];
 
     /**
+     * Allowed HTTP methods
+     *
+     * @var array<int, string>
+     */
+    protected array $allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+
+    /**
      * Gets mapped routes.
      *
      * @return array<int,Route> Array of routes
@@ -74,7 +81,19 @@ class Router
      */
     public function map(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
-        $url = trim($pattern);
+
+        // This means that the route ies defined in a group, but the defined route is the base
+        // url path. Note the '' in route()
+        // Ex: Flight::group('/api', function() {
+        //    Flight::route('', function() {});
+        // }
+        // Keep the space so that it can execute the below code normally
+        if ($this->group_prefix !== '') {
+            $url = ltrim($pattern);
+        } else {
+            $url = trim($pattern);
+        }
+
         $methods = ['*'];
 
         if (false !== strpos($url, ' ')) {
@@ -83,7 +102,12 @@ class Router
             $methods = explode('|', $method);
         }
 
-        $route = new Route($this->group_prefix . $url, $callback, $methods, $pass_route, $route_alias);
+        // And this finishes it off.
+        if ($this->group_prefix !== '') {
+            $url = rtrim($this->group_prefix . $url);
+        }
+
+        $route = new Route($url, $callback, $methods, $pass_route, $route_alias);
 
         // to handle group middleware
         foreach ($this->group_middlewares as $gm) {
