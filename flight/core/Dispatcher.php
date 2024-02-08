@@ -46,29 +46,61 @@ class Dispatcher
      */
     public function run(string $name, array $params = [])
     {
-        $output = '';
+        $this->runPreFilters($name, $params);
+        $output = $this->runEvent($name, $params);
 
-        // Run pre-filters
-        $thereAreBeforeFilters = !empty($this->filters[$name][self::FILTER_BEFORE]);
+        return $this->runPostFilters($name, $output);
+    }
+
+    /**
+     * @param array<int, mixed> &$params
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function runPreFilters(string $eventName, array &$params): self
+    {
+        $thereAreBeforeFilters = !empty($this->filters[$eventName][self::FILTER_BEFORE]);
 
         if ($thereAreBeforeFilters) {
-            $this->filter($this->filters[$name][self::FILTER_BEFORE], $params, $output);
+            $this->filter($this->filters[$eventName][self::FILTER_BEFORE], $params, $output);
         }
 
-        // Run requested method
-        $requestedMethod = $this->get($name);
+        return $this;
+    }
+
+    /**
+     * @param array<int, mixed> &$params
+     * @param mixed &$output
+     *
+     * @return void|mixed
+     * @throws Exception
+     */
+    protected function runEvent(string $eventName, array &$params)
+    {
+        $requestedMethod = $this->get($eventName);
 
         if ($requestedMethod === null) {
-            throw new Exception("Event '$name' isn't found.");
+            throw new Exception("Event '$eventName' isn't found.");
         }
 
-        $output = $requestedMethod(...$params);
+        return $requestedMethod(...$params);
+    }
 
-        // Run post-filters
-        $thereAreAfterFilters = !empty($this->filters[$name][self::FILTER_AFTER]);
+    /**
+     * @param mixed &$output
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    protected function runPostFilters(string $eventName, &$output)
+    {
+        static $params = [];
+
+        $thereAreAfterFilters = !empty($this->filters[$eventName][self::FILTER_AFTER]);
 
         if ($thereAreAfterFilters) {
-            $this->filter($this->filters[$name][self::FILTER_AFTER], $params, $output);
+            $this->filter($this->filters[$eventName][self::FILTER_AFTER], $params, $output);
         }
 
         return $output;
