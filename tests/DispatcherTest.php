@@ -7,9 +7,11 @@ namespace tests;
 use Closure;
 use Exception;
 use flight\core\Dispatcher;
+use InvalidArgumentException;
 use PharIo\Manifest\InvalidEmailException;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
+use tests\classes\TesterClass;
 use TypeError;
 
 class DispatcherTest extends TestCase
@@ -124,6 +126,28 @@ class DispatcherTest extends TestCase
         $this->expectException(TypeError::class);
 
         Dispatcher::execute(['NonExistentClass', 'nonExistentMethod']);
+    }
+
+    public function testInvalidCallableString(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid callback specified.');
+
+        Dispatcher::execute('inexistentGlobalFunction');
+    }
+
+    public function testInvalidCallbackBecauseConstructorParameters(): void
+    {
+        $class = TesterClass::class;
+        $method = 'instanceMethod';
+        $exceptionMessage = "Method '$class::$method' cannot be called statically. ";
+        $exceptionMessage .= "$class::__construct require 6 parameters";
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        static $params = [];
+        Dispatcher::invokeMethod([$class, $method], $params);
     }
 
     // It will be useful for executing instance Controller methods statically
