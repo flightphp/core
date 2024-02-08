@@ -208,9 +208,10 @@ class DispatcherTest extends TestCase
 
         $params = [];
         $output = '';
+        $invalidCallable = 'invalidGlobalFunction';
+
         $validCallable = function (): void {
         };
-        $invalidCallable = 'invalidGlobalFunction';
 
         Dispatcher::filter([$validCallable, $invalidCallable], $params, $output);
     }

@@ -49,26 +49,26 @@ class Dispatcher
         $output = '';
 
         // Run pre-filters
-        $thereAreBeforeFilters = !empty($this->filters[$name]['before']);
+        $thereAreBeforeFilters = !empty($this->filters[$name][self::FILTER_BEFORE]);
 
         if ($thereAreBeforeFilters) {
-            $this->filter($this->filters[$name]['before'], $params, $output);
+            $this->filter($this->filters[$name][self::FILTER_BEFORE], $params, $output);
         }
 
         // Run requested method
-        $callback = $this->get($name);
+        $requestedMethod = $this->get($name);
 
-        if ($callback === null) {
+        if ($requestedMethod === null) {
             throw new Exception("Event '$name' isn't found.");
         }
 
-        $output = $callback(...$params);
+        $output = $requestedMethod(...$params);
 
         // Run post-filters
-        $thereAreAfterFilters = !empty($this->filters[$name]['after']);
+        $thereAreAfterFilters = !empty($this->filters[$name][self::FILTER_AFTER]);
 
         if ($thereAreAfterFilters) {
-            $this->filter($this->filters[$name]['after'], $params, $output);
+            $this->filter($this->filters[$name][self::FILTER_AFTER], $params, $output);
         }
 
         return $output;
@@ -118,7 +118,7 @@ class Dispatcher
     }
 
     /**
-     * Clears an event. If no name is given, all events are removed.
+     * Clears an event. If no name is given, all events will be removed.
      *
      * @param ?string $name Event name
      */
@@ -165,7 +165,7 @@ class Dispatcher
      * @param array<int, mixed> $params Method parameters
      * @param mixed $output Method output
      *
-     * @throws Exception If an event throws an `Exception`.
+     * @throws Exception If an event throws an `Exception` or if `$filters` contains an invalid filter.
      */
     public static function filter(array $filters, array &$params, &$output): void
     {
@@ -190,7 +190,7 @@ class Dispatcher
      * @param array<int, mixed> $params Function parameters
      *
      * @return mixed Function results
-     * @throws Exception
+     * @throws Exception If `$callback` also throws an `Exception`.
      */
     public static function execute($callback, array &$params = [])
     {
