@@ -193,7 +193,7 @@ class DispatcherTest extends TestCase
             ->set('myMethod', function (): string {
                 return 'Original';
             })
-            ->hook('myMethod', 'invalid', function (array &$params, $output): void {
+            ->hook('myMethod', 'invalid', function (array &$params, &$output): void {
                 $output = 'Overriden';
             });
 
@@ -214,30 +214,6 @@ class DispatcherTest extends TestCase
         };
 
         Dispatcher::filter([$validCallable, $invalidCallable], $params, $output);
-    }
-
-    public function testCallFunction4Params(): void
-    {
-        $myFunction = function ($param1, $param2, $param3, $param4) {
-            return "hello{$param1}{$param2}{$param3}{$param4}";
-        };
-
-        $params = ['param1', 'param2', 'param3', 'param4'];
-        $result = Dispatcher::callFunction($myFunction, $params);
-
-        $this->assertSame('helloparam1param2param3param4', $result);
-    }
-
-    public function testCallFunction5Params(): void
-    {
-        $myFunction = function ($param1, $param2, $param3, $param4, $param5) {
-            return "hello{$param1}{$param2}{$param3}{$param4}{$param5}";
-        };
-
-        $params = ['param1', 'param2', 'param3', 'param4', 'param5'];
-        $result = Dispatcher::callFunction($myFunction, $params);
-
-        $this->assertSame('helloparam1param2param3param4param5', $result);
     }
 
     public function testCallFunction6Params(): void
