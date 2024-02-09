@@ -116,11 +116,11 @@ class Dispatcher
      */
     public function set(string $name, callable $callback): self
     {
-        static $allowedMethods = ['notFound', 'error'];
+        /*static $allowedMethods = ['notFound', 'error'];
 
         if ($this->get($name) !== null && !in_array($name, $allowedMethods, true)) {
             trigger_error("Event '$name' has been overriden!", E_USER_NOTICE);
-        }
+        }*/
 
         $this->events[$name] = $callback;
 
