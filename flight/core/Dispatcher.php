@@ -71,7 +71,6 @@ class Dispatcher
 
     /**
      * @param array<int, mixed> &$params
-     * @param mixed &$output
      *
      * @return void|mixed
      * @throws Exception
