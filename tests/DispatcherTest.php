@@ -7,9 +7,11 @@ namespace tests;
 use Closure;
 use Exception;
 use flight\core\Dispatcher;
+use InvalidArgumentException;
 use PharIo\Manifest\InvalidEmailException;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
+use tests\classes\TesterClass;
 use TypeError;
 
 class DispatcherTest extends TestCase
@@ -126,6 +128,28 @@ class DispatcherTest extends TestCase
         Dispatcher::execute(['NonExistentClass', 'nonExistentMethod']);
     }
 
+    public function testInvalidCallableString(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid callback specified.');
+
+        Dispatcher::execute('inexistentGlobalFunction');
+    }
+
+    public function testInvalidCallbackBecauseConstructorParameters(): void
+    {
+        $class = TesterClass::class;
+        $method = 'instanceMethod';
+        $exceptionMessage = "Method '$class::$method' cannot be called statically. ";
+        $exceptionMessage .= "$class::__construct require 6 parameters";
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($exceptionMessage);
+
+        static $params = [];
+        Dispatcher::invokeMethod([$class, $method], $params);
+    }
+
     // It will be useful for executing instance Controller methods statically
     public function testCanExecuteAnNonStaticMethodStatically(): void
     {
@@ -193,7 +217,7 @@ class DispatcherTest extends TestCase
             ->set('myMethod', function (): string {
                 return 'Original';
             })
-            ->hook('myMethod', 'invalid', function (array &$params, $output): void {
+            ->hook('myMethod', 'invalid', function (array &$params, &$output): void {
                 $output = 'Overriden';
             });
 
@@ -208,35 +232,12 @@ class DispatcherTest extends TestCase
 
         $params = [];
         $output = '';
-        $validCallable = function (): void {
-        };
         $invalidCallable = 'invalidGlobalFunction';
 
+        $validCallable = function (): void {
+        };
+
         Dispatcher::filter([$validCallable, $invalidCallable], $params, $output);
-    }
-
-    public function testCallFunction4Params(): void
-    {
-        $myFunction = function ($param1, $param2, $param3, $param4) {
-            return "hello{$param1}{$param2}{$param3}{$param4}";
-        };
-
-        $params = ['param1', 'param2', 'param3', 'param4'];
-        $result = Dispatcher::callFunction($myFunction, $params);
-
-        $this->assertSame('helloparam1param2param3param4', $result);
-    }
-
-    public function testCallFunction5Params(): void
-    {
-        $myFunction = function ($param1, $param2, $param3, $param4, $param5) {
-            return "hello{$param1}{$param2}{$param3}{$param4}{$param5}";
-        };
-
-        $params = ['param1', 'param2', 'param3', 'param4', 'param5'];
-        $result = Dispatcher::callFunction($myFunction, $params);
-
-        $this->assertSame('helloparam1param2param3param4param5', $result);
     }
 
     public function testCallFunction6Params(): void

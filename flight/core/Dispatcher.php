@@ -46,29 +46,61 @@ class Dispatcher
      */
     public function run(string $name, array $params = [])
     {
-        $output = '';
+        $this->runPreFilters($name, $params);
+        $output = $this->runEvent($name, $params);
 
-        // Run pre-filters
-        $thereAreBeforeFilters = !empty($this->filters[$name]['before']);
+        return $this->runPostFilters($name, $output);
+    }
+
+    /**
+     * @param array<int, mixed> &$params
+     *
+     * @return $this
+     * @throws Exception
+     */
+    protected function runPreFilters(string $eventName, array &$params): self
+    {
+        $thereAreBeforeFilters = !empty($this->filters[$eventName][self::FILTER_BEFORE]);
 
         if ($thereAreBeforeFilters) {
-            $this->filter($this->filters[$name]['before'], $params, $output);
+            $this->filter($this->filters[$eventName][self::FILTER_BEFORE], $params, $output);
         }
 
-        // Run requested method
-        $callback = $this->get($name);
+        return $this;
+    }
 
-        if ($callback === null) {
-            throw new Exception("Event '$name' isn't found.");
+    /**
+     * @param array<int, mixed> &$params
+     * @param mixed &$output
+     *
+     * @return void|mixed
+     * @throws Exception
+     */
+    protected function runEvent(string $eventName, array &$params)
+    {
+        $requestedMethod = $this->get($eventName);
+
+        if ($requestedMethod === null) {
+            throw new Exception("Event '$eventName' isn't found.");
         }
 
-        $output = $callback(...$params);
+        return $requestedMethod(...$params);
+    }
 
-        // Run post-filters
-        $thereAreAfterFilters = !empty($this->filters[$name]['after']);
+    /**
+     * @param mixed &$output
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    protected function runPostFilters(string $eventName, &$output)
+    {
+        static $params = [];
+
+        $thereAreAfterFilters = !empty($this->filters[$eventName][self::FILTER_AFTER]);
 
         if ($thereAreAfterFilters) {
-            $this->filter($this->filters[$name]['after'], $params, $output);
+            $this->filter($this->filters[$eventName][self::FILTER_AFTER], $params, $output);
         }
 
         return $output;
@@ -118,7 +150,7 @@ class Dispatcher
     }
 
     /**
-     * Clears an event. If no name is given, all events are removed.
+     * Clears an event. If no name is given, all events will be removed.
      *
      * @param ?string $name Event name
      */
@@ -165,7 +197,7 @@ class Dispatcher
      * @param array<int, mixed> $params Method parameters
      * @param mixed $output Method output
      *
-     * @throws Exception If an event throws an `Exception`.
+     * @throws Exception If an event throws an `Exception` or if `$filters` contains an invalid filter.
      */
     public static function filter(array $filters, array &$params, &$output): void
     {
@@ -190,7 +222,7 @@ class Dispatcher
      * @param array<int, mixed> $params Function parameters
      *
      * @return mixed Function results
-     * @throws Exception
+     * @throws Exception If `$callback` also throws an `Exception`.
      */
     public static function execute($callback, array &$params = [])
     {
