@@ -6,6 +6,7 @@ namespace tests;
 
 use Exception;
 use Flight;
+use flight\core\Dispatcher;
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
@@ -241,5 +242,26 @@ class FlightTest extends TestCase
         $url = Flight::getUrl('normalpathalias');
 
         $this->assertEquals('/user/all_users/check_user/check_one/normalpath', $url);
+    }
+
+    public function testItAllowsOverrideNotFoundAndErrorMethods(): void
+    {
+        $mock = new class extends Engine
+        {
+            public function dispatcher(): Dispatcher
+            {
+                return $this->dispatcher;
+            }
+        };
+
+        $exampleCallable = function (): void {
+        };
+
+        Flight::setEngine($mock);
+        Flight::map('notFound', $exampleCallable);
+        Flight::map('error', $exampleCallable);
+
+        $this->assertSame($exampleCallable, Flight::dispatcher()->get('notFound'));
+        $this->assertSame($exampleCallable, Flight::dispatcher()->get('error'));
     }
 }

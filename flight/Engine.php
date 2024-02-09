@@ -214,15 +214,18 @@ class Engine
      * @param string $name Method name
      * @param callable $callback Callback function
      *
+     * @return $this
      * @throws Exception If trying to map over a framework method
      */
-    public function map(string $name, callable $callback): void
+    public function map(string $name, callable $callback): self
     {
         if (method_exists($this, $name)) {
             throw new Exception('Cannot override an existing framework method.');
         }
 
         $this->dispatcher->set($name, $callback);
+
+        return $this;
     }
 
     /**

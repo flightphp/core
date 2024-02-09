@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace tests;
 
 use Exception;
+use flight\core\Dispatcher;
 use flight\Engine;
 use flight\net\Response;
 use PHPUnit\Framework\TestCase;
 
-// phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
 class EngineTest extends TestCase
 {
     public function setUp(): void
@@ -79,6 +79,26 @@ class EngineTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Cannot override an existing framework method.');
         $engine->register('_error', 'stdClass');
+    }
+
+    public function testItAllowsOverrideNotFoundAndErrorMethods(): void
+    {
+        $mock = new class extends Engine
+        {
+            public function dispatcher(): Dispatcher
+            {
+                return $this->dispatcher;
+            }
+        };
+
+        $exampleCallable = function (): void {
+        };
+
+        $mock->map('notFound', $exampleCallable)
+            ->map('error', $exampleCallable);
+
+        $this->assertSame($exampleCallable, $mock->dispatcher()->get('notFound'));
+        $this->assertSame($exampleCallable, $mock->dispatcher()->get('error'));
     }
 
     public function testSetArrayOfValues()
