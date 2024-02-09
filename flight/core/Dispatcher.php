@@ -71,7 +71,6 @@ class Dispatcher
 
     /**
      * @param array<int, mixed> &$params
-     * @param mixed &$output
      *
      * @return void|mixed
      * @throws Exception
@@ -116,10 +115,6 @@ class Dispatcher
      */
     public function set(string $name, callable $callback): self
     {
-        if ($this->get($name) !== null) {
-            trigger_error("Event '$name' has been overriden!", E_USER_NOTICE);
-        }
-
         $this->events[$name] = $callback;
 
         return $this;
