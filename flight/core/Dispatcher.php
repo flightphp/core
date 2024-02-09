@@ -84,10 +84,6 @@ class Dispatcher
      */
     public function set(string $name, callable $callback): self
     {
-        if ($this->get($name) !== null) {
-            trigger_error("Event '$name' has been overriden!", E_USER_NOTICE);
-        }
-
         $this->events[$name] = $callback;
 
         return $this;
