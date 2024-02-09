@@ -53,6 +53,11 @@
             "name": "Format",
             "quiet": true,
             "shell_cmd": "composer beautify -- --no-colors"
+        },
+        {
+            "name": "Test coverage",
+            "quiet": true,
+            "shell_cmd": "composer test-coverage:win -- --no-colors"
         }
     ],
 }

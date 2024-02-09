@@ -22,4 +22,9 @@ class TesterClass
         $this->param5 = $param5;
         $this->param6 = $param6;
     }
+
+    public function instanceMethod(): void
+    {
+        $this->param2 = $this->param1;
+    }
 }
