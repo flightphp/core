@@ -7,8 +7,8 @@
  * @author Kristaps Muižnieks https://github.com/krmu
  */
 
-require __DIR__ . '/../../vendor/autoload.php';
-
+ require file_exists(__DIR__ . '/../../vendor/autoload.php') ? __DIR__ . '/../../vendor/autoload.php' : __DIR__ . '/../../flight/autoload.php';
+ 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
 //Flight::set('flight.v2.output_buffering', true);
