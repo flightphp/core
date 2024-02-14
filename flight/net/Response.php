@@ -22,6 +22,15 @@ class Response
     public bool $content_length = true;
 
     /**
+     * This is to maintain legacy handling of output buffering
+     * which causes a lot of problems. This will be removed
+     * in v4
+     *
+     * @var boolean
+     */
+    public bool $v2_output_buffering = false;
+
+    /**
      * HTTP status codes
      *
      * @var array<int, ?string> $codes
@@ -96,6 +105,7 @@ class Response
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
     ];
+
     /**
      * HTTP status
      */
@@ -197,6 +207,11 @@ class Response
         $this->status = 200;
         $this->headers = [];
         $this->body = '';
+
+        // This needs to clear the output buffer if it's on
+        if ($this->v2_output_buffering === false && ob_get_length() > 0) {
+            ob_clean();
+        }
 
         return $this;
     }
@@ -338,8 +353,11 @@ class Response
      */
     public function send(): void
     {
-        if (ob_get_length() > 0) {
-            ob_end_clean(); // @codeCoverageIgnore
+        // legacy way of handling this
+        if ($this->v2_output_buffering === true) {
+            if (ob_get_length() > 0) {
+                ob_end_clean(); // @codeCoverageIgnore
+            }
         }
 
         if (!headers_sent()) {

@@ -31,10 +31,30 @@ class EngineTest extends TestCase
             }
         };
         $this->assertTrue($engine->getInitializedVar());
+
+		// we need to setup a dummy route
+		$engine->route('/someRoute', function () { });
+		$engine->request()->url = '/someRoute';
         $engine->start();
 
-        // this is necessary cause it doesn't actually send the response correctly
-        ob_end_clean();
+        $this->assertFalse($engine->router()->case_sensitive);
+        $this->assertTrue($engine->response()->content_length);
+    }
+
+	public function testInitBeforeStartV2OutputBuffering()
+    {
+        $engine = new class extends Engine {
+            public function getInitializedVar()
+            {
+                return $this->initialized;
+            }
+        };
+		$engine->set('flight.v2.output_buffering', true);
+        $this->assertTrue($engine->getInitializedVar());
+        $engine->start();
+
+		// This is a necessary evil because of how the v2 output buffer works.
+		ob_end_clean();
 
         $this->assertFalse($engine->router()->case_sensitive);
         $this->assertTrue($engine->response()->content_length);
@@ -126,6 +146,26 @@ class EngineTest extends TestCase
         $this->expectOutputString('<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>');
         $engine->start();
     }
+	
+	public function testStartWithRouteButReturnedValueThrows404V2OutputBuffering()
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/someRoute';
+
+        $engine = new class extends Engine {
+            public function getInitializedVar()
+            {
+                return $this->initialized;
+            }
+        };
+		$engine->set('flight.v2.output_buffering', true);
+        $engine->route('/someRoute', function () {
+            echo 'i ran';
+            return true;
+        }, true);
+        $this->expectOutputString('<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>');
+        $engine->start();
+    }
 
     public function testStopWithCode()
     {
@@ -144,11 +184,37 @@ class EngineTest extends TestCase
                 }
             };
         });
-        // need to add another one of these because _stop() stops and gets clean, but $response->send() does too.....
-        ob_start();
         $engine->response()->write('I am a teapot');
         $this->expectOutputString('I am a teapot');
         $engine->stop(500);
+        $this->assertEquals(500, $engine->response()->status());
+    }
+
+	public function testStopWithCodeV2OutputBuffering()
+    {
+        $engine = new class extends Engine {
+            public function getLoader()
+            {
+                return $this->loader;
+            }
+        };
+        // doing this so we can overwrite some parts of the response
+        $engine->getLoader()->register('response', function () {
+            return new class extends Response {
+                public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
+                {
+                    return $this;
+                }
+            };
+        });
+		$engine->set('flight.v2.output_buffering', true);
+		$engine->route('/testRoute', function () use ($engine) {
+			echo 'I am a teapot';
+			$engine->stop(500);
+		});
+		$engine->request()->url = '/testRoute';
+		$engine->start();
+        $this->expectOutputString('I am a teapot');
         $this->assertEquals(500, $engine->response()->status());
     }
 
@@ -207,10 +273,6 @@ class EngineTest extends TestCase
         // doing this so we can overwrite some parts of the response
         $engine->getLoader()->register('response', function () {
             return new class extends Response {
-                public function __construct()
-                {
-                }
-
                 public function setRealHeader(
                     string $header_string,
                     bool $replace = true,
@@ -220,9 +282,7 @@ class EngineTest extends TestCase
                 }
             };
         });
-
-        $this->expectOutputString('skip---exit');
-        $engine->halt(500, 'skip---exit');
+        $engine->halt(500, '', false);
         $this->assertEquals(500, $engine->response()->status());
     }
 
@@ -280,17 +340,10 @@ class EngineTest extends TestCase
 
     public function testEtagWithHttpIfNoneMatch()
     {
-        // just need this not to exit...
-        $engine = new class extends Engine {
-            public function _halt(int $code = 200, string $message = ''): void
-            {
-                $this->response()->status($code);
-                $this->response()->write($message);
-            }
-        };
+        $engine = new Engine;
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'etag';
         $engine->etag('etag');
-        $this->assertEquals('"etag"', $engine->response()->headers()['ETag']);
+        $this->assertTrue(empty($engine->response()->headers()['ETag']));
         $this->assertEquals(304, $engine->response()->status());
     }
 
@@ -303,17 +356,10 @@ class EngineTest extends TestCase
 
     public function testLastModifiedWithHttpIfModifiedSince()
     {
-        // just need this not to exit...
-        $engine = new class extends Engine {
-            public function _halt(int $code = 200, string $message = ''): void
-            {
-                $this->response()->status($code);
-                $this->response()->write($message);
-            }
-        };
+        $engine = new Engine;
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = 'Fri, 13 Feb 2009 23:31:30 GMT';
         $engine->lastModified(1234567890);
-        $this->assertEquals('Fri, 13 Feb 2009 23:31:30 GMT', $engine->response()->headers()['Last-Modified']);
+		$this->assertTrue(empty($engine->response()->headers()['Last-Modified']));
         $this->assertEquals(304, $engine->response()->status());
     }
 
@@ -344,11 +390,6 @@ class EngineTest extends TestCase
     public function testMiddlewareCallableFunctionReturnFalse()
     {
         $engine = new class extends Engine {
-            public function _halt(int $code = 200, string $message = ''): void
-            {
-                $this->response()->status($code);
-                $this->response()->write($message);
-            }
         };
         $engine->route('/path1/@id', function ($id) {
             echo 'OK' . $id;
@@ -359,7 +400,7 @@ class EngineTest extends TestCase
             });
         $engine->request()->url = '/path1/123';
         $engine->start();
-        $this->expectOutputString('Forbiddenbefore123');
+        $this->expectOutputString('Forbidden');
         $this->assertEquals(403, $engine->response()->status());
     }
 
@@ -410,7 +451,6 @@ class EngineTest extends TestCase
         $middleware = new class {
             public function after($params)
             {
-
                 echo 'after' . $params['id'];
             }
         };
@@ -435,11 +475,6 @@ class EngineTest extends TestCase
             }
         };
         $engine = new class extends Engine {
-            public function _halt(int $code = 200, string $message = ''): void
-            {
-                $this->response()->status($code);
-                $this->response()->write($message);
-            }
         };
 
         $engine->route('/path1/@id', function ($id) {
@@ -449,7 +484,7 @@ class EngineTest extends TestCase
         $engine->request()->url = '/path1/123';
         $engine->start();
         $this->assertEquals(403, $engine->response()->status());
-        $this->expectOutputString('ForbiddenOK123after123');
+        $this->expectOutputString('Forbidden');
     }
 
     public function testMiddlewareCallableFunctionMultiple()
