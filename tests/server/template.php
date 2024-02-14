@@ -1,0 +1,1 @@
+<span id="infotext">Route text:</span> Template <?=$name?> works!
