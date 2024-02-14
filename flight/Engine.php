@@ -15,7 +15,6 @@ use flight\net\Router;
 use flight\template\View;
 use Throwable;
 use flight\net\Route;
-use PHPUnit\Framework\TestCase;
 
 /**
  * The Engine class contains the core functionality of the framework.
