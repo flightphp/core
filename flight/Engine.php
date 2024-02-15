@@ -27,7 +27,7 @@ use flight\net\Route;
  * # Core methods
  * @method void start() Starts engine
  * @method void stop() Stops framework and outputs current response
- * @method void halt(int $code = 200, string $message = '', bool $actually_exit = true) Stops processing and returns a given response.
+ * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
  *
  * # Routing
  * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
@@ -647,16 +647,16 @@ class Engine
      *
      * @param int $code HTTP status code
      * @param string $message Response message
-     * @param bool $actually_exit Whether to actually exit the script or just send response
+     * @param bool $actuallyExit Whether to actually exit the script or just send response
      */
-    public function _halt(int $code = 200, string $message = '', bool $actually_exit = true): void
+    public function _halt(int $code = 200, string $message = '', bool $actuallyExit = true): void
     {
         $this->response()
             ->clear()
             ->status($code)
             ->write($message)
             ->send();
-        if ($actually_exit === true) {
+        if ($actuallyExit === true) {
             exit(); // @codeCoverageIgnore
         }
     }
