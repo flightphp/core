@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
+Flight::set('flight.views.extension', '.phtml');
 //Flight::set('flight.v2.output_buffering', true);
 
 require_once 'LayoutMiddleware.php';

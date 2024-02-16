@@ -13,6 +13,7 @@ require file_exists(__DIR__ . '/../../vendor/autoload.php') ? __DIR__ . '/../../
 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
+Flight::set('flight.views.extension', '.phtml');
 // This enables the old functionality of Flight output buffering
 Flight::set('flight.v2.output_buffering', true);
 
