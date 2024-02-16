@@ -66,6 +66,16 @@ use flight\net\Route;
  */
 class Engine
 {
+
+	/**
+	 * @var array<string> List of methods that can be extended in the Engine class.
+	 */
+	private const MAPPABLE_METHODS = [
+		'start', 'stop', 'route', 'halt', 'error', 'notFound',
+		'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
+		'post', 'put', 'patch', 'delete', 'group', 'getUrl'
+	];
+
     /** @var array<string, mixed> Stored variables. */
     protected array $vars = [];
 
@@ -137,14 +147,7 @@ class Engine
             $view->extension = $self->get('flight.views.extension');
         });
 
-        // Register framework methods
-        $methods = [
-            'start', 'stop', 'route', 'halt', 'error', 'notFound',
-            'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
-            'post', 'put', 'patch', 'delete', 'group', 'getUrl',
-        ];
-
-        foreach ($methods as $name) {
+        foreach (self::MAPPABLE_METHODS as $name) {
             $this->dispatcher->set($name, [$this, "_$name"]);
         }
 
