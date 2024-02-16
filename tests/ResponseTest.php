@@ -65,7 +65,7 @@ class ResponseTest extends TestCase
         $response = new Response();
         $response->header('content-type', 'text/html');
         $response->header('x-test', 'test');
-        $this->assertEquals(['content-type' => 'text/html', 'x-test' => 'test'], $response->headers());
+        $this->assertEquals(['content-type' => 'text/html', 'x-test' => 'test'], $response->getHeaders());
     }
 
     public function testHeaderArray()
@@ -79,6 +79,13 @@ class ResponseTest extends TestCase
     {
         $response = new Response();
         $this->assertEquals($response, $response->header('Content-Type', 'text/html'));
+    }
+
+    public function testGetHeaderCrazyCase()
+    {
+        $response = new Response();
+        $response->setHeader('CoNtEnT-tYpE', 'text/html');
+        $this->assertEquals('text/html', $response->getHeader('content-type'));
     }
 
     public function testWrite()
@@ -104,6 +111,9 @@ class ResponseTest extends TestCase
     public function testClear()
     {
         $response = new Response();
+
+        // Should clear this echo out
+        echo 'hi';
         $response->write('test');
         $response->status(404);
         $response->header('Content-Type', 'text/html');
@@ -111,6 +121,7 @@ class ResponseTest extends TestCase
         $this->assertEquals('', $response->getBody());
         $this->assertEquals(200, $response->status());
         $this->assertEquals([], $response->headers());
+        $this->assertEquals(0, ob_get_length());
     }
 
     public function testCacheSimple()
@@ -219,8 +230,8 @@ class ResponseTest extends TestCase
                 return $this;
             }
         };
-        $response->header('Content-Type', 'text/html');
-        $response->header('X-Test', 'test');
+        $response->setHeader('Content-Type', 'text/html');
+        $response->setHeader('X-Test', 'test');
         $response->write('Something');
 
         $this->expectOutputString('Something');

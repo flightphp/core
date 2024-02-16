@@ -332,6 +332,49 @@ class Request
     }
 
     /**
+     * Alias of Request->getHeader(). Gets a single header.
+     *
+     * @param string $header  Header name. Can be caps, lowercase, or mixed.
+     * @param string $default Default value if the header does not exist
+     *
+     * @return string
+     */
+    public static function header(string $header, $default = '')
+    {
+        return self::getHeader($header, $default);
+    }
+
+    /**
+     * Alias of Request->getHeaders(). Gets all the request headers
+     *
+     * @return array<string, string|int>
+     */
+    public static function headers(): array
+    {
+        return self::getHeaders();
+    }
+
+    /**
+     * Gets the full request URL.
+     *
+     * @return string URL
+     */
+    public function getFullUrl(): string
+    {
+        return $this->scheme . '://' . $this->host . $this->url;
+    }
+
+    /**
+     * Grabs the scheme and host. Does not end with a /
+     *
+     * @return string
+     */
+    public function getBaseUrl(): string
+    {
+        return $this->scheme . '://' . $this->host;
+    }
+
+    /**
      * Parse query parameters from a URL.
      *
      * @param string $url URL string

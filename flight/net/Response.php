@@ -174,6 +174,34 @@ class Response
     }
 
     /**
+     * Gets a single header from the response.
+     *
+     * @param string $name the name of the header
+     *
+     * @return string|null
+     */
+    public function getHeader(string $name): ?string
+    {
+        $headers = $this->headers;
+        // lowercase all the header keys
+        $headers = array_change_key_case($headers, CASE_LOWER);
+        return $headers[strtolower($name)] ?? null;
+    }
+
+    /**
+     * Alias of Response->header(). Adds a header to the response.
+     *
+     * @param array<string, int|string>|string $name  Header name or array of names and values
+     * @param ?string  $value Header value
+     *
+     * @return $this
+     */
+    public function setHeader($name, ?string $value): self
+    {
+        return $this->header($name, $value);
+    }
+
+    /**
      * Returns the headers from the response.
      *
      * @return array<string, int|string|array<int, string>>
@@ -181,6 +209,16 @@ class Response
     public function headers(): array
     {
         return $this->headers;
+    }
+
+    /**
+     * Alias for Response->headers(). Returns the headers from the response.
+     *
+     * @return array<string, int|string|array<int, string>>
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers();
     }
 
     /**

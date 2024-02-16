@@ -66,15 +66,14 @@ use flight\net\Route;
  */
 class Engine
 {
-
-	/**
-	 * @var array<string> List of methods that can be extended in the Engine class.
-	 */
-	private const MAPPABLE_METHODS = [
-		'start', 'stop', 'route', 'halt', 'error', 'notFound',
-		'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
-		'post', 'put', 'patch', 'delete', 'group', 'getUrl'
-	];
+    /**
+     * @var array<string> List of methods that can be extended in the Engine class.
+     */
+    private const MAPPABLE_METHODS = [
+        'start', 'stop', 'route', 'halt', 'error', 'notFound',
+        'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
+        'post', 'put', 'patch', 'delete', 'group', 'getUrl'
+    ];
 
     /** @var array<string, mixed> Stored variables. */
     protected array $vars = [];

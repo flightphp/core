@@ -243,37 +243,39 @@ class FlightTest extends TestCase
         $this->assertEquals('/user/all_users/check_user/check_one/normalpath', $url);
     }
 
-	public function testHookOutputBuffering() {
-		Flight::route('/test', function () {
-			echo 'test';
-		});
+    public function testHookOutputBuffering()
+    {
+        Flight::route('/test', function () {
+            echo 'test';
+        });
 
-		Flight::before('start', function ($output) {
-			echo 'hooked before start';
-		});
+        Flight::before('start', function ($output) {
+            echo 'hooked before start';
+        });
 
-		Flight::request()->url = '/test';
+        Flight::request()->url = '/test';
 
-		$this->expectOutputString('hooked before starttest');
-		Flight::start();
-		$this->assertEquals('test', Flight::response()->getBody());
-	}
+        $this->expectOutputString('hooked before starttest');
+        Flight::start();
+        $this->assertEquals('test', Flight::response()->getBody());
+    }
 
-	public function testHookOutputBufferingV2OutputBuffering() {
-		Flight::route('/test', function () {
-			echo 'test';
-		});
+    public function testHookOutputBufferingV2OutputBuffering()
+    {
+        Flight::route('/test', function () {
+            echo 'test';
+        });
 
-		Flight::before('start', function ($output) {
-			echo 'hooked before start';
-		});
+        Flight::before('start', function ($output) {
+            echo 'hooked before start';
+        });
 
-		Flight::set('flight.v2.output_buffering', true);
-		Flight::request()->url = '/test';
+        Flight::set('flight.v2.output_buffering', true);
+        Flight::request()->url = '/test';
 
-		$this->expectOutputString('hooked before starttest');
-		ob_start();
-		Flight::start();
-		$this->assertEquals('hooked before starttest', Flight::response()->getBody());
-	}
+        $this->expectOutputString('hooked before starttest');
+        ob_start();
+        Flight::start();
+        $this->assertEquals('hooked before starttest', Flight::response()->getBody());
+    }
 }

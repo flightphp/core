@@ -45,7 +45,7 @@ class DocExamplesTest extends TestCase
         $this->assertEquals('[]', Flight::response()->getBody());
     }
 
-	public function testMapNotFoundMethodV2OutputBuffering()
+    public function testMapNotFoundMethodV2OutputBuffering()
     {
         Flight::map('notFound', function () {
             Flight::json([], 404);
@@ -57,9 +57,9 @@ class DocExamplesTest extends TestCase
             echo 'hello world!';
         });
 
-		Flight::set('flight.v2.output_buffering', true);
+        Flight::set('flight.v2.output_buffering', true);
         Flight::start();
-		ob_get_clean();
+        ob_get_clean();
         $this->assertEquals(404, Flight::response()->status());
         $this->assertEquals('[]', Flight::response()->getBody());
     }
