@@ -50,7 +50,9 @@
     "config": {
         "allow-plugins": {
             "phpstan/extension-installer": true
-        }
+        },
+		"process-timeout": 0,
+		"sort-packages": true
     },
     "scripts": {
         "test": "phpunit",
