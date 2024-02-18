@@ -1,7 +1,6 @@
 ![PHPStan: enabled](https://user-images.githubusercontent.com/104888/50957476-9c4acb80-14be-11e9-88ce-6447364dc1bb.png)
 ![PHPStan: level 6](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
 ![Matrix](https://img.shields.io/matrix/flight-php-framework%3Amatrix.org?server_fqdn=matrix.org&style=social&logo=matrix)
-[![Hit Count](https://hits.dwyl.com/flightphp/core.svg?style=flat-square&show=unique)](http://hits.dwyl.com/flightphp/core)
 
 # What is Flight?
 
