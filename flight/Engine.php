@@ -362,17 +362,16 @@ class Engine
     }
 
     /**
-     * Processes each routes middleware
+     * Processes each routes middleware.
      *
-     * @param array<int,callable>   $middleware     middleware attached to the route
-     * @param array<mixed,mixed>   $params         route->params
-     * @param string  $event_name     if this is the before or after method
-     *
-     * @return boolean
+     * @param array<int, callable> $middleware Middleware attached to the route.
+     * @param array<mixed> $params `$route->params`.
+     * @param string $event_name If this is the before or after method.
      */
     protected function processMiddleware(array $middleware, array $params, string $event_name): bool
     {
         $at_least_one_middleware_failed = false;
+
         foreach ($middleware as $middleware) {
             $middleware_object = false;
 
@@ -382,7 +381,9 @@ class Engine
                     ? $middleware
                     : (method_exists($middleware, 'before') === true
                         ? [$middleware, 'before']
-                        : false));
+                        : false
+                    )
+                );
             } elseif ($event_name === 'after') {
                 // must be an object. No functions allowed here
                 if (
@@ -418,11 +419,9 @@ class Engine
         return $at_least_one_middleware_failed;
     }
 
-    /*********************************
-     *
-     * Extensible Methods
-     *********************************/
-
+    ////////////////////////
+    // Extensible Methods //
+    ////////////////////////
     /**
      * Starts the framework.
      *
@@ -454,6 +453,7 @@ class Engine
 
         // Route the request
         $failed_middleware_check = false;
+
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 

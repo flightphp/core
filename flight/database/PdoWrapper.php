@@ -136,6 +136,6 @@ class PdoWrapper extends PDO
             $current_index += strlen($question_marks) + 4;
         }
 
-        return [ 'sql' => $sql, 'params' => $params ];
+        return ['sql' => $sql, 'params' => $params];
     }
 }
