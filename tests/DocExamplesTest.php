@@ -40,6 +40,25 @@ class DocExamplesTest extends TestCase
         });
 
         Flight::start();
+        $this->expectOutputString('[]');
+        $this->assertEquals(404, Flight::response()->status());
+        $this->assertEquals('[]', Flight::response()->getBody());
+    }
+
+    public function testMapNotFoundMethodV2OutputBuffering()
+    {
+        Flight::map('notFound', function () {
+            Flight::json([], 404);
+        });
+
+        Flight::request()->url = '/not-found';
+
+        Flight::route('/', function () {
+            echo 'hello world!';
+        });
+
+        Flight::set('flight.v2.output_buffering', true);
+        Flight::start();
         ob_get_clean();
         $this->assertEquals(404, Flight::response()->status());
         $this->assertEquals('[]', Flight::response()->getBody());

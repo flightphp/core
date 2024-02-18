@@ -205,10 +205,10 @@ class RequestTest extends TestCase
 
         // or the headers that are already in $_SERVER
         $this->assertEquals('XMLHttpRequest', $request->getHeader('X-REqUesTed-WiTH'));
-        $this->assertEquals('32.32.32.32', $request->getHeader('X-Forwarded-For'));
+        $this->assertEquals('32.32.32.32', $request->header('X-Forwarded-For'));
 
         // default values
-        $this->assertEquals('default value', $request->getHeader('X-Non-Existent-Header', 'default value'));
+        $this->assertEquals('default value', $request->header('X-Non-Existent-Header', 'default value'));
     }
 
     public function testGetHeaders()
@@ -231,7 +231,7 @@ class RequestTest extends TestCase
         $_SERVER = [];
         $_SERVER['HTTP_X_CUSTOM_HEADER'] = '';
         $request = new Request();
-        $this->assertEquals(['X-Custom-Header' => ''], $request->getHeaders());
+        $this->assertEquals(['X-Custom-Header' => ''], $request->headers());
     }
 
     public function testGetHeadersWithMultipleHeaders()
@@ -244,5 +244,39 @@ class RequestTest extends TestCase
             'X-Custom-Header' => 'custom header value',
             'X-Custom-Header2' => 'custom header value 2'
         ], $request->getHeaders());
+    }
+
+    public function testGetFullUrlNoHttps()
+    {
+        $_SERVER['HTTP_HOST'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/page?id=1';
+        $request = new Request();
+        $this->assertEquals('http://example.com/page?id=1', $request->getFullUrl());
+    }
+
+    public function testGetFullUrlWithHttps()
+    {
+        $_SERVER['HTTP_HOST'] = 'localhost:8000';
+        $_SERVER['REQUEST_URI'] = '/page?id=1';
+        $_SERVER['HTTPS'] = 'on';
+        $request = new Request();
+        $this->assertEquals('https://localhost:8000/page?id=1', $request->getFullUrl());
+    }
+
+    public function testGetBaseUrlNoHttps()
+    {
+        $_SERVER['HTTP_HOST'] = 'example.com';
+        $_SERVER['REQUEST_URI'] = '/page?id=1';
+        $request = new Request();
+        $this->assertEquals('http://example.com', $request->getBaseUrl());
+    }
+
+    public function testGetBaseUrlWithHttps()
+    {
+        $_SERVER['HTTP_HOST'] = 'localhost:8000';
+        $_SERVER['REQUEST_URI'] = '/page?id=1';
+        $_SERVER['HTTPS'] = 'on';
+        $request = new Request();
+        $this->assertEquals('https://localhost:8000', $request->getBaseUrl());
     }
 }

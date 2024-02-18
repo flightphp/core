@@ -22,6 +22,15 @@ class Response
     public bool $content_length = true;
 
     /**
+     * This is to maintain legacy handling of output buffering
+     * which causes a lot of problems. This will be removed
+     * in v4
+     *
+     * @var boolean
+     */
+    public bool $v2_output_buffering = false;
+
+    /**
      * HTTP status codes
      *
      * @var array<int, ?string> $codes
@@ -96,6 +105,7 @@ class Response
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
     ];
+
     /**
      * HTTP status
      */
@@ -164,6 +174,34 @@ class Response
     }
 
     /**
+     * Gets a single header from the response.
+     *
+     * @param string $name the name of the header
+     *
+     * @return string|null
+     */
+    public function getHeader(string $name): ?string
+    {
+        $headers = $this->headers;
+        // lowercase all the header keys
+        $headers = array_change_key_case($headers, CASE_LOWER);
+        return $headers[strtolower($name)] ?? null;
+    }
+
+    /**
+     * Alias of Response->header(). Adds a header to the response.
+     *
+     * @param array<string, int|string>|string $name  Header name or array of names and values
+     * @param ?string  $value Header value
+     *
+     * @return $this
+     */
+    public function setHeader($name, ?string $value): self
+    {
+        return $this->header($name, $value);
+    }
+
+    /**
      * Returns the headers from the response.
      *
      * @return array<string, int|string|array<int, string>>
@@ -171,6 +209,16 @@ class Response
     public function headers(): array
     {
         return $this->headers;
+    }
+
+    /**
+     * Alias for Response->headers(). Returns the headers from the response.
+     *
+     * @return array<string, int|string|array<int, string>>
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers();
     }
 
     /**
@@ -197,6 +245,11 @@ class Response
         $this->status = 200;
         $this->headers = [];
         $this->body = '';
+
+        // This needs to clear the output buffer if it's on
+        if ($this->v2_output_buffering === false && ob_get_length() > 0) {
+            ob_clean();
+        }
 
         return $this;
     }
@@ -338,8 +391,11 @@ class Response
      */
     public function send(): void
     {
-        if (ob_get_length() > 0) {
-            ob_end_clean(); // @codeCoverageIgnore
+        // legacy way of handling this
+        if ($this->v2_output_buffering === true) {
+            if (ob_get_length() > 0) {
+                ob_end_clean(); // @codeCoverageIgnore
+            }
         }
 
         if (!headers_sent()) {

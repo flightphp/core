@@ -27,7 +27,7 @@ use flight\net\Route;
  * # Core methods
  * @method void start() Starts engine
  * @method void stop() Stops framework and outputs current response
- * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
+ * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
  *
  * # Routing
  * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
@@ -66,6 +66,15 @@ use flight\net\Route;
  */
 class Engine
 {
+    /**
+     * @var array<string> List of methods that can be extended in the Engine class.
+     */
+    private const MAPPABLE_METHODS = [
+        'start', 'stop', 'route', 'halt', 'error', 'notFound',
+        'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
+        'post', 'put', 'patch', 'delete', 'group', 'getUrl'
+    ];
+
     /** @var array<string, mixed> Stored variables. */
     protected array $vars = [];
 
@@ -137,14 +146,7 @@ class Engine
             $view->extension = $self->get('flight.views.extension');
         });
 
-        // Register framework methods
-        $methods = [
-            'start', 'stop', 'route', 'halt', 'error', 'notFound',
-            'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
-            'post', 'put', 'patch', 'delete', 'group', 'getUrl',
-        ];
-
-        foreach ($methods as $name) {
+        foreach (self::MAPPABLE_METHODS as $name) {
             $this->dispatcher->set($name, [$this, "_$name"]);
         }
 
@@ -156,6 +158,7 @@ class Engine
         $this->set('flight.views.path', './views');
         $this->set('flight.views.extension', '.php');
         $this->set('flight.content_length', true);
+        $this->set('flight.v2.output_buffering', false);
 
         // Startup configuration
         $this->before('start', function () use ($self) {
@@ -169,6 +172,10 @@ class Engine
             $self->router()->case_sensitive = $self->get('flight.case_sensitive');
             // Set Content-Length
             $self->response()->content_length = $self->get('flight.content_length');
+            // This is to maintain legacy handling of output buffering
+            // which causes a lot of problems. This will be removed
+            // in v4
+            $self->response()->v2_output_buffering = $this->get('flight.v2.output_buffering');
         });
 
         $this->initialized = true;
@@ -354,8 +361,67 @@ class Engine
         $this->loader->addDirectory($dir);
     }
 
-    // Extensible Methods
+    /**
+     * Processes each routes middleware.
+     *
+     * @param array<int, callable> $middleware Middleware attached to the route.
+     * @param array<mixed> $params `$route->params`.
+     * @param string $event_name If this is the before or after method.
+     */
+    protected function processMiddleware(array $middleware, array $params, string $event_name): bool
+    {
+        $at_least_one_middleware_failed = false;
 
+        foreach ($middleware as $middleware) {
+            $middleware_object = false;
+
+            if ($event_name === 'before') {
+                // can be a callable or a class
+                $middleware_object = (is_callable($middleware) === true
+                    ? $middleware
+                    : (method_exists($middleware, 'before') === true
+                        ? [$middleware, 'before']
+                        : false
+                    )
+                );
+            } elseif ($event_name === 'after') {
+                // must be an object. No functions allowed here
+                if (
+                    is_object($middleware) === true
+                    && !($middleware instanceof Closure)
+                    && method_exists($middleware, 'after') === true
+                ) {
+                    $middleware_object = [$middleware, 'after'];
+                }
+            }
+
+            if ($middleware_object === false) {
+                continue;
+            }
+
+            if ($this->response()->v2_output_buffering === false) {
+                ob_start();
+            }
+
+            // It's assumed if you don't declare before, that it will be assumed as the before method
+            $middleware_result = $middleware_object($params);
+
+            if ($this->response()->v2_output_buffering === false) {
+                $this->response()->write(ob_get_clean());
+            }
+
+            if ($middleware_result === false) {
+                $at_least_one_middleware_failed = true;
+                break;
+            }
+        }
+
+        return $at_least_one_middleware_failed;
+    }
+
+    ////////////////////////
+    // Extensible Methods //
+    ////////////////////////
     /**
      * Starts the framework.
      *
@@ -374,16 +440,20 @@ class Engine
             $self->stop();
         });
 
-        // Flush any existing output
-        if (ob_get_length() > 0) {
-            $response->write(ob_get_clean()); // @codeCoverageIgnore
-        }
+        if ($response->v2_output_buffering === true) {
+            // Flush any existing output
+            if (ob_get_length() > 0) {
+                $response->write(ob_get_clean()); // @codeCoverageIgnore
+            }
 
-        // Enable output buffering
-        ob_start();
+            // Enable output buffering
+            // This is closed in the Engine->_stop() method
+            ob_start();
+        }
 
         // Route the request
         $failed_middleware_check = false;
+
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
@@ -394,25 +464,15 @@ class Engine
 
             // Run any before middlewares
             if (count($route->middleware) > 0) {
-                foreach ($route->middleware as $middleware) {
-                    $middleware_object = (is_callable($middleware) === true
-                        ? $middleware
-                        : (method_exists($middleware, 'before') === true
-                            ? [$middleware, 'before']
-                            : false));
-
-                    if ($middleware_object === false) {
-                        continue;
-                    }
-
-                    // It's assumed if you don't declare before, that it will be assumed as the before method
-                    $middleware_result = $middleware_object($route->params);
-
-                    if ($middleware_result === false) {
-                        $failed_middleware_check = true;
-                        break 2;
-                    }
+                $at_least_one_middleware_failed = $this->processMiddleware($route->middleware, $route->params, 'before');
+                if ($at_least_one_middleware_failed === true) {
+                    $failed_middleware_check = true;
+                    break;
                 }
+            }
+
+            if ($response->v2_output_buffering === false) {
+                ob_start();
             }
 
             // Call route handler
@@ -421,33 +481,22 @@ class Engine
                 $params
             );
 
+            if ($response->v2_output_buffering === false) {
+                $response->write(ob_get_clean());
+            }
 
             // Run any before middlewares
             if (count($route->middleware) > 0) {
                 // process the middleware in reverse order now
-                foreach (array_reverse($route->middleware) as $middleware) {
-                    // must be an object. No functions allowed here
-                    $middleware_object = false;
+                $at_least_one_middleware_failed = $this->processMiddleware(
+                    array_reverse($route->middleware),
+                    $route->params,
+                    'after'
+                );
 
-                    if (
-                        is_object($middleware) === true
-                        && !($middleware instanceof Closure)
-                        && method_exists($middleware, 'after') === true
-                    ) {
-                        $middleware_object = [$middleware, 'after'];
-                    }
-
-                    // has to have the after method, otherwise just skip it
-                    if ($middleware_object === false) {
-                        continue;
-                    }
-
-                    $middleware_result = $middleware_object($route->params);
-
-                    if ($middleware_result === false) {
-                        $failed_middleware_check = true;
-                        break 2;
-                    }
+                if ($at_least_one_middleware_failed === true) {
+                    $failed_middleware_check = true;
+                    break;
                 }
             }
 
@@ -463,7 +512,7 @@ class Engine
         }
 
         if ($failed_middleware_check === true) {
-            $this->halt(403, 'Forbidden');
+            $this->halt(403, 'Forbidden', empty(getenv('PHPUNIT_TEST')));
         } elseif ($dispatched === false) {
             $this->notFound();
         }
@@ -514,8 +563,9 @@ class Engine
                 $response->status($code);
             }
 
-            $content = ob_get_clean();
-            $response->write($content ?: '');
+            if ($response->v2_output_buffering === true && ob_get_length() > 0) {
+                $response->write(ob_get_clean());
+            }
 
             $response->send();
         }
@@ -599,16 +649,16 @@ class Engine
      *
      * @param int $code HTTP status code
      * @param string $message Response message
+     * @param bool $actuallyExit Whether to actually exit the script or just send response
      */
-    public function _halt(int $code = 200, string $message = ''): void
+    public function _halt(int $code = 200, string $message = '', bool $actuallyExit = true): void
     {
         $this->response()
             ->clear()
             ->status($code)
             ->write($message)
             ->send();
-        // apologies for the crappy hack here...
-        if ($message !== 'skip---exit') {
+        if ($actuallyExit === true) {
             exit(); // @codeCoverageIgnore
         }
     }
@@ -742,7 +792,7 @@ class Engine
             isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
             $_SERVER['HTTP_IF_NONE_MATCH'] === $id
         ) {
-            $this->halt(304);
+            $this->halt(304, '', empty(getenv('PHPUNIT_TEST')));
         }
     }
 
@@ -759,7 +809,7 @@ class Engine
             isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
             strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time
         ) {
-            $this->halt(304);
+            $this->halt(304, '', empty(getenv('PHPUNIT_TEST')));
         }
     }
 
