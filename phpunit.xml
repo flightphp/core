@@ -22,7 +22,7 @@
         </testsuite>
     </testsuites>
     <logging />
-	<php>
-		<env name="PHPUNIT_TEST" value="true" force="true" />
-	</php>
+    <php>
+        <env name="PHPUNIT_TEST" value="true" force="true" />
+    </php>
 </phpunit>
