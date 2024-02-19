@@ -28,8 +28,8 @@ Flight::group('', function () {
         }
     });
     Flight::route('/querytestpath', function () {
-        echo '<span id="infotext">Route text:</span> This ir query route<br>';
-        echo "I got such query parameters:<pre>";
+        echo '<span id="infotext">Route text:</span> This is query route<br>';
+        echo "Query parameters:<pre>";
         print_r(Flight::request()->query);
         echo "</pre>";
     }, false, "querytestpath");
@@ -103,17 +103,16 @@ Flight::group('', function () {
     Flight::route('/halt', function () {
         Flight::halt(400, 'Halt worked successfully');
     });
+
+	// Test 11: Redirect
+	Flight::route('/redirect', function () {
+		Flight::redirect('/?redirected=1');
+	});
 }, [ new LayoutMiddleware() ]);
 
-// Test 9: JSON output
+// Test 9: JSON output (should not output any other html)
 Flight::route('/json', function () {
     Flight::json(['message' => 'JSON renders successfully!']);
-});
-
-
-// Test 11: Redirect
-Flight::route('/redirect', function () {
-    Flight::redirect('/?redirected=1');
 });
 
 Flight::map('error', function (Throwable $e) {
