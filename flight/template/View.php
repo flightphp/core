@@ -88,7 +88,7 @@ class View
      */
     public function clear(?string $key = null): self
     {
-        if (null === $key) {
+        if ($key === null) {
             $this->vars = [];
         } else {
             unset($this->vars[$key]);
@@ -169,7 +169,7 @@ class View
 
         $is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
 
-        if (('/' == \substr($file, 0, 1)) || ($is_windows === true && ':' == \substr($file, 1, 1))) {
+        if ((\substr($file, 0, 1) === '/') || ($is_windows && \substr($file, 1, 1) === ':')) {
             return $file;
         }
 

@@ -96,7 +96,7 @@ class Router
 
         $methods = ['*'];
 
-        if (false !== strpos($url, ' ')) {
+        if (strpos($url, ' ') !== false) {
             [$method, $url] = explode(' ', $url, 2);
             $url = trim($url);
             $methods = explode('|', $method);
@@ -211,10 +211,12 @@ class Router
     public function route(Request $request)
     {
         $url_decoded = urldecode($request->url);
+
         while ($route = $this->current()) {
             if ($route->matchMethod($request->method) && $route->matchUrl($url_decoded, $this->case_sensitive)) {
                 return $route;
             }
+
             $this->next();
         }
 

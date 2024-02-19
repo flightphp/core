@@ -95,7 +95,7 @@ class Route
     public function matchUrl(string $url, bool $case_sensitive = false): bool
     {
         // Wildcard or exact match
-        if ('*' === $this->pattern || $this->pattern === $url) {
+        if ($this->pattern === '*' || $this->pattern === $url) {
             return true;
         }
 
@@ -110,8 +110,9 @@ class Route
 
             for ($i = 0; $i < $len; $i++) {
                 if ($url[$i] === '/') {
-                    $n++;
+                    ++$n;
                 }
+
                 if ($n === $count) {
                     break;
                 }
@@ -136,24 +137,20 @@ class Route
             $regex
         );
 
-        if ('/' === $last_char) { // Fix trailing slash
-            $regex .= '?';
-        } else { // Allow trailing slash
-            $regex .= '/?';
-        }
+        $regex .= $last_char === '/' ? '?' : '/?';
 
         // Attempt to match route and named parameters
-        if (preg_match('#^' . $regex . '(?:\?[\s\S]*)?$#' . (($case_sensitive) ? '' : 'i'), $url, $matches)) {
-            foreach ($ids as $k => $v) {
-                $this->params[$k] = (\array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
-            }
-
-            $this->regex = $regex;
-
-            return true;
+        if (!preg_match('#^' . $regex . '(?:\?[\s\S]*)?$#' . (($case_sensitive) ? '' : 'i'), $url, $matches)) {
+            return false;
         }
 
-        return false;
+        foreach (array_keys($ids) as $k) {
+            $this->params[$k] = (\array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
+        }
+
+        $this->regex = $regex;
+
+        return true;
     }
 
     /**

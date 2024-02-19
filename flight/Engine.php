@@ -67,9 +67,7 @@ use flight\net\Route;
  */
 class Engine
 {
-    /**
-     * @var array<string> List of methods that can be extended in the Engine class.
-     */
+    /** @var array<string> List of methods that can be extended in the Engine class. */
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
         'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
@@ -298,7 +296,7 @@ class Engine
      */
     public function get(?string $key = null)
     {
-        if (null === $key) {
+        if ($key === null) {
             return $this->vars;
         }
 
@@ -344,8 +342,9 @@ class Engine
      */
     public function clear(?string $key = null): void
     {
-        if (null === $key) {
+        if ($key === null) {
             $this->vars = [];
+
             return;
         }
 
@@ -367,7 +366,7 @@ class Engine
      *
      * @param array<int, callable> $middleware Middleware attached to the route.
      * @param array<mixed> $params `$route->params`.
-     * @param string $event_name If this is the before or after method.
+     * @param 'before'|'after' $event_name If this is the before or after method.
      */
     protected function processMiddleware(array $middleware, array $params, string $event_name): bool
     {
@@ -376,23 +375,23 @@ class Engine
         foreach ($middleware as $middleware) {
             $middleware_object = false;
 
-            if ($event_name === 'before') {
+            if ($event_name === $this->dispatcher::FILTER_BEFORE) {
                 // can be a callable or a class
                 $middleware_object = (is_callable($middleware) === true
                     ? $middleware
-                    : (method_exists($middleware, 'before') === true
-                        ? [$middleware, 'before']
+                    : (method_exists($middleware, $this->dispatcher::FILTER_BEFORE) === true
+                        ? [$middleware, $this->dispatcher::FILTER_BEFORE]
                         : false
                     )
                 );
-            } elseif ($event_name === 'after') {
+            } elseif ($event_name === $this->dispatcher::FILTER_AFTER) {
                 // must be an object. No functions allowed here
                 if (
                     is_object($middleware) === true
                     && !($middleware instanceof Closure)
-                    && method_exists($middleware, 'after') === true
+                    && method_exists($middleware, $this->dispatcher::FILTER_AFTER) === true
                 ) {
-                    $middleware_object = [$middleware, 'after'];
+                    $middleware_object = [$middleware, $this->dispatcher::FILTER_AFTER];
                 }
             }
 
@@ -532,9 +531,7 @@ class Engine
     public function _error(Throwable $e): void
     {
         $msg = sprintf(
-            '<h1>500 Internal Server Error</h1>' .
-                '<h3>%s (%s)</h3>' .
-                '<pre>%s</pre>',
+            '<h1>500 Internal Server Error</h1><h3>%s (%s)</h3><pre>%s</pre>',
             $e->getMessage(),
             $e->getCode(),
             $e->getTraceAsString()
@@ -565,7 +562,7 @@ class Engine
         $response = $this->response();
 
         if (!$response->sent()) {
-            if (null !== $code) {
+            if ($code !== null) {
                 $response->status($code);
             }
 
@@ -633,8 +630,12 @@ class Engine
      * @param callable $callback Callback function
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _patch(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
-    {
+    public function _patch(
+        string $pattern,
+        callable $callback,
+        bool $pass_route = false,
+        string $route_alias = ''
+    ): void {
         $this->router()->map('PATCH ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
@@ -645,8 +646,12 @@ class Engine
      * @param callable $callback Callback function
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _delete(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
-    {
+    public function _delete(
+        string $pattern,
+        callable $callback,
+        bool $pass_route = false,
+        string $route_alias = ''
+    ): void {
         $this->router()->map('DELETE ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
@@ -688,14 +693,10 @@ class Engine
      */
     public function _redirect(string $url, int $code = 303): void
     {
-        $base = $this->get('flight.base_url');
-
-        if (null === $base) {
-            $base = $this->request()->base;
-        }
+        $base = $this->get('flight.base_url') ?? $this->request()->base;
 
         // Append base url to redirect url
-        if ('/' !== $base && false === strpos($url, '://')) {
+        if ($base !== '/' && strpos($url, '://') === false) {
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
@@ -717,8 +718,9 @@ class Engine
      */
     public function _render(string $file, ?array $data = null, ?string $key = null): void
     {
-        if (null !== $key) {
+        if ($key !== null) {
             $this->view()->set($key, $this->view()->fetch($file, $data));
+
             return;
         }
 
@@ -790,7 +792,7 @@ class Engine
      */
     public function _etag(string $id, string $type = 'strong'): void
     {
-        $id = (('weak' === $type) ? 'W/' : '') . $id;
+        $id = (($type === 'weak') ? 'W/' : '') . $id;
 
         $this->response()->header('ETag', '"' . str_replace('"', '\"', $id) . '"');
 
