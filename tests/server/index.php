@@ -9,7 +9,9 @@ declare(strict_types=1);
  * @author Kristaps Muižnieks https://github.com/krmu
  */
 
- require file_exists(__DIR__ . '/../../vendor/autoload.php') ? __DIR__ . '/../../vendor/autoload.php' : __DIR__ . '/../../flight/autoload.php';
+require_once file_exists(__DIR__ . '/../../vendor/autoload.php')
+    ? __DIR__ . '/../../vendor/autoload.php'
+    : __DIR__ . '/../../flight/autoload.php';
 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
@@ -95,17 +97,23 @@ Flight::group('', function () {
     Flight::route('/error', function () {
         trigger_error('This is a successful error');
     });
-}, [ new LayoutMiddleware() ]);
+}, [new LayoutMiddleware()]);
 
 Flight::map('error', function (Throwable $e) {
+    $styles = join(';', [
+        'border: 2px solid red',
+        'padding: 21px',
+        'background: lightgray',
+        'font-weight: bold'
+    ]);
+
     echo sprintf(
-        '<h1>500 Internal Server Error</h1>' .
-            '<h3>%s (%s)</h3>' .
-            '<pre style="border: 2px solid red; padding: 21px; background: lightgray; font-weight: bold;">%s</pre>',
+        "<h1>500 Internal Server Error</h1><h3>%s (%s)</h3><pre style=\"$styles\">%s</pre>",
         $e->getMessage(),
         $e->getCode(),
         str_replace(getenv('PWD'), '***CONFIDENTIAL***', $e->getTraceAsString())
     );
+
     echo "<br><a href='/'>Go back</a>";
 });
 Flight::map('notFound', function () {
