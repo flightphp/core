@@ -743,9 +743,9 @@ class Engine
             ->status($code)
             ->header('Content-Type', 'application/json; charset=' . $charset)
             ->write($json);
-		if($this->response()->v2_output_buffering === true) {
-			$this->response()->send();
-		}
+        if ($this->response()->v2_output_buffering === true) {
+            $this->response()->send();
+        }
     }
 
     /**
