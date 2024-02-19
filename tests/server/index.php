@@ -23,6 +23,9 @@ Flight::group('', function () {
     // Test 1: Root route
     Flight::route('/', function () {
         echo '<span id="infotext">Route text:</span> Root route works!';
+		if(Flight::request()->query->redirected) {
+			echo '<br>Redirected from /redirect route successfully!';
+		}
     });
     Flight::route('/querytestpath', function () {
         echo '<span id="infotext">Route text:</span> This ir query route<br>';
@@ -95,7 +98,24 @@ Flight::group('', function () {
     Flight::route('/error', function () {
         trigger_error('This is a successful error');
     });
+
+	// Test 10: Halt
+	Flight::route('/halt', function() {
+		Flight::halt(400, 'Halt worked successfully');
+	});
+
 }, [ new LayoutMiddleware() ]);
+
+// Test 9: JSON output
+Flight::route('/json', function() {
+	Flight::json(['message' => 'JSON renders successfully!']);
+});
+
+
+// Test 11: Redirect
+Flight::route('/redirect', function() {
+	Flight::redirect('/?redirected=1');
+});
 
 Flight::map('error', function (Throwable $e) {
     echo sprintf(

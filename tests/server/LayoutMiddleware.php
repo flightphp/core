@@ -72,6 +72,9 @@ class LayoutMiddleware
 <li><a href="/postpage">404 Not Found</a></li>
 <li><a href="{$final_route}">Mega group</a></li>
 <li><a href="/error">Error</a></li>
+<li><a href="/json">JSON</a></li>
+<li><a href="/halt">Halt</a></li>
+<li><a href="/redirect">Redirect</a></li>
 </ul>
 HTML;
         echo '<div id="container">';
