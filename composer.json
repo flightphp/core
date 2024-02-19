@@ -62,7 +62,8 @@
         "test-coverage:win": "del clover.xml && phpunit --coverage-html=coverage --coverage-clover=clover.xml && coverage-check clover.xml 100",
         "lint": "phpstan --no-progress -cphpstan.neon",
         "beautify": "phpcbf --standard=phpcs.xml",
-        "phpcs": "phpcs --standard=phpcs.xml -n"
+        "phpcs": "phpcs --standard=phpcs.xml -n",
+        "post-install-cmd": ["php -r \"if (!file_exists('phpcs.xml')) copy('phpcs.xml.dist', 'phpcs.xml');\""]
     },
     "suggest": {
         "latte/latte": "Latte template engine",

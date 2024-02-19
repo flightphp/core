@@ -8,3 +8,4 @@ coverage/
 *.sublime*
 .vscode/
 clover.xml
+phpcs.xml
