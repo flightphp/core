@@ -27,7 +27,8 @@ use flight\net\Route;
  * # Core methods
  * @method void start() Starts engine
  * @method void stop() Stops framework and outputs current response
- * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
+ * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
+ * Stops processing and returns a given response.
  *
  * # Routing
  * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
@@ -464,7 +465,12 @@ class Engine
 
             // Run any before middlewares
             if (count($route->middleware) > 0) {
-                $at_least_one_middleware_failed = $this->processMiddleware($route->middleware, $route->params, 'before');
+                $at_least_one_middleware_failed = $this->processMiddleware(
+                    $route->middleware,
+                    $route->params,
+                    'before'
+                );
+
                 if ($at_least_one_middleware_failed === true) {
                     $failed_middleware_check = true;
                     break;

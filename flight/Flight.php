@@ -10,8 +10,6 @@ use flight\net\Router;
 use flight\template\View;
 use flight\net\Route;
 
-require_once __DIR__ . '/autoload.php';
-
 /**
  * The Flight class is a static representation of the framework.
  *
@@ -140,6 +138,8 @@ class Flight
      */
     public static function __callStatic(string $name, array $params)
     {
+        require_once __DIR__ . '/autoload.php';
+
         return Dispatcher::invokeMethod([self::app(), $name], $params);
     }
 
@@ -147,8 +147,6 @@ class Flight
     public static function app(): Engine
     {
         if (!self::$initialized) {
-            require_once __DIR__ . '/autoload.php';
-
             self::setEngine(new Engine());
             self::$initialized = true;
         }

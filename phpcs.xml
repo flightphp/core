@@ -9,12 +9,11 @@
     </description>
     <arg name="colors" />
     <arg name="tab-width" value="4" />
-    <rule ref="PSR12" />
     <rule ref="PSR1">
         <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
     </rule>
+    <rule ref="PSR12" />
     <rule ref="Generic">
-        <exclude name="Generic.Files.LineEndings.InvalidEOLChar" />
         <exclude name="Generic.PHP.ClosingPHPTag.NotFound" />
         <exclude name="Generic.PHP.UpperCaseConstant.Found" />
         <exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
@@ -38,6 +37,11 @@
         <exclude name="Generic.Commenting.DocComment.SpacingBeforeTags" />
         <exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceAfterOpen" />
         <exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing.SpaceBeforeClose" />
+    </rule>
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="ignoreComments" value="true" />
+        </properties>
     </rule>
     <file>flight/</file>
     <file>tests/</file>
