@@ -68,6 +68,20 @@ class Route
     public array $middleware = [];
 
     /**
+     * Whether the response for this route should be streamed.
+     *
+     * @var boolean
+     */
+    public bool $is_streamed = false;
+
+    /**
+     * If this route is streamed, the headers to be sent before the response.
+     *
+     * @var array<string, mixed>
+     */
+    public array $streamed_headers = [];
+
+    /**
      * Constructor.
      *
      * @param string $pattern  URL pattern
@@ -223,6 +237,20 @@ class Route
         } else {
             $this->middleware[] = $middleware;
         }
+        return $this;
+    }
+
+    /**
+     * This will allow the response for this route to be streamed.
+     *
+     * @param array<string, mixed> $headers a key value of headers to set before the stream starts.
+     *
+     * @return self
+     */
+    public function streamWithHeaders(array $headers): self
+    {
+        $this->is_streamed = true;
+        $this->streamed_headers = $headers;
         return $this;
     }
 }

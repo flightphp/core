@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace tests;
 
 use Exception;
+use Flight;
 use flight\Engine;
 use flight\net\Response;
 use PHPUnit\Framework\TestCase;
@@ -307,6 +308,16 @@ class EngineTest extends TestCase
     {
         $engine = new Engine();
         $engine->json(['key1' => 'value1', 'key2' => 'value2']);
+        $this->assertEquals('application/json; charset=utf-8', $engine->response()->headers()['Content-Type']);
+        $this->assertEquals(200, $engine->response()->status());
+		$this->assertEquals('{"key1":"value1","key2":"value2"}', $engine->response()->getBody());
+    }
+
+	public function testJsonV2OutputBuffering()
+    {
+        $engine = new Engine();
+		$engine->response()->v2_output_buffering = true;
+        $engine->json(['key1' => 'value1', 'key2' => 'value2']);
         $this->expectOutputString('{"key1":"value1","key2":"value2"}');
         $this->assertEquals('application/json; charset=utf-8', $engine->response()->headers()['Content-Type']);
         $this->assertEquals(200, $engine->response()->status());
@@ -317,6 +328,17 @@ class EngineTest extends TestCase
         $engine = new Engine();
         $engine->request()->query['jsonp'] = 'whatever';
         $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
+        $this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
+        $this->assertEquals(200, $engine->response()->status());
+		$this->assertEquals('whatever({"key1":"value1","key2":"value2"});', $engine->response()->getBody());
+    }
+
+	public function testJsonPV2OutputBuffering()
+    {
+        $engine = new Engine();
+		$engine->response()->v2_output_buffering = true;
+        $engine->request()->query['jsonp'] = 'whatever';
+        $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
         $this->expectOutputString('whatever({"key1":"value1","key2":"value2"});');
         $this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
         $this->assertEquals(200, $engine->response()->status());
@@ -325,6 +347,16 @@ class EngineTest extends TestCase
     public function testJsonpBadParam()
     {
         $engine = new Engine();
+        $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
+        $this->assertEquals('({"key1":"value1","key2":"value2"});', $engine->response()->getBody());
+        $this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
+        $this->assertEquals(200, $engine->response()->status());
+    }
+
+	public function testJsonpBadParamV2OutputBuffering()
+    {
+        $engine = new Engine();
+		$engine->response()->v2_output_buffering = true;
         $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
         $this->expectOutputString('({"key1":"value1","key2":"value2"});');
         $this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);

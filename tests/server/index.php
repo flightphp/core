@@ -104,15 +104,31 @@ Flight::group('', function () {
         Flight::halt(400, 'Halt worked successfully');
     });
 
-	// Test 11: Redirect
-	Flight::route('/redirect', function () {
-		Flight::redirect('/?redirected=1');
-	});
+    // Test 11: Redirect
+    Flight::route('/redirect', function () {
+        Flight::redirect('/?redirected=1');
+    });
+
+    // Test 12: Redirect with status code
+    Flight::route('/streamResponse', function () {
+        echo "Streaming a response";
+        for ($i = 1; $i <= 50; $i++) {
+            echo ".";
+            usleep(50000);
+            ob_flush();
+        }
+        echo "is successful!!";
+    })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
 }, [ new LayoutMiddleware() ]);
 
 // Test 9: JSON output (should not output any other html)
 Flight::route('/json', function () {
     Flight::json(['message' => 'JSON renders successfully!']);
+});
+
+// Test 13: JSONP output (should not output any other html)
+Flight::route('/jsonp', function () {
+    Flight::jsonp(['message' => 'JSONP renders successfully!'], 'jsonp');
 });
 
 Flight::map('error', function (Throwable $e) {

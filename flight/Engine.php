@@ -364,15 +364,17 @@ class Engine
     /**
      * Processes each routes middleware.
      *
-     * @param array<int, callable> $middleware Middleware attached to the route.
-     * @param array<mixed> $params `$route->params`.
+     * @param Route $route The route to process the middleware for.
      * @param string $event_name If this is the before or after method.
      */
-    protected function processMiddleware(array $middleware, array $params, string $event_name): bool
+    protected function processMiddleware(Route $route, string $event_name): bool
     {
         $at_least_one_middleware_failed = false;
 
-        foreach ($middleware as $middleware) {
+        $middlewares = $event_name === 'before' ? $route->middleware : array_reverse($route->middleware);
+        $params = $route->params;
+
+        foreach ($middlewares as $middleware) {
             $middleware_object = false;
 
             if ($event_name === 'before') {
@@ -399,14 +401,14 @@ class Engine
                 continue;
             }
 
-            if ($this->response()->v2_output_buffering === false) {
+            if ($this->response()->v2_output_buffering === false && $route->is_streamed === false) {
                 ob_start();
             }
 
             // It's assumed if you don't declare before, that it will be assumed as the before method
             $middleware_result = $middleware_object($params);
 
-            if ($this->response()->v2_output_buffering === false) {
+            if ($this->response()->v2_output_buffering === false && $route->is_streamed === false) {
                 $this->response()->write(ob_get_clean());
             }
 
@@ -462,16 +464,32 @@ class Engine
                 $params[] = $route;
             }
 
+            // If this route is to be streamed, we need to output the headers now
+            if ($route->is_streamed === true) {
+                $response->status($route->streamed_headers['status']);
+                unset($route->streamed_headers['status']);
+                $response->header('X-Accel-Buffering', 'no');
+                $response->header('Connection', 'close');
+                foreach ($route->streamed_headers as $header => $value) {
+                    $response->header($header, $value);
+                }
+
+                // We obviously don't know the content length right now. This must be false.
+                $response->content_length = false;
+                $response->sendHeaders();
+                $response->markAsSent();
+            }
+
             // Run any before middlewares
             if (count($route->middleware) > 0) {
-                $at_least_one_middleware_failed = $this->processMiddleware($route->middleware, $route->params, 'before');
+                $at_least_one_middleware_failed = $this->processMiddleware($route, 'before');
                 if ($at_least_one_middleware_failed === true) {
                     $failed_middleware_check = true;
                     break;
                 }
             }
 
-            if ($response->v2_output_buffering === false) {
+            if ($response->v2_output_buffering === false && $route->is_streamed === false) {
                 ob_start();
             }
 
@@ -481,18 +499,14 @@ class Engine
                 $params
             );
 
-            if ($response->v2_output_buffering === false) {
+            if ($response->v2_output_buffering === false && $route->is_streamed === false) {
                 $response->write(ob_get_clean());
             }
 
             // Run any before middlewares
             if (count($route->middleware) > 0) {
                 // process the middleware in reverse order now
-                $at_least_one_middleware_failed = $this->processMiddleware(
-                    array_reverse($route->middleware),
-                    $route->params,
-                    'after'
-                );
+                $at_least_one_middleware_failed = $this->processMiddleware($route, 'after');
 
                 if ($at_least_one_middleware_failed === true) {
                     $failed_middleware_check = true;
@@ -774,8 +788,10 @@ class Engine
         $this->response()
             ->status($code)
             ->header('Content-Type', 'application/javascript; charset=' . $charset)
-            ->write($callback . '(' . $json . ');')
-            ->send();
+            ->write($callback . '(' . $json . ');');
+        if ($this->response()->v2_output_buffering === true) {
+            $this->response()->send();
+        }
     }
 
     /**
