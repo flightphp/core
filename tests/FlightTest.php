@@ -278,4 +278,30 @@ class FlightTest extends TestCase
         Flight::start();
         $this->assertEquals('hooked before starttest', Flight::response()->getBody());
     }
+
+    public function testStreamRoute()
+    {
+        $response_mock = new class extends Response {
+            public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+            {
+                return $this;
+            }
+        };
+        $mock_response_class_name = get_class($response_mock);
+        Flight::register('response', $mock_response_class_name);
+        Flight::route('/stream', function () {
+            echo 'stream';
+        })->streamWithHeaders(['Content-Type' => 'text/plain', 'X-Test' => 'test', 'status' => 200 ]);
+        Flight::request()->url = '/stream';
+        $this->expectOutputString('stream');
+        Flight::start();
+        $this->assertEquals('', Flight::response()->getBody());
+        $this->assertEquals([
+            'Content-Type' => 'text/plain',
+            'X-Test' => 'test',
+            'X-Accel-Buffering' => 'no',
+            'Connection' => 'close'
+        ], Flight::response()->getHeaders());
+        $this->assertEquals(200, Flight::response()->status());
+    }
 }

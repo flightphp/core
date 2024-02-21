@@ -1,0 +1,5 @@
+{
+    "php.suggest.basic": false,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true
+}

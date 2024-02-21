@@ -20,9 +20,9 @@ Flight::set('flight.v2.output_buffering', true);
 // Test 1: Root route
 Flight::route('/', function () {
     echo '<span id="infotext">Route text:</span> Root route works!';
-	if (Flight::request()->query->redirected) {
-		echo '<br>Redirected from /redirect route successfully!';
-	}
+    if (Flight::request()->query->redirected) {
+        echo '<br>Redirected from /redirect route successfully!';
+    }
 });
 Flight::route('/querytestpath', function () {
     echo '<span id="infotext">Route text:</span> This ir query route<br>';
@@ -99,24 +99,31 @@ Flight::route('/template/@name', function ($name) {
 
 // Test 8: Throw an error
 Flight::route('/error', function () {
-	trigger_error('This is a successful error');
+    trigger_error('This is a successful error');
 });
 
 // Test 9: JSON output (should not output any other html)
 Flight::route('/json', function () {
-	echo "\n\n\n\n\n";
+    echo "\n\n\n\n\n";
     Flight::json(['message' => 'JSON renders successfully!']);
-	echo "\n\n\n\n\n";
+    echo "\n\n\n\n\n";
+});
+
+// Test 13: JSONP output (should not output any other html)
+Flight::route('/jsonp', function () {
+    echo "\n\n\n\n\n";
+    Flight::jsonp(['message' => 'JSONP renders successfully!'], 'jsonp');
+    echo "\n\n\n\n\n";
 });
 
 // Test 10: Halt
 Flight::route('/halt', function () {
-	Flight::halt(400, 'Halt worked successfully');
+    Flight::halt(400, 'Halt worked successfully');
 });
 
 // Test 11: Redirect
 Flight::route('/redirect', function () {
-	Flight::redirect('/?redirected=1');
+    Flight::redirect('/?redirected=1');
 });
 
 Flight::set('flight.views.path', './');
@@ -192,6 +199,7 @@ echo '
 <li><a href="' . Flight::getUrl('final_group') . '">Mega group</a></li>
 <li><a href="/error">Error</a></li>
 <li><a href="/json">JSON</a></li>
+<li><a href="/json?jsonp=myjson">JSONP</a></li>
 <li><a href="/halt">Halt</a></li>
 <li><a href="/redirect">Redirect</a></li>
 </ul>';
