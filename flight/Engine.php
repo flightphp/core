@@ -371,29 +371,29 @@ class Engine
     {
         $at_least_one_middleware_failed = false;
 
-        $middlewares = $event_name === 'before' ? $route->middleware : array_reverse($route->middleware);
+        $middlewares = $event_name === Dispatcher::FILTER_BEFORE ? $route->middleware : array_reverse($route->middleware);
         $params = $route->params;
 
         foreach ($middlewares as $middleware) {
             $middleware_object = false;
 
-            if ($event_name === 'before') {
+            if ($event_name === Dispatcher::FILTER_BEFORE) {
                 // can be a callable or a class
                 $middleware_object = (is_callable($middleware) === true
                     ? $middleware
-                    : (method_exists($middleware, 'before') === true
-                        ? [$middleware, 'before']
+                    : (method_exists($middleware, Dispatcher::FILTER_BEFORE) === true
+                        ? [$middleware, Dispatcher::FILTER_BEFORE]
                         : false
                     )
                 );
-            } elseif ($event_name === 'after') {
+            } elseif ($event_name === Dispatcher::FILTER_AFTER) {
                 // must be an object. No functions allowed here
                 if (
                     is_object($middleware) === true
                     && !($middleware instanceof Closure)
-                    && method_exists($middleware, 'after') === true
+                    && method_exists($middleware, Dispatcher::FILTER_AFTER) === true
                 ) {
-                    $middleware_object = [$middleware, 'after'];
+                    $middleware_object = [$middleware, Dispatcher::FILTER_AFTER];
                 }
             }
 
@@ -401,14 +401,18 @@ class Engine
                 continue;
             }
 
-            if ($this->response()->v2_output_buffering === false && $route->is_streamed === false) {
+            $use_v3_output_buffering = 
+                $this->response()->v2_output_buffering === false && 
+                $route->is_streamed === false;
+
+            if ($use_v3_output_buffering === true) {
                 ob_start();
             }
 
             // It's assumed if you don't declare before, that it will be assumed as the before method
             $middleware_result = $middleware_object($params);
 
-            if ($this->response()->v2_output_buffering === false && $route->is_streamed === false) {
+            if ($use_v3_output_buffering === true) {
                 $this->response()->write(ob_get_clean());
             }
 
@@ -489,7 +493,11 @@ class Engine
                 }
             }
 
-            if ($response->v2_output_buffering === false && $route->is_streamed === false) {
+            $use_v3_output_buffering = 
+                $this->response()->v2_output_buffering === false && 
+                $route->is_streamed === false;
+
+            if ($use_v3_output_buffering === true) {
                 ob_start();
             }
 
@@ -499,7 +507,7 @@ class Engine
                 $params
             );
 
-            if ($response->v2_output_buffering === false && $route->is_streamed === false) {
+            if ($use_v3_output_buffering === true) {
                 $response->write(ob_get_clean());
             }
 
