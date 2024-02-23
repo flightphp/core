@@ -34,7 +34,10 @@
     "autoload-dev": {
         "classmap": [
             "tests/classes/"
-        ]
+        ],
+        "psr-4": {
+            "Tests\\PHP8\\": ["tests/named-arguments"]
+        }
     },
     "require-dev": {
         "ext-pdo_sqlite": "*",
