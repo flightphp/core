@@ -63,9 +63,19 @@ class Route
     /**
      * The middleware to be applied to the route
      *
-     * @var array<int,callable|object>
+     * @var array<int, callable|object>
      */
     public array $middleware = [];
+
+    /** Whether the response for this route should be streamed. */
+    public bool $is_streamed = false;
+
+    /**
+     * If this route is streamed, the headers to be sent before the response.
+     *
+     * @var array<string, mixed>
+     */
+    public array $streamed_headers = [];
 
     /**
      * Constructor.
@@ -176,7 +186,7 @@ class Route
     /**
      * Hydrates the route url with the given parameters
      *
-     * @param array<string,mixed> $params the parameters to pass to the route
+     * @param array<string, mixed> $params the parameters to pass to the route
      */
     public function hydrateUrl(array $params = []): string
     {
@@ -209,9 +219,7 @@ class Route
     /**
      * Sets the route middleware
      *
-     * @param array<int,callable>|callable $middleware
-     *
-     * @return self
+     * @param array<int, callable>|callable $middleware
      */
     public function addMiddleware($middleware): self
     {
@@ -220,6 +228,21 @@ class Route
         } else {
             $this->middleware[] = $middleware;
         }
+        return $this;
+    }
+
+    /**
+     * This will allow the response for this route to be streamed.
+     *
+     * @param array<string, mixed> $headers a key value of headers to set before the stream starts.
+     *
+     * @return $this
+     */
+    public function streamWithHeaders(array $headers): self
+    {
+        $this->is_streamed = true;
+        $this->streamed_headers = $headers;
+
         return $this;
     }
 }

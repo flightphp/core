@@ -9,9 +9,7 @@ declare(strict_types=1);
  * @author Kristaps Muižnieks https://github.com/krmu
  */
 
-require_once file_exists(__DIR__ . '/../../vendor/autoload.php')
-    ? __DIR__ . '/../../vendor/autoload.php'
-    : __DIR__ . '/../../flight/autoload.php';
+ require file_exists(__DIR__ . '/../../vendor/autoload.php') ? __DIR__ . '/../../vendor/autoload.php' : __DIR__ . '/../../flight/autoload.php';
 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
@@ -25,10 +23,13 @@ Flight::group('', function () {
     // Test 1: Root route
     Flight::route('/', function () {
         echo '<span id="infotext">Route text:</span> Root route works!';
+        if (Flight::request()->query->redirected) {
+            echo '<br>Redirected from /redirect route successfully!';
+        }
     });
     Flight::route('/querytestpath', function () {
-        echo '<span id="infotext">Route text:</span> This ir query route<br>';
-        echo "I got such query parameters:<pre>";
+        echo '<span id="infotext">Route text:</span> This is query route<br>';
+        echo "Query parameters:<pre>";
         print_r(Flight::request()->query);
         echo "</pre>";
     }, false, "querytestpath");
@@ -97,23 +98,48 @@ Flight::group('', function () {
     Flight::route('/error', function () {
         trigger_error('This is a successful error');
     });
-}, [new LayoutMiddleware()]);
+
+    // Test 10: Halt
+    Flight::route('/halt', function () {
+        Flight::halt(400, 'Halt worked successfully');
+    });
+
+    // Test 11: Redirect
+    Flight::route('/redirect', function () {
+        Flight::redirect('/?redirected=1');
+    });
+
+    // Test 12: Redirect with status code
+    Flight::route('/streamResponse', function () {
+        echo "Streaming a response";
+        for ($i = 1; $i <= 50; $i++) {
+            echo ".";
+            usleep(50000);
+            ob_flush();
+        }
+        echo "is successful!!";
+    })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
+}, [ new LayoutMiddleware() ]);
+
+// Test 9: JSON output (should not output any other html)
+Flight::route('/json', function () {
+    Flight::json(['message' => 'JSON renders successfully!']);
+});
+
+// Test 13: JSONP output (should not output any other html)
+Flight::route('/jsonp', function () {
+    Flight::jsonp(['message' => 'JSONP renders successfully!'], 'jsonp');
+});
 
 Flight::map('error', function (Throwable $e) {
-    $styles = join(';', [
-        'border: 2px solid red',
-        'padding: 21px',
-        'background: lightgray',
-        'font-weight: bold'
-    ]);
-
     echo sprintf(
-        "<h1>500 Internal Server Error</h1><h3>%s (%s)</h3><pre style=\"$styles\">%s</pre>",
+        '<h1>500 Internal Server Error</h1>' .
+            '<h3>%s (%s)</h3>' .
+            '<pre style="border: 2px solid red; padding: 21px; background: lightgray; font-weight: bold;">%s</pre>',
         $e->getMessage(),
         $e->getCode(),
         str_replace(getenv('PWD'), '***CONFIDENTIAL***', $e->getTraceAsString())
     );
-
     echo "<br><a href='/'>Go back</a>";
 });
 Flight::map('notFound', function () {

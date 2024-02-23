@@ -390,6 +390,14 @@ class Response
     }
 
     /**
+     * Marks the response as sent.
+     */
+    public function markAsSent(): void
+    {
+        $this->sent = true;
+    }
+
+    /**
      * Sends a HTTP response.
      */
     public function send(): void
