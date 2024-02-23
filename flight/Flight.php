@@ -20,7 +20,6 @@ require_once __DIR__ . '/autoload.php';
  *
  * # Core methods
  * @method  static void start() Starts the framework.
- * @method  static void path(string $path) Adds a path for autoloading classes.
  * @method  static void stop(?int $code = null) Stops the framework and sends a response.
  * @method  static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * Stop the framework with an optional status code and message.
@@ -127,6 +126,12 @@ class Flight
     public static function unregister(string $methodName): void
     {
         static::__callStatic('unregister', [$methodName]);
+    }
+
+    /** Adds a path for autoloading classes. */
+    public static function path(string $path): void
+    {
+        static::__callStatic('path', [$path]);
     }
 
     /**
