@@ -304,4 +304,30 @@ class FlightTest extends TestCase
         ], Flight::response()->getHeaders());
         $this->assertEquals(200, Flight::response()->status());
     }
+
+    public function testOverwriteBodyWithMiddleware()
+    {
+        $middleware = new class {
+            public function after()
+            {
+                $response = Flight::response();
+                $body = $response->getBody();
+                $body = strip_tags($body);
+                // remove spaces for fun
+                $body = str_replace(' ', '', $body);
+                $response->write($body, true);
+                return $response;
+            }
+        };
+
+        Flight::route('/route-with-html', function () {
+            echo '<p>This is a route with html</p>';
+        })->addMiddleware($middleware);
+
+        Flight::request()->url = '/route-with-html';
+
+        Flight::start();
+
+        $this->expectOutputString('Thisisaroutewithhtml');
+    }
 }

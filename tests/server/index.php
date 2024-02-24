@@ -17,6 +17,7 @@ Flight::set('flight.views.extension', '.phtml');
 //Flight::set('flight.v2.output_buffering', true);
 
 require_once 'LayoutMiddleware.php';
+require_once 'OverwriteBodyMiddleware.php';
 
 Flight::group('', function () {
 
@@ -119,6 +120,10 @@ Flight::group('', function () {
         }
         echo "is successful!!";
     })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
+    // Test 14: Overwrite the body with a middleware
+    Flight::route('/overwrite', function () {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:red; font-weight: bold;">failed</span>';
+    })->addMiddleware([new OverwriteBodyMiddleware()]);
 }, [ new LayoutMiddleware() ]);
 
 // Test 9: JSON output (should not output any other html)
