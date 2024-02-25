@@ -575,6 +575,7 @@ class Engine
      * @param ?int $code HTTP status code
      *
      * @throws Exception
+     * @deprecated 3.5.3 This method will be removed in v4
      */
     public function _stop(?int $code = null): void
     {
