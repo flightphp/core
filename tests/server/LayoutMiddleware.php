@@ -77,6 +77,7 @@ class LayoutMiddleware
 <li><a href="/halt">Halt</a></li>
 <li><a href="/redirect">Redirect</a></li>
 <li><a href="/streamResponse">Stream</a></li>
+<li><a href="/overwrite">Overwrite Body</a></li>
 </ul>
 HTML;
         echo '<div id="container">';
