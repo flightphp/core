@@ -405,6 +405,34 @@ class EngineTest extends TestCase
         $this->assertEquals('/path1/123', $url);
     }
 
+    public function testGetUrlComplex()
+    {
+        $engine = new Engine();
+        $engine->route('/item/@item_param:[a-z0-9]{16}/by-status/@token:[a-z0-9]{16}', function () {
+            echo 'I win';
+        }, false, 'path_item_1');
+        $url = $engine->getUrl('path_item_1', [ 'item_param' => 1234567890123456, 'token' => 6543210987654321 ]);
+        $this->assertEquals('/item/1234567890123456/by-status/6543210987654321', $url);
+    }
+
+    public function testGetUrlInsideRoute()
+    {
+        $engine = new Engine();
+        $engine->route('/path1/@param:[0-9]{3}', function () {
+            echo 'I win';
+        }, false, 'path1');
+        $found_url = '';
+        $engine->route('/path1/@param:[0-9]{3}/path2', function () use ($engine, &$found_url) {
+
+            // this should pull the param from the first route
+            // since the param names are the same.
+            $found_url = $engine->getUrl('path1');
+        });
+        $engine->request()->url = '/path1/123/path2';
+        $engine->start();
+        $this->assertEquals('/path1/123', $found_url);
+    }
+
     public function testMiddlewareCallableFunction()
     {
         $engine = new Engine();

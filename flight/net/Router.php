@@ -30,6 +30,11 @@ class Router
     protected array $routes = [];
 
     /**
+     * The current route that is has been found and executed.
+     */
+    protected ?Route $executedRoute = null;
+
+    /**
      * Pointer to current route.
      */
     protected int $index = 0;
@@ -213,6 +218,7 @@ class Router
         $url_decoded = urldecode($request->url);
         while ($route = $this->current()) {
             if ($route->matchMethod($request->method) && $route->matchUrl($url_decoded, $this->case_sensitive)) {
+                $this->executedRoute = $route;
                 return $route;
             }
             $this->next();
@@ -233,6 +239,11 @@ class Router
         foreach ($this->routes as $route) {
             $potential_aliases[] = $route->alias;
             if ($route->matchAlias($alias)) {
+                // This will make it so the params that already
+                // exist in the url will be passed in.
+                if (!empty($this->executedRoute->params)) {
+                    $params = $params + $this->executedRoute->params;
+                }
                 return $route->hydrateUrl($params);
             }
         }
