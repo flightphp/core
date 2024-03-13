@@ -198,6 +198,16 @@ class RouterTest extends TestCase
         $this->check('123');
     }
 
+    public function testUrlParametersWithEncodedSlash()
+    {
+        $this->router->map('/redirect/@id', function ($id) {
+            echo $id;
+        });
+        $this->request->url = '/redirect/before%2Fafter';
+
+        $this->check('before/after');
+    }
+
     // Passing URL parameters matched with regular expression
     public function testRegExParameters()
     {
@@ -390,7 +400,7 @@ class RouterTest extends TestCase
         $this->router->map('/категория/@name:[абвгдеёжзийклмнопрстуфхцчшщъыьэюя]+', function ($name) {
             echo $name;
         });
-        $this->request->url = urlencode('/категория/цветя');
+        $this->request->url = '/' . urlencode('категория') . '/' . urlencode('цветя');
 
         $this->check('цветя');
     }
