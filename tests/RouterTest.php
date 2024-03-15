@@ -233,7 +233,7 @@ class RouterTest extends TestCase
         $this->router->map('/わたしはひとです/@name', function ($name) {
             echo $name;
         });
-        $this->request->url = '/'.urlencode('わたしはひとです').'/'.urlencode('ええ');
+        $this->request->url = '/' . urlencode('わたしはひとです') . '/' . urlencode('ええ');
 
         $this->check('ええ');
     }
@@ -244,7 +244,7 @@ class RouterTest extends TestCase
         $this->router->map('/категория/@name:[абвгдеёжзийклмнопрстуфхцчшщъыьэюя]+', function ($name) {
             echo $name;
         });
-        $this->request->url = '/'.urlencode('категория').'/'.urlencode('цветя');
+        $this->request->url = '/' . urlencode('категория') . '/' . urlencode('цветя');
 
         $this->check('цветя');
     }
