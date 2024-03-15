@@ -78,6 +78,9 @@ class LayoutMiddleware
 <li><a href="/redirect">Redirect</a></li>
 <li><a href="/streamResponse">Stream</a></li>
 <li><a href="/overwrite">Overwrite Body</a></li>
+<li><a href="/redirect/before%2Fafter">Slash in Param</a></li>
+<li><a href="/わたしはひとです">UTF8 URL</a></li>
+<li><a href="/わたしはひとです/ええ">UTF8 URL w/ Param</a></li>
 </ul>
 HTML;
         echo '<div id="container">';

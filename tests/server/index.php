@@ -124,6 +124,21 @@ Flight::group('', function () {
     Flight::route('/overwrite', function () {
         echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:red; font-weight: bold;">failed</span>';
     })->addMiddleware([new OverwriteBodyMiddleware()]);
+
+    // Test 15: UTF8 Chars in url
+    Flight::route('/わたしはひとです', function () {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:green; font-weight: bold;">succeeded はい!!!</span>';
+    });
+
+    // Test 16: UTF8 Chars in url with utf8 params
+    Flight::route('/わたしはひとです/@name', function ($name) {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:'.($name === 'ええ' ? 'green' : 'red').'; font-weight: bold;">'.($name === 'ええ' ? 'succeeded' : 'failed').' URL Param: '.$name.'</span>';
+    });
+
+    // Test 17: Slash in param
+    Flight::route('/redirect/@id', function ($id) {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:'.($id === 'before/after' ? 'green' : 'red').'; font-weight: bold;">'.($id === 'before/after' ? 'succeeded' : 'failed').' URL Param: '.$id.'</span>';
+    });
 }, [ new LayoutMiddleware() ]);
 
 // Test 9: JSON output (should not output any other html)
