@@ -97,7 +97,7 @@ class Route
     /**
      * Checks if a URL matches the route pattern. Also parses named parameters in the URL.
      *
-     * @param string $url            Requested URL
+     * @param string $url            Requested URL (original format, not URL decoded)
      * @param bool   $case_sensitive Case sensitive matching
      *
      * @return bool Match status
@@ -127,11 +127,18 @@ class Route
                 }
             }
 
-            $this->splat = strval(substr($url, $i + 1));
+            $this->splat = urldecode(strval(substr($url, $i + 1)));
         }
 
         // Build the regex for matching
-        $regex = str_replace([')', '/*'], [')?', '(/?|/.*?)'], $this->pattern);
+        $pattern_utf_chars_encoded = preg_replace_callback(
+            '#(\\p{L}+)#u',
+            static function ($matches) {
+                return urlencode($matches[0]);
+            },
+            $this->pattern
+        );
+        $regex = str_replace([')', '/*'], [')?', '(/?|/.*?)'], $pattern_utf_chars_encoded);
 
         $regex = preg_replace_callback(
             '#@([\w]+)(:([^/\(\)]*))?#',

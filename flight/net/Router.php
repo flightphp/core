@@ -215,9 +215,8 @@ class Router
      */
     public function route(Request $request)
     {
-        $url_decoded = urldecode($request->url);
         while ($route = $this->current()) {
-            if ($route->matchMethod($request->method) && $route->matchUrl($url_decoded, $this->case_sensitive)) {
+            if ($route->matchMethod($request->method) && $route->matchUrl($request->url, $this->case_sensitive)) {
                 $this->executedRoute = $route;
                 return $route;
             }
