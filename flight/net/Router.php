@@ -105,6 +105,11 @@ class Router
             [$method, $url] = explode(' ', $url, 2);
             $url = trim($url);
             $methods = explode('|', $method);
+
+            // Add head requests to get methods, should they come in as a get request
+            if (in_array('GET', $methods, true) === true && in_array('HEAD', $methods, true) === false) {
+                $methods[] = 'HEAD';
+            }
         }
 
         // And this finishes it off.

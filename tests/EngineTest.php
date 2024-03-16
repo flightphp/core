@@ -263,6 +263,20 @@ class EngineTest extends TestCase
         $this->assertEquals('/someRoute', $routes[0]->pattern);
     }
 
+    public function testHeadRoute()
+    {
+        $engine = new Engine();
+        $engine->route('GET /someRoute', function () {
+            echo 'i ran';
+        }, true);
+        $engine->request()->method = 'HEAD';
+        $engine->request()->url = '/someRoute';
+        $engine->start();
+
+        // No body should be sent
+        $this->expectOutputString('');
+    }
+
     public function testHalt()
     {
         $engine = new class extends Engine {
