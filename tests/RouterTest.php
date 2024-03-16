@@ -81,7 +81,7 @@ class RouterTest extends TestCase
             $dispatched = false;
         }
 
-        if($this->request->method === 'HEAD') {
+        if ($this->request->method === 'HEAD') {
             ob_clean();
         }
 

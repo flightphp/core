@@ -534,7 +534,7 @@ class Engine
         }
 
         // HEAD requests should be identical to GET requests but have no body
-        if($request->method === 'HEAD') {
+        if ($request->method === 'HEAD') {
             $response->clearBody();
         }
 
