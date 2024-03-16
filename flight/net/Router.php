@@ -107,6 +107,10 @@ class Router
             $methods = explode('|', $method);
         }
 
+        if (in_array('GET', $methods) && !in_array('HEAD', $methods)) {
+            $methods[] = 'HEAD';
+        }
+
         // And this finishes it off.
         if ($this->group_prefix !== '') {
             $url = rtrim($this->group_prefix . $url);
