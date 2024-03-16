@@ -81,6 +81,10 @@ class RouterTest extends TestCase
             $dispatched = false;
         }
 
+        if($this->request->method === 'HEAD') {
+            ob_clean();
+        }
+
         if (!$dispatched) {
             echo '404';
         }
@@ -120,6 +124,15 @@ class RouterTest extends TestCase
         $this->request->method = 'GET';
 
         $this->check('OK');
+    }
+
+    public function testHeadRouteShortcut()
+    {
+        $route = $this->router->get('/path', [$this, 'ok']);
+        $this->assertEquals(['GET', 'HEAD'], $route->methods);
+        $this->request->url = '/path';
+        $this->request->method = 'HEAD';
+        $this->check('');
     }
 
     // POST route

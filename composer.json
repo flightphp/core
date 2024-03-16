@@ -56,7 +56,7 @@
     },
     "scripts": {
         "test": "phpunit",
-        "test-coverage": "rm clover.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
+        "test-coverage": "rm -f clover.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
         "test-server": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server/",
         "test-server-v2": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server-v2/",
         "test-coverage:win": "del clover.xml && phpunit --coverage-html=coverage --coverage-clover=clover.xml && coverage-check clover.xml 100",

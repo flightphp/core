@@ -533,6 +533,11 @@ class Engine
             $dispatched = false;
         }
 
+        // HEAD requests should be identical to GET requests but have no body
+        if($request->method === 'HEAD') {
+            $response->clearBody();
+        }
+
         if ($failed_middleware_check === true) {
             $this->halt(403, 'Forbidden', empty(getenv('PHPUNIT_TEST')));
         } elseif ($dispatched === false) {
