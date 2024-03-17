@@ -148,7 +148,7 @@ class Request
             $config = [
                 'url'        => str_replace('@', '%40', self::getVar('REQUEST_URI', '/')),
                 'base'       => str_replace(['\\', ' '], ['/', '%20'], \dirname(self::getVar('SCRIPT_NAME'))),
-                'method'     => ($config['method'] ?? self::getMethod()),
+                'method'     => self::getMethod(),
                 'referrer'   => self::getVar('HTTP_REFERER'),
                 'ip'         => self::getVar('REMOTE_ADDR'),
                 'ajax'       => 'XMLHttpRequest' === self::getVar('HTTP_X_REQUESTED_WITH'),
