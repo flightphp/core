@@ -146,24 +146,24 @@ class Request
         // Default properties
         if (empty($config)) {
             $config = [
-                'url' => str_replace('@', '%40', self::getVar('REQUEST_URI', '/')),
-                'base' => str_replace(['\\', ' '], ['/', '%20'], \dirname(self::getVar('SCRIPT_NAME'))),
-                'method' => self::getMethod(),
-                'referrer' => self::getVar('HTTP_REFERER'),
-                'ip' => self::getVar('REMOTE_ADDR'),
-                'ajax' => 'XMLHttpRequest' === self::getVar('HTTP_X_REQUESTED_WITH'),
-                'scheme' => self::getScheme(),
+                'url'        => str_replace('@', '%40', self::getVar('REQUEST_URI', '/')),
+                'base'       => str_replace(['\\', ' '], ['/', '%20'], \dirname(self::getVar('SCRIPT_NAME'))),
+                'method'     => ($config['method'] ?? self::getMethod()),
+                'referrer'   => self::getVar('HTTP_REFERER'),
+                'ip'         => self::getVar('REMOTE_ADDR'),
+                'ajax'       => 'XMLHttpRequest' === self::getVar('HTTP_X_REQUESTED_WITH'),
+                'scheme'     => self::getScheme(),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
-                'type' => self::getVar('CONTENT_TYPE'),
-                'length' => intval(self::getVar('CONTENT_LENGTH', 0)),
-                'query' => new Collection($_GET),
-                'data' => new Collection($_POST),
-                'cookies' => new Collection($_COOKIE),
-                'files' => new Collection($_FILES),
-                'secure' => 'https' === self::getScheme(),
-                'accept' => self::getVar('HTTP_ACCEPT'),
-                'proxy_ip' => self::getProxyIpAddress(),
-                'host' => self::getVar('HTTP_HOST'),
+                'type'       => self::getVar('CONTENT_TYPE'),
+                'length'     => intval(self::getVar('CONTENT_LENGTH', 0)),
+                'query'      => new Collection($_GET),
+                'data'       => new Collection($_POST),
+                'cookies'    => new Collection($_COOKIE),
+                'files'      => new Collection($_FILES),
+                'secure'     => 'https' === self::getScheme(),
+                'accept'     => self::getVar('HTTP_ACCEPT'),
+                'proxy_ip'   => self::getProxyIpAddress(),
+                'host'       => self::getVar('HTTP_HOST'),
             ];
         }
 
@@ -181,7 +181,7 @@ class Request
     {
         // Set all the defined properties
         foreach ($properties as $name => $value) {
-            $this->$name = $value;
+            $this->{$name} = $value;
         }
 
         // Get the requested URL without the base directory
@@ -229,7 +229,7 @@ class Request
             return $body;
         }
 
-        $method = self::getMethod();
+        $method = $this->method ?? self::getMethod();
 
         if ('POST' === $method || 'PUT' === $method || 'DELETE' === $method || 'PATCH' === $method) {
             $body = file_get_contents($this->stream_path);
