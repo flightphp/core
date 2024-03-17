@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace flight\database;
 
+use flight\util\Collection;
 use PDO;
 use PDOStatement;
 
@@ -47,8 +48,9 @@ class PdoWrapper extends PDO
      */
     public function fetchField(string $sql, array $params = [])
     {
-        $data = $this->fetchRow($sql, $params);
-        return reset($data);
+        $collection_data = $this->fetchRow($sql, $params);
+        $array_data = $collection_data->getData();
+        return reset($array_data);
     }
 
     /**
@@ -59,13 +61,13 @@ class PdoWrapper extends PDO
      * @param string $sql   - Ex: "SELECT * FROM table WHERE something = ?"
      * @param array<int|string,mixed> $params - Ex: [ $something ]
      *
-     * @return array<string,mixed>
+     * @return Collection
      */
-    public function fetchRow(string $sql, array $params = []): array
+    public function fetchRow(string $sql, array $params = []): Collection
     {
         $sql .= stripos($sql, 'LIMIT') === false ? ' LIMIT 1' : '';
         $result = $this->fetchAll($sql, $params);
-        return count($result) > 0 ? $result[0] : [];
+        return count($result) > 0 ? $result[0] : new Collection();
     }
 
     /**
@@ -79,17 +81,24 @@ class PdoWrapper extends PDO
      * @param string $sql   - Ex: "SELECT * FROM table WHERE something = ?"
      * @param array<int|string,mixed> $params   - Ex: [ $something ]
      *
-     * @return array<int,array<string,mixed>>
+     * @return array<int,Collection>
      */
-    public function fetchAll(string $sql, array $params = []): array
+    public function fetchAll(string $sql, array $params = [])
     {
         $processed_sql_data = $this->processInStatementSql($sql, $params);
         $sql = $processed_sql_data['sql'];
         $params = $processed_sql_data['params'];
         $statement = $this->prepare($sql);
         $statement->execute($params);
-        $result = $statement->fetchAll();
-        return is_array($result) ? $result : [];
+        $results = $statement->fetchAll();
+        if (is_array($results) === true && count($results) > 0) {
+            foreach ($results as &$result) {
+                $result = new Collection($result);
+            }
+        } else {
+            $results = [];
+        }
+        return $results;
     }
 
     /**
