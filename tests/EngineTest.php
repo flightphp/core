@@ -7,7 +7,9 @@ namespace tests;
 use Exception;
 use Flight;
 use flight\Engine;
+use flight\net\Request;
 use flight\net\Response;
+use flight\util\Collection;
 use PHPUnit\Framework\TestCase;
 
 // phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
@@ -316,6 +318,33 @@ class EngineTest extends TestCase
         $engine->redirect('/someRoute', 301);
         $this->assertEquals('/subdirectory/someRoute', $engine->response()->headers()['Location']);
         $this->assertEquals(301, $engine->response()->status());
+    }
+
+    public function testJsonRequestBody()
+    {
+        $engine = new Engine();
+        $tmpfile = tmpfile();
+        $stream_path = stream_get_meta_data($tmpfile)['uri'];
+        file_put_contents($stream_path, '{"key1":"value1","key2":"value2"}');
+
+        $engine->register('request', Request::class, [
+            [
+                'method' => 'POST',
+                'url' => '/something/fancy',
+                'base' => '/vagrant/public',
+                'type' => 'application/json',
+                'length' => 13,
+                'data' => new Collection(),
+                'query' => new Collection(),
+                'stream_path' => $stream_path
+            ]
+        ]);
+        $engine->post('/something/fancy', function () use ($engine) {
+            echo $engine->request()->data->key1;
+            echo $engine->request()->data->key2;
+        });
+        $engine->start();
+        $this->expectOutputString('value1value2');
     }
 
     public function testJson()
