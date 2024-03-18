@@ -99,4 +99,27 @@ class CollectionTest extends TestCase
         $this->collection->clear();
         $this->assertEquals(0, $this->collection->count());
     }
+
+    public function testResetByProperty()
+    {
+        $this->collection->a = 11;
+        $this->collection->b = 22;
+        $result = reset($this->collection);
+        $this->assertEquals(11, $result);
+    }
+
+    public function testResetBySetData()
+    {
+        $this->collection->setData(['a' => 11, 'b' => 22]);
+        $result = reset($this->collection);
+        $this->assertEquals(11, $result);
+    }
+
+    public function testResetByArraySet()
+    {
+        $this->collection['a'] = 11;
+        $this->collection['b'] = 22;
+        $result = reset($this->collection);
+        $this->assertEquals(11, $result);
+    }
 }

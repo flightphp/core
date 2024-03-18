@@ -88,6 +88,13 @@ class PdoWrapperTest extends TestCase
         $this->assertEquals('three', $rows[2]['name']);
     }
 
+    public function testFetchAllNoRows()
+    {
+        $rows = $this->pdo_wrapper->fetchAll('SELECT * FROM test WHERE 1 = 2');
+        $this->assertCount(0, $rows);
+        $this->assertSame([], $rows);
+    }
+
     public function testFetchAllWithNamedParams()
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT * FROM test WHERE name = :name', [ 'name' => 'two']);
