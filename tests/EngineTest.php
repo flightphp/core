@@ -692,6 +692,38 @@ class EngineTest extends TestCase
         $this->expectOutputString('yay! I injected a collection, and it has 1 items');
     }
 
+    public function testContainerDiceBadClass() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', 'BadClass->testTheContainer');
+        $engine->request()->url = '/container';
+        
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
+        
+        $engine->start();
+    }
+
+    public function testContainerDiceBadMethod() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->badMethod');
+        $engine->request()->url = '/container';
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Method 'tests\classes\Container::badMethod' not found.");
+
+        $engine->start();
+    }
+
     public function testContainerPsr11() {
         $engine = new Engine();
         $container = new \League\Container\Container();
@@ -704,5 +736,37 @@ class EngineTest extends TestCase
         $engine->start();
 
         $this->expectOutputString('yay! I injected a collection, and it has 1 items');
+    }
+
+    public function testContainerPsr11ClassNotFound() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class);
+        $container->add(Collection::class);
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', 'BadClass->testTheContainer');
+        $engine->request()->url = '/container';
+        
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
+        
+        $engine->start();
+    }
+
+    public function testContainerPsr11MethodNotFound() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class);
+        $container->add(Collection::class);
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', Container::class.'->badMethod');
+        $engine->request()->url = '/container';
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Method 'tests\classes\Container::badMethod' not found.");
+
+        $engine->start();
     }
 }

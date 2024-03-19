@@ -123,7 +123,8 @@ class DispatcherTest extends TestCase
 
     public function testInvalidCallback(): void
     {
-        $this->expectException(TypeError::class);
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class 'NonExistentClass' not found. Is it being correctly autoloaded with Flight::path()?");
 
         $this->dispatcher->execute(['NonExistentClass', 'nonExistentMethod']);
     }
@@ -133,7 +134,7 @@ class DispatcherTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid callback specified.');
 
-        $this->dispatcher->execute('inexistentGlobalFunction');
+        $this->dispatcher->execute('nonexistentGlobalFunction');
     }
 
     public function testInvalidCallbackBecauseConstructorParameters(): void

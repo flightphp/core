@@ -333,7 +333,10 @@ class Dispatcher
             )
         ) {
             $container_handler = $this->container_handler;
-            $class = $this->resolveContainerClass($container_handler, $class, $params);
+            $resolved_class = $this->resolveContainerClass($container_handler, $class, $params);
+            if($resolved_class !== null) {
+                $class = $resolved_class;
+            }
         }
 
         if (is_string($class) && class_exists($class)) {
@@ -355,6 +358,21 @@ class Dispatcher
             }
 
             $class = new $class();
+        }
+
+        // Final check to make sure it's actually a class and a method, or throw an error
+        if (is_object($class) === false) {
+            if(ob_get_level() > 1) {
+                ob_end_clean();
+            }
+            throw new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
+        }
+
+        if (method_exists($class, $method) === false) {
+            if(ob_get_level() > 1) {
+                ob_end_clean();
+            }
+            throw new Exception("Method '".get_class($class)."::$method' not found.");
         }
 
         return call_user_func_array([ $class, $method ], $params);
@@ -403,7 +421,14 @@ class Dispatcher
 
         // Just a callable where you configure the behavior (Dice, PHP-DI, etc.)
         } elseif (is_callable($container_handler) === true) {
-            $class_object = call_user_func($container_handler, $class, $params);
+
+            // This is to catch all the error that could be thrown by whatever container you are using
+            try {
+                $class_object = call_user_func($container_handler, $class, $params);
+            } catch (Exception $e) {
+                // could not resolve a class for some reason
+                $class_object = null;
+            }
         }
 
         return $class_object;
