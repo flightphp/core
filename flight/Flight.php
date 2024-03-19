@@ -26,17 +26,17 @@ require_once __DIR__ . '/autoload.php';
  * Stop the framework with an optional status code and message.
  *
  * # Routing
- * @method static Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Maps a URL pattern to a callback with all applicable methods.
  * @method static void group(string $pattern, callable $callback, callable[] $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
- * @method static Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route post(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
- * @method static Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route put(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PUT URL to a callback function.
- * @method static Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route patch(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PATCH URL to a callback function.
- * @method static Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
  * @method static Router router() Returns Router instance.
  * @method static string getUrl(string $alias, array<string, mixed> $params = []) Gets a url from an alias
@@ -102,34 +102,6 @@ class Flight
     }
 
     /**
-     * Registers a class to a framework method.
-     *
-     * # Usage example:
-     * ```
-     * Flight::register('user', User::class);
-     *
-     * Flight::user(); # <- Return a User instance
-     * ```
-     *
-     * @param string $name Static method name
-     * @param class-string<T> $class Fully Qualified Class Name
-     * @param array<int, mixed>  $params   Class constructor params
-     * @param ?Closure(T $instance): void $callback Perform actions with the instance
-     *
-     * @template T of object
-     */
-    public static function register($name, $class, $params = [], $callback = null): void
-    {
-        static::__callStatic('register', [$name, $class, $params, $callback]);
-    }
-
-    /** Unregisters a class. */
-    public static function unregister(string $methodName): void
-    {
-        static::__callStatic('unregister', [$methodName]);
-    }
-
-    /**
      * Handles calls to static methods.
      *
      * @param string $name Method name
@@ -140,7 +112,7 @@ class Flight
      */
     public static function __callStatic(string $name, array $params)
     {
-        return Dispatcher::invokeMethod([self::app(), $name], $params);
+        return self::app()->{$name}(...$params);
     }
 
     /** @return Engine Application instance */

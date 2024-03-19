@@ -11,6 +11,7 @@ use flight\net\Request;
 use flight\net\Response;
 use flight\util\Collection;
 use PHPUnit\Framework\TestCase;
+use tests\classes\Container;
 
 // phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
 class EngineTest extends TestCase
@@ -675,5 +676,33 @@ class EngineTest extends TestCase
         $engine->request()->url = '/path1/123/subpath1/456';
         $engine->start();
         $this->expectOutputString('before456before123OKafter123456after123');
+    }
+
+    public function testContainerDice() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('yay! I injected a collection, and it has 1 items');
+    }
+
+    public function testContainerPsr11() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class);
+        $container->add(Collection::class);
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', Container::class.'->testTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('yay! I injected a collection, and it has 1 items');
     }
 }

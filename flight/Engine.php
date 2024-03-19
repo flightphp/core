@@ -30,17 +30,17 @@ use flight\net\Route;
  * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
  *
  * # Routing
- * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a URL to a callback function with all applicable methods
  * @method void group(string $pattern, callable $callback, array<int, callable|object> $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
- * @method Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route post(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
- * @method Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route put(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PUT URL to a callback function.
- * @method Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route patch(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PATCH URL to a callback function.
- * @method Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
@@ -215,6 +215,18 @@ class Engine
         }
 
         $this->error($e);
+    }
+
+    /**
+     * Registers the container handler
+     *
+     * @param callable $callback Callback function that sets the container and how it will inject classes
+     *
+     * @return void
+     */
+    public function registerContainerHandler($callback): void
+    {
+        $this->dispatcher->setContainerHandler($callback);
     }
 
     /**
@@ -605,11 +617,11 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function
      * @param bool $pass_route Pass the matching route object to the callback
      * @param string $alias The alias for the route
      */
-    public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function _route(string $pattern, $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->router()->map($pattern, $callback, $pass_route, $alias);
     }
@@ -630,10 +642,10 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _post(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _post(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
     {
         $this->router()->map('POST ' . $pattern, $callback, $pass_route, $route_alias);
     }
@@ -642,10 +654,10 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _put(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _put(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
     {
         $this->router()->map('PUT ' . $pattern, $callback, $pass_route, $route_alias);
     }
@@ -654,10 +666,10 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _patch(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _patch(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
     {
         $this->router()->map('PATCH ' . $pattern, $callback, $pass_route, $route_alias);
     }
@@ -666,10 +678,10 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _delete(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _delete(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
     {
         $this->router()->map('DELETE ' . $pattern, $callback, $pass_route, $route_alias);
     }

@@ -107,11 +107,11 @@ class DispatcherTest extends TestCase
         });
 
         $this->dispatcher
-            ->hook('hello', $this->dispatcher::FILTER_BEFORE, function (array &$params): void {
+            ->hook('hello', Dispatcher::FILTER_BEFORE, function (array &$params): void {
                 // Manipulate the parameter
                 $params[0] = 'Fred';
             })
-            ->hook('hello', $this->dispatcher::FILTER_AFTER, function (array &$params, string &$output): void {
+            ->hook('hello', Dispatcher::FILTER_AFTER, function (array &$params, string &$output): void {
                 // Manipulate the output
                 $output .= ' Have a nice day!';
             });
@@ -125,7 +125,7 @@ class DispatcherTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
-        Dispatcher::execute(['NonExistentClass', 'nonExistentMethod']);
+        $this->dispatcher->execute(['NonExistentClass', 'nonExistentMethod']);
     }
 
     public function testInvalidCallableString(): void
@@ -133,7 +133,7 @@ class DispatcherTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid callback specified.');
 
-        Dispatcher::execute('inexistentGlobalFunction');
+        $this->dispatcher->execute('inexistentGlobalFunction');
     }
 
     public function testInvalidCallbackBecauseConstructorParameters(): void
@@ -147,13 +147,13 @@ class DispatcherTest extends TestCase
         $this->expectExceptionMessage($exceptionMessage);
 
         static $params = [];
-        Dispatcher::invokeMethod([$class, $method], $params);
+        $this->dispatcher->invokeMethod([$class, $method], $params);
     }
 
     // It will be useful for executing instance Controller methods statically
     public function testCanExecuteAnNonStaticMethodStatically(): void
     {
-        $this->assertSame('hello', Dispatcher::execute([Hello::class, 'sayHi']));
+        $this->assertSame('hello', $this->dispatcher->execute([Hello::class, 'sayHi']));
     }
 
     public function testItThrowsAnExceptionWhenRunAnUnregistedEventName(): void
@@ -237,7 +237,7 @@ class DispatcherTest extends TestCase
         $validCallable = function (): void {
         };
 
-        Dispatcher::filter([$validCallable, $invalidCallable], $params, $output);
+        $this->dispatcher->filter([$validCallable, $invalidCallable], $params, $output);
     }
 
     public function testCallFunction6Params(): void
@@ -247,7 +247,7 @@ class DispatcherTest extends TestCase
         };
 
         $params = ['param1', 'param2', 'param3', 'param4', 'param5', 'param6'];
-        $result = Dispatcher::callFunction($func, $params);
+        $result = $this->dispatcher->callFunction($func, $params);
 
         $this->assertSame('helloparam1param2param3param4param5param6', $result);
     }
