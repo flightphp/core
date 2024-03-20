@@ -220,13 +220,13 @@ class Engine
     /**
      * Registers the container handler
      *
-     * @param callable $callback Callback function that sets the container and how it will inject classes
+     * @param callable|object $containerHandler Callback function or PSR-11 Container object that sets the container and how it will inject classes
      *
      * @return void
      */
-    public function registerContainerHandler($callback): void
+    public function registerContainerHandler($containerHandler): void
     {
-        $this->dispatcher->setContainerHandler($callback);
+        $this->dispatcher->setContainerHandler($containerHandler);
     }
 
     /**

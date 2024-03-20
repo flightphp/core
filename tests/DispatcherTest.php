@@ -192,7 +192,7 @@ class DispatcherTest extends TestCase
     {
         set_error_handler(function (int $errno, string $errstr): void {
             $this->assertSame(E_USER_NOTICE, $errno);
-            $this->assertSame("Event 'myMethod' has been overriden!", $errstr);
+            $this->assertSame("Event 'myMethod' has been overridden!", $errstr);
         });
 
         $this->dispatcher->set('myMethod', function (): string {
@@ -200,10 +200,10 @@ class DispatcherTest extends TestCase
         });
 
         $this->dispatcher->set('myMethod', function (): string {
-            return 'Overriden';
+            return 'Overridden';
         });
 
-        $this->assertSame('Overriden', $this->dispatcher->run('myMethod'));
+        $this->assertSame('Overridden', $this->dispatcher->run('myMethod'));
         restore_error_handler();
     }
 
@@ -219,7 +219,7 @@ class DispatcherTest extends TestCase
                 return 'Original';
             })
             ->hook('myMethod', 'invalid', function (array &$params, &$output): void {
-                $output = 'Overriden';
+                $output = 'Overridden';
             });
 
         $this->assertSame('Original', $this->dispatcher->run('myMethod'));

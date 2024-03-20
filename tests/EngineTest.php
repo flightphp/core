@@ -6,6 +6,7 @@ namespace tests;
 
 use Exception;
 use Flight;
+use flight\core\Dispatcher;
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
@@ -706,6 +707,8 @@ class EngineTest extends TestCase
         $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
         
         $engine->start();
+
+        $this->assertEquals('Class BadClass not found', Dispatcher::$container_exception->getMessage());
     }
 
     public function testContainerDiceBadMethod() {
@@ -719,9 +722,11 @@ class EngineTest extends TestCase
         $engine->request()->url = '/container';
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Method 'tests\classes\Container::badMethod' not found.");
+        $this->expectExceptionMessage("Class found, but method 'tests\classes\Container::badMethod' not found.");
 
         $engine->start();
+
+        $this->assertNull(Dispatcher::$container_exception);
     }
 
     public function testContainerPsr11() {
@@ -765,7 +770,7 @@ class EngineTest extends TestCase
         $engine->request()->url = '/container';
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Method 'tests\classes\Container::badMethod' not found.");
+        $this->expectExceptionMessage("Class found, but method 'tests\classes\Container::badMethod' not found.");
 
         $engine->start();
     }

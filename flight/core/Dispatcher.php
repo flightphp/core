@@ -25,6 +25,9 @@ class Dispatcher
     public const FILTER_AFTER = 'after';
     private const FILTER_TYPES = [self::FILTER_BEFORE, self::FILTER_AFTER];
 
+    /** @var mixed $container_exception Exception message if thrown by setting the container as a callable method */
+    public static $container_exception = null;
+
     /** @var array<string, Closure(): (void|mixed)> Mapped events. */
     protected array $events = [];
 
@@ -40,18 +43,18 @@ class Dispatcher
      *
      * @var callable|object|null
      */
-    protected $container_handler = null;
+    protected $containerHandler = null;
 
     /**
      * Sets the dependency injection container handler.
      *
-     * @param callable|object $container_handler Dependency injection container
+     * @param callable|object $containerHandler Dependency injection container
      *
      * @return void
      */
-    public function setContainerHandler($container_handler): void
+    public function setContainerHandler($containerHandler): void
     {
-        $this->container_handler = $container_handler;
+        $this->containerHandler = $containerHandler;
     }
 
     /**
@@ -246,11 +249,7 @@ class Dispatcher
 
         $this->handleInvalidCallbackType($callback);
 
-        if (is_array($callback) === true) {
-            return $this->invokeMethod($callback, $params);
-        }
-
-        return $this->callFunction($callback, $params);
+        return $this->invokeCallable($callback, $params);
     }
 
     /**
@@ -311,6 +310,7 @@ class Dispatcher
      * @return mixed Function results
      * @throws TypeError For nonexistent class name.
      * @throws InvalidArgumentException If the constructor requires parameters
+     * @version 3.7.0
      */
     public function invokeCallable($func, array &$params = [])
     {
@@ -321,9 +321,9 @@ class Dispatcher
 
         [$class, $method] = $func;
 
-        // Only execute this if it's not a Flight class
+        // Only execute the container handler if it's not a Flight class
         if (
-            $this->container_handler !== null &&
+            $this->containerHandler !== null &&
             (
                 (
                     is_object($class) === true &&
@@ -332,13 +332,15 @@ class Dispatcher
                 is_string($class) === true
             )
         ) {
-            $container_handler = $this->container_handler;
-            $resolved_class = $this->resolveContainerClass($container_handler, $class, $params);
-            if($resolved_class !== null) {
-                $class = $resolved_class;
+            $containerHandler = $this->containerHandler;
+            $resolvedClass = $this->resolveContainerClass($containerHandler, $class, $params);
+            if($resolvedClass !== null) {
+                $class = $resolvedClass;
             }
         }
 
+        // If there's no container handler set, you can use [ 'className', 'methodName' ]
+        // to call a method dynamically. Nothing is injected into the class though.
         if (is_string($class) && class_exists($class)) {
             $constructor = (new ReflectionClass($class))->getConstructor();
             $constructorParamsNumber = 0;
@@ -362,17 +364,20 @@ class Dispatcher
 
         // Final check to make sure it's actually a class and a method, or throw an error
         if (is_object($class) === false) {
-            if(ob_get_level() > 1) {
+            // Cause PHPUnit has 1 level of output buffering by default
+            if(ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
                 ob_end_clean();
             }
             throw new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
         }
 
+        // Class is there, but no method
         if (method_exists($class, $method) === false) {
-            if(ob_get_level() > 1) {
+            // Cause PHPUnit has 1 level of output buffering by default
+            if(ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
                 ob_end_clean();
             }
-            throw new Exception("Method '".get_class($class)."::$method' not found.");
+            throw new Exception("Class found, but method '".get_class($class)."::$method' not found.");
         }
 
         return call_user_func_array([ $class, $method ], $params);
@@ -428,6 +433,12 @@ class Dispatcher
             } catch (Exception $e) {
                 // could not resolve a class for some reason
                 $class_object = null;
+
+                // If the container throws an exception, we need to catch it 
+                // and store it somewhere. If we just let it throw itself, it 
+                // doesn't properly close the output buffers and can cause other 
+                // issues.
+                self::$container_exception = $e;
             }
         }
 
