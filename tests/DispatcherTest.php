@@ -21,6 +21,7 @@ class DispatcherTest extends TestCase
     protected function setUp(): void
     {
         $this->dispatcher = new Dispatcher();
+        Dispatcher::$container_exception = null;
     }
 
     public function testClosureMapping(): void
@@ -137,20 +138,6 @@ class DispatcherTest extends TestCase
         $this->dispatcher->execute('nonexistentGlobalFunction');
     }
 
-    public function testInvalidCallbackBecauseConstructorParameters(): void
-    {
-        $class = TesterClass::class;
-        $method = 'instanceMethod';
-        $exceptionMessage = "Method '$class::$method' cannot be called statically. ";
-        $exceptionMessage .= "$class::__construct require 6 parameters";
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage($exceptionMessage);
-
-        static $params = [];
-        $this->dispatcher->invokeMethod([$class, $method], $params);
-    }
-
     // It will be useful for executing instance Controller methods statically
     public function testCanExecuteAnNonStaticMethodStatically(): void
     {
@@ -251,5 +238,13 @@ class DispatcherTest extends TestCase
         $result = $this->dispatcher->callFunction($func, $params);
 
         $this->assertSame('helloparam1param2param3param4param5param6', $result);
+    }
+
+    public function testInvokeMethod(): void
+    {
+        $class = new TesterClass('param1', 'param2', 'param3', 'param4', 'param5', 'param6');
+        $result = $this->dispatcher->invokeMethod([ $class, 'instanceMethod' ]);
+
+        $this->assertSame('param1', $class->param2);
     }
 }

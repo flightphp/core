@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace tests;
 
 use Exception;
+use flight\core\Dispatcher;
 use flight\Engine;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
@@ -15,6 +16,7 @@ class MapTest extends TestCase
 
     protected function setUp(): void
     {
+        Dispatcher::$container_exception = null;
         $this->app = new Engine();
     }
 

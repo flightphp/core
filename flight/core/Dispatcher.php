@@ -339,44 +339,24 @@ class Dispatcher
             }
         }
 
-        // If there's no container handler set, you can use [ 'className', 'methodName' ]
-        // to call a method dynamically. Nothing is injected into the class though.
-        if (is_string($class) && class_exists($class)) {
-            $constructor = (new ReflectionClass($class))->getConstructor();
-            $constructorParamsNumber = 0;
-
-            if ($constructor !== null) {
-                $constructorParamsNumber = count($constructor->getParameters());
-            }
-
-            if ($constructorParamsNumber > 0) {
-                $exceptionMessage = "Method '$class::$method' cannot be called statically. ";
-                $exceptionMessage .= sprintf(
-                    "$class::__construct require $constructorParamsNumber parameter%s",
-                    $constructorParamsNumber > 1 ? 's' : ''
-                );
-
-                throw new InvalidArgumentException($exceptionMessage, E_ERROR);
-            }
-
-            $class = new $class();
-        }
-
         // Final check to make sure it's actually a class and a method, or throw an error
-        if (is_object($class) === false) {
-            // Cause PHPUnit has 1 level of output buffering by default
-            if(ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
-                ob_end_clean();
-            }
+        if (is_object($class) === false && class_exists($class) === false) {
+            $this->fixOutputBuffering();
             throw new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
         }
 
+        // If this tried to resolve a class in a container and failed somehow, throw the exception
+        if (isset($resolvedClass) === false && self::$container_exception !== null) {
+            $this->fixOutputBuffering();
+            throw self::$container_exception;
+        }
+
+        // If we made it this far, we can forget the container exception and move on...
+        self::$container_exception = null;
+
         // Class is there, but no method
         if (method_exists($class, $method) === false) {
-            // Cause PHPUnit has 1 level of output buffering by default
-            if(ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
-                ob_end_clean();
-            }
+            $this->fixOutputBuffering();
             throw new Exception("Class found, but method '".get_class($class)."::$method' not found.");
         }
 
@@ -443,6 +423,19 @@ class Dispatcher
         }
 
         return $class_object;
+    }
+
+    /**
+     * Because this could throw an exception in the middle of an output buffer,
+     *
+     * @return void
+     */
+    protected function fixOutputBuffering(): void
+    {
+        // Cause PHPUnit has 1 level of output buffering by default
+        if(ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
+            ob_end_clean();
+        }
     }
 
     /**

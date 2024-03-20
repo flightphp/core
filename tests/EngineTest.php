@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace tests;
 
 use Exception;
-use Flight;
 use flight\core\Dispatcher;
+use flight\database\PdoWrapper;
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
 use flight\util\Collection;
+use PDOException;
 use PHPUnit\Framework\TestCase;
 use tests\classes\Container;
 
@@ -20,6 +21,7 @@ class EngineTest extends TestCase
     public function setUp(): void
     {
         $_SERVER = [];
+        Dispatcher::$container_exception = null;
     }
 
     public function tearDown(): void
@@ -682,6 +684,12 @@ class EngineTest extends TestCase
     public function testContainerDice() {
         $engine = new Engine();
         $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
         $engine->registerContainerHandler(function ($class, $params) use ($dice) {
             return $dice->create($class, $params);
         });
@@ -691,6 +699,42 @@ class EngineTest extends TestCase
         $engine->start();
 
         $this->expectOutputString('yay! I injected a collection, and it has 1 items');
+    }
+
+    public function testContainerDicePdoWrapperTest() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testThePdoWrapper');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('Yay! I injected a PdoWrapper, and it returned the number 5 from the database!');
+    }
+
+    public function testContainerDicePdoWrapperTestBadParams() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testThePdoWrapper');
+        $engine->request()->url = '/container';
+
+        $this->expectException(PDOException::class);
+        $this->expectExceptionMessage("invalid data source name");
+
+        $engine->start();
     }
 
     public function testContainerDiceBadClass() {
@@ -714,6 +758,12 @@ class EngineTest extends TestCase
     public function testContainerDiceBadMethod() {
         $engine = new Engine();
         $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
         $engine->registerContainerHandler(function ($class, $params) use ($dice) {
             return $dice->create($class, $params);
         });
@@ -732,8 +782,9 @@ class EngineTest extends TestCase
     public function testContainerPsr11() {
         $engine = new Engine();
         $container = new \League\Container\Container();
-        $container->add(Container::class)->addArgument(Collection::class);
+        $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
         $container->add(Collection::class);
+        $container->add(PdoWrapper::class)->addArgument('sqlite::memory:');
         $engine->registerContainerHandler($container);
         
         $engine->route('/container', Container::class.'->testTheContainer');
@@ -762,8 +813,9 @@ class EngineTest extends TestCase
     public function testContainerPsr11MethodNotFound() {
         $engine = new Engine();
         $container = new \League\Container\Container();
-        $container->add(Container::class)->addArgument(Collection::class);
+        $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
         $container->add(Collection::class);
+        $container->add(PdoWrapper::class)->addArgument('sqlite::memory:');
         $engine->registerContainerHandler($container);
         
         $engine->route('/container', Container::class.'->badMethod');
