@@ -21,7 +21,6 @@ class EngineTest extends TestCase
     public function setUp(): void
     {
         $_SERVER = [];
-        Dispatcher::$container_exception = null;
     }
 
     public function tearDown(): void
@@ -751,8 +750,6 @@ class EngineTest extends TestCase
         $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
         
         $engine->start();
-
-        $this->assertEquals('Class BadClass not found', Dispatcher::$container_exception->getMessage());
     }
 
     public function testContainerDiceBadMethod() {
@@ -775,8 +772,6 @@ class EngineTest extends TestCase
         $this->expectExceptionMessage("Class found, but method 'tests\classes\Container::badMethod' not found.");
 
         $engine->start();
-
-        $this->assertNull(Dispatcher::$container_exception);
     }
 
     public function testContainerPsr11() {

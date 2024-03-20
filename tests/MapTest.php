@@ -16,7 +16,6 @@ class MapTest extends TestCase
 
     protected function setUp(): void
     {
-        Dispatcher::$container_exception = null;
         $this->app = new Engine();
     }
 

@@ -138,6 +138,9 @@ class Engine
             $this->dispatcher->reset();
         }
 
+        // Add this class to Dispatcher
+        $this->dispatcher->setEngine($this);
+
         // Register default components
         $this->loader->register('request', Request::class);
         $this->loader->register('response', Response::class);

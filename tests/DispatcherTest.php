@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace tests;
 
+use ArgumentCountError;
 use Closure;
 use Exception;
 use flight\core\Dispatcher;
+use flight\Engine;
 use InvalidArgumentException;
 use PharIo\Manifest\InvalidEmailException;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
+use tests\classes\ContainerDefault;
 use tests\classes\TesterClass;
 use TypeError;
 
@@ -21,7 +24,6 @@ class DispatcherTest extends TestCase
     protected function setUp(): void
     {
         $this->dispatcher = new Dispatcher();
-        Dispatcher::$container_exception = null;
     }
 
     public function testClosureMapping(): void
@@ -246,5 +248,58 @@ class DispatcherTest extends TestCase
         $result = $this->dispatcher->invokeMethod([ $class, 'instanceMethod' ]);
 
         $this->assertSame('param1', $class->param2);
+    }
+
+    public function testExecuteStringClassBadConstructParams(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessageMatches('#Too few arguments to function tests\\\\classes\\\\TesterClass::__construct\(\), 1 passed .+ and exactly 6 expected#');
+        $this->dispatcher->execute(TesterClass::class . '->instanceMethod');
+    }
+
+    public function testExecuteStringClassNoConstruct(): void
+    {
+        $result = $this->dispatcher->execute(Hello::class . '->sayHi');
+        $this->assertSame('hello', $result);
+    }
+
+    public function testExecuteStringClassNoConstructDoubleColon(): void
+    {
+        $result = $this->dispatcher->execute(Hello::class . '::sayHi');
+        $this->assertSame('hello', $result);
+    }
+
+    public function testExecuteStringClassNoConstructArraySyntax(): void
+    {
+        $result = $this->dispatcher->execute([ Hello::class, 'sayHi' ]);
+        $this->assertSame('hello', $result);
+    }
+
+    public function testExecuteStringClassDefaultContainer(): void
+    {
+        $this->dispatcher->setEngine(new Engine);
+        $result = $this->dispatcher->execute(ContainerDefault::class . '->testTheContainer');
+        $this->assertSame('You got it boss!', $result);
+    }
+
+    public function testExecuteStringClassDefaultContainerDoubleColon(): void
+    {
+        $this->dispatcher->setEngine(new Engine);
+        $result = $this->dispatcher->execute(ContainerDefault::class . '::testTheContainer');
+        $this->assertSame('You got it boss!', $result);
+    }
+
+    public function testExecuteStringClassDefaultContainerArraySyntax(): void
+    {
+        $this->dispatcher->setEngine(new Engine);
+        $result = $this->dispatcher->execute([ ContainerDefault::class, 'testTheContainer' ]);
+        $this->assertSame('You got it boss!', $result);
+    }
+
+    public function testExecuteStringClassDefaultContainerButForgotInjectingEngine(): void
+    {
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessageMatches('#Argument 1 passed to tests\\\\classes\\\\ContainerDefault::__construct\(\) must be an instance of flight\\\\Engine, null given#');
+        $result = $this->dispatcher->execute([ ContainerDefault::class, 'testTheContainer' ]);
     }
 }

@@ -6,6 +6,7 @@ namespace flight\core;
 
 use Closure;
 use Exception;
+use flight\Engine;
 use InvalidArgumentException;
 use ReflectionClass;
 use TypeError;
@@ -26,7 +27,10 @@ class Dispatcher
     private const FILTER_TYPES = [self::FILTER_BEFORE, self::FILTER_AFTER];
 
     /** @var mixed $container_exception Exception message if thrown by setting the container as a callable method */
-    public static $container_exception = null;
+    protected $container_exception = null;
+
+    /** @var ?Engine $engine Engine instance */
+    protected ?Engine $engine = null;
 
     /** @var array<string, Closure(): (void|mixed)> Mapped events. */
     protected array $events = [];
@@ -55,6 +59,11 @@ class Dispatcher
     public function setContainerHandler($containerHandler): void
     {
         $this->containerHandler = $containerHandler;
+    }
+
+    public function setEngine(Engine $engine): void
+    {
+        $this->engine = $engine;
     }
 
     /**
@@ -346,18 +355,20 @@ class Dispatcher
         }
 
         // If this tried to resolve a class in a container and failed somehow, throw the exception
-        if (isset($resolvedClass) === false && self::$container_exception !== null) {
+        if (isset($resolvedClass) === false && $this->container_exception !== null) {
             $this->fixOutputBuffering();
-            throw self::$container_exception;
+            throw $this->container_exception;
         }
 
-        // If we made it this far, we can forget the container exception and move on...
-        self::$container_exception = null;
-
         // Class is there, but no method
-        if (method_exists($class, $method) === false) {
+        if (is_object($class) === true && method_exists($class, $method) === false) {
             $this->fixOutputBuffering();
             throw new Exception("Class found, but method '".get_class($class)."::$method' not found.");
+        }
+
+        // Class is a string, and method exists, create the object by hand and inject only the Engine
+        if (is_string($class) === true) {
+            $class = new $class($this->engine);
         }
 
         return call_user_func_array([ $class, $method ], $params);
@@ -418,7 +429,7 @@ class Dispatcher
                 // and store it somewhere. If we just let it throw itself, it 
                 // doesn't properly close the output buffers and can cause other 
                 // issues.
-                self::$container_exception = $e;
+                $this->container_exception = $e;
             }
         }
 
