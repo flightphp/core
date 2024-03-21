@@ -277,21 +277,27 @@ class DispatcherTest extends TestCase
 
     public function testExecuteStringClassDefaultContainer(): void
     {
-        $this->dispatcher->setEngine(new Engine());
+        $engine = new Engine();
+        $engine->set('test_me_out', 'You got it boss!');
+        $this->dispatcher->setEngine($engine);
         $result = $this->dispatcher->execute(ContainerDefault::class . '->testTheContainer');
         $this->assertSame('You got it boss!', $result);
     }
 
     public function testExecuteStringClassDefaultContainerDoubleColon(): void
     {
-        $this->dispatcher->setEngine(new Engine());
+        $engine = new Engine();
+        $engine->set('test_me_out', 'You got it boss!');
+        $this->dispatcher->setEngine($engine);
         $result = $this->dispatcher->execute(ContainerDefault::class . '::testTheContainer');
         $this->assertSame('You got it boss!', $result);
     }
 
     public function testExecuteStringClassDefaultContainerArraySyntax(): void
     {
-        $this->dispatcher->setEngine(new Engine());
+        $engine = new Engine();
+        $engine->set('test_me_out', 'You got it boss!');
+        $this->dispatcher->setEngine($engine);
         $result = $this->dispatcher->execute([ ContainerDefault::class, 'testTheContainer' ]);
         $this->assertSame('You got it boss!', $result);
     }

@@ -13,6 +13,7 @@ use flight\util\Collection;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use tests\classes\Container;
+use tests\classes\ContainerDefault;
 
 // phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
 class EngineTest extends TestCase
@@ -717,6 +718,26 @@ class EngineTest extends TestCase
         $engine->start();
 
         $this->expectOutputString('Yay! I injected a PdoWrapper, and it returned the number 5 from the database!');
+    }
+
+    public function testContainerDiceFlightEngine() {
+        $engine = new Engine();
+        $engine->set('test_me_out', 'You got it boss!');
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRule('*', [
+            'substitutions' => [
+                Engine::class => $engine
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', ContainerDefault::class.'->echoTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('You got it boss!');
     }
 
     public function testContainerDicePdoWrapperTestBadParams() {

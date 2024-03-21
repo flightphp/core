@@ -12,13 +12,17 @@ class ContainerDefault
 
     public function __construct(Engine $engine)
     {
-        $engine->set('test_me_out', 'You got it boss!');
         $this->app = $engine;
     }
 
     public function testTheContainer()
     {
         return $this->app->get('test_me_out');
+    }
+
+    public function echoTheContainer()
+    {
+        echo $this->app->get('test_me_out');
     }
 
     public function testUi()

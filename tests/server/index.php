@@ -144,6 +144,7 @@ Flight::group('', function () {
         echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:' . ($id === 'before/after' ? 'green' : 'red') . '; font-weight: bold;">' . ($id === 'before/after' ? 'succeeded' : 'failed') . ' URL Param: ' . $id . '</span>';
     });
 
+    Flight::set('test_me_out', 'You got it boss!'); // used in /no-container route
     Flight::route('/no-container', ContainerDefault::class . '->testUi');
     Flight::route('/dice', Container::class . '->testThePdoWrapper');
 }, [ new LayoutMiddleware() ]);
