@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use flight\database\PdoWrapper;
+use tests\classes\Container;
+use tests\classes\ContainerDefault;
+
 /*
  * This is the test file where we can open up a quick test server and make
  * sure that the UI is really working the way we would expect it to.
@@ -139,6 +143,9 @@ Flight::group('', function () {
     Flight::route('/redirect/@id', function ($id) {
         echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:' . ($id === 'before/after' ? 'green' : 'red') . '; font-weight: bold;">' . ($id === 'before/after' ? 'succeeded' : 'failed') . ' URL Param: ' . $id . '</span>';
     });
+
+    Flight::route('/no-container', ContainerDefault::class . '->testUi');
+    Flight::route('/dice', Container::class . '->testThePdoWrapper');
 }, [ new LayoutMiddleware() ]);
 
 // Test 9: JSON output (should not output any other html)
@@ -165,6 +172,25 @@ Flight::map('error', function (Throwable $e) {
 Flight::map('notFound', function () {
     echo '<span id="infotext">Route text:</span> The requested URL was not found<br>';
     echo "<a href='/'>Go back</a>";
+});
+
+Flight::map('start', function () {
+
+    if (Flight::request()->url === '/dice') {
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        Flight::registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+    }
+
+    // Default start behavior now
+    Flight::_start();
 });
 
 Flight::start();

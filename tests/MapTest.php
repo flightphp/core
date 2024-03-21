@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace tests;
 
 use Exception;
-use flight\core\Dispatcher;
 use flight\Engine;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;

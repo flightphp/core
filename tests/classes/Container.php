@@ -26,7 +26,7 @@ class Container
 
     public function testThePdoWrapper()
     {
-        $value = (int) $this->pdoWrapper->fetchField('SELECT 5');
+        $value = intval($this->pdoWrapper->fetchField('SELECT 5'));
         echo 'Yay! I injected a PdoWrapper, and it returned the number ' . $value . ' from the database!';
     }
 }

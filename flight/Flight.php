@@ -19,11 +19,12 @@ require_once __DIR__ . '/autoload.php';
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  *
  * # Core methods
- * @method  static void start() Starts the framework.
- * @method  static void path(string $path) Adds a path for autoloading classes.
- * @method  static void stop(?int $code = null) Stops the framework and sends a response.
- * @method  static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
+ * @method static void start() Starts the framework.
+ * @method static void path(string $path) Adds a path for autoloading classes.
+ * @method static void stop(?int $code = null) Stops the framework and sends a response.
+ * @method static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * Stop the framework with an optional status code and message.
+ * @method static void registerContainerHandler(callable|object $containerHandler) Registers a container handler.
  *
  * # Routing
  * @method static Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')

@@ -26,8 +26,8 @@ class Dispatcher
     public const FILTER_AFTER = 'after';
     private const FILTER_TYPES = [self::FILTER_BEFORE, self::FILTER_AFTER];
 
-    /** @var mixed $container_exception Exception message if thrown by setting the container as a callable method */
-    protected $container_exception = null;
+    /** @var mixed $containerException Exception message if thrown by setting the container as a callable method */
+    protected $containerException = null;
 
     /** @var ?Engine $engine Engine instance */
     protected ?Engine $engine = null;
@@ -256,8 +256,6 @@ class Dispatcher
             $callback = $this->parseStringClassAndMethod($callback);
         }
 
-        $this->handleInvalidCallbackType($callback);
-
         return $this->invokeCallable($callback, $params);
     }
 
@@ -325,10 +323,12 @@ class Dispatcher
     {
         // If this is a directly callable function, call it
         if (is_array($func) === false) {
+            $this->verifyValidFunction($func);
             return call_user_func_array($func, $params);
         }
 
         [$class, $method] = $func;
+        $resolvedClass = null;
 
         // Only execute the container handler if it's not a Flight class
         if (
@@ -343,28 +343,12 @@ class Dispatcher
         ) {
             $containerHandler = $this->containerHandler;
             $resolvedClass = $this->resolveContainerClass($containerHandler, $class, $params);
-            if($resolvedClass !== null) {
+            if ($resolvedClass !== null) {
                 $class = $resolvedClass;
             }
         }
 
-        // Final check to make sure it's actually a class and a method, or throw an error
-        if (is_object($class) === false && class_exists($class) === false) {
-            $this->fixOutputBuffering();
-            throw new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
-        }
-
-        // If this tried to resolve a class in a container and failed somehow, throw the exception
-        if (isset($resolvedClass) === false && $this->container_exception !== null) {
-            $this->fixOutputBuffering();
-            throw $this->container_exception;
-        }
-
-        // Class is there, but no method
-        if (is_object($class) === true && method_exists($class, $method) === false) {
-            $this->fixOutputBuffering();
-            throw new Exception("Class found, but method '".get_class($class)."::$method' not found.");
-        }
+        $this->verifyValidClassCallable($class, $method, $resolvedClass);
 
         // Class is a string, and method exists, create the object by hand and inject only the Engine
         if (is_string($class) === true) {
@@ -382,7 +366,7 @@ class Dispatcher
      *
      * @throws InvalidArgumentException If `$callback` is an invalid type
      */
-    protected function handleInvalidCallbackType($callback): void
+    protected function verifyValidFunction($callback): void
     {
         $isInvalidFunctionName = (
             is_string($callback)
@@ -391,6 +375,41 @@ class Dispatcher
 
         if ($isInvalidFunctionName) {
             throw new InvalidArgumentException('Invalid callback specified.');
+        }
+    }
+
+
+    /**
+     * Verifies if the provided class and method are valid callable.
+     *
+     * @param string|object $class The class name.
+     * @param string $method The method name.
+     * @param object|null $resolvedClass The resolved class.
+     *
+     * @throws Exception If the class or method is not found.
+     *
+     * @return void
+     */
+    protected function verifyValidClassCallable($class, $method, $resolvedClass): void
+    {
+        $final_exception = null;
+
+        // Final check to make sure it's actually a class and a method, or throw an error
+        if (is_object($class) === false && class_exists($class) === false) {
+            $final_exception = new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
+
+        // If this tried to resolve a class in a container and failed somehow, throw the exception
+        } elseif (isset($resolvedClass) === false && $this->containerException !== null) {
+            $final_exception = $this->containerException;
+
+        // Class is there, but no method
+        } elseif (is_object($class) === true && method_exists($class, $method) === false) {
+            $final_exception = new Exception("Class found, but method '" . get_class($class) . "::$method' not found.");
+        }
+
+        if ($final_exception !== null) {
+            $this->fixOutputBuffering();
+            throw $final_exception;
         }
     }
 
@@ -417,7 +436,6 @@ class Dispatcher
 
         // Just a callable where you configure the behavior (Dice, PHP-DI, etc.)
         } elseif (is_callable($container_handler) === true) {
-
             // This is to catch all the error that could be thrown by whatever container you are using
             try {
                 $class_object = call_user_func($container_handler, $class, $params);
@@ -425,11 +443,12 @@ class Dispatcher
                 // could not resolve a class for some reason
                 $class_object = null;
 
-                // If the container throws an exception, we need to catch it 
-                // and store it somewhere. If we just let it throw itself, it 
-                // doesn't properly close the output buffers and can cause other 
+                // If the container throws an exception, we need to catch it
+                // and store it somewhere. If we just let it throw itself, it
+                // doesn't properly close the output buffers and can cause other
                 // issues.
-                $this->container_exception = $e;
+                // This is thrown in the verifyValidClassCallable method
+                $this->containerException = $e;
             }
         }
 
@@ -444,7 +463,7 @@ class Dispatcher
     protected function fixOutputBuffering(): void
     {
         // Cause PHPUnit has 1 level of output buffering by default
-        if(ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
+        if (ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
             ob_end_clean();
         }
     }

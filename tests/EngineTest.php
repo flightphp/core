@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace tests;
 
 use Exception;
-use flight\core\Dispatcher;
 use flight\database\PdoWrapper;
 use flight\Engine;
 use flight\net\Request;

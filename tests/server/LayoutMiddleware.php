@@ -81,6 +81,8 @@ class LayoutMiddleware
 <li><a href="/redirect/before%2Fafter">Slash in Param</a></li>
 <li><a href="/わたしはひとです">UTF8 URL</a></li>
 <li><a href="/わたしはひとです/ええ">UTF8 URL w/ Param</a></li>
+<li><a href="/dice">Dice Container</a></li>
+<li><a href="/no-container">No Container Registered</a></li>
 </ul>
 HTML;
         echo '<div id="container">';
