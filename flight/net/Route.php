@@ -81,11 +81,11 @@ class Route
      * Constructor.
      *
      * @param string $pattern  URL pattern
-     * @param callable  $callback Callback function
+     * @param callable|string  $callback Callback function
      * @param array<int, string>  $methods  HTTP methods
      * @param bool   $pass     Pass self in callback parameters
      */
-    public function __construct(string $pattern, callable $callback, array $methods, bool $pass, string $alias = '')
+    public function __construct(string $pattern, $callback, array $methods, bool $pass, string $alias = '')
     {
         $this->pattern = $pattern;
         $this->callback = $callback;

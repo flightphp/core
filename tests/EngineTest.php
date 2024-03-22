@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace tests;
 
 use Exception;
-use Flight;
+use flight\database\PdoWrapper;
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
 use flight\util\Collection;
+use PDOException;
 use PHPUnit\Framework\TestCase;
+use tests\classes\Container;
+use tests\classes\ContainerDefault;
 
 // phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
 class EngineTest extends TestCase
@@ -675,5 +678,167 @@ class EngineTest extends TestCase
         $engine->request()->url = '/path1/123/subpath1/456';
         $engine->start();
         $this->expectOutputString('before456before123OKafter123456after123');
+    }
+
+    public function testContainerDice() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('yay! I injected a collection, and it has 1 items');
+    }
+
+    public function testContainerDicePdoWrapperTest() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testThePdoWrapper');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('Yay! I injected a PdoWrapper, and it returned the number 5 from the database!');
+    }
+
+    public function testContainerDiceFlightEngine() {
+        $engine = new Engine();
+        $engine->set('test_me_out', 'You got it boss!');
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRule('*', [
+            'substitutions' => [
+                Engine::class => $engine
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', ContainerDefault::class.'->echoTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('You got it boss!');
+    }
+
+    public function testContainerDicePdoWrapperTestBadParams() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testThePdoWrapper');
+        $engine->request()->url = '/container';
+
+        $this->expectException(PDOException::class);
+        $this->expectExceptionMessage("invalid data source name");
+
+        $engine->start();
+    }
+
+    public function testContainerDiceBadClass() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', 'BadClass->testTheContainer');
+        $engine->request()->url = '/container';
+        
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
+        
+        $engine->start();
+    }
+
+    public function testContainerDiceBadMethod() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->badMethod');
+        $engine->request()->url = '/container';
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class found, but method 'tests\classes\Container::badMethod' not found.");
+
+        $engine->start();
+    }
+
+    public function testContainerPsr11() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
+        $container->add(Collection::class);
+        $container->add(PdoWrapper::class)->addArgument('sqlite::memory:');
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', Container::class.'->testTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('yay! I injected a collection, and it has 1 items');
+    }
+
+    public function testContainerPsr11ClassNotFound() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class);
+        $container->add(Collection::class);
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', 'BadClass->testTheContainer');
+        $engine->request()->url = '/container';
+        
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
+        
+        $engine->start();
+    }
+
+    public function testContainerPsr11MethodNotFound() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
+        $container->add(Collection::class);
+        $container->add(PdoWrapper::class)->addArgument('sqlite::memory:');
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', Container::class.'->badMethod');
+        $engine->request()->url = '/container';
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class found, but method 'tests\classes\Container::badMethod' not found.");
+
+        $engine->start();
     }
 }
