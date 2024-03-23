@@ -19,23 +19,25 @@ require_once __DIR__ . '/autoload.php';
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  *
  * # Core methods
- * @method  static void start() Starts the framework.
- * @method  static void stop(?int $code = null) Stops the framework and sends a response.
- * @method  static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
+ * @method static void start() Starts the framework.
+ * @method static void path(string $path) Adds a path for autoloading classes.
+ * @method static void stop(?int $code = null) Stops the framework and sends a response.
+ * @method static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * Stop the framework with an optional status code and message.
+ * @method static void registerContainerHandler(callable|object $containerHandler) Registers a container handler.
  *
  * # Routing
- * @method static Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Maps a URL pattern to a callback with all applicable methods.
  * @method static void group(string $pattern, callable $callback, callable[] $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
- * @method static Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route post(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
- * @method static Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route put(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PUT URL to a callback function.
- * @method static Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route patch(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PATCH URL to a callback function.
- * @method static Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
  * @method static Router router() Returns Router instance.
  * @method static string getUrl(string $alias, array<string, mixed> $params = []) Gets a url from an alias
@@ -101,40 +103,6 @@ class Flight
     }
 
     /**
-     * Registers a class to a framework method.
-     *
-     * # Usage example:
-     * ```
-     * Flight::register('user', User::class);
-     *
-     * Flight::user(); # <- Return a User instance
-     * ```
-     *
-     * @param string $name Static method name
-     * @param class-string<T> $class Fully Qualified Class Name
-     * @param array<int, mixed>  $params   Class constructor params
-     * @param ?Closure(T $instance): void $callback Perform actions with the instance
-     *
-     * @template T of object
-     */
-    public static function register($name, $class, $params = [], $callback = null): void
-    {
-        static::__callStatic('register', [$name, $class, $params, $callback]);
-    }
-
-    /** Unregisters a class. */
-    public static function unregister(string $methodName): void
-    {
-        static::__callStatic('unregister', [$methodName]);
-    }
-
-    /** Adds a path for autoloading classes. */
-    public static function path(string $path): void
-    {
-        static::__callStatic('path', [$path]);
-    }
-
-    /**
      * Handles calls to static methods.
      *
      * @param string $name Method name
@@ -145,7 +113,7 @@ class Flight
      */
     public static function __callStatic(string $name, array $params)
     {
-        return Dispatcher::invokeMethod([self::app(), $name], $params);
+        return self::app()->{$name}(...$params);
     }
 
     /** @return Engine Application instance */

@@ -24,6 +24,7 @@
     </testsuites>
     <logging />
     <php>
+        <ini name="error_reporting" value="-1"/>
         <env name="PHPUNIT_TEST" value="true" force="true" />
     </php>
 </phpunit>

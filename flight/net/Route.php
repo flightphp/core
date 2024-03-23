@@ -81,11 +81,11 @@ class Route
      * Constructor.
      *
      * @param string $pattern  URL pattern
-     * @param callable  $callback Callback function
+     * @param callable|string  $callback Callback function
      * @param array<int, string>  $methods  HTTP methods
      * @param bool   $pass     Pass self in callback parameters
      */
-    public function __construct(string $pattern, callable $callback, array $methods, bool $pass, string $alias = '')
+    public function __construct(string $pattern, $callback, array $methods, bool $pass, string $alias = '')
     {
         $this->pattern = $pattern;
         $this->callback = $callback;
@@ -97,7 +97,7 @@ class Route
     /**
      * Checks if a URL matches the route pattern. Also parses named parameters in the URL.
      *
-     * @param string $url            Requested URL
+     * @param string $url            Requested URL (original format, not URL decoded)
      * @param bool   $case_sensitive Case sensitive matching
      *
      * @return bool Match status
@@ -127,11 +127,18 @@ class Route
                 }
             }
 
-            $this->splat = strval(substr($url, $i + 1));
+            $this->splat = urldecode(strval(substr($url, $i + 1)));
         }
 
         // Build the regex for matching
-        $regex = str_replace([')', '/*'], [')?', '(/?|/.*?)'], $this->pattern);
+        $pattern_utf_chars_encoded = preg_replace_callback(
+            '#(\\p{L}+)#u',
+            static function ($matches) {
+                return urlencode($matches[0]);
+            },
+            $this->pattern
+        );
+        $regex = str_replace([')', '/*'], [')?', '(/?|/.*?)'], $pattern_utf_chars_encoded);
 
         $regex = preg_replace_callback(
             '#@([\w]+)(:([^/\(\)]*))?#',
@@ -193,7 +200,7 @@ class Route
      */
     public function hydrateUrl(array $params = []): string
     {
-        $url = preg_replace_callback("/(?:@([a-zA-Z0-9]+)(?:\:([^\/]+))?\)*)/i", function ($match) use ($params) {
+        $url = preg_replace_callback("/(?:@([\w]+)(?:\:([^\/]+))?\)*)/i", function ($match) use ($params) {
             if (isset($match[1]) && isset($params[$match[1]])) {
                 return $params[$match[1]];
             }

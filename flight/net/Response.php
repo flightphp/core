@@ -225,13 +225,29 @@ class Response
      * Writes content to the response body.
      *
      * @param string $str Response content
+     * @param bool $overwrite Overwrite the response body
      *
      * @return $this Self reference
      */
-    public function write(string $str): self
+    public function write(string $str, bool $overwrite = false): self
     {
+        if ($overwrite === true) {
+            $this->clearBody();
+        }
+
         $this->body .= $str;
 
+        return $this;
+    }
+
+    /**
+     * Clears the response body.
+     *
+     * @return $this Self reference
+     */
+    public function clearBody(): self
+    {
+        $this->body = '';
         return $this;
     }
 
@@ -244,7 +260,7 @@ class Response
     {
         $this->status = 200;
         $this->headers = [];
-        $this->body = '';
+        $this->clearBody();
 
         // This needs to clear the output buffer if it's on
         if ($this->v2_output_buffering === false && ob_get_length() > 0) {

@@ -81,6 +81,10 @@ class RouterTest extends TestCase
             $dispatched = false;
         }
 
+        if ($this->request->method === 'HEAD') {
+            ob_clean();
+        }
+
         if (!$dispatched) {
             echo '404';
         }
@@ -120,6 +124,15 @@ class RouterTest extends TestCase
         $this->request->method = 'GET';
 
         $this->check('OK');
+    }
+
+    public function testHeadRouteShortcut()
+    {
+        $route = $this->router->get('/path', [$this, 'ok']);
+        $this->assertEquals(['GET', 'HEAD'], $route->methods);
+        $this->request->url = '/path';
+        $this->request->method = 'HEAD';
+        $this->check('');
     }
 
     // POST route
@@ -196,6 +209,67 @@ class RouterTest extends TestCase
         $this->request->url = '/user/123';
 
         $this->check('123');
+    }
+
+    public function testUrlParametersWithEncodedSlash()
+    {
+        $this->router->map('/redirect/@id', function ($id) {
+            echo $id;
+        });
+        $this->request->url = '/redirect/before%2Fafter';
+
+        $this->check('before/after');
+    }
+
+    public function testUrlParametersWithRealSlash()
+    {
+        $this->router->map('/redirect/@id', function ($id) {
+            echo $id;
+        });
+        $this->request->url = '/redirect/before/after';
+
+        $this->check('404');
+    }
+
+    public function testUrlParametersWithJapanese()
+    {
+        $this->router->map('/わたしはひとです', function () {
+            echo 'はい';
+        });
+        $this->request->url = '/わたしはひとです';
+
+        $this->check('はい');
+    }
+
+    public function testUrlParametersWithJapaneseAndParam()
+    {
+        $this->router->map('/わたしはひとです/@name', function ($name) {
+            echo $name;
+        });
+        $this->request->url = '/' . urlencode('わたしはひとです') . '/' . urlencode('ええ');
+
+        $this->check('ええ');
+    }
+
+    // Passing URL parameters matched with regular expression for a URL containing Cyrillic letters:
+    public function testRegExParametersCyrillic()
+    {
+        $this->router->map('/категория/@name:[абвгдеёжзийклмнопрстуфхцчшщъыьэюя]+', function ($name) {
+            echo $name;
+        });
+        $this->request->url = '/' . urlencode('категория') . '/' . urlencode('цветя');
+
+        $this->check('цветя');
+    }
+
+    public function testRegExOnlyCyrillicUrl()
+    {
+        $this->router->map('/категория/цветя', function () {
+            echo 'цветя';
+        });
+        $this->request->url = '/категория/цветя';
+
+        $this->check('цветя');
     }
 
     // Passing URL parameters matched with regular expression
@@ -382,17 +456,6 @@ class RouterTest extends TestCase
         $this->router->case_sensitive = true;
 
         $this->check('404');
-    }
-
-    // Passing URL parameters matched with regular expression for a URL containing Cyrillic letters:
-    public function testRegExParametersCyrillic()
-    {
-        $this->router->map('/категория/@name:[абвгдеёжзийклмнопрстуфхцчшщъыьэюя]+', function ($name) {
-            echo $name;
-        });
-        $this->request->url = urlencode('/категория/цветя');
-
-        $this->check('цветя');
     }
 
     public function testGetAndClearRoutes()
