@@ -49,7 +49,8 @@ class PdoWrapper extends PDO
     public function fetchField(string $sql, array $params = [])
     {
         $result = $this->fetchRow($sql, $params);
-        return reset($result);
+        $data = $result->getData();
+        return reset($data);
     }
 
     /**

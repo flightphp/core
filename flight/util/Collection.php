@@ -21,18 +21,6 @@ use JsonSerializable;
 class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 {
     /**
-     * This is to allow for reset() to work properly.
-     *
-     * WARNING! This MUST be the first variable in this class!!!
-     *
-     * PHPStan is ignoring this because we don't need actually to read the property
-     *
-     * @var mixed
-     * @phpstan-ignore-next-line
-     */
-    private $first_property = null;
-
-    /**
      * Collection data.
      *
      * @var array<string, mixed>
@@ -47,7 +35,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     public function __construct(array $data = [])
     {
         $this->data = $data;
-        $this->handleReset();
     }
 
     /**
@@ -68,7 +55,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     public function __set(string $key, $value): void
     {
         $this->data[$key] = $value;
-        $this->handleReset();
     }
 
     /**
@@ -85,7 +71,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     public function __unset(string $key): void
     {
         unset($this->data[$key]);
-        $this->handleReset();
     }
 
     /**
@@ -115,7 +100,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
         } else {
             $this->data[$offset] = $value;
         }
-        $this->handleReset();
     }
 
     /**
@@ -136,17 +120,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     public function offsetUnset($offset): void
     {
         unset($this->data[$offset]);
-        $this->handleReset();
-    }
-
-    /**
-     * This is to allow for reset() of a Collection to work properly.
-     *
-     * @return void
-     */
-    public function handleReset()
-    {
-        $this->first_property = reset($this->data);
     }
 
     /**
@@ -234,7 +207,6 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     public function setData(array $data): void
     {
         $this->data = $data;
-        $this->handleReset();
     }
 
     #[\ReturnTypeWillChange]

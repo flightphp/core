@@ -305,7 +305,7 @@ class DispatcherTest extends TestCase
     public function testExecuteStringClassDefaultContainerButForgotInjectingEngine(): void
     {
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessageMatches('#Argument 1 passed to tests\\\\classes\\\\ContainerDefault::__construct\(\) must be an instance of flight\\\\Engine, null given#');
+        $this->expectExceptionMessageMatches('#tests\\\\classes\\\\ContainerDefault::__construct\(\).+flight\\\\Engine, null given#');
         $result = $this->dispatcher->execute([ ContainerDefault::class, 'testTheContainer' ]);
     }
 }

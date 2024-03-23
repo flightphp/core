@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace tests;
 
+use ErrorException;
 use Exception;
 use flight\database\PdoWrapper;
 use flight\Engine;
@@ -750,8 +751,8 @@ class EngineTest extends TestCase
         $engine->route('/container', Container::class.'->testThePdoWrapper');
         $engine->request()->url = '/container';
 
-        $this->expectException(PDOException::class);
-        $this->expectExceptionMessage("invalid data source name");
+        $this->expectException(ErrorException::class);
+        $this->expectExceptionMessageMatches("/Passing null to parameter/");
 
         $engine->start();
     }
