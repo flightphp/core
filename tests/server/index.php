@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use flight\core\Loader;
 use flight\database\PdoWrapper;
 use tests\classes\Container;
 use tests\classes\ContainerDefault;
@@ -18,10 +19,8 @@ use tests\classes\ContainerDefault;
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
 Flight::set('flight.views.extension', '.phtml');
-//Flight::set('flight.v2.output_buffering', true);
-
-require_once 'LayoutMiddleware.php';
-require_once 'OverwriteBodyMiddleware.php';
+Loader::setV2ClassLoading(false);
+Flight::path(__DIR__);
 
 Flight::group('', function () {
 
@@ -147,6 +146,7 @@ Flight::group('', function () {
     Flight::set('test_me_out', 'You got it boss!'); // used in /no-container route
     Flight::route('/no-container', ContainerDefault::class . '->testUi');
     Flight::route('/dice', Container::class . '->testThePdoWrapper');
+    Flight::route('/Pascal_Snake_Case', Pascal_Snake_Case::class . '->doILoad');
 }, [ new LayoutMiddleware() ]);
 
 // Test 9: JSON output (should not output any other html)

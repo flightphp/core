@@ -83,6 +83,7 @@ class LayoutMiddleware
 <li><a href="/わたしはひとです/ええ">UTF8 URL w/ Param</a></li>
 <li><a href="/dice">Dice Container</a></li>
 <li><a href="/no-container">No Container Registered</a></li>
+<li><a href="/Pascal_Snake_Case">Pascal_Snake_Case</a></li>
 </ul>
 HTML;
         echo '<div id="container">';
