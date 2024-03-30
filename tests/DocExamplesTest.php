@@ -74,4 +74,22 @@ class DocExamplesTest extends TestCase
         Flight::app()->handleException(new Exception('Error'));
         $this->expectOutputString('Custom: Error');
     }
+
+    public function testGetRouterStatically()
+    {
+        $router = Flight::router();
+        Flight::request()->method = 'GET';
+        Flight::request()->url = '/';
+
+        $router->get(
+            '/',
+            function () {
+                Flight::response()->write('from resp ');
+            }
+        );
+
+        Flight::start();
+
+        $this->expectOutputString('from resp ');
+    }
 }
