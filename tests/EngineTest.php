@@ -751,8 +751,14 @@ class EngineTest extends TestCase
         $engine->route('/container', Container::class.'->testThePdoWrapper');
         $engine->request()->url = '/container';
 
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessageMatches("/Passing null to parameter/");
+        // php 7.4 will throw a PDO exception, but php 8 will throw an ErrorException
+        if(version_compare(PHP_VERSION, '8.0.0', '<')) {
+            $this->expectException(PDOException::class);
+            $this->expectExceptionMessageMatches("/invalid data source name/");
+        } else {
+            $this->expectException(ErrorException::class);
+            $this->expectExceptionMessageMatches("/Passing null to parameter/");
+        }
 
         $engine->start();
     }
