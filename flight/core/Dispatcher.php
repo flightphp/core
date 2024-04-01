@@ -7,6 +7,7 @@ namespace flight\core;
 use Exception;
 use flight\Engine;
 use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
 use ReflectionFunction;
 use TypeError;
 
@@ -43,20 +44,24 @@ class Dispatcher
     /**
      * This is a container for the dependency injection.
      *
-     * @var callable|object|null
+     * @var null|ContainerInterface|(callable(string $classString, array $params): (null|object))
      */
     protected $containerHandler = null;
 
     /**
      * Sets the dependency injection container handler.
      *
-     * @param callable|object $containerHandler Dependency injection container
-     *
-     * @return void
+     * @param ContainerInterface|(callable(string $classString, array $params): (null|object)) $containerHandler
+     * Dependency injection container.
      */
     public function setContainerHandler($containerHandler): void
     {
-        $this->containerHandler = $containerHandler;
+        if (
+            $containerHandler instanceof ContainerInterface
+            || is_callable($containerHandler)
+        ) {
+            $this->containerHandler = $containerHandler;
+        }
     }
 
     public function setEngine(Engine $engine): void
@@ -390,67 +395,66 @@ class Dispatcher
      */
     protected function verifyValidClassCallable($class, $method, $resolvedClass): void
     {
-        $final_exception = null;
+        $exception = null;
 
         // Final check to make sure it's actually a class and a method, or throw an error
-        if (is_object($class) === false && class_exists($class) === false) {
-            $final_exception = new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
+        if (!is_object($class) && !class_exists($class)) {
+            $exception = new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
 
-        // If this tried to resolve a class in a container and failed somehow, throw the exception
-        } elseif (isset($resolvedClass) === false && $this->containerException !== null) {
-            $final_exception = $this->containerException;
+            // If this tried to resolve a class in a container and failed somehow, throw the exception
+        } elseif (!$resolvedClass && $this->containerException) {
+            $exception = $this->containerException;
 
-        // Class is there, but no method
-        } elseif (is_object($class) === true && method_exists($class, $method) === false) {
-            $final_exception = new Exception("Class found, but method '" . get_class($class) . "::$method' not found.");
+            // Class is there, but no method
+        } elseif (is_object($class) && !method_exists($class, $method)) {
+            $classNamespace = get_class($class);
+            $exception = new Exception("Class found, but method '$classNamespace::$method' not found.");
         }
 
-        if ($final_exception !== null) {
+        if ($exception) {
             $this->fixOutputBuffering();
-            throw $final_exception;
+
+            throw $exception;
         }
     }
 
     /**
      * Resolves the container class.
      *
-     * @param callable|object $container_handler Dependency injection container
      * @param class-string $class Class name.
      * @param array<int, mixed> &$params Class constructor parameters.
      *
      * @return ?object Class object.
      */
-    protected function resolveContainerClass($container_handler, $class, array &$params)
+    protected function resolveContainerClass(string $class, array &$params)
     {
-        $class_object = null;
-
         // PSR-11
         if (
-            is_object($container_handler) === true &&
-            method_exists($container_handler, 'has') === true &&
-            $container_handler->has($class)
+            $this->containerHandler instanceof ContainerInterface
+            && $this->containerHandler->has($class)
         ) {
-            $class_object = call_user_func([$container_handler, 'get'], $class);
+            return $this->containerHandler->get($class);
+        }
 
         // Just a callable where you configure the behavior (Dice, PHP-DI, etc.)
-        } elseif (is_callable($container_handler) === true) {
-            // This is to catch all the error that could be thrown by whatever container you are using
+        if (is_callable($this->containerHandler)) {
+            /* This is to catch all the error that could be thrown by whatever
+            container you are using */
             try {
-                $class_object = call_user_func($container_handler, $class, $params);
-            } catch (Exception $e) {
-                // could not resolve a class for some reason
-                $class_object = null;
+                return ($this->containerHandler)($class, $params);
 
+                // could not resolve a class for some reason
+            } catch (Exception $exception) {
                 // If the container throws an exception, we need to catch it
                 // and store it somewhere. If we just let it throw itself, it
                 // doesn't properly close the output buffers and can cause other
                 // issues.
-                // This is thrown in the verifyValidClassCallable method
-                $this->containerException = $e;
+                // This is thrown in the verifyValidClassCallable method.
+                $this->containerException = $exception;
             }
         }
 
-        return $class_object;
+        return null;
     }
 
     /** Because this could throw an exception in the middle of an output buffer, */
