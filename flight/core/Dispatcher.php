@@ -22,12 +22,11 @@ class Dispatcher
 {
     public const FILTER_BEFORE = 'before';
     public const FILTER_AFTER = 'after';
-    private const FILTER_TYPES = [self::FILTER_BEFORE, self::FILTER_AFTER];
 
-    /** @var mixed $containerException Exception message if thrown by setting the container as a callable method */
-    protected $containerException = null;
+    /** Exception message if thrown by setting the container as a callable method. */
+    protected ?Exception $containerException = null;
 
-    /** @var ?Engine $engine Engine instance */
+    /** @var ?Engine $engine Engine instance. */
     protected ?Engine $engine = null;
 
     /** @var array<string, callable(): (void|mixed)> Mapped events. */
@@ -187,8 +186,7 @@ class Dispatcher
             return;
         }
 
-        $this->events = [];
-        $this->filters = [];
+        $this->reset();
     }
 
     /**
@@ -202,8 +200,10 @@ class Dispatcher
      */
     public function hook(string $name, string $type, callable $callback): self
     {
-        if (!in_array($type, self::FILTER_TYPES, true)) {
-            $noticeMessage = "Invalid filter type '$type', use " . join('|', self::FILTER_TYPES);
+        static $filterTypes = [self::FILTER_BEFORE, self::FILTER_AFTER];
+
+        if (!in_array($type, $filterTypes, true)) {
+            $noticeMessage = "Invalid filter type '$type', use " . join('|', $filterTypes);
 
             trigger_error($noticeMessage, E_USER_NOTICE);
         }
@@ -321,8 +321,9 @@ class Dispatcher
     public function invokeCallable($func, array &$params = [])
     {
         // If this is a directly callable function, call it
-        if (is_array($func) === false) {
+        if (!is_array($func)) {
             $this->verifyValidFunction($func);
+
             return call_user_func_array($func, $params);
         }
 
@@ -344,11 +345,11 @@ class Dispatcher
         $this->verifyValidClassCallable($class, $method, $resolvedClass ?? null);
 
         // Class is a string, and method exists, create the object by hand and inject only the Engine
-        if (is_string($class) === true) {
+        if (is_string($class)) {
             $class = new $class($this->engine);
         }
 
-        return call_user_func_array([ $class, $method ], $params);
+        return call_user_func_array([$class, $method], $params);
     }
 
     /**
@@ -361,12 +362,7 @@ class Dispatcher
      */
     protected function verifyValidFunction($callback): void
     {
-        $isInvalidFunctionName = (
-            is_string($callback)
-            && !function_exists($callback)
-        );
-
-        if ($isInvalidFunctionName) {
+        if (is_string($callback) && !function_exists($callback)) {
             throw new InvalidArgumentException('Invalid callback specified.');
         }
     }
