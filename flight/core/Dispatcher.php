@@ -7,6 +7,7 @@ namespace flight\core;
 use Exception;
 use flight\Engine;
 use InvalidArgumentException;
+use ReflectionFunction;
 use TypeError;
 
 /**
@@ -206,6 +207,16 @@ class Dispatcher
             $noticeMessage = "Invalid filter type '$type', use " . join('|', $filterTypes);
 
             trigger_error($noticeMessage, E_USER_NOTICE);
+        }
+
+        if ($type === self::FILTER_AFTER) {
+            $callbackInfo = new ReflectionFunction($callback);
+            $parametersNumber = $callbackInfo->getNumberOfParameters();
+
+            if ($parametersNumber === 1) {
+                /** @disregard &$params in after filters are deprecated. */
+                $callback = fn (array &$params, &$output) => $callback($output);
+            }
         }
 
         $this->filters[$name][$type][] = $callback;
