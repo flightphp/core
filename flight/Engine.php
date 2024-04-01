@@ -27,21 +27,20 @@ use flight\net\Route;
  * # Core methods
  * @method void start() Starts engine
  * @method void stop() Stops framework and outputs current response
- * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
- * Stops processing and returns a given response.
+ * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
  *
  * # Routing
- * @method Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a URL to a callback function with all applicable methods
  * @method void group(string $pattern, callable $callback, array<int, callable|object> $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
- * @method Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route post(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
- * @method Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route put(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PUT URL to a callback function.
- * @method Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route patch(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a PATCH URL to a callback function.
- * @method Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
+ * @method Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
@@ -64,10 +63,14 @@ use flight\net\Route;
  * # HTTP caching
  * @method void etag(string $id, ('strong'|'weak') $type = 'strong') Handles ETag HTTP caching.
  * @method void lastModified(int $time) Handles last modified HTTP caching.
+ *
+ * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class Engine
 {
-    /** @var array<string> List of methods that can be extended in the Engine class. */
+    /**
+     * @var array<string> List of methods that can be extended in the Engine class.
+     */
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
         'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
@@ -134,6 +137,9 @@ class Engine
             $this->loader->reset();
             $this->dispatcher->reset();
         }
+
+        // Add this class to Dispatcher
+        $this->dispatcher->setEngine($this);
 
         // Register default components
         $this->loader->register('request', Request::class);
@@ -212,6 +218,18 @@ class Engine
         }
 
         $this->error($e);
+    }
+
+    /**
+     * Registers the container handler
+     *
+     * @param callable|object $containerHandler Callback function or PSR-11 Container object that sets the container and how it will inject classes
+     *
+     * @return void
+     */
+    public function registerContainerHandler($containerHandler): void
+    {
+        $this->dispatcher->setContainerHandler($containerHandler);
     }
 
     /**
@@ -296,7 +314,7 @@ class Engine
      */
     public function get(?string $key = null)
     {
-        if ($key === null) {
+        if (null === $key) {
             return $this->vars;
         }
 
@@ -342,9 +360,8 @@ class Engine
      */
     public function clear(?string $key = null): void
     {
-        if ($key === null) {
+        if (null === $key) {
             $this->vars = [];
-
             return;
         }
 
@@ -365,7 +382,7 @@ class Engine
      * Processes each routes middleware.
      *
      * @param Route $route The route to process the middleware for.
-     * @param 'before'|'after' $event_name If this is the before or after method.
+     * @param string $event_name If this is the before or after method.
      */
     protected function processMiddleware(Route $route, string $event_name): bool
     {
@@ -533,6 +550,11 @@ class Engine
             $dispatched = false;
         }
 
+        // HEAD requests should be identical to GET requests but have no body
+        if ($request->method === 'HEAD') {
+            $response->clearBody();
+        }
+
         if ($failed_middleware_check === true) {
             $this->halt(403, 'Forbidden', empty(getenv('PHPUNIT_TEST')));
         } elseif ($dispatched === false) {
@@ -548,7 +570,9 @@ class Engine
     public function _error(Throwable $e): void
     {
         $msg = sprintf(
-            '<h1>500 Internal Server Error</h1><h3>%s (%s)</h3><pre>%s</pre>',
+            '<h1>500 Internal Server Error</h1>' .
+                '<h3>%s (%s)</h3>' .
+                '<pre>%s</pre>',
             $e->getMessage(),
             $e->getCode(),
             $e->getTraceAsString()
@@ -573,13 +597,14 @@ class Engine
      * @param ?int $code HTTP status code
      *
      * @throws Exception
+     * @deprecated 3.5.3 This method will be removed in v4
      */
     public function _stop(?int $code = null): void
     {
         $response = $this->response();
 
         if (!$response->sent()) {
-            if ($code !== null) {
+            if (null !== $code) {
                 $response->status($code);
             }
 
@@ -595,11 +620,11 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function
      * @param bool $pass_route Pass the matching route object to the callback
      * @param string $alias The alias for the route
      */
-    public function _route(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function _route(string $pattern, $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->router()->map($pattern, $callback, $pass_route, $alias);
     }
@@ -620,10 +645,10 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _post(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _post(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
     {
         $this->router()->map('POST ' . $pattern, $callback, $pass_route, $route_alias);
     }
@@ -632,10 +657,10 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _put(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _put(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
     {
         $this->router()->map('PUT ' . $pattern, $callback, $pass_route, $route_alias);
     }
@@ -644,15 +669,11 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _patch(
-        string $pattern,
-        callable $callback,
-        bool $pass_route = false,
-        string $route_alias = ''
-    ): void {
+    public function _patch(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
+    {
         $this->router()->map('PATCH ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
@@ -660,15 +681,11 @@ class Engine
      * Routes a URL to a callback function.
      *
      * @param string $pattern URL pattern to match
-     * @param callable $callback Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
      */
-    public function _delete(
-        string $pattern,
-        callable $callback,
-        bool $pass_route = false,
-        string $route_alias = ''
-    ): void {
+    public function _delete(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
+    {
         $this->router()->map('DELETE ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
@@ -710,10 +727,14 @@ class Engine
      */
     public function _redirect(string $url, int $code = 303): void
     {
-        $base = $this->get('flight.base_url') ?? $this->request()->base;
+        $base = $this->get('flight.base_url');
+
+        if (null === $base) {
+            $base = $this->request()->base;
+        }
 
         // Append base url to redirect url
-        if ($base !== '/' && strpos($url, '://') === false) {
+        if ('/' !== $base && false === strpos($url, '://')) {
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
@@ -735,9 +756,8 @@ class Engine
      */
     public function _render(string $file, ?array $data = null, ?string $key = null): void
     {
-        if ($key !== null) {
+        if (null !== $key) {
             $this->view()->set($key, $this->view()->fetch($file, $data));
-
             return;
         }
 
@@ -813,7 +833,7 @@ class Engine
      */
     public function _etag(string $id, string $type = 'strong'): void
     {
-        $id = (($type === 'weak') ? 'W/' : '') . $id;
+        $id = (('weak' === $type) ? 'W/' : '') . $id;
 
         $this->response()->header('ETag', '"' . str_replace('"', '\"', $id) . '"');
 

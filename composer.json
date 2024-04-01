@@ -41,11 +41,13 @@
     },
     "require-dev": {
         "ext-pdo_sqlite": "*",
+        "league/container": "^4.2",
+        "level-2/dice": "^4.0",
         "phpstan/extension-installer": "^1.3",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^9.5",
         "rregeer/phpunit-coverage-check": "^0.3.1",
-        "squizlabs/php_codesniffer": "^3.9"
+        "squizlabs/php_codesniffer": "^3.8"
     },
     "config": {
         "allow-plugins": {
@@ -56,14 +58,13 @@
     },
     "scripts": {
         "test": "phpunit",
-        "test-coverage": "rm clover.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
+        "test-coverage": "rm -f clover.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
         "test-server": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server/",
         "test-server-v2": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server-v2/",
         "test-coverage:win": "del clover.xml && phpunit --coverage-html=coverage --coverage-clover=clover.xml && coverage-check clover.xml 100",
         "lint": "phpstan --no-progress -cphpstan.neon",
         "beautify": "phpcbf --standard=phpcs.xml",
-        "phpcs": "phpcs --standard=phpcs.xml -n",
-        "post-install-cmd": ["php -r \"if (!file_exists('phpcs.xml')) copy('phpcs.xml.dist', 'phpcs.xml');\""]
+        "phpcs": "phpcs --standard=phpcs.xml -n"
     },
     "suggest": {
         "latte/latte": "Latte template engine",

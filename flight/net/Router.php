@@ -30,6 +30,11 @@ class Router
     protected array $routes = [];
 
     /**
+     * The current route that is has been found and executed.
+     */
+    protected ?Route $executedRoute = null;
+
+    /**
      * Pointer to current route.
      */
     protected int $index = 0;
@@ -75,11 +80,11 @@ class Router
      * Maps a URL pattern to a callback function.
      *
      * @param string $pattern URL pattern to match.
-     * @param callable $callback Callback function.
+     * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback.
      * @param string $route_alias Alias for the route.
      */
-    public function map(string $pattern, callable $callback, bool $pass_route = false, string $route_alias = ''): Route
+    public function map(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
 
         // This means that the route ies defined in a group, but the defined route is the base
@@ -96,10 +101,15 @@ class Router
 
         $methods = ['*'];
 
-        if (strpos($url, ' ') !== false) {
+        if (false !== strpos($url, ' ')) {
             [$method, $url] = explode(' ', $url, 2);
             $url = trim($url);
             $methods = explode('|', $method);
+
+            // Add head requests to get methods, should they come in as a get request
+            if (in_array('GET', $methods, true) === true && in_array('HEAD', $methods, true) === false) {
+                $methods[] = 'HEAD';
+            }
         }
 
         // And this finishes it off.
@@ -123,11 +133,11 @@ class Router
      * Creates a GET based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
-    public function get(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function get(string $pattern, $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->map('GET ' . $pattern, $callback, $pass_route, $alias);
     }
@@ -136,11 +146,11 @@ class Router
      * Creates a POST based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
-    public function post(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function post(string $pattern, $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->map('POST ' . $pattern, $callback, $pass_route, $alias);
     }
@@ -149,11 +159,11 @@ class Router
      * Creates a PUT based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
-    public function put(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function put(string $pattern, $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->map('PUT ' . $pattern, $callback, $pass_route, $alias);
     }
@@ -162,11 +172,11 @@ class Router
      * Creates a PATCH based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
-    public function patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function patch(string $pattern, $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->map('PATCH ' . $pattern, $callback, $pass_route, $alias);
     }
@@ -175,11 +185,11 @@ class Router
      * Creates a DELETE based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable $callback   Callback function
+     * @param callable|string $callback Callback function or string class->method
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
-    public function delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = ''): Route
+    public function delete(string $pattern, $callback, bool $pass_route = false, string $alias = ''): Route
     {
         return $this->map('DELETE ' . $pattern, $callback, $pass_route, $alias);
     }
@@ -210,13 +220,11 @@ class Router
      */
     public function route(Request $request)
     {
-        $url_decoded = urldecode($request->url);
-
         while ($route = $this->current()) {
-            if ($route->matchMethod($request->method) && $route->matchUrl($url_decoded, $this->case_sensitive)) {
+            if ($route->matchMethod($request->method) && $route->matchUrl($request->url, $this->case_sensitive)) {
+                $this->executedRoute = $route;
                 return $route;
             }
-
             $this->next();
         }
 
@@ -235,6 +243,11 @@ class Router
         foreach ($this->routes as $route) {
             $potential_aliases[] = $route->alias;
             if ($route->matchAlias($alias)) {
+                // This will make it so the params that already
+                // exist in the url will be passed in.
+                if (!empty($this->executedRoute->params)) {
+                    $params = $params + $this->executedRoute->params;
+                }
                 return $route->hydrateUrl($params);
             }
         }

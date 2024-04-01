@@ -4,11 +4,17 @@ declare(strict_types=1);
 
 namespace tests;
 
+use ErrorException;
 use Exception;
-use Flight;
+use flight\database\PdoWrapper;
 use flight\Engine;
+use flight\net\Request;
 use flight\net\Response;
+use flight\util\Collection;
+use PDOException;
 use PHPUnit\Framework\TestCase;
+use tests\classes\Container;
+use tests\classes\ContainerDefault;
 
 // phpcs:ignoreFile PSR2.Methods.MethodDeclaration.Underscore
 class EngineTest extends TestCase
@@ -263,6 +269,20 @@ class EngineTest extends TestCase
         $this->assertEquals('/someRoute', $routes[0]->pattern);
     }
 
+    public function testHeadRoute()
+    {
+        $engine = new Engine();
+        $engine->route('GET /someRoute', function () {
+            echo 'i ran';
+        }, true);
+        $engine->request()->method = 'HEAD';
+        $engine->request()->url = '/someRoute';
+        $engine->start();
+
+        // No body should be sent
+        $this->expectOutputString('');
+    }
+
     public function testHalt()
     {
         $engine = new class extends Engine {
@@ -302,6 +322,33 @@ class EngineTest extends TestCase
         $engine->redirect('/someRoute', 301);
         $this->assertEquals('/subdirectory/someRoute', $engine->response()->headers()['Location']);
         $this->assertEquals(301, $engine->response()->status());
+    }
+
+    public function testJsonRequestBody()
+    {
+        $engine = new Engine();
+        $tmpfile = tmpfile();
+        $stream_path = stream_get_meta_data($tmpfile)['uri'];
+        file_put_contents($stream_path, '{"key1":"value1","key2":"value2"}');
+
+        $engine->register('request', Request::class, [
+            [
+                'method' => 'POST',
+                'url' => '/something/fancy',
+                'base' => '/vagrant/public',
+                'type' => 'application/json',
+                'length' => 13,
+                'data' => new Collection(),
+                'query' => new Collection(),
+                'stream_path' => $stream_path
+            ]
+        ]);
+        $engine->post('/something/fancy', function () use ($engine) {
+            echo $engine->request()->data->key1;
+            echo $engine->request()->data->key2;
+        });
+        $engine->start();
+        $this->expectOutputString('value1value2');
     }
 
     public function testJson()
@@ -403,6 +450,34 @@ class EngineTest extends TestCase
         }, false, 'path1');
         $url = $engine->getUrl('path1', [ 'param' => 123 ]);
         $this->assertEquals('/path1/123', $url);
+    }
+
+    public function testGetUrlComplex()
+    {
+        $engine = new Engine();
+        $engine->route('/item/@item_param:[a-z0-9]{16}/by-status/@token:[a-z0-9]{16}', function () {
+            echo 'I win';
+        }, false, 'path_item_1');
+        $url = $engine->getUrl('path_item_1', [ 'item_param' => 1234567890123456, 'token' => 6543210987654321 ]);
+        $this->assertEquals('/item/1234567890123456/by-status/6543210987654321', $url);
+    }
+
+    public function testGetUrlInsideRoute()
+    {
+        $engine = new Engine();
+        $engine->route('/path1/@param:[0-9]{3}', function () {
+            echo 'I win';
+        }, false, 'path1');
+        $found_url = '';
+        $engine->route('/path1/@param:[0-9]{3}/path2', function () use ($engine, &$found_url) {
+
+            // this should pull the param from the first route
+            // since the param names are the same.
+            $found_url = $engine->getUrl('path1');
+        });
+        $engine->request()->url = '/path1/123/path2';
+        $engine->start();
+        $this->assertEquals('/path1/123', $found_url);
     }
 
     public function testMiddlewareCallableFunction()
@@ -604,5 +679,173 @@ class EngineTest extends TestCase
         $engine->request()->url = '/path1/123/subpath1/456';
         $engine->start();
         $this->expectOutputString('before456before123OKafter123456after123');
+    }
+
+    public function testContainerDice() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('yay! I injected a collection, and it has 1 items');
+    }
+
+    public function testContainerDicePdoWrapperTest() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testThePdoWrapper');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('Yay! I injected a PdoWrapper, and it returned the number 5 from the database!');
+    }
+
+    public function testContainerDiceFlightEngine() {
+        $engine = new Engine();
+        $engine->set('test_me_out', 'You got it boss!');
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRule('*', [
+            'substitutions' => [
+                Engine::class => $engine
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', ContainerDefault::class.'->echoTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('You got it boss!');
+    }
+
+    public function testContainerDicePdoWrapperTestBadParams() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->testThePdoWrapper');
+        $engine->request()->url = '/container';
+
+        // php 7.4 will throw a PDO exception, but php 8 will throw an ErrorException
+        if(version_compare(PHP_VERSION, '8.0.0', '<')) {
+            $this->expectException(PDOException::class);
+            $this->expectExceptionMessageMatches("/invalid data source name/");
+        } else {
+            $this->expectException(ErrorException::class);
+            $this->expectExceptionMessageMatches("/Passing null to parameter/");
+        }
+
+        $engine->start();
+    }
+
+    public function testContainerDiceBadClass() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', 'BadClass->testTheContainer');
+        $engine->request()->url = '/container';
+        
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
+        
+        $engine->start();
+    }
+
+    public function testContainerDiceBadMethod() {
+        $engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+        $engine->route('/container', Container::class.'->badMethod');
+        $engine->request()->url = '/container';
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class found, but method 'tests\classes\Container::badMethod' not found.");
+
+        $engine->start();
+    }
+
+    public function testContainerPsr11() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
+        $container->add(Collection::class);
+        $container->add(PdoWrapper::class)->addArgument('sqlite::memory:');
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', Container::class.'->testTheContainer');
+        $engine->request()->url = '/container';
+        $engine->start();
+
+        $this->expectOutputString('yay! I injected a collection, and it has 1 items');
+    }
+
+    public function testContainerPsr11ClassNotFound() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class);
+        $container->add(Collection::class);
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', 'BadClass->testTheContainer');
+        $engine->request()->url = '/container';
+        
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class 'BadClass' not found. Is it being correctly autoloaded with Flight::path()?");
+        
+        $engine->start();
+    }
+
+    public function testContainerPsr11MethodNotFound() {
+        $engine = new Engine();
+        $container = new \League\Container\Container();
+        $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
+        $container->add(Collection::class);
+        $container->add(PdoWrapper::class)->addArgument('sqlite::memory:');
+        $engine->registerContainerHandler($container);
+        
+        $engine->route('/container', Container::class.'->badMethod');
+        $engine->request()->url = '/container';
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage("Class found, but method 'tests\classes\Container::badMethod' not found.");
+
+        $engine->start();
     }
 }

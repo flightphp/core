@@ -146,24 +146,24 @@ class Request
         // Default properties
         if (empty($config)) {
             $config = [
-                'url' => str_replace('@', '%40', self::getVar('REQUEST_URI', '/')),
-                'base' => str_replace(['\\', ' '], ['/', '%20'], \dirname(self::getVar('SCRIPT_NAME'))),
-                'method' => self::getMethod(),
-                'referrer' => self::getVar('HTTP_REFERER'),
-                'ip' => self::getVar('REMOTE_ADDR'),
-                'ajax' => self::getVar('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest',
-                'scheme' => self::getScheme(),
+                'url'        => str_replace('@', '%40', self::getVar('REQUEST_URI', '/')),
+                'base'       => str_replace(['\\', ' '], ['/', '%20'], \dirname(self::getVar('SCRIPT_NAME'))),
+                'method'     => self::getMethod(),
+                'referrer'   => self::getVar('HTTP_REFERER'),
+                'ip'         => self::getVar('REMOTE_ADDR'),
+                'ajax'       => 'XMLHttpRequest' === self::getVar('HTTP_X_REQUESTED_WITH'),
+                'scheme'     => self::getScheme(),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
-                'type' => self::getVar('CONTENT_TYPE'),
-                'length' => intval(self::getVar('CONTENT_LENGTH', 0)),
-                'query' => new Collection($_GET),
-                'data' => new Collection($_POST),
-                'cookies' => new Collection($_COOKIE),
-                'files' => new Collection($_FILES),
-                'secure' => self::getScheme() === 'https',
-                'accept' => self::getVar('HTTP_ACCEPT'),
-                'proxy_ip' => self::getProxyIpAddress(),
-                'host' => self::getVar('HTTP_HOST'),
+                'type'       => self::getVar('CONTENT_TYPE'),
+                'length'     => intval(self::getVar('CONTENT_LENGTH', 0)),
+                'query'      => new Collection($_GET),
+                'data'       => new Collection($_POST),
+                'cookies'    => new Collection($_COOKIE),
+                'files'      => new Collection($_FILES),
+                'secure'     => 'https' === self::getScheme(),
+                'accept'     => self::getVar('HTTP_ACCEPT'),
+                'proxy_ip'   => self::getProxyIpAddress(),
+                'host'       => self::getVar('HTTP_HOST'),
             ];
         }
 
@@ -181,14 +181,14 @@ class Request
     {
         // Set all the defined properties
         foreach ($properties as $name => $value) {
-            $this->$name = $value;
+            $this->{$name} = $value;
         }
 
         // Get the requested URL without the base directory
         // This rewrites the url in case the public url and base directories match
         // (such as installing on a subdirectory in a web server)
         // @see testInitUrlSameAsBaseDirectory
-        if ($this->base !== '/' && $this->base !== '' && strpos($this->url, $this->base) === 0) {
+        if ('/' !== $this->base && '' !== $this->base && 0 === strpos($this->url, $this->base)) {
             $this->url = substr($this->url, \strlen($this->base));
         }
 
@@ -203,10 +203,9 @@ class Request
         }
 
         // Check for JSON input
-        if (strpos($this->type, 'application/json') === 0) {
+        if (0 === strpos($this->type, 'application/json')) {
             $body = $this->getBody();
-
-            if ($body !== '') {
+            if ('' !== $body) {
                 $data = json_decode($body, true);
                 if (is_array($data)) {
                     $this->data->setData($data);
@@ -226,17 +225,14 @@ class Request
     {
         $body = $this->body;
 
-        if ($body !== '') {
+        if ('' !== $body) {
             return $body;
         }
 
-        switch (self::getMethod()) {
-            case 'POST':
-            case 'PUT':
-            case 'DELETE':
-            case 'PATCH':
-                $body = file_get_contents($this->stream_path);
-                break;
+        $method = $this->method ?? self::getMethod();
+
+        if ('POST' === $method || 'PUT' === $method || 'DELETE' === $method || 'PATCH' === $method) {
+            $body = file_get_contents($this->stream_path);
         }
 
         $this->body = $body;
@@ -281,8 +277,7 @@ class Request
         foreach ($forwarded as $key) {
             if (\array_key_exists($key, $_SERVER)) {
                 sscanf($_SERVER[$key], '%[^,]', $ip);
-
-                if (filter_var($ip, \FILTER_VALIDATE_IP, $flags) !== false) {
+                if (false !== filter_var($ip, \FILTER_VALIDATE_IP, $flags)) {
                     return $ip;
                 }
             }
@@ -326,15 +321,13 @@ class Request
     public static function getHeaders(): array
     {
         $headers = [];
-
         foreach ($_SERVER as $key => $value) {
-            if (strpos($key, 'HTTP_') === 0) {
+            if (0 === strpos($key, 'HTTP_')) {
                 // converts headers like HTTP_CUSTOM_HEADER to Custom-Header
                 $key = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
                 $headers[$key] = $value;
             }
         }
-
         return $headers;
     }
 
@@ -343,8 +336,10 @@ class Request
      *
      * @param string $header  Header name. Can be caps, lowercase, or mixed.
      * @param string $default Default value if the header does not exist
+     *
+     * @return string
      */
-    public static function header(string $header, $default = ''): string
+    public static function header(string $header, $default = '')
     {
         return self::getHeader($header, $default);
     }
@@ -359,13 +354,21 @@ class Request
         return self::getHeaders();
     }
 
-    /** Gets the full request URL. */
+    /**
+     * Gets the full request URL.
+     *
+     * @return string URL
+     */
     public function getFullUrl(): string
     {
         return $this->scheme . '://' . $this->host . $this->url;
     }
 
-    /** Grabs the scheme and host. Does not end with a / */
+    /**
+     * Grabs the scheme and host. Does not end with a /
+     *
+     * @return string
+     */
     public function getBaseUrl(): string
     {
         return $this->scheme . '://' . $this->host;
@@ -393,18 +396,18 @@ class Request
     /**
      * Gets the URL Scheme
      *
-     * @return 'http'|'https'
+     * @return string 'http'|'https'
      */
     public static function getScheme(): string
     {
         if (
-            (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on')
+            (isset($_SERVER['HTTPS']) && 'on' === strtolower($_SERVER['HTTPS']))
             ||
-            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'])
             ||
-            (isset($_SERVER['HTTP_FRONT_END_HTTPS']) && $_SERVER['HTTP_FRONT_END_HTTPS'] === 'on')
+            (isset($_SERVER['HTTP_FRONT_END_HTTPS']) && 'on' === $_SERVER['HTTP_FRONT_END_HTTPS'])
             ||
-            (isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https')
+            (isset($_SERVER['REQUEST_SCHEME']) && 'https' === $_SERVER['REQUEST_SCHEME'])
         ) {
             return 'https';
         }

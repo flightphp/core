@@ -238,4 +238,21 @@ class ResponseTest extends TestCase
         $response->send();
         $this->assertTrue($response->sent());
     }
+
+    public function testClearBody()
+    {
+        $response = new Response();
+        $response->write('test');
+        $response->clearBody();
+        $this->assertEquals('', $response->getBody());
+    }
+
+    public function testOverwriteBody()
+    {
+        $response = new Response();
+        $response->write('test');
+        $response->write('lots more test');
+        $response->write('new', true);
+        $this->assertEquals('new', $response->getBody());
+    }
 }

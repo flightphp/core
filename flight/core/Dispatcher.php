@@ -6,8 +6,8 @@ namespace flight\core;
 
 use Closure;
 use Exception;
+use flight\Engine;
 use InvalidArgumentException;
-use ReflectionClass;
 use TypeError;
 
 /**
@@ -25,6 +25,12 @@ class Dispatcher
     public const FILTER_AFTER = 'after';
     private const FILTER_TYPES = [self::FILTER_BEFORE, self::FILTER_AFTER];
 
+    /** @var mixed $containerException Exception message if thrown by setting the container as a callable method */
+    protected $containerException = null;
+
+    /** @var ?Engine $engine Engine instance */
+    protected ?Engine $engine = null;
+
     /** @var array<string, Closure(): (void|mixed)> Mapped events. */
     protected array $events = [];
 
@@ -34,6 +40,30 @@ class Dispatcher
      * @var array<string, array<'before'|'after', array<int, Closure(array<int, mixed> &$params, mixed &$output): (void|false)>>>
      */
     protected array $filters = [];
+
+    /**
+     * This is a container for the dependency injection.
+     *
+     * @var callable|object|null
+     */
+    protected $containerHandler = null;
+
+    /**
+     * Sets the dependency injection container handler.
+     *
+     * @param callable|object $containerHandler Dependency injection container
+     *
+     * @return void
+     */
+    public function setContainerHandler($containerHandler): void
+    {
+        $this->containerHandler = $containerHandler;
+    }
+
+    public function setEngine(Engine $engine): void
+    {
+        $this->engine = $engine;
+    }
 
     /**
      * Dispatches an event.
@@ -80,10 +110,10 @@ class Dispatcher
         $requestedMethod = $this->get($eventName);
 
         if ($requestedMethod === null) {
-            throw new Exception("Event '$eventName' isn't found.");
+            throw new Exception("Event '{$eventName}' isn't found.");
         }
 
-        return $requestedMethod(...$params);
+        return $this->execute($requestedMethod, $params);
     }
 
     /**
@@ -194,7 +224,7 @@ class Dispatcher
      *
      * @throws Exception If an event throws an `Exception` or if `$filters` contains an invalid filter.
      */
-    public static function filter(array $filters, array &$params, &$output): void
+    public function filter(array $filters, array &$params, &$output): void
     {
         foreach ($filters as $key => $callback) {
             if (!is_callable($callback)) {
@@ -219,22 +249,33 @@ class Dispatcher
      * @return mixed Function results
      * @throws Exception If `$callback` also throws an `Exception`.
      */
-    public static function execute($callback, array &$params = [])
+    public function execute($callback, array &$params = [])
     {
-        $isInvalidFunctionName = (
-            is_string($callback)
-            && !function_exists($callback)
-        );
-
-        if ($isInvalidFunctionName) {
-            throw new InvalidArgumentException('Invalid callback specified.');
+        if (is_string($callback) === true && (strpos($callback, '->') !== false || strpos($callback, '::') !== false)) {
+            $callback = $this->parseStringClassAndMethod($callback);
         }
 
-        if (is_array($callback)) {
-            return self::invokeMethod($callback, $params);
+        return $this->invokeCallable($callback, $params);
+    }
+
+    /**
+     * Parses a string into a class and method.
+     *
+     * @param string $classAndMethod Class and method
+     *
+     * @return array{class-string|object, string} Class and method
+     */
+    public function parseStringClassAndMethod(string $classAndMethod): array
+    {
+        $class_parts = explode('->', $classAndMethod);
+        if (count($class_parts) === 1) {
+            $class_parts = explode('::', $class_parts[0]);
         }
 
-        return self::callFunction($callback, $params);
+        $class = $class_parts[0];
+        $method = $class_parts[1];
+
+        return [ $class, $method ];
     }
 
     /**
@@ -244,10 +285,11 @@ class Dispatcher
      * @param array<int, mixed> &$params Function parameters
      *
      * @return mixed Function results
+     * @deprecated 3.7.0 Use invokeCallable instead
      */
-    public static function callFunction(callable $func, array &$params = [])
+    public function callFunction(callable $func, array &$params = [])
     {
-        return call_user_func_array($func, $params);
+        return $this->invokeCallable($func, $params);
     }
 
     /**
@@ -257,34 +299,172 @@ class Dispatcher
      * @param array<int, mixed> &$params Class method parameters
      *
      * @return mixed Function results
-     * @throws TypeError For unexistent class name.
+     * @throws TypeError For nonexistent class name.
+     * @deprecated 3.7.0 Use invokeCallable instead
      */
-    public static function invokeMethod(array $func, array &$params = [])
+    public function invokeMethod(array $func, array &$params = [])
     {
-        [$class, $method] = $func;
+        return $this->invokeCallable($func, $params);
+    }
 
-        if (is_string($class) && class_exists($class)) {
-            $constructor = (new ReflectionClass($class))->getConstructor();
-            $constructorParamsNumber = 0;
-
-            if ($constructor !== null) {
-                $constructorParamsNumber = count($constructor->getParameters());
-            }
-
-            if ($constructorParamsNumber > 0) {
-                $exceptionMessage = "Method '$class::$method' cannot be called statically. ";
-                $exceptionMessage .= sprintf(
-                    "$class::__construct require $constructorParamsNumber parameter%s",
-                    $constructorParamsNumber > 1 ? 's' : ''
-                );
-
-                throw new InvalidArgumentException($exceptionMessage, E_ERROR);
-            }
-
-            $class = new $class();
+    /**
+     * Invokes a callable (anonymous function or Class->method).
+     *
+     * @param array{class-string|object, string}|Callable $func Class method
+     * @param array<int, mixed> &$params Class method parameters
+     *
+     * @return mixed Function results
+     * @throws TypeError For nonexistent class name.
+     * @throws InvalidArgumentException If the constructor requires parameters
+     * @version 3.7.0
+     */
+    public function invokeCallable($func, array &$params = [])
+    {
+        // If this is a directly callable function, call it
+        if (is_array($func) === false) {
+            $this->verifyValidFunction($func);
+            return call_user_func_array($func, $params);
         }
 
-        return call_user_func_array([$class, $method], $params);
+        [$class, $method] = $func;
+        $resolvedClass = null;
+
+        // Only execute the container handler if it's not a Flight class
+        if (
+            $this->containerHandler !== null &&
+            (
+                (
+                    is_object($class) === true &&
+                    strpos(get_class($class), 'flight\\') === false
+                ) ||
+                is_string($class) === true
+            )
+        ) {
+            $containerHandler = $this->containerHandler;
+            $resolvedClass = $this->resolveContainerClass($containerHandler, $class, $params);
+            if ($resolvedClass !== null) {
+                $class = $resolvedClass;
+            }
+        }
+
+        $this->verifyValidClassCallable($class, $method, $resolvedClass);
+
+        // Class is a string, and method exists, create the object by hand and inject only the Engine
+        if (is_string($class) === true) {
+            $class = new $class($this->engine);
+        }
+
+        return call_user_func_array([ $class, $method ], $params);
+    }
+
+    /**
+     * Handles invalid callback types.
+     *
+     * @param callable-string|(Closure(): mixed)|array{class-string|object, string} $callback
+     * Callback function
+     *
+     * @throws InvalidArgumentException If `$callback` is an invalid type
+     */
+    protected function verifyValidFunction($callback): void
+    {
+        $isInvalidFunctionName = (
+            is_string($callback)
+            && !function_exists($callback)
+        );
+
+        if ($isInvalidFunctionName) {
+            throw new InvalidArgumentException('Invalid callback specified.');
+        }
+    }
+
+
+    /**
+     * Verifies if the provided class and method are valid callable.
+     *
+     * @param string|object $class The class name.
+     * @param string $method The method name.
+     * @param object|null $resolvedClass The resolved class.
+     *
+     * @throws Exception If the class or method is not found.
+     *
+     * @return void
+     */
+    protected function verifyValidClassCallable($class, $method, $resolvedClass): void
+    {
+        $final_exception = null;
+
+        // Final check to make sure it's actually a class and a method, or throw an error
+        if (is_object($class) === false && class_exists($class) === false) {
+            $final_exception = new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
+
+        // If this tried to resolve a class in a container and failed somehow, throw the exception
+        } elseif (isset($resolvedClass) === false && $this->containerException !== null) {
+            $final_exception = $this->containerException;
+
+        // Class is there, but no method
+        } elseif (is_object($class) === true && method_exists($class, $method) === false) {
+            $final_exception = new Exception("Class found, but method '" . get_class($class) . "::$method' not found.");
+        }
+
+        if ($final_exception !== null) {
+            $this->fixOutputBuffering();
+            throw $final_exception;
+        }
+    }
+
+    /**
+     * Resolves the container class.
+     *
+     * @param callable|object $container_handler Dependency injection container
+     * @param class-string $class Class name
+     * @param array<int, mixed> &$params Class constructor parameters
+     *
+     * @return object Class object
+     */
+    protected function resolveContainerClass($container_handler, $class, array &$params)
+    {
+        $class_object = null;
+
+        // PSR-11
+        if (
+            is_object($container_handler) === true &&
+            method_exists($container_handler, 'has') === true &&
+            $container_handler->has($class)
+        ) {
+            $class_object = call_user_func([$container_handler, 'get'], $class);
+
+        // Just a callable where you configure the behavior (Dice, PHP-DI, etc.)
+        } elseif (is_callable($container_handler) === true) {
+            // This is to catch all the error that could be thrown by whatever container you are using
+            try {
+                $class_object = call_user_func($container_handler, $class, $params);
+            } catch (Exception $e) {
+                // could not resolve a class for some reason
+                $class_object = null;
+
+                // If the container throws an exception, we need to catch it
+                // and store it somewhere. If we just let it throw itself, it
+                // doesn't properly close the output buffers and can cause other
+                // issues.
+                // This is thrown in the verifyValidClassCallable method
+                $this->containerException = $e;
+            }
+        }
+
+        return $class_object;
+    }
+
+    /**
+     * Because this could throw an exception in the middle of an output buffer,
+     *
+     * @return void
+     */
+    protected function fixOutputBuffering(): void
+    {
+        // Cause PHPUnit has 1 level of output buffering by default
+        if (ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
+            ob_end_clean();
+        }
     }
 
     /**

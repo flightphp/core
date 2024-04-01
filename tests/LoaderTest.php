@@ -152,4 +152,17 @@ class LoaderTest extends TestCase
             __DIR__ . '/classes'
         ], $loader->getDirectories());
     }
+
+    public function testV2ClassLoading()
+    {
+        $loader = new class extends Loader {
+            public static function getV2ClassLoading()
+            {
+                return self::$v2ClassLoading;
+            }
+        };
+        $this->assertTrue($loader::getV2ClassLoading());
+        $loader::setV2ClassLoading(false);
+        $this->assertFalse($loader::getV2ClassLoading());
+    }
 }

@@ -73,10 +73,17 @@ class LayoutMiddleware
 <li><a href="{$final_route}">Mega group</a></li>
 <li><a href="/error">Error</a></li>
 <li><a href="/json">JSON</a></li>
-<li><a href="/json?jsonp=myjson">JSONP</a></li>
+<li><a href="/jsonp?jsonp=myjson">JSONP</a></li>
 <li><a href="/halt">Halt</a></li>
 <li><a href="/redirect">Redirect</a></li>
 <li><a href="/streamResponse">Stream</a></li>
+<li><a href="/overwrite">Overwrite Body</a></li>
+<li><a href="/redirect/before%2Fafter">Slash in Param</a></li>
+<li><a href="/わたしはひとです">UTF8 URL</a></li>
+<li><a href="/わたしはひとです/ええ">UTF8 URL w/ Param</a></li>
+<li><a href="/dice">Dice Container</a></li>
+<li><a href="/no-container">No Container Registered</a></li>
+<li><a href="/Pascal_Snake_Case">Pascal_Snake_Case</a></li>
 </ul>
 HTML;
         echo '<div id="container">';

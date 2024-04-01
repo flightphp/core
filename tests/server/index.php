@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use flight\core\Loader;
+use flight\database\PdoWrapper;
+use tests\classes\Container;
+use tests\classes\ContainerDefault;
+
 /*
  * This is the test file where we can open up a quick test server and make
  * sure that the UI is really working the way we would expect it to.
@@ -14,9 +19,8 @@ declare(strict_types=1);
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
 Flight::set('flight.views.extension', '.phtml');
-//Flight::set('flight.v2.output_buffering', true);
-
-require_once 'LayoutMiddleware.php';
+Loader::setV2ClassLoading(false);
+Flight::path(__DIR__);
 
 Flight::group('', function () {
 
@@ -119,6 +123,30 @@ Flight::group('', function () {
         }
         echo "is successful!!";
     })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
+    // Test 14: Overwrite the body with a middleware
+    Flight::route('/overwrite', function () {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:red; font-weight: bold;">failed</span>';
+    })->addMiddleware([new OverwriteBodyMiddleware()]);
+
+    // Test 15: UTF8 Chars in url
+    Flight::route('/わたしはひとです', function () {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:green; font-weight: bold;">succeeded はい!!!</span>';
+    });
+
+    // Test 16: UTF8 Chars in url with utf8 params
+    Flight::route('/わたしはひとです/@name', function ($name) {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:' . ($name === 'ええ' ? 'green' : 'red') . '; font-weight: bold;">' . ($name === 'ええ' ? 'succeeded' : 'failed') . ' URL Param: ' . $name . '</span>';
+    });
+
+    // Test 17: Slash in param
+    Flight::route('/redirect/@id', function ($id) {
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:' . ($id === 'before/after' ? 'green' : 'red') . '; font-weight: bold;">' . ($id === 'before/after' ? 'succeeded' : 'failed') . ' URL Param: ' . $id . '</span>';
+    });
+
+    Flight::set('test_me_out', 'You got it boss!'); // used in /no-container route
+    Flight::route('/no-container', ContainerDefault::class . '->testUi');
+    Flight::route('/dice', Container::class . '->testThePdoWrapper');
+    Flight::route('/Pascal_Snake_Case', Pascal_Snake_Case::class . '->doILoad');
 }, [ new LayoutMiddleware() ]);
 
 // Test 9: JSON output (should not output any other html)
@@ -145,6 +173,25 @@ Flight::map('error', function (Throwable $e) {
 Flight::map('notFound', function () {
     echo '<span id="infotext">Route text:</span> The requested URL was not found<br>';
     echo "<a href='/'>Go back</a>";
+});
+
+Flight::map('start', function () {
+
+    if (Flight::request()->url === '/dice') {
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRules([
+            PdoWrapper::class => [
+                'shared' => true,
+                'constructParams' => [ 'sqlite::memory:' ]
+            ]
+        ]);
+        Flight::registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+    }
+
+    // Default start behavior now
+    Flight::_start();
 });
 
 Flight::start();
