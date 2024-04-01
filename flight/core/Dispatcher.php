@@ -251,7 +251,10 @@ class Dispatcher
      */
     public function execute($callback, array &$params = [])
     {
-        if (is_string($callback) === true && (strpos($callback, '->') !== false || strpos($callback, '::') !== false)) {
+        if (
+            is_string($callback)
+            && (str_contains($callback, '->') || str_contains($callback, '::'))
+        ) {
             $callback = $this->parseStringClassAndMethod($callback);
         }
 
@@ -327,27 +330,21 @@ class Dispatcher
         }
 
         [$class, $method] = $func;
-        $resolvedClass = null;
 
-        // Only execute the container handler if it's not a Flight class
-        if (
-            $this->containerHandler !== null &&
-            (
-                (
-                    is_object($class) === true &&
-                    strpos(get_class($class), 'flight\\') === false
-                ) ||
-                is_string($class) === true
-            )
-        ) {
-            $containerHandler = $this->containerHandler;
-            $resolvedClass = $this->resolveContainerClass($containerHandler, $class, $params);
-            if ($resolvedClass !== null) {
+        $mustUseTheContainer = $this->containerHandler && (
+            (is_object($class) && !str_starts_with(get_class($class), 'flight\\'))
+            || is_string($class)
+        );
+
+        if ($mustUseTheContainer) {
+            $resolvedClass = $this->resolveContainerClass($class, $params);
+
+            if ($resolvedClass) {
                 $class = $resolvedClass;
             }
         }
 
-        $this->verifyValidClassCallable($class, $method, $resolvedClass);
+        $this->verifyValidClassCallable($class, $method, $resolvedClass ?? null);
 
         // Class is a string, and method exists, create the object by hand and inject only the Engine
         if (is_string($class) === true) {
