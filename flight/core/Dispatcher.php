@@ -9,6 +9,7 @@ use flight\Engine;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use ReflectionFunction;
+use Throwable;
 use TypeError;
 
 /**
@@ -26,7 +27,7 @@ class Dispatcher
     public const FILTER_AFTER = 'after';
 
     /** Exception message if thrown by setting the container as a callable method. */
-    protected ?Exception $containerException = null;
+    protected ?Throwable $containerException = null;
 
     /** @var ?Engine $engine Engine instance. */
     protected ?Engine $engine = null;
