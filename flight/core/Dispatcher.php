@@ -277,8 +277,8 @@ class Dispatcher
     public function execute($callback, array &$params = [])
     {
         if (
-            is_string($callback)
-            && (str_contains($callback, '->') || str_contains($callback, '::'))
+            is_string($callback) === true
+            && (strpos($callback, '->') !== false || strpos($callback, '::') !== false)
         ) {
             $callback = $this->parseStringClassAndMethod($callback);
         }
@@ -347,7 +347,7 @@ class Dispatcher
     public function invokeCallable($func, array &$params = [])
     {
         // If this is a directly callable function, call it
-        if (!is_array($func)) {
+        if (is_array($func) === false) {
             $this->verifyValidFunction($func);
 
             return call_user_func_array($func, $params);
@@ -355,12 +355,12 @@ class Dispatcher
 
         [$class, $method] = $func;
 
-        $mustUseTheContainer = $this->containerHandler && (
-            (is_object($class) && !str_starts_with(get_class($class), 'flight\\'))
+        $mustUseTheContainer = $this->containerHandler !== null && (
+            (is_object($class) === true && strpos(get_class($class), 'flight\\') === false)
             || is_string($class)
         );
 
-        if ($mustUseTheContainer) {
+        if ($mustUseTheContainer === true) {
             $resolvedClass = $this->resolveContainerClass($class, $params);
 
             if ($resolvedClass) {
@@ -408,20 +408,20 @@ class Dispatcher
         $exception = null;
 
         // Final check to make sure it's actually a class and a method, or throw an error
-        if (!is_object($class) && !class_exists($class)) {
+        if (is_object($class) === false && class_exists($class) === false) {
             $exception = new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
 
             // If this tried to resolve a class in a container and failed somehow, throw the exception
-        } elseif (!$resolvedClass && $this->containerException) {
+        } elseif (!$resolvedClass && $this->containerException !== null) {
             $exception = $this->containerException;
 
             // Class is there, but no method
-        } elseif (is_object($class) && !method_exists($class, $method)) {
+        } elseif (is_object($class) === true && method_exists($class, $method) === false) {
             $classNamespace = get_class($class);
             $exception = new Exception("Class found, but method '$classNamespace::$method' not found.");
         }
 
-        if ($exception) {
+        if ($exception !== null) {
             $this->fixOutputBuffering();
 
             throw $exception;
