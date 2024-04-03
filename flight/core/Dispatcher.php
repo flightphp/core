@@ -44,24 +44,34 @@ class Dispatcher
     /**
      * This is a container for the dependency injection.
      *
-     * @var null|ContainerInterface|(callable(string $classString, array $params): (null|object))
+     * @var null|ContainerInterface|(callable(string $classString, array<int, mixed> $params): (null|object))
      */
     protected $containerHandler = null;
 
     /**
      * Sets the dependency injection container handler.
      *
-     * @param ContainerInterface|(callable(string $classString, array $params): (null|object)) $containerHandler
+     * @param ContainerInterface|(callable(string $classString, array<int, mixed> $params): (null|object)) $containerHandler
      * Dependency injection container.
+     *
+     * @throws InvalidArgumentException If $containerHandler is not a `callable` or instance of `Psr\Container\ContainerInterface`.
      */
     public function setContainerHandler($containerHandler): void
     {
+        $containerInterfaceNS = '\Psr\Container\ContainerInterface';
+
         if (
-            $containerHandler instanceof ContainerInterface
+            is_a($containerHandler, $containerInterfaceNS)
             || is_callable($containerHandler)
         ) {
             $this->containerHandler = $containerHandler;
+
+            return;
         }
+
+        throw new InvalidArgumentException(
+            "\$containerHandler must be of type callable or instance $containerInterfaceNS"
+        );
     }
 
     public function setEngine(Engine $engine): void
@@ -200,7 +210,7 @@ class Dispatcher
      *
      * @param string $name Event name
      * @param 'before'|'after' $type Filter type.
-     * @param callable(array<int, mixed> &$params, string &$output): (void|false) $callback
+     * @param callable(array<int, mixed> &$params, mixed &$output): (void|false)|callable(mixed &$output): (void|false) $callback
      *
      * @return $this
      */
@@ -430,7 +440,7 @@ class Dispatcher
     {
         // PSR-11
         if (
-            $this->containerHandler instanceof ContainerInterface
+            is_a($this->containerHandler, '\Psr\Container\ContainerInterface')
             && $this->containerHandler->has($class)
         ) {
             return $this->containerHandler->get($class);
