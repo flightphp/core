@@ -1,5 +1,5 @@
 [![Version](http://poser.pugx.org/flightphp/core/version)](https://packagist.org/packages/flightphp/core)
-[![Total Downloads](http://poser.pugx.org/flightphp/core/downloads)](https://packagist.org/packages/flightphp/core)
+[![Monthly Downloads](http://poser.pugx.org/flightphp/core/d/monthly)](https://packagist.org/packages/flightphp/core)
 ![PHPStan: Level 6](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
 [![License](http://poser.pugx.org/flightphp/core/license)](https://packagist.org/packages/flightphp/core)
 [![PHP Version Require](http://poser.pugx.org/flightphp/core/require/php)](https://packagist.org/packages/flightphp/core)
