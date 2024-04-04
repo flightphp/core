@@ -21,7 +21,7 @@ class RedirectTest extends TestCase
 
     public function getBaseUrl($base, $url)
     {
-        if ('/' !== $base && false === strpos($url, '://')) {
+        if ($base !== '/' && strpos($url, '://') === false) {
             $url = preg_replace('#/+#', '/', $base . '/' . $url);
         }
 
@@ -67,11 +67,7 @@ class RedirectTest extends TestCase
     public function testBaseOverride()
     {
         $url = 'login';
-        if (null !== $this->app->get('flight.base_url')) {
-            $base = $this->app->get('flight.base_url');
-        } else {
-            $base = $this->app->request()->base;
-        }
+        $base = $this->app->get('flight.base_url') ?? $this->app->request()->base;
 
         self::assertEquals('/testdir/login', $this->getBaseUrl($base, $url));
     }

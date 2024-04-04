@@ -6,3 +6,4 @@ composer.lock
 coverage/
 *.sublime*
 clover.xml
+phpcs.xml

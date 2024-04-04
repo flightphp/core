@@ -37,9 +37,7 @@ class DispatcherTest extends TestCase
 
     public function testFunctionMapping(): void
     {
-        $this->dispatcher->set('map2', function (): string {
-            return 'hello';
-        });
+        $this->dispatcher->set('map2', fn (): string => 'hello');
 
         $this->assertSame('hello', $this->dispatcher->run('map2'));
     }
@@ -61,6 +59,9 @@ class DispatcherTest extends TestCase
             ->set('map-event', $customFunction)
             ->set('map-event-2', $anotherFunction);
 
+        $this->assertTrue($this->dispatcher->has('map-event'));
+        $this->assertTrue($this->dispatcher->has('map-event-2'));
+
         $this->dispatcher->clear();
 
         $this->assertFalse($this->dispatcher->has('map-event'));
@@ -75,6 +76,9 @@ class DispatcherTest extends TestCase
         $this->dispatcher
             ->set('map-event', $customFunction)
             ->set('map-event-2', $anotherFunction);
+
+        $this->assertTrue($this->dispatcher->has('map-event'));
+        $this->assertTrue($this->dispatcher->has('map-event-2'));
 
         $this->dispatcher->clear('map-event');
 
@@ -105,9 +109,7 @@ class DispatcherTest extends TestCase
 
     public function testBeforeAndAfter(): void
     {
-        $this->dispatcher->set('hello', function (string $name): string {
-            return "Hello, $name!";
-        });
+        $this->dispatcher->set('hello', fn (string $name): string => "Hello, $name!");
 
         $this->dispatcher
             ->hook('hello', Dispatcher::FILTER_BEFORE, function (array &$params): void {
@@ -115,6 +117,25 @@ class DispatcherTest extends TestCase
                 $params[0] = 'Fred';
             })
             ->hook('hello', Dispatcher::FILTER_AFTER, function (array &$params, string &$output): void {
+                // Manipulate the output
+                $output .= ' Have a nice day!';
+            });
+
+        $result = $this->dispatcher->run('hello', ['Bob']);
+
+        $this->assertSame('Hello, Fred! Have a nice day!', $result);
+    }
+
+    public function testBeforeAndAfterWithShortAfterFilterSyntax(): void
+    {
+        $this->dispatcher->set('hello', fn (string $name): string => "Hello, $name!");
+
+        $this->dispatcher
+            ->hook('hello', Dispatcher::FILTER_BEFORE, function (array &$params): void {
+                // Manipulate the parameter
+                $params[0] = 'Fred';
+            })
+            ->hook('hello', Dispatcher::FILTER_AFTER, function (string &$output): void {
                 // Manipulate the output
                 $output .= ' Have a nice day!';
             });
@@ -245,7 +266,7 @@ class DispatcherTest extends TestCase
     public function testInvokeMethod(): void
     {
         $class = new TesterClass('param1', 'param2', 'param3', 'param4', 'param5', 'param6');
-        $result = $this->dispatcher->invokeMethod([ $class, 'instanceMethod' ]);
+        $result = $this->dispatcher->invokeMethod([$class, 'instanceMethod']);
 
         $this->assertSame('param1', $class->param2);
     }
@@ -271,7 +292,7 @@ class DispatcherTest extends TestCase
 
     public function testExecuteStringClassNoConstructArraySyntax(): void
     {
-        $result = $this->dispatcher->execute([ Hello::class, 'sayHi' ]);
+        $result = $this->dispatcher->execute([Hello::class, 'sayHi']);
         $this->assertSame('hello', $result);
     }
 
@@ -298,7 +319,7 @@ class DispatcherTest extends TestCase
         $engine = new Engine();
         $engine->set('test_me_out', 'You got it boss!');
         $this->dispatcher->setEngine($engine);
-        $result = $this->dispatcher->execute([ ContainerDefault::class, 'testTheContainer' ]);
+        $result = $this->dispatcher->execute([ContainerDefault::class, 'testTheContainer']);
         $this->assertSame('You got it boss!', $result);
     }
 
@@ -306,6 +327,6 @@ class DispatcherTest extends TestCase
     {
         $this->expectException(TypeError::class);
         $this->expectExceptionMessageMatches('#tests\\\\classes\\\\ContainerDefault::__construct\(\).+flight\\\\Engine, null given#');
-        $result = $this->dispatcher->execute([ ContainerDefault::class, 'testTheContainer' ]);
+        $result = $this->dispatcher->execute([ContainerDefault::class, 'testTheContainer']);
     }
 }

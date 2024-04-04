@@ -95,7 +95,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value): void
     {
-        if (null === $offset) {
+        if ($offset === null) {
             $this->data[] = $value;
         } else {
             $this->data[$offset] = $value;
@@ -166,9 +166,7 @@ class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
      */
     public function valid(): bool
     {
-        $key = key($this->data);
-
-        return null !== $key;
+        return key($this->data) !== null;
     }
 
     /**
