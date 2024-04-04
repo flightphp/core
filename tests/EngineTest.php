@@ -11,6 +11,7 @@ use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
 use flight\util\Collection;
+use InvalidArgumentException;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use tests\classes\Container;
@@ -679,6 +680,14 @@ class EngineTest extends TestCase
         $engine->request()->url = '/path1/123/subpath1/456';
         $engine->start();
         $this->expectOutputString('before456before123OKafter123456after123');
+    }
+
+    public function testContainerBadClass() {
+        $engine = new Engine();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("\$containerHandler must be of type callable or instance \\Psr\\Container\\ContainerInterface");
+        $engine->registerContainerHandler('BadClass');
     }
 
     public function testContainerDice() {
