@@ -101,7 +101,7 @@ class Router
 
         $methods = ['*'];
 
-        if (false !== strpos($url, ' ')) {
+        if (strpos($url, ' ') !== false) {
             [$method, $url] = explode(' ', $url, 2);
             $url = trim($url);
             $methods = explode('|', $method);

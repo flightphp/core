@@ -437,7 +437,7 @@ class Response
         }
 
         // Only for the v3 output buffering.
-        if($this->v2_output_buffering === false) {
+        if ($this->v2_output_buffering === false) {
             $this->processResponseCallbacks();
         }
 
@@ -451,6 +451,7 @@ class Response
      * they are added
      *
      * @param callable $callback The callback to process the response body
+     *
      * @return void
      */
     public function addResponseBodyCallback(callable $callback): void
