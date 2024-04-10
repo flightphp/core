@@ -6,6 +6,7 @@ parameters:
     level: 6
     excludePaths:
         - vendor
+        - flight/util/ReturnTypeWillChange.php
     paths:
         - flight
         - index.php

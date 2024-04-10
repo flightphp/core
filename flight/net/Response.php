@@ -129,6 +129,13 @@ class Response
     protected bool $sent = false;
 
     /**
+     * These are callbacks that can process the response body before it's sent
+     *
+     * @var array<int, callable> $responseBodyCallbacks
+     */
+    protected array $responseBodyCallbacks = [];
+
+    /**
      * Sets the HTTP status of the response.
      *
      * @param ?int $code HTTP status code.
@@ -429,8 +436,38 @@ class Response
             $this->sendHeaders(); // @codeCoverageIgnore
         }
 
+        // Only for the v3 output buffering.
+        if ($this->v2_output_buffering === false) {
+            $this->processResponseCallbacks();
+        }
+
         echo $this->body;
 
         $this->sent = true;
+    }
+
+    /**
+     * Adds a callback to process the response body before it's sent. These are processed in the order
+     * they are added
+     *
+     * @param callable $callback The callback to process the response body
+     *
+     * @return void
+     */
+    public function addResponseBodyCallback(callable $callback): void
+    {
+        $this->responseBodyCallbacks[] = $callback;
+    }
+
+    /**
+     * Cycles through the response body callbacks and processes them in order
+     *
+     * @return void
+     */
+    protected function processResponseCallbacks(): void
+    {
+        foreach ($this->responseBodyCallbacks as $callback) {
+            $this->body = $callback($this->body);
+        }
     }
 }

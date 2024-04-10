@@ -255,4 +255,37 @@ class ResponseTest extends TestCase
         $response->write('new', true);
         $this->assertEquals('new', $response->getBody());
     }
+
+    public function testResponseBodyCallback()
+    {
+        $response = new Response();
+        $response->write('test');
+        $str_rot13 = function ($body) {
+            return str_rot13($body);
+        };
+        $response->addResponseBodyCallback($str_rot13);
+        ob_start();
+        $response->send();
+        $rot13_body = ob_get_clean();
+        $this->assertEquals('grfg', $rot13_body);
+    }
+
+    public function testResponseBodyCallbackMultiple()
+    {
+        $response = new Response();
+        $response->write('test');
+        $str_rot13 = function ($body) {
+            return str_rot13($body);
+        };
+        $str_replace = function ($body) {
+            return str_replace('g', 'G', $body);
+        };
+        $response->addResponseBodyCallback($str_rot13);
+        $response->addResponseBodyCallback($str_replace);
+        $response->addResponseBodyCallback($str_rot13);
+        ob_start();
+        $response->send();
+        $rot13_body = ob_get_clean();
+        $this->assertEquals('TesT', $rot13_body);
+    }
 }

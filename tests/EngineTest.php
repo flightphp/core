@@ -87,8 +87,7 @@ class EngineTest extends TestCase
     public function testHandleException()
     {
         $engine = new Engine();
-        $regex_message = preg_quote('<h1>500 Internal Server Error</h1><h3>thrown exception message (20)</h3>');
-        $this->expectOutputRegex('~' . $regex_message . '~');
+        $this->expectOutputRegex('~\<h1\>500 Internal Server Error\</h1\>[\s\S]*\<h3\>thrown exception message \(20\)\</h3\>~');
         $engine->handleException(new Exception('thrown exception message', 20));
     }
 

@@ -314,7 +314,7 @@ class Engine
      */
     public function get(?string $key = null)
     {
-        if (null === $key) {
+        if ($key === null) {
             return $this->vars;
         }
 
@@ -360,7 +360,7 @@ class Engine
      */
     public function clear(?string $key = null): void
     {
-        if (null === $key) {
+        if ($key === null) {
             $this->vars = [];
             return;
         }
@@ -570,9 +570,11 @@ class Engine
     public function _error(Throwable $e): void
     {
         $msg = sprintf(
-            '<h1>500 Internal Server Error</h1>' .
-                '<h3>%s (%s)</h3>' .
-                '<pre>%s</pre>',
+            <<<HTML
+            <h1>500 Internal Server Error</h1>
+                <h3>%s (%s)</h3>
+                <pre>%s</pre>
+            HTML,
             $e->getMessage(),
             $e->getCode(),
             $e->getTraceAsString()
@@ -603,8 +605,8 @@ class Engine
     {
         $response = $this->response();
 
-        if (!$response->sent()) {
-            if (null !== $code) {
+        if ($response->sent() === false) {
+            if ($code !== null) {
                 $response->status($code);
             }
 
@@ -729,12 +731,12 @@ class Engine
     {
         $base = $this->get('flight.base_url');
 
-        if (null === $base) {
+        if ($base === null) {
             $base = $this->request()->base;
         }
 
         // Append base url to redirect url
-        if ('/' !== $base && false === strpos($url, '://')) {
+        if ($base !== '/'   && strpos($url, '://') === false) {
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
@@ -756,7 +758,7 @@ class Engine
      */
     public function _render(string $file, ?array $data = null, ?string $key = null): void
     {
-        if (null !== $key) {
+        if ($key !== null) {
             $this->view()->set($key, $this->view()->fetch($file, $data));
             return;
         }
@@ -833,7 +835,7 @@ class Engine
      */
     public function _etag(string $id, string $type = 'strong'): void
     {
-        $id = (('weak' === $type) ? 'W/' : '') . $id;
+        $id = (($type === 'weak') ? 'W/' : '') . $id;
 
         $this->response()->header('ETag', '"' . str_replace('"', '\"', $id) . '"');
 
