@@ -432,13 +432,13 @@ class Response
             }
         }
 
-        if (!headers_sent()) {
-            $this->sendHeaders(); // @codeCoverageIgnore
-        }
-
         // Only for the v3 output buffering.
         if ($this->v2_output_buffering === false) {
             $this->processResponseCallbacks();
+        }
+
+        if (!headers_sent()) {
+            $this->sendHeaders(); // @codeCoverageIgnore
         }
 
         echo $this->body;
