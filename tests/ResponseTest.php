@@ -270,6 +270,22 @@ class ResponseTest extends TestCase
         $this->assertEquals('grfg', $rot13_body);
     }
 
+    public function testResponseBodyCallbackGzip()
+    {
+        $response = new Response();
+        $response->content_length = true;
+        $response->write('test');
+        $gzip = function ($body) {
+            return gzencode($body);
+        };
+        $response->addResponseBodyCallback($gzip);
+        ob_start();
+        $response->send();
+        $gzip_body = ob_get_clean();
+        $this->assertEquals('H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA', base64_encode($gzip_body));
+        $this->assertEquals(strlen(gzencode('test')), strlen($gzip_body));
+    }
+
     public function testResponseBodyCallbackMultiple()
     {
         $response = new Response();

@@ -26,6 +26,7 @@
         <exclude name="Generic.Commenting.DocComment.ContentBeforeClose" />
         <exclude name="Generic.Commenting.DocComment.MissingShort" />
         <exclude name="Generic.Commenting.DocComment.SpacingBeforeShort" />
+        <exclude name="Generic.Formatting.NoSpaceAfterCast.SpaceFound" />
         <exclude name="Generic.Functions.OpeningFunctionBraceKernighanRitchie.BraceOnNewLine" />
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
         <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman.BraceOnSameLine" />

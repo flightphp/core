@@ -341,6 +341,15 @@ class Response
             );
         }
 
+        if ($this->content_length === true) {
+            // Send content length
+            $length = $this->getContentLength();
+
+            if ($length > 0) {
+                $this->setHeader('Content-Length', (string) $length);
+            }
+        }
+
         // Send other headers
         foreach ($this->headers as $field => $value) {
             if (\is_array($value)) {
@@ -349,15 +358,6 @@ class Response
                 }
             } else {
                 $this->setRealHeader($field . ': ' . $value);
-            }
-        }
-
-        if ($this->content_length) {
-            // Send content length
-            $length = $this->getContentLength();
-
-            if ($length > 0) {
-                $this->setRealHeader('Content-Length: ' . $length);
             }
         }
 
@@ -432,13 +432,13 @@ class Response
             }
         }
 
-        if (!headers_sent()) {
-            $this->sendHeaders(); // @codeCoverageIgnore
-        }
-
         // Only for the v3 output buffering.
         if ($this->v2_output_buffering === false) {
             $this->processResponseCallbacks();
+        }
+
+        if (headers_sent() === false) {
+            $this->sendHeaders(); // @codeCoverageIgnore
         }
 
         echo $this->body;
