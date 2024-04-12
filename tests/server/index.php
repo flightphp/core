@@ -122,7 +122,19 @@ Flight::group('', function () {
             ob_flush();
         }
         echo "is successful!!";
+    })->stream();
+
+    // Test 12: Redirect with status code
+    Flight::route('/streamWithHeaders', function () {
+        echo "Streaming a response";
+        for ($i = 1; $i <= 50; $i++) {
+            echo ".";
+            usleep(50000);
+            ob_flush();
+        }
+        echo "is successful!!";
     })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
+
     // Test 14: Overwrite the body with a middleware
     Flight::route('/overwrite', function () {
         echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:red; font-weight: bold;">failed</span>';
