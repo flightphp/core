@@ -487,7 +487,7 @@ class Engine
 
             // If this route is to be streamed, we need to output the headers now
             if ($route->is_streamed === true) {
-                $response->status($route->streamed_headers['status']);
+                $response->status($route->streamed_headers['status'] ?? 200);
                 unset($route->streamed_headers['status']);
                 $response->header('X-Accel-Buffering', 'no');
                 $response->header('Connection', 'close');
