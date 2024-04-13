@@ -239,6 +239,17 @@ class Route
     }
 
     /**
+     * If the response should be streamed
+     *
+     * @return self
+     */
+    public function stream(): self
+    {
+        $this->is_streamed = true;
+        return $this;
+    }
+
+    /**
      * This will allow the response for this route to be streamed.
      *
      * @param array<string, mixed> $headers a key value of headers to set before the stream starts.

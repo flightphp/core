@@ -282,7 +282,8 @@ class ResponseTest extends TestCase
         ob_start();
         $response->send();
         $gzip_body = ob_get_clean();
-        $this->assertEquals('H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA', base64_encode($gzip_body));
+        $expected = PHP_OS === 'WINNT' ? 'H4sIAAAAAAAACitJLS4BAAx+f9gEAAAA' : 'H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA';
+        $this->assertEquals($expected, base64_encode($gzip_body));
         $this->assertEquals(strlen(gzencode('test')), strlen($gzip_body));
     }
 

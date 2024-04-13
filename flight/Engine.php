@@ -487,13 +487,16 @@ class Engine
 
             // If this route is to be streamed, we need to output the headers now
             if ($route->is_streamed === true) {
-                $response->status($route->streamed_headers['status'] ?? 200);
-                unset($route->streamed_headers['status']);
+                if (count($route->streamed_headers) > 0) {
+                    $response->status($route->streamed_headers['status'] ?? 200);
+                    unset($route->streamed_headers['status']);
+                    foreach ($route->streamed_headers as $header => $value) {
+                        $response->header($header, $value);
+                    }
+                }
+
                 $response->header('X-Accel-Buffering', 'no');
                 $response->header('Connection', 'close');
-                foreach ($route->streamed_headers as $header => $value) {
-                    $response->header($header, $value);
-                }
 
                 // We obviously don't know the content length right now. This must be false.
                 $response->content_length = false;
