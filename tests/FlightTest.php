@@ -354,4 +354,20 @@ class FlightTest extends TestCase
 
         $this->expectOutputString('Thisisaroutewithhtml');
     }
+
+    public function testItDoesNotKeepThePreviousStateOfOneViewComponentUsingFlightRender(): void
+    {
+        Flight::set('flight.views.path', __DIR__ . '/views');
+
+        $this->expectOutputString("<div>Hi</div>\n<div></div>\n");
+        Flight::render('myComponent', ['prop' => 'Hi']);
+
+        set_error_handler(function (int $code, string $message): void {
+            $this->assertMatchesRegularExpression('/^Undefined variable:? \$?prop$/', $message);
+        });
+
+        Flight::render('myComponent');
+
+        restore_error_handler();
+    }
 }
