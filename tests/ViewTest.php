@@ -152,4 +152,18 @@ class ViewTest extends TestCase
             $viewMock::normalizePath('C:/xampp/htdocs/libs/Flight\core\index.php', '°')
         );
     }
+
+    public function testItDoesNotKeepThePreviousStateOfOneViewComponent(): void
+    {
+        $this->expectOutputString("<div>Hi</div>\n<div></div>\n");
+        $this->view->render('myComponent', ['prop' => 'Hi']);
+
+        set_error_handler(function (int $code, string $message): void {
+            $this->assertMatchesRegularExpression('/^Undefined variable:? \$?prop$/', $message);
+        });
+
+        $this->view->render('myComponent');
+
+        restore_error_handler();
+    }
 }

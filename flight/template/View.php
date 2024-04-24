@@ -121,6 +121,12 @@ class View
         \extract($this->vars);
 
         include $this->template;
+
+        if ($data !== null) {
+            foreach (array_keys($data) as $variable) {
+                unset($this->vars[$variable]);
+            }
+        }
     }
 
     /**
