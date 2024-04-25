@@ -22,6 +22,7 @@ class FlightTest extends TestCase
         $_REQUEST = [];
         Flight::init();
         Flight::setEngine(new Engine());
+        Flight::set('flight.views.path', __DIR__ . '/views');
     }
 
     protected function tearDown(): void
@@ -355,9 +356,9 @@ class FlightTest extends TestCase
         $this->expectOutputString('Thisisaroutewithhtml');
     }
 
-    public function testItDoesNotKeepThePreviousStateOfOneViewComponentUsingFlightRender(): void
+    public function testDoesNotPreserveVarsWhenFlagIsDisabled(): void
     {
-        Flight::set('flight.views.path', __DIR__ . '/views');
+        Flight::view()->preserveVars = false;
 
         $this->expectOutputString("<div>Hi</div>\n<div></div>\n");
         Flight::render('myComponent', ['prop' => 'Hi']);
@@ -369,5 +370,12 @@ class FlightTest extends TestCase
         Flight::render('myComponent');
 
         restore_error_handler();
+    }
+
+    public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
+    {
+        $this->expectOutputString("<div>Hi</div>\n<div>Hi</div>\n");
+        Flight::render('myComponent', ['prop' => 'Hi']);
+        Flight::render('myComponent');
     }
 }

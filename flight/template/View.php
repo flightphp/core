@@ -20,6 +20,8 @@ class View
     /** File extension. */
     public string $extension = '.php';
 
+    public bool $preserveVars = true;
+
     /**
      * View variables.
      *
@@ -122,7 +124,7 @@ class View
 
         include $this->template;
 
-        if ($data !== null) {
+        if ($this->preserveVars === false && $data !== null) {
             foreach (array_keys($data) as $variable) {
                 unset($this->vars[$variable]);
             }

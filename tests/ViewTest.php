@@ -153,8 +153,10 @@ class ViewTest extends TestCase
         );
     }
 
-    public function testItDoesNotKeepThePreviousStateOfOneViewComponent(): void
+    public function testDoesNotPreserveVarsWhenFlagIsDisabled(): void
     {
+        $this->view->preserveVars = false;
+
         $this->expectOutputString("<div>Hi</div>\n<div></div>\n");
         $this->view->render('myComponent', ['prop' => 'Hi']);
 
@@ -165,5 +167,12 @@ class ViewTest extends TestCase
         $this->view->render('myComponent');
 
         restore_error_handler();
+    }
+
+    public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
+    {
+        $this->expectOutputString("<div>Hi</div>\n<div>Hi</div>\n");
+        $this->view->render('myComponent', ['prop' => 'Hi']);
+        $this->view->render('myComponent');
     }
 }
