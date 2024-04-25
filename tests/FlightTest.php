@@ -356,26 +356,42 @@ class FlightTest extends TestCase
         $this->expectOutputString('Thisisaroutewithhtml');
     }
 
-    public function testDoesNotPreserveVarsWhenFlagIsDisabled(): void
+    /** @dataProvider \tests\ViewTest::renderDataProvider */
+    public function testDoesNotPreserveVarsWhenFlagIsDisabled(
+        string $output,
+        array $renderParams,
+        string $regexp
+    ): void
     {
         Flight::view()->preserveVars = false;
 
-        $this->expectOutputString("<div>Hi</div>\n<div></div>\n");
-        Flight::render('myComponent', ['prop' => 'Hi']);
+        $this->expectOutputString($output);
+        Flight::render(...$renderParams);
 
-        set_error_handler(function (int $code, string $message): void {
-            $this->assertMatchesRegularExpression('/^Undefined variable:? \$?prop$/', $message);
+        set_error_handler(function (int $code, string $message) use ($regexp): void {
+            $this->assertMatchesRegularExpression($regexp, $message);
         });
 
-        Flight::render('myComponent');
+        Flight::render($renderParams[0]);
 
         restore_error_handler();
     }
 
     public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
     {
-        $this->expectOutputString("<div>Hi</div>\n<div>Hi</div>\n");
+        $this->expectOutputString(<<<html
+        <div>Hi</div>
+        <div>Hi</div>
+
+        <input type="number" />
+
+        <input type="number" />
+
+        html);
+
         Flight::render('myComponent', ['prop' => 'Hi']);
         Flight::render('myComponent');
+        Flight::render('input', ['type' => 'number']);
+        Flight::render('input');
     }
 }

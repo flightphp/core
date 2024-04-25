@@ -153,26 +153,67 @@ class ViewTest extends TestCase
         );
     }
 
-    public function testDoesNotPreserveVarsWhenFlagIsDisabled(): void
-    {
+    /** @dataProvider renderDataProvider */
+    public function testDoesNotPreserveVarsWhenFlagIsDisabled(
+        string $output,
+        array $renderParams,
+        string $regexp
+    ): void {
         $this->view->preserveVars = false;
 
-        $this->expectOutputString("<div>Hi</div>\n<div></div>\n");
-        $this->view->render('myComponent', ['prop' => 'Hi']);
+        $this->expectOutputString($output);
+        $this->view->render(...$renderParams);
 
-        set_error_handler(function (int $code, string $message): void {
-            $this->assertMatchesRegularExpression('/^Undefined variable:? \$?prop$/', $message);
+        set_error_handler(function (int $code, string $message) use ($regexp): void {
+            $this->assertMatchesRegularExpression($regexp, $message);
         });
 
-        $this->view->render('myComponent');
+        $this->view->render($renderParams[0]);
 
         restore_error_handler();
     }
 
     public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
     {
-        $this->expectOutputString("<div>Hi</div>\n<div>Hi</div>\n");
+        $this->expectOutputString(<<<html
+        <div>Hi</div>
+        <div>Hi</div>
+
+        <input type="number" />
+
+        <input type="number" />
+
+        html);
+
         $this->view->render('myComponent', ['prop' => 'Hi']);
         $this->view->render('myComponent');
+        $this->view->render('input', ['type' => 'number']);
+        $this->view->render('input');
+    }
+
+    public static function renderDataProvider(): array
+    {
+        return [
+            [
+                <<<html
+                <div>Hi</div>
+                <div></div>
+
+                html,
+                ['myComponent', ['prop' => 'Hi']],
+                '/^Undefined variable:? \$?prop$/'
+            ],
+            [
+                <<<html
+
+                <input type="number" />
+
+                <input type="text" />
+
+                html,
+                ['input', ['type' => 'number']],
+                '/^.*$/'
+            ],
+        ];
     }
 }
