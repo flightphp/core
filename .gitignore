@@ -1,4 +1,5 @@
-.idea
+.idea/
+.vscode/
 vendor/
 composer.phar
 composer.lock
