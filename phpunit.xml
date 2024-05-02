@@ -11,10 +11,13 @@
     stopOnFailure="true"
     verbose="true"
     colors="true">
-    <coverage processUncoveredFiles="true">
+    <coverage processUncoveredFiles="false">
         <include>
             <directory suffix=".php">flight/</directory>
         </include>
+		<exclude>
+			<file>flight/autoload.php</file>
+		</exclude>
     </coverage>
     <testsuites>
         <testsuite name="default">

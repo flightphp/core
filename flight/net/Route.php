@@ -63,7 +63,7 @@ class Route
     /**
      * The middleware to be applied to the route
      *
-     * @var array<int, callable|object>
+     * @var array<int, callable|object|string>
      */
     public array $middleware = [];
 
@@ -226,7 +226,7 @@ class Route
     /**
      * Sets the route middleware
      *
-     * @param array<int, callable>|callable $middleware
+     * @param array<int, callable|string>|callable|string $middleware
      */
     public function addMiddleware($middleware): self
     {
