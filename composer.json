@@ -41,6 +41,7 @@
     },
     "require-dev": {
         "ext-pdo_sqlite": "*",
+        "flightphp/runway": "^0.2.0",
         "league/container": "^4.2",
         "level-2/dice": "^4.0",
         "phpstan/extension-installer": "^1.3",

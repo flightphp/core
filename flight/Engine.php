@@ -652,10 +652,12 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
+	 * 
+	 * @return Route
      */
-    public function _post(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _post(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
-        $this->router()->map('POST ' . $pattern, $callback, $pass_route, $route_alias);
+        return $this->router()->map('POST ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
     /**
@@ -664,10 +666,12 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
+	 * 
+	 * @return Route
      */
-    public function _put(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _put(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
-        $this->router()->map('PUT ' . $pattern, $callback, $pass_route, $route_alias);
+        return $this->router()->map('PUT ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
     /**
@@ -676,10 +680,12 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
+	 * 
+	 * @return Route
      */
-    public function _patch(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _patch(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
-        $this->router()->map('PATCH ' . $pattern, $callback, $pass_route, $route_alias);
+    	return $this->router()->map('PATCH ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
     /**
@@ -688,10 +694,12 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
+	 * 
+	 * @return Route
      */
-    public function _delete(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): void
+    public function _delete(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
-        $this->router()->map('DELETE ' . $pattern, $callback, $pass_route, $route_alias);
+        return $this->router()->map('DELETE ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
     /**
