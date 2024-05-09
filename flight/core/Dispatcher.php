@@ -356,10 +356,7 @@ class Dispatcher
 
         [$class, $method] = $func;
 
-        $mustUseTheContainer = $this->containerHandler !== null && (
-            (is_object($class) === true && strpos(get_class($class), 'flight\\') === false)
-            || is_string($class)
-        );
+        $mustUseTheContainer = $this->mustUseContainer($class);
 
         if ($mustUseTheContainer === true) {
             $resolvedClass = $this->resolveContainerClass($class, $params);
@@ -437,7 +434,7 @@ class Dispatcher
      *
      * @return ?object Class object.
      */
-    protected function resolveContainerClass(string $class, array &$params)
+    public function resolveContainerClass(string $class, array &$params)
     {
         // PSR-11
         if (
@@ -466,6 +463,21 @@ class Dispatcher
         }
 
         return null;
+    }
+
+    /**
+     * Checks to see if a container should be used or not.
+     *
+     * @param string|object $class the class to verify
+     *
+     * @return boolean
+     */
+    public function mustUseContainer($class): bool
+    {
+        return $this->containerHandler !== null && (
+            (is_object($class) === true && strpos(get_class($class), 'flight\\') === false)
+            || is_string($class)
+        );
     }
 
     /** Because this could throw an exception in the middle of an output buffer, */

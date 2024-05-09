@@ -572,6 +572,49 @@ class EngineTest extends TestCase
         $this->expectOutputString('OK123after123');
     }
 
+	public function testMiddlewareClassStringNoContainer()
+    {
+        $middleware = new class {
+            public function after($params)
+            {
+                echo 'after' . $params['id'];
+            }
+        };
+        $engine = new Engine();
+
+        $engine->route('/path1/@id', function ($id) {
+            echo 'OK' . $id;
+        })
+            ->addMiddleware(get_class($middleware));
+        $engine->request()->url = '/path1/123';
+        $engine->start();
+        $this->expectOutputString('OK123after123');
+    }
+
+	public function testMiddlewareClassStringWithContainer()
+    {
+
+		$engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRule('*', [
+            'substitutions' => [
+                Engine::class => $engine
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+
+        $engine->route('/path1/@id', function ($id) {
+            echo 'OK' . $id;
+        })
+            ->addMiddleware(ContainerDefault::class);
+        $engine->request()->url = '/path1/123';
+        $engine->start();
+        $this->expectOutputString('I returned before the route was called with the following parameters: {"id":"123"}OK123');
+    }
+
     public function testMiddlewareClassAfterFailedCheck()
     {
         $middleware = new class {
