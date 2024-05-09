@@ -8,3 +8,4 @@ coverage/
 *.sublime*
 clover.xml
 phpcs.xml
+.runway-config.json
