@@ -899,4 +899,47 @@ class EngineTest extends TestCase
 
         $engine->start();
     }
+
+	public function testRouteFoundButBadMethod() {
+        $engine = new class extends Engine {
+            public function getLoader()
+            {
+                return $this->loader;
+            }
+        };
+        // doing this so we can overwrite some parts of the response
+        $engine->getLoader()->register('response', function () {
+            return new class extends Response {
+                public function setRealHeader(
+                    string $header_string,
+                    bool $replace = true,
+                    int $response_code = 0
+                ): self {
+                    return $this;
+                }
+            };
+        });
+
+		$engine->route('POST /path1/@id', function ($id) {
+			echo 'OK' . $id;
+		});
+
+		$engine->route('GET /path2/@id', function ($id) {
+			echo 'OK' . $id;
+		});
+
+		$engine->route('PATCH /path3/@id', function ($id) {
+			echo 'OK' . $id;
+		});
+
+		$engine->request()->url = '/path1/123';
+		$engine->request()->method = 'GET';
+
+        $engine->start();
+
+		$this->expectOutputString('Method Not Allowed');
+        $this->assertEquals(405, $engine->response()->status());
+		$this->assertEquals('Method Not Allowed', $engine->response()->getBody());
+	}
+
 }
