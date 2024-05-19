@@ -32,7 +32,7 @@ class Router
     /**
      * The current route that is has been found and executed.
      */
-    protected ?Route $executedRoute = null;
+    public ?Route $executedRoute = null;
 
     /**
      * Pointer to current route.
@@ -42,21 +42,21 @@ class Router
     /**
      * When groups are used, this is mapped against all the routes
      */
-    protected string $group_prefix = '';
+    protected string $groupPrefix = '';
 
     /**
      * Group Middleware
      *
      * @var array<int,mixed>
      */
-    protected array $group_middlewares = [];
+    protected array $groupMiddlewares = [];
 
     /**
      * Allowed HTTP methods
      *
      * @var array<int, string>
      */
-    protected array $allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+    protected array $allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 
     /**
      * Gets mapped routes.
@@ -93,7 +93,7 @@ class Router
         //    Flight::route('', function() {});
         // }
         // Keep the space so that it can execute the below code normally
-        if ($this->group_prefix !== '') {
+        if ($this->groupPrefix !== '') {
             $url = ltrim($pattern);
         } else {
             $url = trim($pattern);
@@ -113,14 +113,14 @@ class Router
         }
 
         // And this finishes it off.
-        if ($this->group_prefix !== '') {
-            $url = rtrim($this->group_prefix . $url);
+        if ($this->groupPrefix !== '') {
+            $url = rtrim($this->groupPrefix . $url);
         }
 
         $route = new Route($url, $callback, $methods, $pass_route, $route_alias);
 
         // to handle group middleware
-        foreach ($this->group_middlewares as $gm) {
+        foreach ($this->groupMiddlewares as $gm) {
             $route->addMiddleware($gm);
         }
 
@@ -197,20 +197,20 @@ class Router
     /**
      * Group together a set of routes
      *
-     * @param string $group_prefix group URL prefix (such as /api/v1)
+     * @param string $groupPrefix group URL prefix (such as /api/v1)
      * @param callable $callback The necessary calling that holds the Router class
-     * @param array<int, callable|object> $group_middlewares
+     * @param array<int, callable|object> $groupMiddlewares
      * The middlewares to be applied to the group. Example: `[$middleware1, $middleware2]`
      */
-    public function group(string $group_prefix, callable $callback, array $group_middlewares = []): void
+    public function group(string $groupPrefix, callable $callback, array $groupMiddlewares = []): void
     {
-        $old_group_prefix = $this->group_prefix;
-        $old_group_middlewares = $this->group_middlewares;
-        $this->group_prefix .= $group_prefix;
-        $this->group_middlewares = array_merge($this->group_middlewares, $group_middlewares);
+        $oldGroupPrefix = $this->groupPrefix;
+        $oldGroupMiddlewares = $this->groupMiddlewares;
+        $this->groupPrefix .= $groupPrefix;
+        $this->groupMiddlewares = array_merge($this->groupMiddlewares, $groupMiddlewares);
         $callback($this);
-        $this->group_prefix = $old_group_prefix;
-        $this->group_middlewares = $old_group_middlewares;
+        $this->groupPrefix = $oldGroupPrefix;
+        $this->groupMiddlewares = $oldGroupMiddlewares;
     }
 
     /**
@@ -221,9 +221,14 @@ class Router
     public function route(Request $request)
     {
         while ($route = $this->current()) {
-            if ($route->matchMethod($request->method) && $route->matchUrl($request->url, $this->case_sensitive)) {
+            $urlMatches = $route->matchUrl($request->url, $this->case_sensitive);
+            $methodMatches = $route->matchMethod($request->method);
+            if ($urlMatches === true && $methodMatches === true) {
                 $this->executedRoute = $route;
                 return $route;
+            // capture the route but don't execute it. We'll use this in Engine->start() to throw a 405
+            } elseif ($urlMatches === true && $methodMatches === false) {
+                $this->executedRoute = $route;
             }
             $this->next();
         }
@@ -300,11 +305,19 @@ class Router
     }
 
     /**
+     * Gets the previous route.
+     */
+    public function previous(): void
+    {
+        --$this->index;
+    }
+
+    /**
      * Gets the next route.
      */
     public function next(): void
     {
-        $this->index++;
+        ++$this->index;
     }
 
     /**
@@ -312,6 +325,6 @@ class Router
      */
     public function reset(): void
     {
-        $this->index = 0;
+        $this->rewind();
     }
 }

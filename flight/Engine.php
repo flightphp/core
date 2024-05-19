@@ -388,15 +388,14 @@ class Engine
     {
         $atLeastOneMiddlewareFailed = false;
 
-		// Process things normally for before, and then in reverse order for after.
-        $middlewares = $eventName === Dispatcher::FILTER_BEFORE 
-			? $route->middleware 
-			: array_reverse($route->middleware);
+        // Process things normally for before, and then in reverse order for after.
+        $middlewares = $eventName === Dispatcher::FILTER_BEFORE
+            ? $route->middleware
+            : array_reverse($route->middleware);
         $params = $route->params;
 
         foreach ($middlewares as $middleware) {
-
-			// Assume that nothing is going to be executed for the middleware.
+            // Assume that nothing is going to be executed for the middleware.
             $middlewareObject = false;
 
             // Closure functions can only run on the before event
@@ -426,12 +425,12 @@ class Engine
                 }
             }
 
-			// If nothing was resolved, go to the next thing
+            // If nothing was resolved, go to the next thing
             if ($middlewareObject === false) {
                 continue;
             }
 
-			// This is the way that v3 handles output buffering (which captures output correctly)
+            // This is the way that v3 handles output buffering (which captures output correctly)
             $useV3OutputBuffering =
                 $this->response()->v2_output_buffering === false &&
                 $route->is_streamed === false;
@@ -441,16 +440,16 @@ class Engine
             }
 
             // Here is the array callable $middlewareObject that we created earlier.
-			// It looks bizarre but it's really calling [ $class, $method ]($params)
-			// Which loosely translates to $class->$method($params)
+            // It looks bizarre but it's really calling [ $class, $method ]($params)
+            // Which loosely translates to $class->$method($params)
             $middlewareResult = $middlewareObject($params);
 
             if ($useV3OutputBuffering === true) {
                 $this->response()->write(ob_get_clean());
             }
 
-			// If you return false in your middleware, it will halt the request
-			// and throw a 403 forbidden error by default.
+            // If you return false in your middleware, it will halt the request
+            // and throw a 403 forbidden error by default.
             if ($middlewareResult === false) {
                 $atLeastOneMiddlewareFailed = true;
                 break;
@@ -579,7 +578,13 @@ class Engine
         if ($failedMiddlewareCheck === true) {
             $this->halt(403, 'Forbidden', empty(getenv('PHPUNIT_TEST')));
         } elseif ($dispatched === false) {
-            $this->notFound();
+            // Get the previous route and check if the method failed, but the URL was good.
+            $lastRouteExecuted = $router->executedRoute;
+            if ($lastRouteExecuted !== null && $lastRouteExecuted->matchUrl($request->url) === true && $lastRouteExecuted->matchMethod($request->method) === false) {
+                $this->halt(405, 'Method Not Allowed', empty(getenv('PHPUNIT_TEST')));
+            } else {
+                $this->notFound();
+            }
         }
     }
 
@@ -670,8 +675,8 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
-	 * 
-	 * @return Route
+     *
+     * @return Route
      */
     public function _post(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
@@ -684,8 +689,8 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
-	 * 
-	 * @return Route
+     *
+     * @return Route
      */
     public function _put(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
@@ -698,12 +703,12 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
-	 * 
-	 * @return Route
+     *
+     * @return Route
      */
     public function _patch(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
-    	return $this->router()->map('PATCH ' . $pattern, $callback, $pass_route, $route_alias);
+        return $this->router()->map('PATCH ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
     /**
@@ -712,8 +717,8 @@ class Engine
      * @param string $pattern URL pattern to match
      * @param callable|string $callback Callback function or string class->method
      * @param bool $pass_route Pass the matching route object to the callback
-	 * 
-	 * @return Route
+     *
+     * @return Route
      */
     public function _delete(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {

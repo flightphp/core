@@ -41,10 +41,10 @@ class RouteCommand extends AbstractBaseCommand
     {
         $io = $this->app()->io();
 
-		if(isset($this->config['index_root']) === false) {
-			$io->error('index_root not set in .runway-config.json', true);
-			return;
-		}
+        if (isset($this->config['index_root']) === false) {
+            $io->error('index_root not set in .runway-config.json', true);
+            return;
+        }
 
         $io->bold('Routes', true);
 
@@ -69,12 +69,12 @@ class RouteCommand extends AbstractBaseCommand
                             return preg_match("/^class@anonymous/", end($middleware_class_name)) ? 'Anonymous' : end($middleware_class_name);
                         }, $route->middleware);
                     } catch (\TypeError $e) {
-						$middlewares[] = 'Bad Middleware';
+                        $middlewares[] = 'Bad Middleware';
                     } finally {
-						if(is_string($route->middleware) === true) {
-							$middlewares[] = $route->middleware;
-						}
-					}
+                        if (is_string($route->middleware) === true) {
+                            $middlewares[] = $route->middleware;
+                        }
+                    }
                 }
 
                 $arrayOfRoutes[] = [
