@@ -370,6 +370,16 @@ class EngineTest extends TestCase
         $this->assertEquals(200, $engine->response()->status());
     }
 
+	public function testJsonHalt()
+    {
+        $engine = new Engine();
+		$this->expectOutputString('{"key1":"value1","key2":"value2"}');
+        $engine->jsonHalt(['key1' => 'value1', 'key2' => 'value2']);
+        $this->assertEquals('application/json; charset=utf-8', $engine->response()->headers()['Content-Type']);
+        $this->assertEquals(200, $engine->response()->status());
+		$this->assertEquals('{"key1":"value1","key2":"value2"}', $engine->response()->getBody());
+    }
+
     public function testJsonP()
     {
         $engine = new Engine();
