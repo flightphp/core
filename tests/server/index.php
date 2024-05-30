@@ -171,6 +171,10 @@ Flight::route('/jsonp', function () {
     Flight::jsonp(['message' => 'JSONP renders successfully!'], 'jsonp');
 });
 
+Flight::route('/json-halt', function () {
+    Flight::jsonHalt(['message' => 'JSON rendered and halted successfully with no other body content!']);
+});
+
 Flight::map('error', function (Throwable $e) {
     echo sprintf(
         <<<HTML

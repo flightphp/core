@@ -631,6 +631,10 @@ class RouterTest extends TestCase
         $this->router->rewind();
         $result = $this->router->valid();
         $this->assertTrue($result);
+
+        $this->router->previous();
+        $result = $this->router->valid();
+        $this->assertFalse($result);
     }
 
     public function testGetRootUrlByAlias()

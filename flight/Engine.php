@@ -57,6 +57,8 @@ use flight\net\Route;
  * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
  * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * Sends a JSON response.
+ * @method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * Sends a JSON response and immediately halts the request.
  * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * Sends a JSONP response.
  *
@@ -73,7 +75,7 @@ class Engine
      */
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
-        'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonp',
+        'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
         'post', 'put', 'patch', 'delete', 'group', 'getUrl'
     ];
 
@@ -608,7 +610,7 @@ class Engine
 
         try {
             $this->response()
-                ->clear()
+                ->clearBody()
                 ->status(500)
                 ->write($msg)
                 ->send();
@@ -735,7 +737,7 @@ class Engine
     public function _halt(int $code = 200, string $message = '', bool $actuallyExit = true): void
     {
         $this->response()
-            ->clear()
+            ->clearBody()
             ->status($code)
             ->write($message)
             ->send();
@@ -750,7 +752,7 @@ class Engine
         $output = '<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>';
 
         $this->response()
-            ->clear()
+            ->clearBody()
             ->status(404)
             ->write($output)
             ->send();
@@ -775,7 +777,7 @@ class Engine
         }
 
         $this->response()
-            ->clear()
+            ->clearBody()
             ->status($code)
             ->header('Location', $url)
             ->send();
@@ -830,6 +832,33 @@ class Engine
     }
 
     /**
+     * Sends a JSON response and halts execution immediately.
+     *
+     * @param mixed $data JSON data
+     * @param int $code HTTP status code
+     * @param bool $encode Whether to perform JSON encoding
+     * @param string $charset Charset
+     * @param int $option Bitmask Json constant such as JSON_HEX_QUOT
+     *
+     * @throws Exception
+     */
+    public function _jsonHalt(
+        $data,
+        int $code = 200,
+        bool $encode = true,
+        string $charset = 'utf-8',
+        int $option = 0
+    ): void {
+        $this->json($data, $code, $encode, $charset, $option);
+        $jsonBody = $this->response()->getBody();
+        if ($this->response()->v2_output_buffering === false) {
+            $this->response()->clearBody();
+            $this->response()->send();
+        }
+        $this->halt($code, $jsonBody, empty(getenv('PHPUNIT_TEST')));
+    }
+
+    /**
      * Sends a JSONP response.
      *
      * @param mixed $data JSON data
@@ -877,6 +906,7 @@ class Engine
             isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
             $_SERVER['HTTP_IF_NONE_MATCH'] === $id
         ) {
+            $this->response()->clear();
             $this->halt(304, '', empty(getenv('PHPUNIT_TEST')));
         }
     }
@@ -894,6 +924,7 @@ class Engine
             isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
             strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time
         ) {
+            $this->response()->clear();
             $this->halt(304, '', empty(getenv('PHPUNIT_TEST')));
         }
     }

@@ -68,6 +68,8 @@ require_once __DIR__ . '/autoload.php';
  * @method static void redirect(string $url, int $code = 303) Redirects to another URL.
  * @method static void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  * Sends a JSON response.
+ * @method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * Sends a JSON response and immediately halts the request.
  * @method static void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  * Sends a JSONP response.
  * @method static void error(Throwable $exception) Sends an HTTP 500 response.
