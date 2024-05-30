@@ -74,6 +74,7 @@ class LayoutMiddleware
 <li><a href="/error">Error</a></li>
 <li><a href="/json">JSON</a></li>
 <li><a href="/jsonp?jsonp=myjson">JSONP</a></li>
+<li><a href="/json-halt">JSON Halt</a></li>
 <li><a href="/halt">Halt</a></li>
 <li><a href="/redirect">Redirect</a></li>
 <li><a href="/streamResponse">Stream Plain</a></li>
