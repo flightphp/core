@@ -191,6 +191,22 @@ class ViewTest extends TestCase
         $this->view->render('input');
     }
 
+    public function testKeepThePreviousStateOfDataSettedBySetMethod(): void
+    {
+        $this->view->preserveVars = false;
+
+        $this->view->set('prop', 'bar');
+
+        $this->expectOutputString(<<<html
+        <div>qux</div>
+        <div>bar</div>
+
+        html);
+
+        $this->view->render('myComponent', ['prop' => 'qux']);
+        $this->view->render('myComponent');
+    }
+
     public static function renderDataProvider(): array
     {
         return [

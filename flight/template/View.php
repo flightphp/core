@@ -116,19 +116,17 @@ class View
             throw new \Exception("Template file not found: {$normalized_path}.");
         }
 
-        if (\is_array($data)) {
-            $this->vars = \array_merge($this->vars, $data);
-        }
-
         \extract($this->vars);
 
-        include $this->template;
+        if (\is_array($data)) {
+            \extract($data);
 
-        if ($this->preserveVars === false && $data !== null) {
-            foreach (array_keys($data) as $variable) {
-                unset($this->vars[$variable]);
+            if ($this->preserveVars) {
+                $this->vars = \array_merge($this->vars, $data);
             }
         }
+
+        include $this->template;
     }
 
     /**
