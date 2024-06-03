@@ -121,6 +121,60 @@ class Flight
         return self::app()->{$name}(...$params);
     }
 
+    /**
+     * Create a resource controller customizing the methods names mapping.
+     *
+     * @param class-string $controllerClass
+     * @param array<string, string> $methods
+     */
+    public static function resource(
+        string $pattern,
+        string $controllerClass,
+        array $methods = []
+    ): void {
+        $defaultMapping = [
+            'GET /' => 'index',
+            'GET /@id/' => 'show',
+            'GET /create/' => 'create',
+            'POST /' => 'store',
+            'GET /@id/edit/' => 'edit',
+            'PUT /@id/' => 'update',
+            'DELETE /@id/' => 'destroy'
+        ];
+
+        if ($methods !== []) {
+            static::group(
+                $pattern,
+                function () use ($controllerClass, $methods): void {
+                    foreach ($methods as $methodPattern => $controllerMethod) {
+                        static::route(
+                            $methodPattern,
+                            [$controllerClass, $controllerMethod]
+                        );
+                    }
+                }
+            );
+        } else {
+            static::group(
+                $pattern,
+                function () use ($defaultMapping, $controllerClass): void {
+                    foreach ($defaultMapping as $methodPattern => $controllerMethod) {
+                        $class = new ReflectionClass($controllerClass);
+
+                        if ($class->hasMethod($controllerMethod) === false) {
+                            continue;
+                        }
+
+                        static::route(
+                            $methodPattern,
+                            [$controllerClass, $controllerMethod]
+                        );
+                    }
+                }
+            );
+        }
+    }
+
     /** @return Engine Application instance */
     public static function app(): Engine
     {
