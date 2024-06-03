@@ -118,10 +118,10 @@ class View
 
         \extract($this->vars);
 
-        if (\is_array($data)) {
+        if (\is_array($data) === true) {
             \extract($data);
 
-            if ($this->preserveVars) {
+            if ($this->preserveVars === true) {
                 $this->vars = \array_merge($this->vars, $data);
             }
         }
