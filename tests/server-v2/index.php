@@ -116,6 +116,10 @@ Flight::route('/jsonp', function () {
     echo "\n\n\n\n\n";
 });
 
+Flight::route('/json-halt', function () {
+    Flight::jsonHalt(['message' => 'JSON rendered and halted successfully with no other body content!']);
+});
+
 // Test 10: Halt
 Flight::route('/halt', function () {
     Flight::halt(400, 'Halt worked successfully');
@@ -200,6 +204,7 @@ echo '
 <li><a href="/error">Error</a></li>
 <li><a href="/json">JSON</a></li>
 <li><a href="/jsonp?jsonp=myjson">JSONP</a></li>
+<li><a href="/json-halt">JSON Halt</a></li>
 <li><a href="/halt">Halt</a></li>
 <li><a href="/redirect">Redirect</a></li>
 </ul>';

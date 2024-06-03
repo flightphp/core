@@ -11,6 +11,7 @@ use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
 use flight\util\Collection;
+use InvalidArgumentException;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use tests\classes\Container;
@@ -86,8 +87,7 @@ class EngineTest extends TestCase
     public function testHandleException()
     {
         $engine = new Engine();
-        $regex_message = preg_quote('<h1>500 Internal Server Error</h1><h3>thrown exception message (20)</h3>');
-        $this->expectOutputRegex('~' . $regex_message . '~');
+        $this->expectOutputRegex('~\<h1\>500 Internal Server Error\</h1\>[\s\S]*\<h3\>thrown exception message \(20\)\</h3\>~');
         $engine->handleException(new Exception('thrown exception message', 20));
     }
 
@@ -370,6 +370,16 @@ class EngineTest extends TestCase
         $this->assertEquals(200, $engine->response()->status());
     }
 
+	public function testJsonHalt()
+    {
+        $engine = new Engine();
+		$this->expectOutputString('{"key1":"value1","key2":"value2"}');
+        $engine->jsonHalt(['key1' => 'value1', 'key2' => 'value2']);
+        $this->assertEquals('application/json; charset=utf-8', $engine->response()->headers()['Content-Type']);
+        $this->assertEquals(200, $engine->response()->status());
+		$this->assertEquals('{"key1":"value1","key2":"value2"}', $engine->response()->getBody());
+    }
+
     public function testJsonP()
     {
         $engine = new Engine();
@@ -572,6 +582,49 @@ class EngineTest extends TestCase
         $this->expectOutputString('OK123after123');
     }
 
+	public function testMiddlewareClassStringNoContainer()
+    {
+        $middleware = new class {
+            public function after($params)
+            {
+                echo 'after' . $params['id'];
+            }
+        };
+        $engine = new Engine();
+
+        $engine->route('/path1/@id', function ($id) {
+            echo 'OK' . $id;
+        })
+            ->addMiddleware(get_class($middleware));
+        $engine->request()->url = '/path1/123';
+        $engine->start();
+        $this->expectOutputString('OK123after123');
+    }
+
+	public function testMiddlewareClassStringWithContainer()
+    {
+
+		$engine = new Engine();
+        $dice = new \Dice\Dice();
+        $dice = $dice->addRule('*', [
+            'substitutions' => [
+                Engine::class => $engine
+            ]
+        ]);
+        $engine->registerContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+        
+
+        $engine->route('/path1/@id', function ($id) {
+            echo 'OK' . $id;
+        })
+            ->addMiddleware(ContainerDefault::class);
+        $engine->request()->url = '/path1/123';
+        $engine->start();
+        $this->expectOutputString('I returned before the route was called with the following parameters: {"id":"123"}OK123');
+    }
+
     public function testMiddlewareClassAfterFailedCheck()
     {
         $middleware = new class {
@@ -681,6 +734,14 @@ class EngineTest extends TestCase
         $this->expectOutputString('before456before123OKafter123456after123');
     }
 
+    public function testContainerBadClass() {
+        $engine = new Engine();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("\$containerHandler must be of type callable or instance \\Psr\\Container\\ContainerInterface");
+        $engine->registerContainerHandler('BadClass');
+    }
+
     public function testContainerDice() {
         $engine = new Engine();
         $dice = new \Dice\Dice();
@@ -751,8 +812,14 @@ class EngineTest extends TestCase
         $engine->route('/container', Container::class.'->testThePdoWrapper');
         $engine->request()->url = '/container';
 
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessageMatches("/Passing null to parameter/");
+        // php 7.4 will throw a PDO exception, but php 8 will throw an ErrorException
+        if(version_compare(PHP_VERSION, '8.0.0', '<')) {
+            $this->expectException(PDOException::class);
+            $this->expectExceptionMessageMatches("/invalid data source name/");
+        } else {
+            $this->expectException(ErrorException::class);
+            $this->expectExceptionMessageMatches("/Passing null to parameter/");
+        }
 
         $engine->start();
     }
@@ -842,4 +909,47 @@ class EngineTest extends TestCase
 
         $engine->start();
     }
+
+	public function testRouteFoundButBadMethod() {
+        $engine = new class extends Engine {
+            public function getLoader()
+            {
+                return $this->loader;
+            }
+        };
+        // doing this so we can overwrite some parts of the response
+        $engine->getLoader()->register('response', function () {
+            return new class extends Response {
+                public function setRealHeader(
+                    string $header_string,
+                    bool $replace = true,
+                    int $response_code = 0
+                ): self {
+                    return $this;
+                }
+            };
+        });
+
+		$engine->route('POST /path1/@id', function ($id) {
+			echo 'OK' . $id;
+		});
+
+		$engine->route('GET /path2/@id', function ($id) {
+			echo 'OK' . $id;
+		});
+
+		$engine->route('PATCH /path3/@id', function ($id) {
+			echo 'OK' . $id;
+		});
+
+		$engine->request()->url = '/path1/123';
+		$engine->request()->method = 'GET';
+
+        $engine->start();
+
+		$this->expectOutputString('Method Not Allowed');
+        $this->assertEquals(405, $engine->response()->status());
+		$this->assertEquals('Method Not Allowed', $engine->response()->getBody());
+	}
+
 }

@@ -23,7 +23,7 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0|^8.1|^8.2|^8.3",
+        "php": ">=7.4",
         "ext-json": "*"
     },
     "autoload": {
@@ -41,6 +41,7 @@
     },
     "require-dev": {
         "ext-pdo_sqlite": "*",
+        "flightphp/runway": "^0.2.0",
         "league/container": "^4.2",
         "level-2/dice": "^4.0",
         "phpstan/extension-installer": "^1.3",
@@ -64,7 +65,10 @@
         "test-coverage:win": "del clover.xml && phpunit --coverage-html=coverage --coverage-clover=clover.xml && coverage-check clover.xml 100",
         "lint": "phpstan --no-progress -cphpstan.neon",
         "beautify": "phpcbf --standard=phpcs.xml",
-        "phpcs": "phpcs --standard=phpcs.xml -n"
+        "phpcs": "phpcs --standard=phpcs.xml -n",
+        "post-install-cmd": [
+            "php -r \"if (!file_exists('phpcs.xml')) copy('phpcs.xml.dist', 'phpcs.xml');\""
+        ]
     },
     "suggest": {
         "latte/latte": "Latte template engine",

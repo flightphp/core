@@ -151,7 +151,7 @@ class Request
                 'method'     => self::getMethod(),
                 'referrer'   => self::getVar('HTTP_REFERER'),
                 'ip'         => self::getVar('REMOTE_ADDR'),
-                'ajax'       => 'XMLHttpRequest' === self::getVar('HTTP_X_REQUESTED_WITH'),
+                'ajax'       => self::getVar('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest',
                 'scheme'     => self::getScheme(),
                 'user_agent' => self::getVar('HTTP_USER_AGENT'),
                 'type'       => self::getVar('CONTENT_TYPE'),
@@ -160,7 +160,7 @@ class Request
                 'data'       => new Collection($_POST),
                 'cookies'    => new Collection($_COOKIE),
                 'files'      => new Collection($_FILES),
-                'secure'     => 'https' === self::getScheme(),
+                'secure'     => self::getScheme() === 'https',
                 'accept'     => self::getVar('HTTP_ACCEPT'),
                 'proxy_ip'   => self::getProxyIpAddress(),
                 'host'       => self::getVar('HTTP_HOST'),
@@ -188,12 +188,12 @@ class Request
         // This rewrites the url in case the public url and base directories match
         // (such as installing on a subdirectory in a web server)
         // @see testInitUrlSameAsBaseDirectory
-        if ('/' !== $this->base && '' !== $this->base && 0 === strpos($this->url, $this->base)) {
+        if ($this->base !== '/' && $this->base !== '' && strpos($this->url, $this->base) === 0) {
             $this->url = substr($this->url, \strlen($this->base));
         }
 
         // Default url
-        if (empty($this->url)) {
+        if (empty($this->url) === true) {
             $this->url = '/';
         } else {
             // Merge URL query parameters with $_GET
@@ -203,11 +203,11 @@ class Request
         }
 
         // Check for JSON input
-        if (0 === strpos($this->type, 'application/json')) {
+        if (strpos($this->type, 'application/json') === 0) {
             $body = $this->getBody();
-            if ('' !== $body) {
+            if ($body !== '') {
                 $data = json_decode($body, true);
-                if (is_array($data)) {
+                if (is_array($data) === true) {
                     $this->data->setData($data);
                 }
             }
@@ -225,13 +225,13 @@ class Request
     {
         $body = $this->body;
 
-        if ('' !== $body) {
+        if ($body !== '') {
             return $body;
         }
 
         $method = $this->method ?? self::getMethod();
 
-        if ('POST' === $method || 'PUT' === $method || 'DELETE' === $method || 'PATCH' === $method) {
+        if ($method === 'POST' || $method === 'PUT' || $method === 'DELETE' || $method === 'PATCH') {
             $body = file_get_contents($this->stream_path);
         }
 
@@ -247,9 +247,9 @@ class Request
     {
         $method = self::getVar('REQUEST_METHOD', 'GET');
 
-        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']) === true) {
             $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
-        } elseif (isset($_REQUEST['_method'])) {
+        } elseif (isset($_REQUEST['_method']) === true) {
             $method = $_REQUEST['_method'];
         }
 
@@ -275,9 +275,9 @@ class Request
         $flags = \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE;
 
         foreach ($forwarded as $key) {
-            if (\array_key_exists($key, $_SERVER)) {
+            if (\array_key_exists($key, $_SERVER) === true) {
                 sscanf($_SERVER[$key], '%[^,]', $ip);
-                if (false !== filter_var($ip, \FILTER_VALIDATE_IP, $flags)) {
+                if (filter_var($ip, \FILTER_VALIDATE_IP, $flags) !== false) {
                     return $ip;
                 }
             }
@@ -322,7 +322,7 @@ class Request
     {
         $headers = [];
         foreach ($_SERVER as $key => $value) {
-            if (0 === strpos($key, 'HTTP_')) {
+            if (strpos($key, 'HTTP_') === 0) {
                 // converts headers like HTTP_CUSTOM_HEADER to Custom-Header
                 $key = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
                 $headers[$key] = $value;
@@ -386,7 +386,7 @@ class Request
         $params = [];
 
         $args = parse_url($url);
-        if (isset($args['query'])) {
+        if (isset($args['query']) === true) {
             parse_str($args['query'], $params);
         }
 
@@ -401,13 +401,13 @@ class Request
     public static function getScheme(): string
     {
         if (
-            (isset($_SERVER['HTTPS']) && 'on' === strtolower($_SERVER['HTTPS']))
+            (isset($_SERVER['HTTPS']) === true && strtolower($_SERVER['HTTPS']) === 'on')
             ||
-            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'])
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) === true && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
             ||
-            (isset($_SERVER['HTTP_FRONT_END_HTTPS']) && 'on' === $_SERVER['HTTP_FRONT_END_HTTPS'])
+            (isset($_SERVER['HTTP_FRONT_END_HTTPS']) === true && $_SERVER['HTTP_FRONT_END_HTTPS'] === 'on')
             ||
-            (isset($_SERVER['REQUEST_SCHEME']) && 'https' === $_SERVER['REQUEST_SCHEME'])
+            (isset($_SERVER['REQUEST_SCHEME']) === true && $_SERVER['REQUEST_SCHEME'] === 'https')
         ) {
             return 'https';
         }

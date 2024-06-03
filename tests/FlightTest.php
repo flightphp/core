@@ -22,6 +22,7 @@ class FlightTest extends TestCase
         $_REQUEST = [];
         Flight::init();
         Flight::setEngine(new Engine());
+        Flight::set('flight.views.path', __DIR__ . '/views');
     }
 
     protected function tearDown(): void
@@ -291,6 +292,30 @@ class FlightTest extends TestCase
         Flight::register('response', $mock_response_class_name);
         Flight::route('/stream', function () {
             echo 'stream';
+        })->stream();
+        Flight::request()->url = '/stream';
+        $this->expectOutputString('stream');
+        Flight::start();
+        $this->assertEquals('', Flight::response()->getBody());
+        $this->assertEquals([
+            'X-Accel-Buffering' => 'no',
+            'Connection' => 'close'
+        ], Flight::response()->getHeaders());
+        $this->assertEquals(200, Flight::response()->status());
+    }
+
+    public function testStreamRouteWithHeaders()
+    {
+        $response_mock = new class extends Response {
+            public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
+            {
+                return $this;
+            }
+        };
+        $mock_response_class_name = get_class($response_mock);
+        Flight::register('response', $mock_response_class_name);
+        Flight::route('/stream', function () {
+            echo 'stream';
         })->streamWithHeaders(['Content-Type' => 'text/plain', 'X-Test' => 'test', 'status' => 200 ]);
         Flight::request()->url = '/stream';
         $this->expectOutputString('stream');
@@ -329,5 +354,44 @@ class FlightTest extends TestCase
         Flight::start();
 
         $this->expectOutputString('Thisisaroutewithhtml');
+    }
+
+    /** @dataProvider \tests\ViewTest::renderDataProvider */
+    public function testDoesNotPreserveVarsWhenFlagIsDisabled(
+        string $output,
+        array $renderParams,
+        string $regexp
+    ): void
+    {
+        Flight::view()->preserveVars = false;
+
+        $this->expectOutputString($output);
+        Flight::render(...$renderParams);
+
+        set_error_handler(function (int $code, string $message) use ($regexp): void {
+            $this->assertMatchesRegularExpression($regexp, $message);
+        });
+
+        Flight::render($renderParams[0]);
+
+        restore_error_handler();
+    }
+
+    public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
+    {
+        $this->expectOutputString(<<<html
+        <div>Hi</div>
+        <div>Hi</div>
+
+        <input type="number" />
+
+        <input type="number" />
+
+        html);
+
+        Flight::render('myComponent', ['prop' => 'Hi']);
+        Flight::render('myComponent');
+        Flight::render('input', ['type' => 'number']);
+        Flight::render('input');
     }
 }

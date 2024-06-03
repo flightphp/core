@@ -336,12 +336,14 @@ class RouterTest extends TestCase
     {
         $this->router->map('GET /api/intune/hey', [$this, 'ok']);
 
+        $error_description = 'error_description=AADSTS65004%3a+User+declined+to+consent+to+access+the';
+        $error_description .= '+app.%0d%0aTrace+ID%3a+747c0cc1-ccbd-4e53-8e2f-48812eb24100%0d%0a';
+        $error_description .= 'Correlation+ID%3a+362e3cb3-20ef-400b-904e-9983bd989184%0d%0a';
+        $error_description .= 'Timestamp%3a+2022-09-08+09%3a58%3a12Z';
+
         $query_params = [
             'error=access_denied',
-            'error_description=AADSTS65004%3a+User+declined+to+consent+to+access+the'
-                . '+app.%0d%0aTrace+ID%3a+747c0cc1-ccbd-4e53-8e2f-48812eb24100%0d%0a'
-                . 'Correlation+ID%3a+362e3cb3-20ef-400b-904e-9983bd989184%0d%0a'
-                . 'Timestamp%3a+2022-09-08+09%3a58%3a12Z',
+            $error_description,
             'error_uri=https%3a%2f%2flogin.microsoftonline.com%2ferror%3fcode%3d65004',
             'admin_consent=True',
             'state=x2EUE0fcSj#'
@@ -629,6 +631,10 @@ class RouterTest extends TestCase
         $this->router->rewind();
         $result = $this->router->valid();
         $this->assertTrue($result);
+
+        $this->router->previous();
+        $result = $this->router->valid();
+        $this->assertFalse($result);
     }
 
     public function testGetRootUrlByAlias()

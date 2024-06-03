@@ -1,5 +1,8 @@
-![PHPStan: enabled](https://user-images.githubusercontent.com/104888/50957476-9c4acb80-14be-11e9-88ce-6447364dc1bb.png)
-![PHPStan: level 6](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
+[![Version](http://poser.pugx.org/flightphp/core/version)](https://packagist.org/packages/flightphp/core)
+[![Monthly Downloads](http://poser.pugx.org/flightphp/core/d/monthly)](https://packagist.org/packages/flightphp/core)
+![PHPStan: Level 6](https://img.shields.io/badge/PHPStan-level%206-brightgreen.svg?style=flat)
+[![License](http://poser.pugx.org/flightphp/core/license)](https://packagist.org/packages/flightphp/core)
+[![PHP Version Require](http://poser.pugx.org/flightphp/core/require/php)](https://packagist.org/packages/flightphp/core)
 ![Matrix](https://img.shields.io/matrix/flight-php-framework%3Amatrix.org?server_fqdn=matrix.org&style=social&logo=matrix)
 
 # What is Flight?

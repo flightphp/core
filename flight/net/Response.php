@@ -129,6 +129,13 @@ class Response
     protected bool $sent = false;
 
     /**
+     * These are callbacks that can process the response body before it's sent
+     *
+     * @var array<int, callable> $responseBodyCallbacks
+     */
+    protected array $responseBodyCallbacks = [];
+
+    /**
      * Sets the HTTP status of the response.
      *
      * @param ?int $code HTTP status code.
@@ -139,7 +146,7 @@ class Response
      */
     public function status(?int $code = null)
     {
-        if (null === $code) {
+        if ($code === null) {
             return $this->status;
         }
 
@@ -279,19 +286,22 @@ class Response
      */
     public function cache($expires): self
     {
-        if (false === $expires) {
+        if ($expires === false) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+
             $this->headers['Cache-Control'] = [
                 'no-store, no-cache, must-revalidate',
                 'post-check=0, pre-check=0',
                 'max-age=0',
             ];
+
             $this->headers['Pragma'] = 'no-cache';
         } else {
             $expires = \is_int($expires) ? $expires : strtotime($expires);
             $this->headers['Expires'] = gmdate('D, d M Y H:i:s', $expires) . ' GMT';
             $this->headers['Cache-Control'] = 'max-age=' . ($expires - time());
-            if (isset($this->headers['Pragma']) && 'no-cache' == $this->headers['Pragma']) {
+
+            if (isset($this->headers['Pragma']) && $this->headers['Pragma'] === 'no-cache') {
                 unset($this->headers['Pragma']);
             }
         }
@@ -307,7 +317,7 @@ class Response
     public function sendHeaders(): self
     {
         // Send status code header
-        if (false !== strpos(\PHP_SAPI, 'cgi')) {
+        if (strpos(\PHP_SAPI, 'cgi') !== false) {
             // @codeCoverageIgnoreStart
             $this->setRealHeader(
                 sprintf(
@@ -331,6 +341,15 @@ class Response
             );
         }
 
+        if ($this->content_length === true) {
+            // Send content length
+            $length = $this->getContentLength();
+
+            if ($length > 0) {
+                $this->setHeader('Content-Length', (string) $length);
+            }
+        }
+
         // Send other headers
         foreach ($this->headers as $field => $value) {
             if (\is_array($value)) {
@@ -339,15 +358,6 @@ class Response
                 }
             } else {
                 $this->setRealHeader($field . ': ' . $value);
-            }
-        }
-
-        if ($this->content_length) {
-            // Send content length
-            $length = $this->getContentLength();
-
-            if ($length > 0) {
-                $this->setRealHeader('Content-Length: ' . $length);
             }
         }
 
@@ -422,12 +432,42 @@ class Response
             }
         }
 
-        if (!headers_sent()) {
+        // Only for the v3 output buffering.
+        if ($this->v2_output_buffering === false) {
+            $this->processResponseCallbacks();
+        }
+
+        if (headers_sent() === false) {
             $this->sendHeaders(); // @codeCoverageIgnore
         }
 
         echo $this->body;
 
         $this->sent = true;
+    }
+
+    /**
+     * Adds a callback to process the response body before it's sent. These are processed in the order
+     * they are added
+     *
+     * @param callable $callback The callback to process the response body
+     *
+     * @return void
+     */
+    public function addResponseBodyCallback(callable $callback): void
+    {
+        $this->responseBodyCallbacks[] = $callback;
+    }
+
+    /**
+     * Cycles through the response body callbacks and processes them in order
+     *
+     * @return void
+     */
+    protected function processResponseCallbacks(): void
+    {
+        foreach ($this->responseBodyCallbacks as $callback) {
+            $this->body = $callback($this->body);
+        }
     }
 }

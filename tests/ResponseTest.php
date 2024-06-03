@@ -255,4 +255,54 @@ class ResponseTest extends TestCase
         $response->write('new', true);
         $this->assertEquals('new', $response->getBody());
     }
+
+    public function testResponseBodyCallback()
+    {
+        $response = new Response();
+        $response->write('test');
+        $str_rot13 = function ($body) {
+            return str_rot13($body);
+        };
+        $response->addResponseBodyCallback($str_rot13);
+        ob_start();
+        $response->send();
+        $rot13_body = ob_get_clean();
+        $this->assertEquals('grfg', $rot13_body);
+    }
+
+    public function testResponseBodyCallbackGzip()
+    {
+        $response = new Response();
+        $response->content_length = true;
+        $response->write('test');
+        $gzip = function ($body) {
+            return gzencode($body);
+        };
+        $response->addResponseBodyCallback($gzip);
+        ob_start();
+        $response->send();
+        $gzip_body = ob_get_clean();
+        $expected = PHP_OS === 'WINNT' ? 'H4sIAAAAAAAACitJLS4BAAx+f9gEAAAA' : 'H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA';
+        $this->assertEquals($expected, base64_encode($gzip_body));
+        $this->assertEquals(strlen(gzencode('test')), strlen($gzip_body));
+    }
+
+    public function testResponseBodyCallbackMultiple()
+    {
+        $response = new Response();
+        $response->write('test');
+        $str_rot13 = function ($body) {
+            return str_rot13($body);
+        };
+        $str_replace = function ($body) {
+            return str_replace('g', 'G', $body);
+        };
+        $response->addResponseBodyCallback($str_rot13);
+        $response->addResponseBodyCallback($str_replace);
+        $response->addResponseBodyCallback($str_rot13);
+        ob_start();
+        $response->send();
+        $rot13_body = ob_get_clean();
+        $this->assertEquals('TesT', $rot13_body);
+    }
 }

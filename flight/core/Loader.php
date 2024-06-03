@@ -26,6 +26,11 @@ class Loader
     protected array $classes = [];
 
     /**
+     * If this is disabled, classes can load with underscores
+     */
+    protected static bool $v2ClassLoading = true;
+
+    /**
      * Class instances.
      *
      * @var array<string, object>
@@ -190,14 +195,14 @@ class Loader
      */
     public static function loadClass(string $class): void
     {
-        $classFile = str_replace(['\\', '_'], '/', $class) . '.php';
+        $replace_chars = self::$v2ClassLoading === true ? ['\\', '_'] : ['\\'];
+        $classFile = str_replace($replace_chars, '/', $class) . '.php';
 
         foreach (self::$dirs as $dir) {
             $filePath = "$dir/$classFile";
 
             if (file_exists($filePath)) {
                 require_once $filePath;
-
                 return;
             }
         }
@@ -219,5 +224,18 @@ class Loader
                 self::$dirs[] = $dir;
             }
         }
+    }
+
+
+    /**
+     * Sets the value for V2 class loading.
+     *
+     * @param bool $value The value to set for V2 class loading.
+     *
+     * @return void
+     */
+    public static function setV2ClassLoading(bool $value): void
+    {
+        self::$v2ClassLoading = $value;
     }
 }

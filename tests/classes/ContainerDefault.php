@@ -15,6 +15,11 @@ class ContainerDefault
         $this->app = $engine;
     }
 
+    public function before(array $params)
+    {
+        echo 'I returned before the route was called with the following parameters: ' . json_encode($params);
+    }
+
     public function testTheContainer()
     {
         return $this->app->get('test_me_out');

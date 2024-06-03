@@ -1,4 +1,5 @@
-.idea
+.idea/
+.vscode/
 vendor/
 composer.phar
 composer.lock
@@ -6,3 +7,5 @@ composer.lock
 coverage/
 *.sublime*
 clover.xml
+phpcs.xml
+.runway-config.json

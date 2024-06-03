@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use flight\core\Loader;
 use flight\database\PdoWrapper;
 use tests\classes\Container;
 use tests\classes\ContainerDefault;
@@ -18,10 +19,8 @@ use tests\classes\ContainerDefault;
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
 Flight::set('flight.views.extension', '.phtml');
-//Flight::set('flight.v2.output_buffering', true);
-
-require_once 'LayoutMiddleware.php';
-require_once 'OverwriteBodyMiddleware.php';
+Loader::setV2ClassLoading(false);
+Flight::path(__DIR__);
 
 Flight::group('', function () {
 
@@ -123,7 +122,19 @@ Flight::group('', function () {
             ob_flush();
         }
         echo "is successful!!";
+    })->stream();
+
+    // Test 12: Redirect with status code
+    Flight::route('/streamWithHeaders', function () {
+        echo "Streaming a response";
+        for ($i = 1; $i <= 50; $i++) {
+            echo ".";
+            usleep(50000);
+            ob_flush();
+        }
+        echo "is successful!!";
     })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
+
     // Test 14: Overwrite the body with a middleware
     Flight::route('/overwrite', function () {
         echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:red; font-weight: bold;">failed</span>';
@@ -147,6 +158,7 @@ Flight::group('', function () {
     Flight::set('test_me_out', 'You got it boss!'); // used in /no-container route
     Flight::route('/no-container', ContainerDefault::class . '->testUi');
     Flight::route('/dice', Container::class . '->testThePdoWrapper');
+    Flight::route('/Pascal_Snake_Case', Pascal_Snake_Case::class . '->doILoad');
 }, [ new LayoutMiddleware() ]);
 
 // Test 9: JSON output (should not output any other html)
@@ -159,11 +171,17 @@ Flight::route('/jsonp', function () {
     Flight::jsonp(['message' => 'JSONP renders successfully!'], 'jsonp');
 });
 
+Flight::route('/json-halt', function () {
+    Flight::jsonHalt(['message' => 'JSON rendered and halted successfully with no other body content!']);
+});
+
 Flight::map('error', function (Throwable $e) {
     echo sprintf(
-        '<h1>500 Internal Server Error</h1>' .
-            '<h3>%s (%s)</h3>' .
-            '<pre style="border: 2px solid red; padding: 21px; background: lightgray; font-weight: bold;">%s</pre>',
+        <<<HTML
+        <h1>500 Internal Server Error</h1>
+            <h3>%s (%s)</h3>
+            <pre style="border: 2px solid red; padding: 21px; background: lightgray; font-weight: bold;">%s</pre>
+        HTML,
         $e->getMessage(),
         $e->getCode(),
         str_replace(getenv('PWD'), '***CONFIDENTIAL***', $e->getTraceAsString())

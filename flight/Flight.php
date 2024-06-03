@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use flight\core\Dispatcher;
 use flight\Engine;
 use flight\net\Request;
 use flight\net\Response;
@@ -24,6 +23,10 @@ require_once __DIR__ . '/autoload.php';
  * @method static void stop(?int $code = null) Stops the framework and sends a response.
  * @method static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * Stop the framework with an optional status code and message.
+ * @method static void register(string $name, string $class, array $params = [], ?callable $callback = null)
+ * Registers a class to a framework method.
+ * @method static void unregister(string $methodName)
+ * Unregisters a class to a framework method.
  * @method static void registerContainerHandler(callable|object $containerHandler) Registers a container handler.
  *
  * # Routing
@@ -65,6 +68,8 @@ require_once __DIR__ . '/autoload.php';
  * @method static void redirect(string $url, int $code = 303) Redirects to another URL.
  * @method static void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  * Sends a JSON response.
+ * @method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * Sends a JSON response and immediately halts the request.
  * @method static void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  * Sends a JSONP response.
  * @method static void error(Throwable $exception) Sends an HTTP 500 response.

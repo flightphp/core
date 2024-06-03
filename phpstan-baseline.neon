@@ -1,6 +1,0 @@
-parameters:
-	ignoreErrors:
-		-
-			message: "#^Parameter \\#2 \\$callback of method flight\\\\core\\\\Dispatcher\\:\\:set\\(\\) expects Closure\\(\\)\\: mixed, array\\{\\$this\\(flight\\\\Engine\\), literal\\-string&non\\-falsy\\-string\\} given\\.$#"
-			count: 1
-			path: flight/Engine.php
