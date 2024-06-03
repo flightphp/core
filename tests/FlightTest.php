@@ -22,6 +22,7 @@ class FlightTest extends TestCase
         $_REQUEST = [];
         Flight::init();
         Flight::setEngine(new Engine());
+        Flight::set('flight.views.path', __DIR__ . '/views');
     }
 
     protected function tearDown(): void
@@ -353,5 +354,44 @@ class FlightTest extends TestCase
         Flight::start();
 
         $this->expectOutputString('Thisisaroutewithhtml');
+    }
+
+    /** @dataProvider \tests\ViewTest::renderDataProvider */
+    public function testDoesNotPreserveVarsWhenFlagIsDisabled(
+        string $output,
+        array $renderParams,
+        string $regexp
+    ): void
+    {
+        Flight::view()->preserveVars = false;
+
+        $this->expectOutputString($output);
+        Flight::render(...$renderParams);
+
+        set_error_handler(function (int $code, string $message) use ($regexp): void {
+            $this->assertMatchesRegularExpression($regexp, $message);
+        });
+
+        Flight::render($renderParams[0]);
+
+        restore_error_handler();
+    }
+
+    public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
+    {
+        $this->expectOutputString(<<<html
+        <div>Hi</div>
+        <div>Hi</div>
+
+        <input type="number" />
+
+        <input type="number" />
+
+        html);
+
+        Flight::render('myComponent', ['prop' => 'Hi']);
+        Flight::render('myComponent');
+        Flight::render('input', ['type' => 'number']);
+        Flight::render('input');
     }
 }

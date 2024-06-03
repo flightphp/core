@@ -20,6 +20,8 @@ class View
     /** File extension. */
     public string $extension = '.php';
 
+    public bool $preserveVars = true;
+
     /**
      * View variables.
      *
@@ -114,11 +116,15 @@ class View
             throw new \Exception("Template file not found: {$normalized_path}.");
         }
 
-        if (\is_array($data)) {
-            $this->vars = \array_merge($this->vars, $data);
-        }
-
         \extract($this->vars);
+
+        if (\is_array($data) === true) {
+            \extract($data);
+
+            if ($this->preserveVars === true) {
+                $this->vars = \array_merge($this->vars, $data);
+            }
+        }
 
         include $this->template;
     }
