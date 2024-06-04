@@ -42,7 +42,7 @@ use flight\net\Route;
  * Routes a PATCH URL to a callback function.
  * @method Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
- * @method void resource(string $pattern, string $controllerClass, array $methods = []) 
+ * @method void resource(string $pattern, string $controllerClass, array $methods = [])
  * Adds standardized RESTful routes for a controller.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
@@ -729,7 +729,7 @@ class Engine
         return $this->router()->map('DELETE ' . $pattern, $callback, $pass_route, $route_alias);
     }
 
-	/**
+    /**
      * Create a resource controller customizing the methods names mapping.
      *
      * @param class-string $controllerClass
@@ -748,56 +748,57 @@ class Engine
         //     'GET /@id/edit' => 'edit',
         //     'PUT /@id' => 'update',
         //     'DELETE /@id' => 'destroy'
-		// ];
+        // ];
 
-		$defaultMapping = [
+        $defaultMapping = [
             'index' => 'GET ',
             'create' => 'GET /create',
             'store' => 'POST ',
             'show' => 'GET /@id',
             'edit' => 'GET /@id/edit',
             'update' => 'PUT /@id',
-            'destroy' =>'DELETE /@id'
-		];
+            'destroy' => 'DELETE /@id'
+        ];
 
-		// Create a custom alias base
-		$aliasBase = trim(basename($pattern), '/');
-		if(isset($options['alias_base']) === true) {
-			$aliasBase = $options['alias_base'];
-		}
+        // Create a custom alias base
+        $aliasBase = trim(basename($pattern), '/');
+        if (isset($options['alias_base']) === true) {
+            $aliasBase = $options['alias_base'];
+        }
 
-		// Only use these controller methods
-		if(isset($options['only']) === true) {
-			$only = $options['only'];
-			$defaultMapping = array_filter($defaultMapping, function($key) use ($only) {
-				return in_array($key, $only, true) === true;
-			}, ARRAY_FILTER_USE_KEY);
+        // Only use these controller methods
+        if (isset($options['only']) === true) {
+            $only = $options['only'];
+            $defaultMapping = array_filter($defaultMapping, function ($key) use ($only) {
+                return in_array($key, $only, true) === true;
+            }, ARRAY_FILTER_USE_KEY);
 
-		// Exclude these controller methods
-		} else if(isset($options['except']) === true) {
-			$except = $options['except'];
-			$defaultMapping = array_filter($defaultMapping, function($key) use ($except) {
-				return in_array($key, $except, true) === false;
-			}, ARRAY_FILTER_USE_KEY);
-		}
+        // Exclude these controller methods
+        } elseif (isset($options['except']) === true) {
+            $except = $options['except'];
+            $defaultMapping = array_filter($defaultMapping, function ($key) use ($except) {
+                return in_array($key, $except, true) === false;
+            }, ARRAY_FILTER_USE_KEY);
+        }
 
-		// Add group middleware
-		$middleware = [];
-		if(isset($options['middleware']) === true) {
-			$middleware = $options['middleware'];
-		}
+        // Add group middleware
+        $middleware = [];
+        if (isset($options['middleware']) === true) {
+            $middleware = $options['middleware'];
+        }
 
-		$this->group(
-			$pattern,
-			function (Router $router) use ($controllerClass, $defaultMapping, $aliasBase): void {
-				foreach ($defaultMapping as $controllerMethod => $methodPattern) {
-					$router->map(
-						$methodPattern,
-						$controllerClass.'->'.$controllerMethod
-					)->setAlias($aliasBase.'.'.$controllerMethod);
-				}
-			}
-		, $middleware);
+        $this->group(
+            $pattern,
+            function (Router $router) use ($controllerClass, $defaultMapping, $aliasBase): void {
+                foreach ($defaultMapping as $controllerMethod => $methodPattern) {
+                    $router->map(
+                        $methodPattern,
+                        $controllerClass . '->' . $controllerMethod
+                    )->setAlias($aliasBase . '.' . $controllerMethod);
+                }
+            },
+            $middleware
+        );
     }
 
     /**
