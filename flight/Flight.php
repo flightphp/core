@@ -42,6 +42,8 @@ require_once __DIR__ . '/autoload.php';
  * Routes a PATCH URL to a callback function.
  * @method static Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
+ * @method void resource(string $pattern, string $controllerClass, array $methods = []) 
+ * Adds standardized RESTful routes for a controller.
  * @method static Router router() Returns Router instance.
  * @method static string getUrl(string $alias, array<string, mixed> $params = []) Gets a url from an alias
  *
@@ -119,60 +121,6 @@ class Flight
     public static function __callStatic(string $name, array $params)
     {
         return self::app()->{$name}(...$params);
-    }
-
-    /**
-     * Create a resource controller customizing the methods names mapping.
-     *
-     * @param class-string $controllerClass
-     * @param array<string, string> $methods
-     */
-    public static function resource(
-        string $pattern,
-        string $controllerClass,
-        array $methods = []
-    ): void {
-        $defaultMapping = [
-            'GET /' => 'index',
-            'GET /@id/' => 'show',
-            'GET /create/' => 'create',
-            'POST /' => 'store',
-            'GET /@id/edit/' => 'edit',
-            'PUT /@id/' => 'update',
-            'DELETE /@id/' => 'destroy'
-        ];
-
-        if ($methods !== []) {
-            static::group(
-                $pattern,
-                function () use ($controllerClass, $methods): void {
-                    foreach ($methods as $methodPattern => $controllerMethod) {
-                        static::route(
-                            $methodPattern,
-                            [$controllerClass, $controllerMethod]
-                        );
-                    }
-                }
-            );
-        } else {
-            static::group(
-                $pattern,
-                function () use ($defaultMapping, $controllerClass): void {
-                    foreach ($defaultMapping as $methodPattern => $controllerMethod) {
-                        $class = new ReflectionClass($controllerClass);
-
-                        if ($class->hasMethod($controllerMethod) === false) {
-                            continue;
-                        }
-
-                        static::route(
-                            $methodPattern,
-                            [$controllerClass, $controllerMethod]
-                        );
-                    }
-                }
-            );
-        }
     }
 
     /** @return Engine Application instance */
