@@ -164,7 +164,7 @@ class ResponseTest extends TestCase
         $response->cache(false);
         $this->assertEquals([
             'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
-            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
             'Pragma' => 'no-cache'
         ], $response->headers());
     }
@@ -235,8 +235,8 @@ class ResponseTest extends TestCase
         $this->assertTrue($response->sent());
     }
 
-	public function testSendWithNoHeadersSent()
-	{
+    public function testSendWithNoHeadersSent()
+    {
         $response = new class extends Response {
             protected $test_sent_headers = [];
 
@@ -251,16 +251,16 @@ class ResponseTest extends TestCase
                 return $this->test_sent_headers;
             }
 
-			public function headersSent(): bool
-			{
-				return false;
-			}
+            public function headersSent(): bool
+            {
+                return false;
+            }
         };
         $response->header('Content-Type', 'text/html');
         $response->header('X-Test', 'test');
         $response->write('Something');
 
-		$this->expectOutputString('Something');
+        $this->expectOutputString('Something');
 
         $response->send();
         $sent_headers = $response->getSentHeaders();
@@ -268,9 +268,9 @@ class ResponseTest extends TestCase
             'HTTP/1.1 200 OK',
             'Content-Type: text/html',
             'X-Test: test',
-			'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
-            'Cache-Control: no-store, no-cache, must-revalidate',
-			'Pragma: no-cache',
+            'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
+            'Cache-Control: no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma: no-cache',
             'Content-Length: 9'
         ], $sent_headers);
     }

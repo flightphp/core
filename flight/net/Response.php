@@ -288,7 +288,7 @@ class Response
     {
         if ($expires === false) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
-            $this->headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
+            $this->headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
             $this->headers['Pragma'] = 'no-cache';
         } else {
             $expires = \is_int($expires) ? $expires : strtotime($expires);
@@ -432,11 +432,10 @@ class Response
         }
 
         if ($this->headersSent() === false) {
-
-			// If you haven't set a Cache-Control header, we'll assume you don't want caching
-			if($this->getHeader('Cache-Control') === null) {
-				$this->cache(false);
-			}
+            // If you haven't set a Cache-Control header, we'll assume you don't want caching
+            if ($this->getHeader('Cache-Control') === null) {
+                $this->cache(false);
+            }
 
             $this->sendHeaders();
         }
@@ -446,16 +445,16 @@ class Response
         $this->sent = true;
     }
 
-	/**
-	 * Headers have been sent
-	 * 
-	 * @return bool
-	 * @codeCoverageIgnore
-	 */
-	public function headersSent(): bool
-	{
-		return headers_sent();
-	}
+    /**
+     * Headers have been sent
+     *
+     * @return bool
+     * @codeCoverageIgnore
+     */
+    public function headersSent(): bool
+    {
+        return headers_sent();
+    }
 
     /**
      * Adds a callback to process the response body before it's sent. These are processed in the order
