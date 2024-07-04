@@ -288,13 +288,7 @@ class Response
     {
         if ($expires === false) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
-
-            $this->headers['Cache-Control'] = [
-                'no-store, no-cache, must-revalidate',
-                'post-check=0, pre-check=0',
-                'max-age=0',
-            ];
-
+            $this->headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
             $this->headers['Pragma'] = 'no-cache';
         } else {
             $expires = \is_int($expires) ? $expires : strtotime($expires);
@@ -437,13 +431,29 @@ class Response
             $this->processResponseCallbacks();
         }
 
-        if (headers_sent() === false) {
-            $this->sendHeaders(); // @codeCoverageIgnore
+        if ($this->headersSent() === false) {
+            // If you haven't set a Cache-Control header, we'll assume you don't want caching
+            if ($this->getHeader('Cache-Control') === null) {
+                $this->cache(false);
+            }
+
+            $this->sendHeaders();
         }
 
         echo $this->body;
 
         $this->sent = true;
+    }
+
+    /**
+     * Headers have been sent
+     *
+     * @return bool
+     * @codeCoverageIgnore
+     */
+    public function headersSent(): bool
+    {
+        return headers_sent();
     }
 
     /**

@@ -361,8 +361,7 @@ class FlightTest extends TestCase
         string $output,
         array $renderParams,
         string $regexp
-    ): void
-    {
+    ): void {
         Flight::view()->preserveVars = false;
 
         $this->expectOutputString($output);
