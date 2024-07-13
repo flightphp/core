@@ -286,7 +286,7 @@ class Response
      */
     public function cache($expires): self
     {
-        if ($expires === false) {
+        if ($expires === false || $expires === 0) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
             $this->headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
             $this->headers['Pragma'] = 'no-cache';
