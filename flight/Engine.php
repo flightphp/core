@@ -610,6 +610,7 @@ class Engine
 
         try {
             $this->response()
+                ->cache(0)
                 ->clearBody()
                 ->status(500)
                 ->write($msg)
@@ -736,6 +737,10 @@ class Engine
      */
     public function _halt(int $code = 200, string $message = '', bool $actuallyExit = true): void
     {
+        if ($this->response()->getHeader('Cache-Control') === null) {
+            $this->response()->cache(0);
+        }
+
         $this->response()
             ->clearBody()
             ->status($code)
