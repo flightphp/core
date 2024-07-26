@@ -76,7 +76,7 @@ class Engine
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
         'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
-        'post', 'put', 'patch', 'delete', 'group', 'getUrl'
+        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download'
     ];
 
     /** @var array<string, mixed> Stored variables. */
@@ -893,6 +893,31 @@ class Engine
         if ($this->response()->v2_output_buffering === true) {
             $this->response()->send();
         }
+    }
+
+    public function _download(string $file): void {
+        if (!file_exists($file)) {
+            throw new Exception("$file cannot be found.");
+        }
+
+        $fileSize = filesize($file);
+
+        $mimeType = mime_content_type($file);
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . $fileSize);
+
+        // Clear the output buffer
+        ob_clean();
+        flush();
+
+        // Read the file and send it to the output buffer
+        readfile($file);
     }
 
     /**
