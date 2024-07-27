@@ -952,4 +952,38 @@ class EngineTest extends TestCase
 		$this->assertEquals('Method Not Allowed', $engine->response()->getBody());
 	}
 
+	public function testDownload()
+    {
+        $engine = new class extends Engine {
+            public function getLoader()
+            {
+                return $this->loader;
+            }
+        };
+        // doing this so we can overwrite some parts of the response
+        $engine->getLoader()->register('response', function () {
+            return new class extends Response {
+                public function setRealHeader(
+                    string $header_string,
+                    bool $replace = true,
+                    int $response_code = 0
+                ): self {
+                    return $this;
+                }
+            };
+        });
+		$tmpfile = tmpfile();
+		fwrite($tmpfile, 'I am a teapot');
+		$streamPath = stream_get_meta_data($tmpfile)['uri'];
+		$this->expectOutputString('I am a teapot');
+        $engine->download($streamPath);
+    }
+
+	public function testDownloadBadPath() {
+		$engine = new Engine();
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage("/path/to/nowhere cannot be found.");
+		$engine->download('/path/to/nowhere');
+	}
+
 }
