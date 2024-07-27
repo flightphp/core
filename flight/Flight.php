@@ -75,9 +75,10 @@ require_once __DIR__ . '/autoload.php';
  * @method static void error(Throwable $exception) Sends an HTTP 500 response.
  * @method static void notFound() Sends an HTTP 404 response.
  *
- * # HTTP caching
+ * # HTTP methods
  * @method static void etag(string $id, ('strong'|'weak') $type = 'strong') Performs ETag HTTP caching.
  * @method static void lastModified(int $time) Performs last modified HTTP caching.
+ * @method static void download(string $filePath) Downloads a file
  */
 class Flight
 {

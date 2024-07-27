@@ -175,6 +175,11 @@ Flight::route('/json-halt', function () {
     Flight::jsonHalt(['message' => 'JSON rendered and halted successfully with no other body content!']);
 });
 
+// Download a file
+Flight::route('/download', function () {
+	Flight::download('test_file.txt');
+});
+
 Flight::map('error', function (Throwable $e) {
     echo sprintf(
         <<<HTML

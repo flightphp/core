@@ -62,9 +62,10 @@ use flight\net\Route;
  * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * Sends a JSONP response.
  *
- * # HTTP caching
+ * # HTTP methods
  * @method void etag(string $id, ('strong'|'weak') $type = 'strong') Handles ETag HTTP caching.
  * @method void lastModified(int $time) Handles last modified HTTP caching.
+ * @method void download(string $filePath) Downloads a file
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
@@ -76,7 +77,7 @@ class Engine
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
         'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
-        'post', 'put', 'patch', 'delete', 'group', 'getUrl'
+        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download'
     ];
 
     /** @var array<string, mixed> Stored variables. */
@@ -893,6 +894,45 @@ class Engine
         if ($this->response()->v2_output_buffering === true) {
             $this->response()->send();
         }
+    }
+
+	/**
+	 * Downloads a file
+	 *
+	 * @param string $filePath The path to the file to download
+	 * @throws Exception If the file cannot be found
+	 * 
+	 * @return void
+	 */
+    public function _download(string $filePath): void {
+        if (file_exists($filePath) === false) {
+            throw new Exception("$filePath cannot be found.");
+        }
+
+        $fileSize = filesize($filePath);
+
+        $mimeType = mime_content_type($filePath);
+		$mimeType = $mimeType !== false ? $mimeType : 'application/octet-stream';
+
+		$response = $this->response();
+		$response->send();
+        $response->setRealHeader('Content-Description: File Transfer');
+		$response->setRealHeader('Content-Type: ' . $mimeType);
+        $response->setRealHeader('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+        $response->setRealHeader('Expires: 0');
+        $response->setRealHeader('Cache-Control: must-revalidate');
+        $response->setRealHeader('Pragma: public');
+        $response->setRealHeader('Content-Length: ' . $fileSize);
+
+        // // Clear the output buffer
+        ob_clean();
+        flush();
+
+        // // Read the file and send it to the output buffer
+        readfile($filePath);
+		if(empty(getenv('PHPUNIT_TEST'))) {
+			exit; // @codeCoverageIgnore
+		}
     }
 
     /**
