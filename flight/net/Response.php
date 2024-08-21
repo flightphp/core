@@ -480,4 +480,42 @@ class Response
             $this->body = $callback($this->body);
         }
     }
+
+    /**
+     * Downloads a file.
+     *
+     * @param string $filePath The path to the file to be downloaded.
+     *
+     * @return void
+     */
+    public function downloadFile(string $filePath): void
+    {
+        if (file_exists($filePath) === false) {
+            throw new Exception("$filePath cannot be found.");
+        }
+
+        $fileSize = filesize($filePath);
+
+        $mimeType = mime_content_type($filePath);
+        $mimeType = $mimeType !== false ? $mimeType : 'application/octet-stream';
+
+        $this->send();
+        $this->setRealHeader('Content-Description: File Transfer');
+        $this->setRealHeader('Content-Type: ' . $mimeType);
+        $this->setRealHeader('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+        $this->setRealHeader('Expires: 0');
+        $this->setRealHeader('Cache-Control: must-revalidate');
+        $this->setRealHeader('Pragma: public');
+        $this->setRealHeader('Content-Length: ' . $fileSize);
+
+        // // Clear the output buffer
+        ob_clean();
+        flush();
+
+        // // Read the file and send it to the output buffer
+        readfile($filePath);
+        if (empty(getenv('PHPUNIT_TEST'))) {
+            exit; // @codeCoverageIgnore
+        }
+    }
 }
