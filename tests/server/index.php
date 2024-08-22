@@ -177,7 +177,7 @@ Flight::route('/json-halt', function () {
 
 // Download a file
 Flight::route('/download', function () {
-	Flight::download('test_file.txt');
+    Flight::download('test_file.txt');
 });
 
 Flight::map('error', function (Throwable $e) {
