@@ -813,12 +813,15 @@ class EngineTest extends TestCase
         $engine->request()->url = '/container';
 
         // php 7.4 will throw a PDO exception, but php 8 will throw an ErrorException
-        if(version_compare(PHP_VERSION, '8.0.0', '<')) {
-            $this->expectException(PDOException::class);
-            $this->expectExceptionMessageMatches("/invalid data source name/");
-        } else {
+        if(version_compare(PHP_VERSION, '8.1.0') >= 0) {
             $this->expectException(ErrorException::class);
             $this->expectExceptionMessageMatches("/Passing null to parameter/");
+        } elseif(version_compare(PHP_VERSION, '8.0.0') >= 0) {
+            $this->expectException(PDOException::class);
+            $this->expectExceptionMessageMatches("/must be a valid data source name/");
+        } else {
+            $this->expectException(PDOException::class);
+            $this->expectExceptionMessageMatches("/invalid data source name/");
         }
 
         $engine->start();
