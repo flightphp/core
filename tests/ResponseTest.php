@@ -318,7 +318,16 @@ class ResponseTest extends TestCase
         ob_start();
         $response->send();
         $gzip_body = ob_get_clean();
-        $expected = PHP_OS === 'WINNT' ? 'H4sIAAAAAAAACitJLS4BAAx+f9gEAAAA' : 'H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA';
+        switch (PHP_OS) {
+            case 'WINNT':
+                $expected = 'H4sIAAAAAAAACitJLS4BAAx+f9gEAAAA';
+                break;
+            case 'Darwin':
+                $expected = 'H4sIAAAAAAAAEytJLS4BAAx+f9gEAAAA';
+                break;
+            default:
+                $expected = 'H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA';
+        }
         $this->assertEquals($expected, base64_encode($gzip_body));
         $this->assertEquals(strlen(gzencode('test')), strlen($gzip_body));
     }
