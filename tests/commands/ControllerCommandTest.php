@@ -68,8 +68,6 @@ class ControllerCommandTest extends TestCase
 
     public function testCreateController()
     {
-
-        $this->markTestIncomplete('does not work on php > 8.0');
         $app = $this->newApp('test', '0.0.1');
         $app->add(new ControllerCommand(['app_root' => 'tests/commands/']));
         $app->handle(['runway', 'make:controller', 'Test']);
