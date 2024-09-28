@@ -276,13 +276,13 @@ class Router
         throw new Exception($exception_message);
     }
 
-	/**
+    /**
      * Create a resource controller customizing the methods names mapping.
      *
      * @param class-string $controllerClass
-     * @param array<string, string|array> $options
+     * @param array<string, string|array<string>> $options
      */
-	public function mapResource(
+    public function mapResource(
         string $pattern,
         string $controllerClass,
         array $options = []

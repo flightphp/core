@@ -733,14 +733,14 @@ class Engine
      * Create a resource controller customizing the methods names mapping.
      *
      * @param class-string $controllerClass
-     * @param array<string, string|array> $options
+     * @param array<string, string|array<string>> $options
      */
     public function _resource(
         string $pattern,
         string $controllerClass,
         array $options = []
     ): void {
-		$this->router()->mapResource($pattern, $controllerClass, $options);
+        $this->router()->mapResource($pattern, $controllerClass, $options);
     }
 
     /**
