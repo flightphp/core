@@ -42,6 +42,8 @@ use flight\net\Route;
  * Routes a PATCH URL to a callback function.
  * @method Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
+ * @method void resource(string $pattern, string $controllerClass, array $methods = [])
+ * Adds standardized RESTful routes for a controller.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
  *
@@ -77,7 +79,7 @@ class Engine
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
         'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
-        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download'
+        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download', 'resource'
     ];
 
     /** @var array<string, mixed> Stored variables. */
@@ -598,8 +600,7 @@ class Engine
      */
     public function _error(Throwable $e): void
     {
-        $msg = sprintf(
-            <<<HTML
+        $msg = sprintf(<<<HTML
             <h1>500 Internal Server Error</h1>
                 <h3>%s (%s)</h3>
                 <pre>%s</pre>
@@ -727,6 +728,20 @@ class Engine
     public function _delete(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
         return $this->router()->map('DELETE ' . $pattern, $callback, $pass_route, $route_alias);
+    }
+
+    /**
+     * Create a resource controller customizing the methods names mapping.
+     *
+     * @param class-string $controllerClass
+     * @param array<string, string|array<string>> $options
+     */
+    public function _resource(
+        string $pattern,
+        string $controllerClass,
+        array $options = []
+    ): void {
+        $this->router()->mapResource($pattern, $controllerClass, $options);
     }
 
     /**

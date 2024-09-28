@@ -42,6 +42,8 @@ require_once __DIR__ . '/autoload.php';
  * Routes a PATCH URL to a callback function.
  * @method static Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
+ * @method static void resource(string $pattern, string $controllerClass, array $methods = [])
+ * Adds standardized RESTful routes for a controller.
  * @method static Router router() Returns Router instance.
  * @method static string getUrl(string $alias, array<string, mixed> $params = []) Gets a url from an alias
  *
