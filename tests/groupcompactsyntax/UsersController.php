@@ -4,12 +4,12 @@ namespace tests\groupcompactsyntax;
 
 final class UsersController
 {
-    public function list(): void
+    public function index(): void
     {
         echo __METHOD__;
     }
 
-    public function handleRegister(): void
+    public function destroy(): void
     {
         echo __METHOD__;
     }

@@ -87,7 +87,7 @@ class Router
     public function map(string $pattern, $callback, bool $pass_route = false, string $route_alias = ''): Route
     {
 
-        // This means that the route ies defined in a group, but the defined route is the base
+        // This means that the route is defined in a group, but the defined route is the base
         // url path. Note the '' in route()
         // Ex: Flight::group('/api', function() {
         //    Flight::route('', function() {});
@@ -274,6 +274,69 @@ class Router
         }
 
         throw new Exception($exception_message);
+    }
+
+	/**
+     * Create a resource controller customizing the methods names mapping.
+     *
+     * @param class-string $controllerClass
+     * @param array<string, string|array> $options
+     */
+	public function mapResource(
+        string $pattern,
+        string $controllerClass,
+        array $options = []
+    ): void {
+
+        $defaultMapping = [
+            'index' => 'GET ',
+            'create' => 'GET /create',
+            'store' => 'POST ',
+            'show' => 'GET /@id',
+            'edit' => 'GET /@id/edit',
+            'update' => 'PUT /@id',
+            'destroy' => 'DELETE /@id'
+        ];
+
+        // Create a custom alias base
+        $aliasBase = trim(basename($pattern), '/');
+        if (isset($options['alias_base']) === true) {
+            $aliasBase = $options['alias_base'];
+        }
+
+        // Only use these controller methods
+        if (isset($options['only']) === true) {
+            $only = $options['only'];
+            $defaultMapping = array_filter($defaultMapping, function ($key) use ($only) {
+                return in_array($key, $only, true) === true;
+            }, ARRAY_FILTER_USE_KEY);
+
+        // Exclude these controller methods
+        } elseif (isset($options['except']) === true) {
+            $except = $options['except'];
+            $defaultMapping = array_filter($defaultMapping, function ($key) use ($except) {
+                return in_array($key, $except, true) === false;
+            }, ARRAY_FILTER_USE_KEY);
+        }
+
+        // Add group middleware
+        $middleware = [];
+        if (isset($options['middleware']) === true) {
+            $middleware = $options['middleware'];
+        }
+
+        $this->group(
+            $pattern,
+            function (Router $router) use ($controllerClass, $defaultMapping, $aliasBase): void {
+                foreach ($defaultMapping as $controllerMethod => $methodPattern) {
+                    $router->map(
+                        $methodPattern,
+                        [ $controllerClass, $controllerMethod ]
+                    )->setAlias($aliasBase . '.' . $controllerMethod);
+                }
+            },
+            $middleware
+        );
     }
 
     /**
