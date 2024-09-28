@@ -64,9 +64,10 @@ use flight\net\Route;
  * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * Sends a JSONP response.
  *
- * # HTTP caching
+ * # HTTP methods
  * @method void etag(string $id, ('strong'|'weak') $type = 'strong') Handles ETag HTTP caching.
  * @method void lastModified(int $time) Handles last modified HTTP caching.
+ * @method void download(string $filePath) Downloads a file
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
@@ -78,7 +79,7 @@ class Engine
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
         'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
-        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'resource'
+        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download', 'resource'
     ];
 
     /** @var array<string, mixed> Stored variables. */
@@ -600,7 +601,10 @@ class Engine
     public function _error(Throwable $e): void
     {
         $msg = sprintf(
-            <<<HTML
+            
+          
+          
+          HTML
             <h1>500 Internal Server Error</h1>
                 <h3>%s (%s)</h3>
                 <pre>%s</pre>
@@ -612,6 +616,7 @@ class Engine
 
         try {
             $this->response()
+                ->cache(0)
                 ->clearBody()
                 ->status(500)
                 ->write($msg)
@@ -752,6 +757,10 @@ class Engine
      */
     public function _halt(int $code = 200, string $message = '', bool $actuallyExit = true): void
     {
+        if ($this->response()->getHeader('Cache-Control') === null) {
+            $this->response()->cache(0);
+        }
+
         $this->response()
             ->clearBody()
             ->status($code)
@@ -904,6 +913,20 @@ class Engine
         if ($this->response()->v2_output_buffering === true) {
             $this->response()->send();
         }
+    }
+
+    /**
+     * Downloads a file
+     *
+     * @param string $filePath The path to the file to download
+     *
+     * @throws Exception If the file cannot be found
+     *
+     * @return void
+     */
+    public function _download(string $filePath): void
+    {
+        $this->response()->downloadFile($filePath);
     }
 
     /**
