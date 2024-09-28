@@ -600,11 +600,7 @@ class Engine
      */
     public function _error(Throwable $e): void
     {
-        $msg = sprintf(
-            
-          
-          
-          HTML
+        $msg = sprintf(<<<HTML
             <h1>500 Internal Server Error</h1>
                 <h3>%s (%s)</h3>
                 <pre>%s</pre>
