@@ -23,7 +23,7 @@ require_once __DIR__ . '/autoload.php';
  * @method static void stop(?int $code = null) Stops the framework and sends a response.
  * @method static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * Stop the framework with an optional status code and message.
- * @method static void register(string $name, string $class, array $params = [], ?callable $callback = null)
+ * @method static void register(string $name, string $class, array<int, mixed> $params = [], ?callable $callback = null)
  * Registers a class to a framework method.
  * @method static void unregister(string $methodName)
  * Unregisters a class to a framework method.
@@ -42,7 +42,7 @@ require_once __DIR__ . '/autoload.php';
  * Routes a PATCH URL to a callback function.
  * @method static Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
- * @method static void resource(string $pattern, string $controllerClass, array $methods = [])
+ * @method static void resource(string $pattern, string $controllerClass, array<string, string|array<string>> $methods = [])
  * Adds standardized RESTful routes for a controller.
  * @method static Router router() Returns Router instance.
  * @method static string getUrl(string $alias, array<string, mixed> $params = []) Gets a url from an alias

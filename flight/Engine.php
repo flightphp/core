@@ -42,13 +42,13 @@ use flight\net\Route;
  * Routes a PATCH URL to a callback function.
  * @method Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
- * @method void resource(string $pattern, string $controllerClass, array $methods = [])
+ * @method void resource(string $pattern, string $controllerClass, array<string, string|array<string>> $methods = [])
  * Adds standardized RESTful routes for a controller.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
  *
  * # Views
- * @method void render(string $file, ?array $data = null, ?string $key = null) Renders template
+ * @method void render(string $file, ?array<string,mixed> $data = null, ?string $key = null) Renders template
  * @method View view() Gets current view
  *
  * # Request-Response
@@ -600,7 +600,8 @@ class Engine
      */
     public function _error(Throwable $e): void
     {
-        $msg = sprintf(<<<HTML
+        $msg = sprintf(
+            <<<'HTML'
             <h1>500 Internal Server Error</h1>
                 <h3>%s (%s)</h3>
                 <pre>%s</pre>

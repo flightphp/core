@@ -13,13 +13,16 @@ use PHPUnit\Framework\TestCase;
 
 class RouteCommandTest extends TestCase
 {
-    protected static $in = __DIR__ . '/input.test';
-    protected static $ou = __DIR__ . '/output.test';
+    protected static $in = __DIR__ . DIRECTORY_SEPARATOR . 'input.test';
+    protected static $ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test';
 
     public function setUp(): void
     {
-        file_put_contents(static::$in, '', LOCK_EX);
-        file_put_contents(static::$ou, '', LOCK_EX);
+        // Need dynamic filenames to avoid unlink() issues with windows.
+        static::$in = __DIR__ . DIRECTORY_SEPARATOR . 'input.test' . uniqid('', true) . '.txt';
+        static::$ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test' . uniqid('', true) . '.txt';
+        file_put_contents(static::$in, '');
+        file_put_contents(static::$ou, '');
         $_SERVER = [];
         $_REQUEST = [];
         Flight::init();
@@ -43,6 +46,10 @@ class RouteCommandTest extends TestCase
         unset($_REQUEST);
         unset($_SERVER);
         Flight::clear();
+
+        // Thanks Windows
+        clearstatcache();
+        gc_collect_cycles();
     }
 
     protected function newApp(string $name, string $version = '')
@@ -54,7 +61,7 @@ class RouteCommandTest extends TestCase
 
     protected function createIndexFile()
     {
-        $index = <<<PHP
+        $index = <<<'PHP'
 <?php
 
 require __DIR__ . '/../../vendor/autoload.php';

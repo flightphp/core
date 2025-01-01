@@ -378,7 +378,7 @@ class FlightTest extends TestCase
 
     public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
     {
-        $this->expectOutputString(<<<html
+        $this->expectOutputString(<<<'html'
         <div>Hi</div>
         <div>Hi</div>
 

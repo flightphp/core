@@ -175,7 +175,7 @@ class ViewTest extends TestCase
 
     public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
     {
-        $this->expectOutputString(<<<html
+        $this->expectOutputString(<<<'html'
         <div>Hi</div>
         <div>Hi</div>
 
@@ -197,7 +197,7 @@ class ViewTest extends TestCase
 
         $this->view->set('prop', 'bar');
 
-        $this->expectOutputString(<<<html
+        $this->expectOutputString(<<<'html'
         <div>qux</div>
         <div>bar</div>
 
@@ -211,7 +211,7 @@ class ViewTest extends TestCase
     {
         return [
             [
-                <<<html
+                <<<'html'
                 <div>Hi</div>
                 <div></div>
 
@@ -220,7 +220,7 @@ class ViewTest extends TestCase
                 '/^Undefined variable:? \$?prop$/'
             ],
             [
-                <<<html
+                <<<'html'
 
                 <input type="number" />
 

@@ -198,7 +198,7 @@ class Route
     public function hydrateUrl(array $params = []): string
     {
         $url = preg_replace_callback("/(?:@([\w]+)(?:\:([^\/]+))?\)*)/i", function ($match) use ($params) {
-            if (isset($match[1]) && isset($params[$match[1]])) {
+            if (isset($params[$match[1]]) === true) {
                 return $params[$match[1]];
             }
         }, $this->pattern);
