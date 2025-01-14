@@ -117,6 +117,14 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
+    public function testPathRouteWithUrlTrailingSlash()
+    {
+        $this->router->map('/path', [$this, 'ok']);
+        $this->request->url = '/path/';
+
+        $this->check('OK');
+    }
+
     public function testGetRouteShortcut()
     {
         $this->router->get('/path', [$this, 'ok']);
@@ -455,7 +463,7 @@ class RouterTest extends TestCase
     {
         $this->router->map('/hello', [$this, 'ok']);
         $this->request->url = '/HELLO';
-        $this->router->case_sensitive = true;
+        $this->router->caseSensitive = true;
 
         $this->check('404');
     }
@@ -751,5 +759,13 @@ class RouterTest extends TestCase
         $url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
 
         $this->assertEquals('/path1/123/abc', $url);
+    }
+
+    public function testStripMultipleSlashesFromUrlAndStillMatch()
+    {
+        $this->router->get('/', [ $this, 'ok' ]);
+        $this->request->url = '///';
+        $this->request->method = 'GET';
+        $this->check('OK');
     }
 }
