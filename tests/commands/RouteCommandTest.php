@@ -71,7 +71,7 @@ Flight::post('/post', function () {})->addMiddleware(function() {});
 Flight::delete('/delete', function () {});
 Flight::put('/put', function () {});
 Flight::patch('/patch', function () {})->addMiddleware('SomeMiddleware');
-Flight::router()->case_sensitive = true;
+Flight::router()->caseSensitive = true;
 
 Flight::start();
 PHP;

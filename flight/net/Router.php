@@ -20,7 +20,7 @@ class Router
     /**
      * Case sensitive matching.
      */
-    public bool $case_sensitive = false;
+    public bool $caseSensitive = false;
 
     /**
      * Mapped routes.
@@ -221,7 +221,7 @@ class Router
     public function route(Request $request)
     {
         while ($route = $this->current()) {
-            $urlMatches = $route->matchUrl($request->url, $this->case_sensitive);
+            $urlMatches = $route->matchUrl($request->url, $this->caseSensitive);
             $methodMatches = $route->matchMethod($request->method);
             if ($urlMatches === true && $methodMatches === true) {
                 $this->executedRoute = $route;

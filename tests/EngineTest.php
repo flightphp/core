@@ -45,7 +45,7 @@ class EngineTest extends TestCase
 		$engine->request()->url = '/someRoute';
         $engine->start();
 
-        $this->assertFalse($engine->router()->case_sensitive);
+        $this->assertFalse($engine->router()->caseSensitive);
         $this->assertTrue($engine->response()->content_length);
     }
 
@@ -64,7 +64,7 @@ class EngineTest extends TestCase
 		// This is a necessary evil because of how the v2 output buffer works.
 		ob_end_clean();
 
-        $this->assertFalse($engine->router()->case_sensitive);
+        $this->assertFalse($engine->router()->caseSensitive);
         $this->assertTrue($engine->response()->content_length);
     }
 

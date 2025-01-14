@@ -179,7 +179,7 @@ class Engine
             }
 
             // Set case-sensitivity
-            $self->router()->case_sensitive = $self->get('flight.case_sensitive');
+            $self->router()->caseSensitive = $self->get('flight.case_sensitive');
             // Set Content-Length
             $self->response()->content_length = $self->get('flight.content_length');
             // This is to maintain legacy handling of output buffering
