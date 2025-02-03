@@ -213,6 +213,16 @@ class Request
             }
         }
 
+        // Check PUT, PATCH, DELETE for data
+        if ($this->method === 'PUT' || $this->method === 'DELETE' || $this->method === 'PATCH') {
+            $body = $this->getBody();
+            if ($body !== '') {
+                $data = [];
+                parse_str($body, $data);
+                $this->data->setData($data);
+            }
+        }
+
         return $this;
     }
 
