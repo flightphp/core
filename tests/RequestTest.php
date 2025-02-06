@@ -162,7 +162,8 @@ class RequestTest extends TestCase
             'url' => '/vagrant/public/flightphp',
             'base' => '/vagrant/public',
             'query' => new Collection(),
-            'type' => ''
+            'type' => '',
+			'method' => 'GET'
         ]);
         $this->assertEquals('/flightphp', $request->url);
     }
@@ -172,7 +173,8 @@ class RequestTest extends TestCase
         $request = new Request([
             'url' => '',
             'base' => '/vagrant/public',
-            'type' => ''
+            'type' => '',
+			'method' => 'GET'
         ]);
         $this->assertEquals('/', $request->url);
     }
@@ -183,7 +185,6 @@ class RequestTest extends TestCase
         $tmpfile = tmpfile();
         $stream_path = stream_get_meta_data($tmpfile)['uri'];
         file_put_contents($stream_path, '{"foo":"bar"}');
-        $_SERVER['REQUEST_METHOD'] = 'POST';
         $request = new Request([
             'url' => '/something/fancy',
             'base' => '/vagrant/public',
@@ -191,10 +192,34 @@ class RequestTest extends TestCase
             'length' => 13,
             'data' => new Collection(),
             'query' => new Collection(),
-            'stream_path' => $stream_path
+            'stream_path' => $stream_path,
+			'method' => 'POST'
         ]);
         $this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
         $this->assertEquals('{"foo":"bar"}', $request->getBody());
+    }
+
+	public function testInitWithFormBody()
+    {
+        // create dummy file to pull request body from
+        $tmpfile = tmpfile();
+        $stream_path = stream_get_meta_data($tmpfile)['uri'];
+        file_put_contents($stream_path, 'foo=bar&baz=qux');
+        $request = new Request([
+            'url' => '/something/fancy',
+            'base' => '/vagrant/public',
+            'type' => 'application/x-www-form-urlencoded',
+            'length' => 15,
+            'data' => new Collection(),
+            'query' => new Collection(),
+            'stream_path' => $stream_path,
+			'method' => 'PATCH'
+        ]);
+        $this->assertEquals([ 
+			'foo' => 'bar', 
+			'baz' => 'qux' 
+		], $request->data->getData());
+        $this->assertEquals('foo=bar&baz=qux', $request->getBody());
     }
 
     public function testGetHeader()
