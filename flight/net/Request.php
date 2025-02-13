@@ -211,6 +211,14 @@ class Request
                     $this->data->setData($data);
                 }
             }
+		// Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data
+        } else if (in_array($this->method, [ 'PUT', 'DELETE', 'PATCH' ], true) === true) {
+            $body = $this->getBody();
+            if ($body !== '') {
+                $data = [];
+                parse_str($body, $data);
+                $this->data->setData($data);
+            }
         }
 
         return $this;
