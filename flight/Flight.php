@@ -132,8 +132,8 @@ class Flight
      *
      * @param Engine $engine Vroom vroom!
      */
-    public static function setEngine(Engine $engine): Engine
+    public static function setEngine(Engine $engine): void
     {
-        return self::$engine = $engine;
+        self::$engine = $engine;
     }
 }
