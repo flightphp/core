@@ -87,9 +87,6 @@ class Flight
     /** Framework engine. */
     private static Engine $engine;
 
-    /** Whether or not the app has been initialized. */
-    private static bool $initialized = false;
-
     /**
      * Don't allow object instantiation
      *
@@ -127,14 +124,7 @@ class Flight
     /** @return Engine Application instance */
     public static function app(): Engine
     {
-        if (!self::$initialized) {
-            require_once __DIR__ . '/autoload.php';
-
-            self::setEngine(new Engine());
-            self::$initialized = true;
-        }
-
-        return self::$engine;
+        return self::$engine ?? self::$engine = new Engine();
     }
 
     /**
@@ -142,8 +132,8 @@ class Flight
      *
      * @param Engine $engine Vroom vroom!
      */
-    public static function setEngine(Engine $engine): void
+    public static function setEngine(Engine $engine): Engine
     {
-        self::$engine = $engine;
+        return self::$engine = $engine;
     }
 }
