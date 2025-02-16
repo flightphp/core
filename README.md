@@ -39,7 +39,7 @@ Chat with us on Matrix IRC [#flight-php-framework:matrix.org](https://matrix.to/
 
 # Upgrading From v2
 
-If you have a current project on v2, you should be able to upgrade to v2 with no issues depending on how your project was built. If there are any issues with upgrade, they are documented in the [migrating to v3](https://docs.flightphp.com/learn/migrating-to-v3) documentation page. It is the intention of Flight to maintain longterm stability of the project and to not add rewrites with major version changes.
+If you have a current project on v2, you should be able to upgrade to v3 with no issues depending on how your project was built. If there are any issues with upgrade, they are documented in the [migrating to v3](https://docs.flightphp.com/learn/migrating-to-v3) documentation page. It is the intention of Flight to maintain longterm stability of the project and to not add rewrites with major version changes.
 
 # Requirements
 
