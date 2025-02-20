@@ -315,7 +315,9 @@ class RequestTest extends TestCase
             'error' => 0
         ];
 
-        $request = new Request();
+        $request = new Request([
+            'method' => 'PATCH'
+        ]);
 
         $file = $request->getUploadedFiles()['file'];
 
@@ -336,7 +338,9 @@ class RequestTest extends TestCase
             'error' => [0, 0]
         ];
 
-        $request = new Request();
+        $request = new Request([
+            'method' => 'PATCH'
+        ]);
 
         $files = $request->getUploadedFiles()['files'];
 
