@@ -830,7 +830,7 @@ class Engine
      * @param mixed $data JSON data
      * @param int $code HTTP status code
      * @param bool $encode Whether to perform JSON encoding
-     * @param string $charset Charset
+     * @param ?string $charset Charset
      * @param int $option Bitmask Json constant such as JSON_HEX_QUOT
      *
      * @throws Exception
@@ -839,14 +839,16 @@ class Engine
         $data,
         int $code = 200,
         bool $encode = true,
-        string $charset = 'utf-8',
+        ?string $charset = 'utf-8',
         int $option = 0
     ): void {
+		// add some default flags
+		$option |= JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
         $json = $encode ? json_encode($data, $option) : $data;
 
         $this->response()
             ->status($code)
-            ->header('Content-Type', 'application/json; charset=' . $charset)
+            ->header('Content-Type', 'application/json')
             ->write($json);
         if ($this->response()->v2_output_buffering === true) {
             $this->response()->send();

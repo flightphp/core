@@ -81,6 +81,10 @@ PHP;
 
     protected function removeColors(string $str): string
     {
+		// replace \n with \r\n if windows
+		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+			$str = str_replace("\r\n", "\n", $str);
+		}
         return preg_replace('/\e\[[\d;]*m/', '', $str);
     }
 
