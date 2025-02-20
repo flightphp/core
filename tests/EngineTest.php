@@ -175,6 +175,30 @@ class EngineTest extends TestCase
         $engine->start();
     }
 
+	public function testDoubleStart() 
+    {
+		$engine = new Engine();
+		$engine->route('/someRoute', function () {
+			echo 'i ran';
+		}, true);
+		$engine->request()->url = '/someRoute';
+		$engine->start();
+
+		$request = $engine->request();
+		$response = $engine->response();
+
+		// This is pretending like this is embodied in a platform like swoole where
+		// another request comes in while still holding all the same state.
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+		$_SERVER['REQUEST_URI'] = '/someRoute';
+		$engine->start();
+
+		$this->assertFalse($request === $engine->request());
+		$this->assertFalse($response === $engine->response());
+
+		$this->expectOutputString('i rani ran');
+	}
+
     public function testStopWithCode()
     {
         $engine = new class extends Engine {

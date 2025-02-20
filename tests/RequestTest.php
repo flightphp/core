@@ -163,7 +163,7 @@ class RequestTest extends TestCase
             'base' => '/vagrant/public',
             'query' => new Collection(),
             'type' => '',
-			'method' => 'GET'
+            'method' => 'GET'
         ]);
         $this->assertEquals('/flightphp', $request->url);
     }
@@ -174,7 +174,7 @@ class RequestTest extends TestCase
             'url' => '',
             'base' => '/vagrant/public',
             'type' => '',
-			'method' => 'GET'
+            'method' => 'GET'
         ]);
         $this->assertEquals('/', $request->url);
     }
@@ -193,13 +193,13 @@ class RequestTest extends TestCase
             'data' => new Collection(),
             'query' => new Collection(),
             'stream_path' => $stream_path,
-			'method' => 'POST'
+            'method' => 'POST'
         ]);
         $this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
         $this->assertEquals('{"foo":"bar"}', $request->getBody());
     }
 
-	public function testInitWithFormBody()
+    public function testInitWithFormBody()
     {
         // create dummy file to pull request body from
         $tmpfile = tmpfile();
@@ -213,12 +213,12 @@ class RequestTest extends TestCase
             'data' => new Collection(),
             'query' => new Collection(),
             'stream_path' => $stream_path,
-			'method' => 'PATCH'
+            'method' => 'PATCH'
         ]);
-        $this->assertEquals([ 
-			'foo' => 'bar', 
-			'baz' => 'qux' 
-		], $request->data->getData());
+        $this->assertEquals([
+            'foo' => 'bar',
+            'baz' => 'qux'
+        ], $request->data->getData());
         $this->assertEquals('foo=bar&baz=qux', $request->getBody());
     }
 
