@@ -490,6 +490,7 @@ class Engine
             $this->unregister('response');
             $this->register('request', Request::class);
             $this->register('response', Response::class);
+            $this->router()->reset();
         }
         $request = $this->request();
         $response = $this->response();
@@ -513,7 +514,6 @@ class Engine
 
         // Route the request
         $failedMiddlewareCheck = false;
-
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
