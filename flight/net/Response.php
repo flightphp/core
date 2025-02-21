@@ -432,11 +432,6 @@ class Response
         }
 
         if ($this->headersSent() === false) {
-            // If you haven't set a Cache-Control header, we'll assume you don't want caching
-            if ($this->getHeader('Cache-Control') === null) {
-                $this->cache(false);
-            }
-
             $this->sendHeaders();
         }
 

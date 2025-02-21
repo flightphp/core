@@ -268,9 +268,6 @@ class ResponseTest extends TestCase
             'HTTP/1.1 200 OK',
             'Content-Type: text/html',
             'X-Test: test',
-            'Expires: Mon, 26 Jul 1997 05:00:00 GMT',
-            'Cache-Control: no-store, no-cache, must-revalidate, max-age=0',
-            'Pragma: no-cache',
             'Content-Length: 9'
         ], $sent_headers);
     }

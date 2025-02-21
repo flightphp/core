@@ -857,8 +857,8 @@ class Engine
         ?string $charset = 'utf-8',
         int $option = 0
     ): void {
-		// add some default flags
-		$option |= JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
+        // add some default flags
+        $option |= JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
         $json = $encode ? json_encode($data, $option) : $data;
 
         $this->response()
