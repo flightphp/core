@@ -94,6 +94,9 @@ class Engine
     /** If the framework has been initialized or not. */
     protected bool $initialized = false;
 
+    /** If the request has been handled or not. */
+    protected bool $requestHandled = false;
+
     public function __construct()
     {
         $this->loader = new Loader();
@@ -476,6 +479,19 @@ class Engine
     {
         $dispatched = false;
         $self = $this;
+
+        // This behavior is specifically for test suites, and for async platforms like swoole, workerman, etc.
+        if ($this->requestHandled === false) {
+            // not doing much here, just setting the requestHandled flag to true
+            $this->requestHandled = true;
+        } else {
+            // deregister the request and response objects and re-register them with new instances
+            $this->unregister('request');
+            $this->unregister('response');
+            $this->register('request', Request::class);
+            $this->register('response', Response::class);
+            $this->router()->reset();
+        }
         $request = $this->request();
         $response = $this->response();
         $router = $this->router();
@@ -498,7 +514,6 @@ class Engine
 
         // Route the request
         $failedMiddlewareCheck = false;
-
         while ($route = $router->route($request)) {
             $params = array_values($route->params);
 

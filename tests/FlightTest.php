@@ -378,7 +378,7 @@ class FlightTest extends TestCase
 
     public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
     {
-        $this->expectOutputString(<<<'html'
+        $html = <<<'html'
         <div>Hi</div>
         <div>Hi</div>
 
@@ -386,7 +386,12 @@ class FlightTest extends TestCase
 
         <input type="number" />
 
-        html);
+        html;
+
+        // if windows replace \n with \r\n
+        $html = str_replace("\n", PHP_EOL, $html);
+
+        $this->expectOutputString($html);
 
         Flight::render('myComponent', ['prop' => 'Hi']);
         Flight::render('myComponent');

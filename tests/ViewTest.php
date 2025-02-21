@@ -175,7 +175,7 @@ class ViewTest extends TestCase
 
     public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
     {
-        $this->expectOutputString(<<<'html'
+        $html = <<<'html'
         <div>Hi</div>
         <div>Hi</div>
 
@@ -183,7 +183,12 @@ class ViewTest extends TestCase
 
         <input type="number" />
 
-        html);
+        html;
+
+        // if windows replace \n with \r\n
+        $html = str_replace("\n", PHP_EOL, $html);
+
+        $this->expectOutputString($html);
 
         $this->view->render('myComponent', ['prop' => 'Hi']);
         $this->view->render('myComponent');
@@ -197,11 +202,16 @@ class ViewTest extends TestCase
 
         $this->view->set('prop', 'bar');
 
-        $this->expectOutputString(<<<'html'
+        $html = <<<'html'
         <div>qux</div>
         <div>bar</div>
 
-        html);
+        html;
+
+        // if windows replace \n with \r\n
+        $html = str_replace("\n", PHP_EOL, $html);
+
+        $this->expectOutputString($html);
 
         $this->view->render('myComponent', ['prop' => 'qux']);
         $this->view->render('myComponent');
@@ -209,24 +219,29 @@ class ViewTest extends TestCase
 
     public static function renderDataProvider(): array
     {
-        return [
-            [
-                <<<'html'
+        $html1 = <<<'html'
                 <div>Hi</div>
                 <div></div>
 
-                html,
-                ['myComponent', ['prop' => 'Hi']],
-                '/^Undefined variable:? \$?prop$/'
-            ],
-            [
-                <<<'html'
+                html;
+        $html2 = <<<'html'
 
                 <input type="number" />
 
                 <input type="text" />
 
-                html,
+                html;
+
+        $html1 = str_replace("\n", PHP_EOL, $html1);
+        $html2 = str_replace("\n", PHP_EOL, $html2);
+        return [
+            [
+                $html1,
+                ['myComponent', ['prop' => 'Hi']],
+                '/^Undefined variable:? \$?prop$/'
+            ],
+            [
+                $html2,
                 ['input', ['type' => 'number']],
                 '/^.*$/'
             ],
