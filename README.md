@@ -12,6 +12,14 @@ quickly and easily build RESTful web applications.
 
 # Basic Usage
 
+First install it with Composer
+
+```
+composer require flightphp/core
+```
+
+or you can download a zip of this repo. Then you would have a basic `index.php` file like the following:
+
 ```php
 // if installed with composer
 require 'vendor/autoload.php';
