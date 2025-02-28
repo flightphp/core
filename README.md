@@ -4,6 +4,7 @@
 [![License](https://poser.pugx.org/flightphp/core/license)](https://packagist.org/packages/flightphp/core)
 [![PHP Version Require](https://poser.pugx.org/flightphp/core/require/php)](https://packagist.org/packages/flightphp/core)
 ![Matrix](https://img.shields.io/matrix/flight-php-framework%3Amatrix.org?server_fqdn=matrix.org&style=social&logo=matrix)
+[![](https://dcbadge.limes.pink/api/server/https://discord.gg/Ysr4zqHfbX)](https://discord.gg/Ysr4zqHfbX)
 
 # What is Flight?
 
@@ -44,6 +45,8 @@ We have our own documentation website that is built with Flight (naturally). Lea
 # Community
 
 Chat with us on Matrix IRC [#flight-php-framework:matrix.org](https://matrix.to/#/#flight-php-framework:matrix.org)
+
+or on Discord [Invite](https://discord.gg/Ysr4zqHfbX)
 
 # Upgrading From v2
 
