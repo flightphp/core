@@ -35,7 +35,7 @@ class EventDispatcher
             foreach ($this->listeners[$event] as $callback) {
                 $result = call_user_func_array($callback, $args);
 
-				// If you return false, it will break the loop and stop the other event listeners.
+                // If you return false, it will break the loop and stop the other event listeners.
                 if ($result === false) {
                     break; // Stop executing further listeners
                 }
