@@ -8,6 +8,7 @@ use Closure;
 use ErrorException;
 use Exception;
 use flight\core\Dispatcher;
+use flight\core\EventDispatcher;
 use flight\core\Loader;
 use flight\net\Request;
 use flight\net\Response;
@@ -51,6 +52,10 @@ use flight\net\Route;
  * @method void render(string $file, ?array<string,mixed> $data = null, ?string $key = null) Renders template
  * @method View view() Gets current view
  *
+ * # Events
+ * @method void onEvent(string $event, callable $callback) Registers a callback for an event.
+ * @method void triggerEvent(string $event, ...$args) Triggers an event.
+ *
  * # Request-Response
  * @method Request request() Gets current request
  * @method Response response() Gets current response
@@ -79,7 +84,8 @@ class Engine
     private const MAPPABLE_METHODS = [
         'start', 'stop', 'route', 'halt', 'error', 'notFound',
         'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
-        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download', 'resource'
+        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download', 'resource',
+        'onEvent', 'triggerEvent'
     ];
 
     /** @var array<string, mixed> Stored variables. */
@@ -88,8 +94,11 @@ class Engine
     /** Class loader. */
     protected Loader $loader;
 
-    /** Event dispatcher. */
+    /** Method and class dispatcher. */
     protected Dispatcher $dispatcher;
+
+    /** Event dispatcher. */
+    protected EventDispatcher $eventDispatcher;
 
     /** If the framework has been initialized or not. */
     protected bool $initialized = false;
@@ -101,6 +110,7 @@ class Engine
     {
         $this->loader = new Loader();
         $this->dispatcher = new Dispatcher();
+        $this->eventDispatcher = new EventDispatcher();
         $this->init();
     }
 
@@ -493,6 +503,8 @@ class Engine
             $this->router()->reset();
         }
         $request = $this->request();
+        $this->triggerEvent('flight.request.received', $request);
+
         $response = $this->response();
         $router = $this->router();
 
@@ -515,6 +527,7 @@ class Engine
         // Route the request
         $failedMiddlewareCheck = false;
         while ($route = $router->route($request)) {
+            $this->triggerEvent('flight.route.matched', $route);
             $params = array_values($route->params);
 
             // Add route info to the parameter list
@@ -548,6 +561,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
+                $this->triggerEvent('flight.route.middleware.before', $route);
             }
 
             $useV3OutputBuffering =
@@ -563,6 +577,7 @@ class Engine
                 $route->callback,
                 $params
             );
+            $this->triggerEvent('flight.route.executed', $route);
 
             if ($useV3OutputBuffering === true) {
                 $response->write(ob_get_clean());
@@ -577,6 +592,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
+                $this->triggerEvent('flight.route.middleware.after', $route);
             }
 
             $dispatched = true;
@@ -662,6 +678,8 @@ class Engine
             }
 
             $response->send();
+
+            $this->triggerEvent('flight.response.sent', $response);
         }
     }
 
@@ -991,5 +1009,27 @@ class Engine
     public function _getUrl(string $alias, array $params = []): string
     {
         return $this->router()->getUrlByAlias($alias, $params);
+    }
+
+    /**
+     * Adds an event listener.
+     *
+     * @param string $eventName The name of the event to listen to
+     * @param callable $callback The callback to execute when the event is triggered
+     */
+    public function _onEvent(string $eventName, callable $callback): void
+    {
+        $this->eventDispatcher->on($eventName, $callback);
+    }
+
+    /**
+     * Triggers an event.
+     *
+     * @param string $eventName The name of the event to trigger
+     * @param mixed ...$args The arguments to pass to the event listeners
+     */
+    public function _triggerEvent(string $eventName, ...$args): void
+    {
+        $this->eventDispatcher->trigger($eventName, ...$args);
     }
 }
