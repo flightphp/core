@@ -194,4 +194,34 @@ class EventSystemTest extends TestCase
         // Assuming the event system validates callables
         Flight::onEvent('test.event', 'not_a_callable');
     }
+
+	/**
+     * Test that event propagation stops if a listener returns false.
+     */
+    public function testStopPropagation()
+    {
+        $firstCalled = false;
+        $secondCalled = false;
+        $thirdCalled = false;
+        
+        Flight::onEvent('test.event', function () use (&$firstCalled) {
+            $firstCalled = true;
+            return true; // Continue propagation
+        });
+        
+        Flight::onEvent('test.event', function () use (&$secondCalled) {
+            $secondCalled = true;
+            return false; // Stop propagation
+        });
+        
+        Flight::onEvent('test.event', function () use (&$thirdCalled) {
+            $thirdCalled = true;
+        });
+        
+        Flight::triggerEvent('test.event');
+        
+        $this->assertTrue($firstCalled, 'First listener should be called');
+        $this->assertTrue($secondCalled, 'Second listener should be called');
+        $this->assertFalse($thirdCalled, 'Third listener should not be called after propagation stopped');
+    }
 }
