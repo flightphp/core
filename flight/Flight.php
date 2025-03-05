@@ -46,14 +46,15 @@ require_once __DIR__ . '/autoload.php';
  * Adds standardized RESTful routes for a controller.
  * @method static Router router() Returns Router instance.
  * @method static string getUrl(string $alias, array<string, mixed> $params = []) Gets a url from an alias
- *
  * @method static void map(string $name, callable $callback) Creates a custom framework method.
  *
+ * # Filters
  * @method static void before(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
  * Adds a filter before a framework method.
  * @method static void after(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
  * Adds a filter after a framework method.
  *
+ * # Variables
  * @method static void set(string|iterable<string, mixed> $key, mixed $value) Sets a variable.
  * @method static mixed get(?string $key) Gets a variable.
  * @method static bool has(string $key) Checks if a variable is set.
@@ -63,6 +64,10 @@ require_once __DIR__ . '/autoload.php';
  * @method static void render(string $file, ?array<string, mixed> $data = null, ?string $key = null)
  * Renders a template file.
  * @method static View view() Returns View instance.
+ *
+ * # Events
+ * @method void onEvent(string $event, callable $callback) Registers a callback for an event.
+ * @method void triggerEvent(string $event, ...$args) Triggers an event.
  *
  * # Request-Response
  * @method static Request request() Returns Request instance.
