@@ -38,9 +38,9 @@ Flight::start();
 
 Yes! Flight is fast. It is one of the fastest PHP frameworks available. You can see all the benchmarks at [TechEmpower](https://www.techempower.com/benchmarks/#section=data-r18&hw=ph&test=frameworks)
 
-See the benchmark below with some other popular PHP frameworks.
+See the benchmark below with some other popular PHP frameworks. This is measured in requests processed within the same timeframe. 
 
-| Framework | Plaintext Reqs/sec | JSON Reqs/sec |
+| Framework | Plaintext Requests| JSON Requests|
 | --------- | ------------ | ------------ |
 | Flight      | 190,421    | 182,491 |
 | Yii         | 145,749    | 131,434 |
