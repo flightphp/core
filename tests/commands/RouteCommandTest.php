@@ -54,7 +54,7 @@ class RouteCommandTest extends TestCase
 
     protected function newApp(string $name, string $version = '')
     {
-        $app = new Application($name, $version ?: '0.0.1', fn () => false);
+        $app = new Application($name, $version ?: '0.0.1', fn() => false);
 
         return $app->io(new Interactor(static::$in, static::$ou));
     }

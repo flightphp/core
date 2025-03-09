@@ -209,7 +209,7 @@ class FlightTest extends TestCase
         Flight::route('/path1/@param:[a-zA-Z0-9]{2,3}', function () {
             echo 'I win';
         }, false, 'path1');
-        $url = Flight::getUrl('path1', [ 'param' => 123 ]);
+        $url = Flight::getUrl('path1', ['param' => 123]);
         $this->assertEquals('/path1/123', $url);
     }
 
@@ -316,7 +316,7 @@ class FlightTest extends TestCase
         Flight::register('response', $mock_response_class_name);
         Flight::route('/stream', function () {
             echo 'stream';
-        })->streamWithHeaders(['Content-Type' => 'text/plain', 'X-Test' => 'test', 'status' => 200 ]);
+        })->streamWithHeaders(['Content-Type' => 'text/plain', 'X-Test' => 'test', 'status' => 200]);
         Flight::request()->url = '/stream';
         $this->expectOutputString('stream');
         Flight::start();
