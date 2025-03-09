@@ -30,6 +30,9 @@ use flight\net\Route;
  * @method void stop() Stops framework and outputs current response
  * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
  *
+ * # Class registration
+ * @method EventDispatcher eventDispatcher() Gets event dispatcher
+ *
  * # Routing
  * @method Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
  * Routes a URL to a callback function with all applicable methods
@@ -110,7 +113,6 @@ class Engine
     {
         $this->loader = new Loader();
         $this->dispatcher = new Dispatcher();
-        $this->eventDispatcher = new EventDispatcher();
         $this->init();
     }
 
@@ -160,6 +162,9 @@ class Engine
         $this->dispatcher->setEngine($this);
 
         // Register default components
+        $this->map('eventDispatcher', function () {
+            return EventDispatcher::getInstance();
+        });
         $this->loader->register('request', Request::class);
         $this->loader->register('response', Response::class);
         $this->loader->register('router', Router::class);
@@ -460,7 +465,9 @@ class Engine
             // Here is the array callable $middlewareObject that we created earlier.
             // It looks bizarre but it's really calling [ $class, $method ]($params)
             // Which loosely translates to $class->$method($params)
+            $start = microtime(true);
             $middlewareResult = $middlewareObject($params);
+            $this->triggerEvent('flight.middleware.executed', $route, $middleware, microtime(true) - $start);
 
             if ($useV3OutputBuffering === true) {
                 $this->response()->write(ob_get_clean());
@@ -573,12 +580,12 @@ class Engine
             }
 
             // Call route handler
+            $routeStart = microtime(true);
             $continue = $this->dispatcher->execute(
                 $route->callback,
                 $params
             );
-            $this->triggerEvent('flight.route.executed', $route);
-
+            $this->triggerEvent('flight.route.executed', $route, microtime(true) - $routeStart);
             if ($useV3OutputBuffering === true) {
                 $response->write(ob_get_clean());
             }
@@ -631,6 +638,7 @@ class Engine
      */
     public function _error(Throwable $e): void
     {
+        $this->triggerEvent('flight.error', $e);
         $msg = sprintf(
             <<<'HTML'
             <h1>500 Internal Server Error</h1>
@@ -678,8 +686,6 @@ class Engine
             }
 
             $response->send();
-
-            $this->triggerEvent('flight.response.sent', $response);
         }
     }
 
@@ -831,6 +837,8 @@ class Engine
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
+        $this->triggerEvent('flight.redirect', $url, $code);
+
         $this->response()
             ->clearBody()
             ->status($code)
@@ -854,7 +862,9 @@ class Engine
             return;
         }
 
+        $start = microtime(true);
         $this->view()->render($file, $data);
+        $this->triggerEvent('flight.view.rendered', $file, microtime(true) - $start);
     }
 
     /**
@@ -1019,7 +1029,7 @@ class Engine
      */
     public function _onEvent(string $eventName, callable $callback): void
     {
-        $this->eventDispatcher->on($eventName, $callback);
+        $this->eventDispatcher()->on($eventName, $callback);
     }
 
     /**
@@ -1030,6 +1040,6 @@ class Engine
      */
     public function _triggerEvent(string $eventName, ...$args): void
     {
-        $this->eventDispatcher->trigger($eventName, ...$args);
+        $this->eventDispatcher()->trigger($eventName, ...$args);
     }
 }

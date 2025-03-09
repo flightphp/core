@@ -8,6 +8,7 @@ use flight\net\Response;
 use flight\net\Router;
 use flight\template\View;
 use flight\net\Route;
+use flight\core\EventDispatcher;
 
 require_once __DIR__ . '/autoload.php';
 
@@ -28,6 +29,9 @@ require_once __DIR__ . '/autoload.php';
  * @method static void unregister(string $methodName)
  * Unregisters a class to a framework method.
  * @method static void registerContainerHandler(callable|object $containerHandler) Registers a container handler.
+ *
+ * # Class registration
+ * @method EventDispatcher eventDispatcher() Gets event dispatcher
  *
  * # Routing
  * @method static Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
