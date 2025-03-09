@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace flight\net;
 
 use Exception;
+use flight\core\EventDispatcher;
 
 /**
  * The Response class represents an HTTP response. The object
@@ -426,6 +427,7 @@ class Response
             }
         }
 
+        $start = microtime(true);
         // Only for the v3 output buffering.
         if ($this->v2_output_buffering === false) {
             $this->processResponseCallbacks();
@@ -436,8 +438,9 @@ class Response
         }
 
         echo $this->body;
-
         $this->sent = true;
+
+        EventDispatcher::getInstance()->trigger('flight.response.sent', $this, microtime(true) - $start);
     }
 
     /**

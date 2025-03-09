@@ -16,6 +16,7 @@ class EventSystemTest extends TestCase
         // Reset the Flight engine before each test to ensure a clean state
         Flight::setEngine(new Engine());
         Flight::app()->init();
+        Flight::eventDispatcher()->resetInstance(); // Clear any existing listeners
     }
 
     /**
@@ -223,5 +224,125 @@ class EventSystemTest extends TestCase
         $this->assertTrue($firstCalled, 'First listener should be called');
         $this->assertTrue($secondCalled, 'Second listener should be called');
         $this->assertFalse($thirdCalled, 'Third listener should not be called after propagation stopped');
+    }
+
+    /**
+     * Test that hasListeners() correctly identifies events with listeners.
+     */
+    public function testHasListeners()
+    {
+        $this->assertFalse(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should not have listeners before registration');
+
+        Flight::onEvent('test.event', function () {
+        });
+
+        $this->assertTrue(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should have listeners after registration');
+    }
+
+    /**
+     * Test that getListeners() returns the correct listeners for an event.
+     */
+    public function testGetListeners()
+    {
+        $callback1 = function () {
+        };
+        $callback2 = function () {
+        };
+
+        $this->assertEmpty(Flight::eventDispatcher()->getListeners('test.event'), 'Event should have no listeners before registration');
+
+        Flight::onEvent('test.event', $callback1);
+        Flight::onEvent('test.event', $callback2);
+
+        $listeners = Flight::eventDispatcher()->getListeners('test.event');
+        $this->assertCount(2, $listeners, 'Event should have two registered listeners');
+        $this->assertSame($callback1, $listeners[0], 'First listener should match the first callback');
+        $this->assertSame($callback2, $listeners[1], 'Second listener should match the second callback');
+    }
+
+    /**
+     * Test that getListeners() returns an empty array for events with no listeners.
+     */
+    public function testGetListenersForNonexistentEvent()
+    {
+        $listeners = Flight::eventDispatcher()->getListeners('nonexistent.event');
+        $this->assertIsArray($listeners, 'Should return an array for nonexistent events');
+        $this->assertEmpty($listeners, 'Should return an empty array for nonexistent events');
+    }
+
+    /**
+     * Test that getAllRegisteredEvents() returns all event names with registered listeners.
+     */
+    public function testGetAllRegisteredEvents()
+    {
+        $this->assertEmpty(Flight::eventDispatcher()->getAllRegisteredEvents(), 'No events should be registered initially');
+
+        Flight::onEvent('test.event1', function () {
+        });
+        Flight::onEvent('test.event2', function () {
+        });
+
+        $events = Flight::eventDispatcher()->getAllRegisteredEvents();
+        $this->assertCount(2, $events, 'Should return all registered event names');
+        $this->assertContains('test.event1', $events, 'Should contain the first event');
+        $this->assertContains('test.event2', $events, 'Should contain the second event');
+    }
+
+    /**
+     * Test that removeListener() correctly removes a specific listener from an event.
+     */
+    public function testRemoveListener()
+    {
+        $callback1 = function () {
+            return 'callback1';
+        };
+        $callback2 = function () {
+            return 'callback2';
+        };
+
+        Flight::onEvent('test.event', $callback1);
+        Flight::onEvent('test.event', $callback2);
+
+        $this->assertCount(2, Flight::eventDispatcher()->getListeners('test.event'), 'Event should have two listeners initially');
+
+        Flight::eventDispatcher()->removeListener('test.event', $callback1);
+
+        $listeners = Flight::eventDispatcher()->getListeners('test.event');
+        $this->assertCount(1, $listeners, 'Event should have one listener after removal');
+        $this->assertSame($callback2, $listeners[0], 'Remaining listener should be the second callback');
+    }
+
+    /**
+     * Test that removeAllListeners() correctly removes all listeners for an event.
+     */
+    public function testRemoveAllListeners()
+    {
+        Flight::onEvent('test.event', function () {
+        });
+        Flight::onEvent('test.event', function () {
+        });
+        Flight::onEvent('another.event', function () {
+        });
+
+        $this->assertTrue(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should have listeners before removal');
+        $this->assertTrue(Flight::eventDispatcher()->hasListeners('another.event'), 'Another event should have listeners');
+
+        Flight::eventDispatcher()->removeAllListeners('test.event');
+
+        $this->assertFalse(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should have no listeners after removal');
+        $this->assertTrue(Flight::eventDispatcher()->hasListeners('another.event'), 'Another event should still have listeners');
+    }
+
+    /**
+     * Test that trying to remove listeners for nonexistent events doesn't cause errors.
+     */
+    public function testRemoveListenersForNonexistentEvent()
+    {
+        // Should not throw any errors
+        Flight::eventDispatcher()->removeListener('nonexistent.event', function () {
+        });
+        Flight::eventDispatcher()->removeAllListeners('nonexistent.event');
+
+        $this->assertTrue(true, 'Removing listeners for nonexistent events should not throw errors');
     }
 }
