@@ -568,7 +568,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
-                $this->triggerEvent('flight.route.middleware.before', $route);
+                $this->triggerEvent('flight.middleware.before', $route);
             }
 
             $useV3OutputBuffering =
@@ -599,7 +599,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
-                $this->triggerEvent('flight.route.middleware.after', $route);
+                $this->triggerEvent('flight.middleware.after', $route);
             }
 
             $dispatched = true;
