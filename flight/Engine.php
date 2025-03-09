@@ -34,19 +34,19 @@ use flight\net\Route;
  * @method EventDispatcher eventDispatcher() Gets event dispatcher
  *
  * # Routing
- * @method Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a URL to a callback function with all applicable methods
- * @method void group(string $pattern, callable $callback, array<int, callable|object> $group_middlewares = [])
+ * @method void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
- * @method Route post(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
- * @method Route put(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a PUT URL to a callback function.
- * @method Route patch(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a PATCH URL to a callback function.
- * @method Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
- * @method void resource(string $pattern, string $controllerClass, array<string, string|array<string>> $methods = [])
+ * @method void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
  * Adds standardized RESTful routes for a controller.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
@@ -85,10 +85,29 @@ class Engine
      * @var array<string> List of methods that can be extended in the Engine class.
      */
     private const MAPPABLE_METHODS = [
-        'start', 'stop', 'route', 'halt', 'error', 'notFound',
-        'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
-        'post', 'put', 'patch', 'delete', 'group', 'getUrl', 'download', 'resource',
-        'onEvent', 'triggerEvent'
+        'start',
+        'stop',
+        'route',
+        'halt',
+        'error',
+        'notFound',
+        'render',
+        'redirect',
+        'etag',
+        'lastModified',
+        'json',
+        'jsonHalt',
+        'jsonp',
+        'post',
+        'put',
+        'patch',
+        'delete',
+        'group',
+        'getUrl',
+        'download',
+        'resource',
+        'onEvent',
+        'triggerEvent'
     ];
 
     /** @var array<string, mixed> Stored variables. */
@@ -425,26 +444,26 @@ class Engine
             if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) === true && ($middleware instanceof Closure)) {
                 $middlewareObject = $middleware;
 
-            // If the object has already been created, we can just use it if the event name exists.
+                // If the object has already been created, we can just use it if the event name exists.
             } elseif (is_object($middleware) === true) {
-                $middlewareObject = method_exists($middleware, $eventName) === true ? [ $middleware, $eventName ] : false;
+                $middlewareObject = method_exists($middleware, $eventName) === true ? [$middleware, $eventName] : false;
 
-            // If the middleware is a string, we need to create the object and then call the event.
+                // If the middleware is a string, we need to create the object and then call the event.
             } elseif (is_string($middleware) === true && method_exists($middleware, $eventName) === true) {
                 $resolvedClass = null;
 
                 // if there's a container assigned, we should use it to create the object
                 if ($this->dispatcher->mustUseContainer($middleware) === true) {
                     $resolvedClass = $this->dispatcher->resolveContainerClass($middleware, $params);
-                // otherwise just assume it's a plain jane class, so inject the engine
-                // just like in Dispatcher::invokeCallable()
+                    // otherwise just assume it's a plain jane class, so inject the engine
+                    // just like in Dispatcher::invokeCallable()
                 } elseif (class_exists($middleware) === true) {
                     $resolvedClass = new $middleware($this);
                 }
 
                 // If something was resolved, create an array callable that will be passed in later.
                 if ($resolvedClass !== null) {
-                    $middlewareObject = [ $resolvedClass, $eventName ];
+                    $middlewareObject = [$resolvedClass, $eventName];
                 }
             }
 

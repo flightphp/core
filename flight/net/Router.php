@@ -56,12 +56,20 @@ class Router
      *
      * @var array<int, string>
      */
-    protected array $allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+    protected array $allowedMethods = [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'HEAD',
+        'OPTIONS'
+    ];
 
     /**
      * Gets mapped routes.
      *
-     * @return array<int,Route> Array of routes
+     * @return array<int, Route> Array of routes
      */
     public function getRoutes(): array
     {
@@ -80,7 +88,7 @@ class Router
      * Maps a URL pattern to a callback function.
      *
      * @param string $pattern URL pattern to match.
-     * @param callable|string $callback Callback function or string class->method
+     * @param callable|string|array{0: class-string, 1: string} $callback Callback function or string `class->method`
      * @param bool $pass_route Pass the matching route object to the callback.
      * @param string $route_alias Alias for the route.
      */
@@ -133,7 +141,7 @@ class Router
      * Creates a GET based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable|string $callback Callback function or string class->method
+     * @param callable|string|array{0: class-string, 1: string} $callback Callback function or string `class->method`
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
@@ -146,7 +154,7 @@ class Router
      * Creates a POST based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable|string $callback Callback function or string class->method
+     * @param callable|string|array{0: class-string, 1: string} $callback Callback function or string `class->method`
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
@@ -159,7 +167,7 @@ class Router
      * Creates a PUT based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable|string $callback Callback function or string class->method
+     * @param callable|string|array{0: class-string, 1: string} $callback Callback function or string `class->method`
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
@@ -172,7 +180,7 @@ class Router
      * Creates a PATCH based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable|string $callback Callback function or string class->method
+     * @param callable|string|array{0: class-string, 1: string} $callback Callback function or string `class->method`
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
@@ -185,7 +193,7 @@ class Router
      * Creates a DELETE based route
      *
      * @param string   $pattern    URL pattern to match
-     * @param callable|string $callback Callback function or string class->method
+     * @param callable|string|array{0: class-string, 1: string} $callback Callback function or string `class->method`
      * @param bool     $pass_route Pass the matching route object to the callback
      * @param string   $alias      Alias for the route
      */
@@ -199,7 +207,7 @@ class Router
      *
      * @param string $groupPrefix group URL prefix (such as /api/v1)
      * @param callable $callback The necessary calling that holds the Router class
-     * @param array<int, callable|object> $groupMiddlewares
+     * @param (class-string|callable|array{0: class-string, 1: string})[] $groupMiddlewares
      * The middlewares to be applied to the group. Example: `[$middleware1, $middleware2]`
      */
     public function group(string $groupPrefix, callable $callback, array $groupMiddlewares = []): void
@@ -226,7 +234,7 @@ class Router
             if ($urlMatches === true && $methodMatches === true) {
                 $this->executedRoute = $route;
                 return $route;
-            // capture the route but don't execute it. We'll use this in Engine->start() to throw a 405
+                // capture the route but don't execute it. We'll use this in Engine->start() to throw a 405
             } elseif ($urlMatches === true && $methodMatches === false) {
                 $this->executedRoute = $route;
             }
@@ -240,7 +248,7 @@ class Router
      * Gets the URL for a given route alias
      *
      * @param string $alias  the alias to match
-     * @param array<string,mixed>  $params the parameters to pass to the route
+     * @param array<string, mixed>  $params the parameters to pass to the route
      */
     public function getUrlByAlias(string $alias, array $params = []): string
     {
@@ -311,7 +319,7 @@ class Router
                 return in_array($key, $only, true) === true;
             }, ARRAY_FILTER_USE_KEY);
 
-        // Exclude these controller methods
+            // Exclude these controller methods
         } elseif (isset($options['except']) === true) {
             $except = $options['except'];
             $defaultMapping = array_filter($defaultMapping, function ($key) use ($except) {
@@ -331,7 +339,7 @@ class Router
                 foreach ($defaultMapping as $controllerMethod => $methodPattern) {
                     $router->map(
                         $methodPattern,
-                        [ $controllerClass, $controllerMethod ]
+                        [$controllerClass, $controllerMethod]
                     )->setAlias($aliasBase . '.' . $controllerMethod);
                 }
             },

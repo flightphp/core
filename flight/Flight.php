@@ -34,19 +34,19 @@ require_once __DIR__ . '/autoload.php';
  * @method EventDispatcher eventDispatcher() Gets event dispatcher
  *
  * # Routing
- * @method static Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Maps a URL pattern to a callback with all applicable methods.
- * @method static void group(string $pattern, callable $callback, callable[] $group_middlewares = [])
+ * @method static void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
- * @method static Route post(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
- * @method static Route put(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a PUT URL to a callback function.
- * @method static Route patch(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a PATCH URL to a callback function.
- * @method static Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method static Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
- * @method static void resource(string $pattern, string $controllerClass, array<string, string|array<string>> $methods = [])
+ * @method static void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
  * Adds standardized RESTful routes for a controller.
  * @method static Router router() Returns Router instance.
  * @method static string getUrl(string $alias, array<string, mixed> $params = []) Gets a url from an alias
