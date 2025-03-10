@@ -220,20 +220,22 @@ class ViewTest extends TestCase
     public static function renderDataProvider(): array
     {
         $html1 = <<<'html'
-                <div>Hi</div>
-                <div></div>
+        <div>Hi</div>
+        <div></div>
 
-                html;
+        html;
+
         $html2 = <<<'html'
 
-                <input type="number" />
+        <input type="number" />
 
-                <input type="text" />
+        <input type="text" />
 
-                html;
+        html;
 
         $html1 = str_replace("\n", PHP_EOL, $html1);
         $html2 = str_replace("\n", PHP_EOL, $html2);
+
         return [
             [
                 $html1,
