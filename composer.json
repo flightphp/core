@@ -63,7 +63,7 @@
         "test-server": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server/",
         "test-server-v2": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server-v2/",
         "test-coverage:win": "del clover.xml && phpunit --coverage-html=coverage --coverage-clover=clover.xml && coverage-check clover.xml 100",
-        "lint": "phpstan --no-progress -cphpstan.neon",
+        "lint": "phpstan --no-progress --memory-limit=256M -cphpstan.neon",
         "beautify": "phpcbf --standard=phpcs.xml",
         "phpcs": "phpcs --standard=phpcs.xml -n",
         "post-install-cmd": [
