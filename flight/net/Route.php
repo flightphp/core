@@ -98,16 +98,23 @@ class Route
      * Checks if a URL matches the route pattern. Also parses named parameters in the URL.
      *
      * @param string $url            Requested URL (original format, not URL decoded)
-     * @param bool   $case_sensitive Case sensitive matching
+     * @param bool   $caseSensitive Case sensitive matching
      *
      * @return bool Match status
      */
-    public function matchUrl(string $url, bool $case_sensitive = false): bool
+    public function matchUrl(string $url, bool $caseSensitive = false): bool
     {
         // Wildcard or exact match
         if ($this->pattern === '*' || $this->pattern === $url) {
             return true;
         }
+
+        // if the last character of the incoming url is a slash, only allow one trailing slash, not multiple
+        if (substr($url, -2) === '//') {
+            // remove all trailing slashes, and then add one back.
+            $url = rtrim($url, '/') . '/';
+        }
+
 
         $ids = [];
         $last_char = substr($this->pattern, -1);
@@ -157,7 +164,7 @@ class Route
         $regex .= $last_char === '/' ? '?' : '/?';
 
         // Attempt to match route and named parameters
-        if (!preg_match('#^' . $regex . '(?:\?[\s\S]*)?$#' . (($case_sensitive) ? '' : 'i'), $url, $matches)) {
+        if (!preg_match('#^' . $regex . '(?:\?[\s\S]*)?$#' . (($caseSensitive) ? '' : 'i'), $url, $matches)) {
             return false;
         }
 
@@ -198,7 +205,7 @@ class Route
     public function hydrateUrl(array $params = []): string
     {
         $url = preg_replace_callback("/(?:@([\w]+)(?:\:([^\/]+))?\)*)/i", function ($match) use ($params) {
-            if (isset($match[1]) && isset($params[$match[1]])) {
+            if (isset($params[$match[1]]) === true) {
                 return $params[$match[1]];
             }
         }, $this->pattern);

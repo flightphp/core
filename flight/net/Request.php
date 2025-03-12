@@ -211,6 +211,14 @@ class Request
                     $this->data->setData($data);
                 }
             }
+        // Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data
+        } elseif (in_array($this->method, [ 'PUT', 'DELETE', 'PATCH' ], true) === true) {
+            $body = $this->getBody();
+            if ($body !== '') {
+                $data = [];
+                parse_str($body, $data);
+                $this->data->setData($data);
+            }
         }
 
         return $this;
@@ -413,5 +421,64 @@ class Request
         }
 
         return 'http';
+    }
+
+    /**
+     * Retrieves the array of uploaded files.
+     *
+     * @return array<string, array<string,UploadedFile>|array<string,array<string,UploadedFile>>> The array of uploaded files.
+     */
+    public function getUploadedFiles(): array
+    {
+        $files = [];
+        $correctedFilesArray = $this->reArrayFiles($this->files);
+        foreach ($correctedFilesArray as $keyName => $files) {
+            foreach ($files as $file) {
+                $UploadedFile = new UploadedFile(
+                    $file['name'],
+                    $file['type'],
+                    $file['size'],
+                    $file['tmp_name'],
+                    $file['error']
+                );
+                if (count($files) > 1) {
+                    $files[$keyName][] = $UploadedFile;
+                } else {
+                    $files[$keyName] = $UploadedFile;
+                }
+            }
+        }
+
+        return $files;
+    }
+
+    /**
+     * Re-arranges the files in the given files collection.
+     *
+     * @param Collection $filesCollection The collection of files to be re-arranged.
+     *
+     * @return array<string, array<int, array<string, mixed>>> The re-arranged files collection.
+     */
+    protected function reArrayFiles(Collection $filesCollection): array
+    {
+
+        $fileArray = [];
+        foreach ($filesCollection as $fileKeyName => $file) {
+            $isMulti = is_array($file['name']) === true && count($file['name']) > 1;
+            $fileCount = $isMulti === true ? count($file['name']) : 1;
+            $fileKeys = array_keys($file);
+
+            for ($i = 0; $i < $fileCount; $i++) {
+                foreach ($fileKeys as $key) {
+                    if ($isMulti === true) {
+                        $fileArray[$fileKeyName][$i][$key] = $file[$key][$i];
+                    } else {
+                        $fileArray[$fileKeyName][$i][$key] = $file[$key];
+                    }
+                }
+            }
+        }
+
+        return $fileArray;
     }
 }

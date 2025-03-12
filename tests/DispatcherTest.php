@@ -13,6 +13,7 @@ use InvalidArgumentException;
 use PharIo\Manifest\InvalidEmailException;
 use tests\classes\Hello;
 use PHPUnit\Framework\TestCase;
+use tests\classes\ClassWithExceptionInConstruct;
 use tests\classes\ContainerDefault;
 use tests\classes\TesterClass;
 use TypeError;
@@ -328,5 +329,18 @@ class DispatcherTest extends TestCase
         $this->expectException(TypeError::class);
         $this->expectExceptionMessageMatches('#tests\\\\classes\\\\ContainerDefault::__construct\(\).+flight\\\\Engine, null given#');
         $result = $this->dispatcher->execute([ContainerDefault::class, 'testTheContainer']);
+    }
+
+    public function testContainerDicePdoWrapperTestBadParams()
+    {
+        $dice = new \Dice\Dice();
+        $this->dispatcher->setContainerHandler(function ($class, $params) use ($dice) {
+            return $dice->create($class, $params);
+        });
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('This is an exception in the constructor');
+
+        $this->dispatcher->invokeCallable([ ClassWithExceptionInConstruct::class, '__construct' ]);
     }
 }

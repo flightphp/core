@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace tests;
 
 use flight\database\PdoWrapper;
+use flight\core\EventDispatcher;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class PdoWrapperTest extends TestCase
 {
@@ -119,5 +121,91 @@ class PdoWrapperTest extends TestCase
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE id > ? AND name IN( ?)  ', [ 0, 'one,two' ]);
         $this->assertEquals(2, count($rows));
+    }
+
+    public function testPullDataFromDsn()
+    {
+        // Testing protected method using reflection
+        $reflection = new ReflectionClass($this->pdo_wrapper);
+        $method = $reflection->getMethod('pullDataFromDsn');
+        $method->setAccessible(true);
+
+        // Test SQLite DSN
+        $sqliteDsn = 'sqlite::memory:';
+        $sqliteResult = $method->invoke($this->pdo_wrapper, $sqliteDsn);
+        $this->assertEquals([
+            'engine' => 'sqlite',
+            'database' => ':memory:',
+            'host' => 'localhost'
+        ], $sqliteResult);
+
+        // Test MySQL DSN
+        $mysqlDsn = 'mysql:host=localhost;dbname=testdb;charset=utf8';
+        $mysqlResult = $method->invoke($this->pdo_wrapper, $mysqlDsn);
+        $this->assertEquals([
+            'engine' => 'mysql',
+            'database' => 'testdb',
+            'host' => 'localhost'
+        ], $mysqlResult);
+
+        // Test PostgreSQL DSN
+        $pgsqlDsn = 'pgsql:host=127.0.0.1;dbname=postgres';
+        $pgsqlResult = $method->invoke($this->pdo_wrapper, $pgsqlDsn);
+        $this->assertEquals([
+            'engine' => 'pgsql',
+            'database' => 'postgres',
+            'host' => '127.0.0.1'
+        ], $pgsqlResult);
+    }
+
+    public function testLogQueries()
+    {
+        // Create a new PdoWrapper with tracking enabled
+        $trackingPdo = new PdoWrapper('sqlite::memory:', null, null, null, true);
+
+        // Create test table
+        $trackingPdo->exec('CREATE TABLE test_log (id INTEGER PRIMARY KEY, name TEXT)');
+
+        // Run some queries to populate metrics
+        $trackingPdo->runQuery('INSERT INTO test_log (name) VALUES (?)', ['test1']);
+        $trackingPdo->fetchAll('SELECT * FROM test_log');
+
+        // Setup event listener to capture triggered event
+        $eventTriggered = false;
+        $connectionData = null;
+        $queriesData = null;
+
+        $dispatcher = EventDispatcher::getInstance();
+        $dispatcher->on('flight.db.queries', function ($conn, $queries) use (&$eventTriggered, &$connectionData, &$queriesData) {
+            $eventTriggered = true;
+            $connectionData = $conn;
+            $queriesData = $queries;
+        });
+
+        // Call the logQueries method
+        $trackingPdo->logQueries();
+
+        // Assert that event was triggered
+        $this->assertTrue($eventTriggered);
+        $this->assertIsArray($connectionData);
+        $this->assertEquals('sqlite', $connectionData['engine']);
+        $this->assertIsArray($queriesData);
+        $this->assertCount(2, $queriesData); // Should have 2 queries (INSERT and SELECT)
+
+        // Verify query metrics structure for the first query
+        $this->assertArrayHasKey('sql', $queriesData[0]);
+        $this->assertArrayHasKey('params', $queriesData[0]);
+        $this->assertArrayHasKey('execution_time', $queriesData[0]);
+        $this->assertArrayHasKey('row_count', $queriesData[0]);
+        $this->assertArrayHasKey('memory_usage', $queriesData[0]);
+
+        // Clean up
+        $trackingPdo->exec('DROP TABLE test_log');
+
+        // Verify metrics are reset after logging
+        $reflection = new ReflectionClass($trackingPdo);
+        $property = $reflection->getProperty('queryMetrics');
+        $property->setAccessible(true);
+        $this->assertCount(0, $property->getValue($trackingPdo));
     }
 }

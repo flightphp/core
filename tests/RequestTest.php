@@ -41,23 +41,23 @@ class RequestTest extends TestCase
 
     public function testDefaults()
     {
-        self::assertEquals('/', $this->request->url);
-        self::assertEquals('/', $this->request->base);
-        self::assertEquals('GET', $this->request->method);
-        self::assertEquals('', $this->request->referrer);
-        self::assertTrue($this->request->ajax);
-        self::assertEquals('http', $this->request->scheme);
-        self::assertEquals('', $this->request->type);
-        self::assertEquals(0, $this->request->length);
-        self::assertFalse($this->request->secure);
-        self::assertEquals('', $this->request->accept);
-        self::assertEquals('example.com', $this->request->host);
+        $this->assertEquals('/', $this->request->url);
+        $this->assertEquals('/', $this->request->base);
+        $this->assertEquals('GET', $this->request->method);
+        $this->assertEquals('', $this->request->referrer);
+        $this->assertTrue($this->request->ajax);
+        $this->assertEquals('http', $this->request->scheme);
+        $this->assertEquals('', $this->request->type);
+        $this->assertEquals(0, $this->request->length);
+        $this->assertFalse($this->request->secure);
+        $this->assertEquals('', $this->request->accept);
+        $this->assertEquals('example.com', $this->request->host);
     }
 
     public function testIpAddress()
     {
-        self::assertEquals('8.8.8.8', $this->request->ip);
-        self::assertEquals('32.32.32.32', $this->request->proxy_ip);
+        $this->assertEquals('8.8.8.8', $this->request->ip);
+        $this->assertEquals('32.32.32.32', $this->request->proxy_ip);
     }
 
     public function testSubdirectory()
@@ -66,7 +66,7 @@ class RequestTest extends TestCase
 
         $request = new Request();
 
-        self::assertEquals('/subdir', $request->base);
+        $this->assertEquals('/subdir', $request->base);
     }
 
     public function testQueryParameters()
@@ -75,9 +75,9 @@ class RequestTest extends TestCase
 
         $request = new Request();
 
-        self::assertEquals('/page?id=1&name=bob', $request->url);
-        self::assertEquals(1, $request->query->id);
-        self::assertEquals('bob', $request->query->name);
+        $this->assertEquals('/page?id=1&name=bob', $request->url);
+        $this->assertEquals(1, $request->query->id);
+        $this->assertEquals('bob', $request->query->name);
     }
 
     public function testCollections()
@@ -91,11 +91,11 @@ class RequestTest extends TestCase
 
         $request = new Request();
 
-        self::assertEquals(1, $request->query->q);
-        self::assertEquals(1, $request->query->id);
-        self::assertEquals(1, $request->data->q);
-        self::assertEquals(1, $request->cookies->q);
-        self::assertEquals(1, $request->files->q);
+        $this->assertEquals(1, $request->query->q);
+        $this->assertEquals(1, $request->query->id);
+        $this->assertEquals(1, $request->data->q);
+        $this->assertEquals(1, $request->cookies->q);
+        $this->assertEquals(1, $request->files->q);
     }
 
     public function testJsonWithEmptyBody()
@@ -104,7 +104,7 @@ class RequestTest extends TestCase
 
         $request = new Request();
 
-        self::assertSame([], $request->data->getData());
+        $this->assertSame([], $request->data->getData());
     }
 
     public function testMethodOverrideWithHeader()
@@ -113,7 +113,7 @@ class RequestTest extends TestCase
 
         $request = new Request();
 
-        self::assertEquals('PUT', $request->method);
+        $this->assertEquals('PUT', $request->method);
     }
 
     public function testMethodOverrideWithPost()
@@ -122,38 +122,38 @@ class RequestTest extends TestCase
 
         $request = new Request();
 
-        self::assertEquals('PUT', $request->method);
+        $this->assertEquals('PUT', $request->method);
     }
 
     public function testHttps()
     {
         $_SERVER['HTTPS'] = 'on';
         $request = new Request();
-        self::assertEquals('https', $request->scheme);
+        $this->assertEquals('https', $request->scheme);
         $_SERVER['HTTPS'] = 'off';
         $request = new Request();
-        self::assertEquals('http', $request->scheme);
+        $this->assertEquals('http', $request->scheme);
 
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
         $request = new Request();
-        self::assertEquals('https', $request->scheme);
+        $this->assertEquals('https', $request->scheme);
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'http';
         $request = new Request();
-        self::assertEquals('http', $request->scheme);
+        $this->assertEquals('http', $request->scheme);
 
         $_SERVER['HTTP_FRONT_END_HTTPS'] = 'on';
         $request = new Request();
-        self::assertEquals('https', $request->scheme);
+        $this->assertEquals('https', $request->scheme);
         $_SERVER['HTTP_FRONT_END_HTTPS'] = 'off';
         $request = new Request();
-        self::assertEquals('http', $request->scheme);
+        $this->assertEquals('http', $request->scheme);
 
         $_SERVER['REQUEST_SCHEME'] = 'https';
         $request = new Request();
-        self::assertEquals('https', $request->scheme);
+        $this->assertEquals('https', $request->scheme);
         $_SERVER['REQUEST_SCHEME'] = 'http';
         $request = new Request();
-        self::assertEquals('http', $request->scheme);
+        $this->assertEquals('http', $request->scheme);
     }
 
     public function testInitUrlSameAsBaseDirectory()
@@ -162,7 +162,8 @@ class RequestTest extends TestCase
             'url' => '/vagrant/public/flightphp',
             'base' => '/vagrant/public',
             'query' => new Collection(),
-            'type' => ''
+            'type' => '',
+            'method' => 'GET'
         ]);
         $this->assertEquals('/flightphp', $request->url);
     }
@@ -172,7 +173,8 @@ class RequestTest extends TestCase
         $request = new Request([
             'url' => '',
             'base' => '/vagrant/public',
-            'type' => ''
+            'type' => '',
+            'method' => 'GET'
         ]);
         $this->assertEquals('/', $request->url);
     }
@@ -183,7 +185,6 @@ class RequestTest extends TestCase
         $tmpfile = tmpfile();
         $stream_path = stream_get_meta_data($tmpfile)['uri'];
         file_put_contents($stream_path, '{"foo":"bar"}');
-        $_SERVER['REQUEST_METHOD'] = 'POST';
         $request = new Request([
             'url' => '/something/fancy',
             'base' => '/vagrant/public',
@@ -191,10 +192,34 @@ class RequestTest extends TestCase
             'length' => 13,
             'data' => new Collection(),
             'query' => new Collection(),
-            'stream_path' => $stream_path
+            'stream_path' => $stream_path,
+            'method' => 'POST'
         ]);
         $this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
         $this->assertEquals('{"foo":"bar"}', $request->getBody());
+    }
+
+    public function testInitWithFormBody()
+    {
+        // create dummy file to pull request body from
+        $tmpfile = tmpfile();
+        $stream_path = stream_get_meta_data($tmpfile)['uri'];
+        file_put_contents($stream_path, 'foo=bar&baz=qux');
+        $request = new Request([
+            'url' => '/something/fancy',
+            'base' => '/vagrant/public',
+            'type' => 'application/x-www-form-urlencoded',
+            'length' => 15,
+            'data' => new Collection(),
+            'query' => new Collection(),
+            'stream_path' => $stream_path,
+            'method' => 'PATCH'
+        ]);
+        $this->assertEquals([
+            'foo' => 'bar',
+            'baz' => 'qux'
+        ], $request->data->getData());
+        $this->assertEquals('foo=bar&baz=qux', $request->getBody());
     }
 
     public function testGetHeader()
@@ -278,5 +303,55 @@ class RequestTest extends TestCase
         $_SERVER['HTTPS'] = 'on';
         $request = new Request();
         $this->assertEquals('https://localhost:8000', $request->getBaseUrl());
+    }
+
+    public function testGetSingleFileUpload()
+    {
+        $_FILES['file'] = [
+            'name' => 'file.txt',
+            'type' => 'text/plain',
+            'size' => 123,
+            'tmp_name' => '/tmp/php123',
+            'error' => 0
+        ];
+
+        $request = new Request();
+
+        $file = $request->getUploadedFiles()['file'];
+
+        $this->assertEquals('file.txt', $file->getClientFilename());
+        $this->assertEquals('text/plain', $file->getClientMediaType());
+        $this->assertEquals(123, $file->getSize());
+        $this->assertEquals('/tmp/php123', $file->getTempName());
+        $this->assertEquals(0, $file->getError());
+    }
+
+    public function testGetMultiFileUpload()
+    {
+        $_FILES['files'] = [
+            'name' => ['file1.txt', 'file2.txt'],
+            'type' => ['text/plain', 'text/plain'],
+            'size' => [123, 456],
+            'tmp_name' => ['/tmp/php123', '/tmp/php456'],
+            'error' => [0, 0]
+        ];
+
+        $request = new Request();
+
+        $files = $request->getUploadedFiles()['files'];
+
+        $this->assertCount(2, $files);
+
+        $this->assertEquals('file1.txt', $files[0]->getClientFilename());
+        $this->assertEquals('text/plain', $files[0]->getClientMediaType());
+        $this->assertEquals(123, $files[0]->getSize());
+        $this->assertEquals('/tmp/php123', $files[0]->getTempName());
+        $this->assertEquals(0, $files[0]->getError());
+
+        $this->assertEquals('file2.txt', $files[1]->getClientFilename());
+        $this->assertEquals('text/plain', $files[1]->getClientMediaType());
+        $this->assertEquals(456, $files[1]->getSize());
+        $this->assertEquals('/tmp/php456', $files[1]->getTempName());
+        $this->assertEquals(0, $files[1]->getError());
     }
 }

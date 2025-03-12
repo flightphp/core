@@ -13,13 +13,16 @@ use PHPUnit\Framework\TestCase;
 
 class RouteCommandTest extends TestCase
 {
-    protected static $in = __DIR__ . '/input.test';
-    protected static $ou = __DIR__ . '/output.test';
+    protected static $in = __DIR__ . DIRECTORY_SEPARATOR . 'input.test';
+    protected static $ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test';
 
     public function setUp(): void
     {
-        file_put_contents(static::$in, '', LOCK_EX);
-        file_put_contents(static::$ou, '', LOCK_EX);
+        // Need dynamic filenames to avoid unlink() issues with windows.
+        static::$in = __DIR__ . DIRECTORY_SEPARATOR . 'input.test' . uniqid('', true) . '.txt';
+        static::$ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test' . uniqid('', true) . '.txt';
+        file_put_contents(static::$in, '');
+        file_put_contents(static::$ou, '');
         $_SERVER = [];
         $_REQUEST = [];
         Flight::init();
@@ -43,18 +46,22 @@ class RouteCommandTest extends TestCase
         unset($_REQUEST);
         unset($_SERVER);
         Flight::clear();
+
+        // Thanks Windows
+        clearstatcache();
+        gc_collect_cycles();
     }
 
     protected function newApp(string $name, string $version = '')
     {
-        $app = new Application($name, $version ?: '0.0.1', fn () => false);
+        $app = new Application($name, $version ?: '0.0.1', fn() => false);
 
         return $app->io(new Interactor(static::$in, static::$ou));
     }
 
     protected function createIndexFile()
     {
-        $index = <<<PHP
+        $index = <<<'PHP'
 <?php
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -64,7 +71,7 @@ Flight::post('/post', function () {})->addMiddleware(function() {});
 Flight::delete('/delete', function () {});
 Flight::put('/put', function () {});
 Flight::patch('/patch', function () {})->addMiddleware('SomeMiddleware');
-Flight::router()->case_sensitive = true;
+Flight::router()->caseSensitive = true;
 
 Flight::start();
 PHP;
@@ -74,6 +81,10 @@ PHP;
 
     protected function removeColors(string $str): string
     {
+        // replace \n with \r\n if windows
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $str = str_replace("\r\n", "\n", $str);
+        }
         return preg_replace('/\e\[[\d;]*m/', '', $str);
     }
 
@@ -94,15 +105,22 @@ PHP;
         $app->handle(['runway', 'routes']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
-        $this->assertStringContainsString('+---------+-----------+-------+----------+----------------+
-| Pattern | Methods   | Alias | Streamed | Middleware     |
-+---------+-----------+-------+----------+----------------+
-| /       | GET, HEAD |       | No       | -              |
-| /post   | POST      |       | No       | Closure        |
-| /delete | DELETE    |       | No       | -              |
-| /put    | PUT       |       | No       | -              |
-| /patch  | PATCH     |       | No       | Bad Middleware |
-+---------+-----------+-------+----------+----------------+', $this->removeColors(file_get_contents(static::$ou)));
+        $expected = <<<'output'
+        +---------+-----------+-------+----------+----------------+
+        | Pattern | Methods   | Alias | Streamed | Middleware     |
+        +---------+-----------+-------+----------+----------------+
+        | /       | GET, HEAD |       | No       | -              |
+        | /post   | POST      |       | No       | Closure        |
+        | /delete | DELETE    |       | No       | -              |
+        | /put    | PUT       |       | No       | -              |
+        | /patch  | PATCH     |       | No       | Bad Middleware |
+        +---------+-----------+-------+----------+----------------+
+        output;
+
+        $this->assertStringContainsString(
+            $expected,
+            $this->removeColors(file_get_contents(static::$ou))
+        );
     }
 
     public function testGetPostRoute()

@@ -31,6 +31,7 @@
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
         <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman.BraceOnSameLine" />
         <exclude name="Generic.PHP.DisallowRequestSuperglobal.Found" />
+        <exclude name="Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsedHeredocCloser" />
     </rule>
     <rule ref="Generic.Files.LineLength">
         <properties>

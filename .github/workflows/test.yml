@@ -1,0 +1,23 @@
+name: Pull Request Check
+on: [pull_request]
+
+jobs:
+    unit-test:
+        name: Unit testing
+        strategy:
+            fail-fast: false
+            matrix:
+                php: [7.4, 8.0, 8.1, 8.2, 8.3, 8.4]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: curl, mbstring
+                  tools: composer:v2
+            - run: composer install
+            - run: composer test

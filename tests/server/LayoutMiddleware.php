@@ -69,7 +69,8 @@ class LayoutMiddleware
 <li><a href="/protected">Protected path</a></li>
 <li><a href="/template/templatevariable">Template path</a></li>
 <li><a href="/querytestpath?test=1&variable2=uuid&variable3=tester">Query path</a></li>
-<li><a href="/postpage">404 Not Found</a></li>
+<li><a href="/badpagename">404 Not Found</a></li>
+<li><a href="/postpage">405 Method Not Found</a></li>
 <li><a href="{$final_route}">Mega group</a></li>
 <li><a href="/error">Error</a></li>
 <li><a href="/json">JSON</a></li>
@@ -86,6 +87,7 @@ class LayoutMiddleware
 <li><a href="/dice">Dice Container</a></li>
 <li><a href="/no-container">No Container Registered</a></li>
 <li><a href="/Pascal_Snake_Case">Pascal_Snake_Case</a></li>
+<li><a href="/download">Download File</a></li>
 </ul>
 HTML;
         echo '<div id="container">';

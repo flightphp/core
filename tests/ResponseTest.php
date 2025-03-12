@@ -164,11 +164,7 @@ class ResponseTest extends TestCase
         $response->cache(false);
         $this->assertEquals([
             'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
-            'Cache-Control' => [
-                'no-store, no-cache, must-revalidate',
-                'post-check=0, pre-check=0',
-                'max-age=0',
-            ],
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
             'Pragma' => 'no-cache'
         ], $response->headers());
     }
@@ -239,6 +235,43 @@ class ResponseTest extends TestCase
         $this->assertTrue($response->sent());
     }
 
+    public function testSendWithNoHeadersSent()
+    {
+        $response = new class extends Response {
+            protected $test_sent_headers = [];
+
+            public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
+            {
+                $this->test_sent_headers[] = $header_string;
+                return $this;
+            }
+
+            public function getSentHeaders(): array
+            {
+                return $this->test_sent_headers;
+            }
+
+            public function headersSent(): bool
+            {
+                return false;
+            }
+        };
+        $response->header('Content-Type', 'text/html');
+        $response->header('X-Test', 'test');
+        $response->write('Something');
+
+        $this->expectOutputString('Something');
+
+        $response->send();
+        $sent_headers = $response->getSentHeaders();
+        $this->assertEquals([
+            'HTTP/1.1 200 OK',
+            'Content-Type: text/html',
+            'X-Test: test',
+            'Content-Length: 9'
+        ], $sent_headers);
+    }
+
     public function testClearBody()
     {
         $response = new Response();
@@ -282,7 +315,16 @@ class ResponseTest extends TestCase
         ob_start();
         $response->send();
         $gzip_body = ob_get_clean();
-        $expected = PHP_OS === 'WINNT' ? 'H4sIAAAAAAAACitJLS4BAAx+f9gEAAAA' : 'H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA';
+        switch (PHP_OS) {
+            case 'WINNT':
+                $expected = 'H4sIAAAAAAAACitJLS4BAAx+f9gEAAAA';
+                break;
+            case 'Darwin':
+                $expected = 'H4sIAAAAAAAAEytJLS4BAAx+f9gEAAAA';
+                break;
+            default:
+                $expected = 'H4sIAAAAAAAAAytJLS4BAAx+f9gEAAAA';
+        }
         $this->assertEquals($expected, base64_encode($gzip_body));
         $this->assertEquals(strlen(gzencode('test')), strlen($gzip_body));
     }

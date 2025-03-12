@@ -8,6 +8,7 @@ use Closure;
 use ErrorException;
 use Exception;
 use flight\core\Dispatcher;
+use flight\core\EventDispatcher;
 use flight\core\Loader;
 use flight\net\Request;
 use flight\net\Response;
@@ -29,25 +30,34 @@ use flight\net\Route;
  * @method void stop() Stops framework and outputs current response
  * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
  *
+ * # Class registration
+ * @method EventDispatcher eventDispatcher() Gets event dispatcher
+ *
  * # Routing
- * @method Route route(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a URL to a callback function with all applicable methods
- * @method void group(string $pattern, callable $callback, array<int, callable|object> $group_middlewares = [])
+ * @method void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
  * Groups a set of routes together under a common prefix.
- * @method Route post(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a POST URL to a callback function.
- * @method Route put(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a PUT URL to a callback function.
- * @method Route patch(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a PATCH URL to a callback function.
- * @method Route delete(string $pattern, callable|string $callback, bool $pass_route = false, string $alias = '')
+ * @method Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Routes a DELETE URL to a callback function.
+ * @method void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
+ * Adds standardized RESTful routes for a controller.
  * @method Router router() Gets router
  * @method string getUrl(string $alias) Gets a url from an alias
  *
  * # Views
- * @method void render(string $file, ?array $data = null, ?string $key = null) Renders template
+ * @method void render(string $file, ?array<string,mixed> $data = null, ?string $key = null) Renders template
  * @method View view() Gets current view
+ *
+ * # Events
+ * @method void onEvent(string $event, callable $callback) Registers a callback for an event.
+ * @method void triggerEvent(string $event, ...$args) Triggers an event.
  *
  * # Request-Response
  * @method Request request() Gets current request
@@ -62,9 +72,10 @@ use flight\net\Route;
  * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * Sends a JSONP response.
  *
- * # HTTP caching
+ * # HTTP methods
  * @method void etag(string $id, ('strong'|'weak') $type = 'strong') Handles ETag HTTP caching.
  * @method void lastModified(int $time) Handles last modified HTTP caching.
+ * @method void download(string $filePath) Downloads a file
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
@@ -74,9 +85,29 @@ class Engine
      * @var array<string> List of methods that can be extended in the Engine class.
      */
     private const MAPPABLE_METHODS = [
-        'start', 'stop', 'route', 'halt', 'error', 'notFound',
-        'render', 'redirect', 'etag', 'lastModified', 'json', 'jsonHalt', 'jsonp',
-        'post', 'put', 'patch', 'delete', 'group', 'getUrl'
+        'start',
+        'stop',
+        'route',
+        'halt',
+        'error',
+        'notFound',
+        'render',
+        'redirect',
+        'etag',
+        'lastModified',
+        'json',
+        'jsonHalt',
+        'jsonp',
+        'post',
+        'put',
+        'patch',
+        'delete',
+        'group',
+        'getUrl',
+        'download',
+        'resource',
+        'onEvent',
+        'triggerEvent'
     ];
 
     /** @var array<string, mixed> Stored variables. */
@@ -85,11 +116,17 @@ class Engine
     /** Class loader. */
     protected Loader $loader;
 
-    /** Event dispatcher. */
+    /** Method and class dispatcher. */
     protected Dispatcher $dispatcher;
+
+    /** Event dispatcher. */
+    protected EventDispatcher $eventDispatcher;
 
     /** If the framework has been initialized or not. */
     protected bool $initialized = false;
+
+    /** If the request has been handled or not. */
+    protected bool $requestHandled = false;
 
     public function __construct()
     {
@@ -144,6 +181,9 @@ class Engine
         $this->dispatcher->setEngine($this);
 
         // Register default components
+        $this->map('eventDispatcher', function () {
+            return EventDispatcher::getInstance();
+        });
         $this->loader->register('request', Request::class);
         $this->loader->register('response', Response::class);
         $this->loader->register('router', Router::class);
@@ -176,7 +216,7 @@ class Engine
             }
 
             // Set case-sensitivity
-            $self->router()->case_sensitive = $self->get('flight.case_sensitive');
+            $self->router()->caseSensitive = $self->get('flight.case_sensitive');
             // Set Content-Length
             $self->response()->content_length = $self->get('flight.content_length');
             // This is to maintain legacy handling of output buffering
@@ -404,26 +444,26 @@ class Engine
             if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) === true && ($middleware instanceof Closure)) {
                 $middlewareObject = $middleware;
 
-            // If the object has already been created, we can just use it if the event name exists.
+                // If the object has already been created, we can just use it if the event name exists.
             } elseif (is_object($middleware) === true) {
-                $middlewareObject = method_exists($middleware, $eventName) === true ? [ $middleware, $eventName ] : false;
+                $middlewareObject = method_exists($middleware, $eventName) === true ? [$middleware, $eventName] : false;
 
-            // If the middleware is a string, we need to create the object and then call the event.
+                // If the middleware is a string, we need to create the object and then call the event.
             } elseif (is_string($middleware) === true && method_exists($middleware, $eventName) === true) {
                 $resolvedClass = null;
 
                 // if there's a container assigned, we should use it to create the object
                 if ($this->dispatcher->mustUseContainer($middleware) === true) {
                     $resolvedClass = $this->dispatcher->resolveContainerClass($middleware, $params);
-                // otherwise just assume it's a plain jane class, so inject the engine
-                // just like in Dispatcher::invokeCallable()
+                    // otherwise just assume it's a plain jane class, so inject the engine
+                    // just like in Dispatcher::invokeCallable()
                 } elseif (class_exists($middleware) === true) {
                     $resolvedClass = new $middleware($this);
                 }
 
                 // If something was resolved, create an array callable that will be passed in later.
                 if ($resolvedClass !== null) {
-                    $middlewareObject = [ $resolvedClass, $eventName ];
+                    $middlewareObject = [$resolvedClass, $eventName];
                 }
             }
 
@@ -444,7 +484,9 @@ class Engine
             // Here is the array callable $middlewareObject that we created earlier.
             // It looks bizarre but it's really calling [ $class, $method ]($params)
             // Which loosely translates to $class->$method($params)
+            $start = microtime(true);
             $middlewareResult = $middlewareObject($params);
+            $this->triggerEvent('flight.middleware.executed', $route, $middleware, microtime(true) - $start);
 
             if ($useV3OutputBuffering === true) {
                 $this->response()->write(ob_get_clean());
@@ -473,7 +515,22 @@ class Engine
     {
         $dispatched = false;
         $self = $this;
+
+        // This behavior is specifically for test suites, and for async platforms like swoole, workerman, etc.
+        if ($this->requestHandled === false) {
+            // not doing much here, just setting the requestHandled flag to true
+            $this->requestHandled = true;
+        } else {
+            // deregister the request and response objects and re-register them with new instances
+            $this->unregister('request');
+            $this->unregister('response');
+            $this->register('request', Request::class);
+            $this->register('response', Response::class);
+            $this->router()->reset();
+        }
         $request = $this->request();
+        $this->triggerEvent('flight.request.received', $request);
+
         $response = $this->response();
         $router = $this->router();
 
@@ -495,8 +552,8 @@ class Engine
 
         // Route the request
         $failedMiddlewareCheck = false;
-
         while ($route = $router->route($request)) {
+            $this->triggerEvent('flight.route.matched', $route);
             $params = array_values($route->params);
 
             // Add route info to the parameter list
@@ -530,6 +587,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
+                $this->triggerEvent('flight.middleware.before', $route);
             }
 
             $useV3OutputBuffering =
@@ -541,11 +599,12 @@ class Engine
             }
 
             // Call route handler
+            $routeStart = microtime(true);
             $continue = $this->dispatcher->execute(
                 $route->callback,
                 $params
             );
-
+            $this->triggerEvent('flight.route.executed', $route, microtime(true) - $routeStart);
             if ($useV3OutputBuffering === true) {
                 $response->write(ob_get_clean());
             }
@@ -559,6 +618,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
+                $this->triggerEvent('flight.middleware.after', $route);
             }
 
             $dispatched = true;
@@ -597,8 +657,9 @@ class Engine
      */
     public function _error(Throwable $e): void
     {
+        $this->triggerEvent('flight.error', $e);
         $msg = sprintf(
-            <<<HTML
+            <<<'HTML'
             <h1>500 Internal Server Error</h1>
                 <h3>%s (%s)</h3>
                 <pre>%s</pre>
@@ -610,6 +671,7 @@ class Engine
 
         try {
             $this->response()
+                ->cache(0)
                 ->clearBody()
                 ->status(500)
                 ->write($msg)
@@ -728,6 +790,20 @@ class Engine
     }
 
     /**
+     * Create a resource controller customizing the methods names mapping.
+     *
+     * @param class-string $controllerClass
+     * @param array<string, string|array<string>> $options
+     */
+    public function _resource(
+        string $pattern,
+        string $controllerClass,
+        array $options = []
+    ): void {
+        $this->router()->mapResource($pattern, $controllerClass, $options);
+    }
+
+    /**
      * Stops processing and returns a given response.
      *
      * @param int $code HTTP status code
@@ -736,6 +812,10 @@ class Engine
      */
     public function _halt(int $code = 200, string $message = '', bool $actuallyExit = true): void
     {
+        if ($this->response()->getHeader('Cache-Control') === null) {
+            $this->response()->cache(0);
+        }
+
         $this->response()
             ->clearBody()
             ->status($code)
@@ -776,6 +856,8 @@ class Engine
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
+        $this->triggerEvent('flight.redirect', $url, $code);
+
         $this->response()
             ->clearBody()
             ->status($code)
@@ -799,7 +881,9 @@ class Engine
             return;
         }
 
+        $start = microtime(true);
         $this->view()->render($file, $data);
+        $this->triggerEvent('flight.view.rendered', $file, microtime(true) - $start);
     }
 
     /**
@@ -808,7 +892,7 @@ class Engine
      * @param mixed $data JSON data
      * @param int $code HTTP status code
      * @param bool $encode Whether to perform JSON encoding
-     * @param string $charset Charset
+     * @param ?string $charset Charset
      * @param int $option Bitmask Json constant such as JSON_HEX_QUOT
      *
      * @throws Exception
@@ -817,14 +901,16 @@ class Engine
         $data,
         int $code = 200,
         bool $encode = true,
-        string $charset = 'utf-8',
+        ?string $charset = 'utf-8',
         int $option = 0
     ): void {
+        // add some default flags
+        $option |= JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
         $json = $encode ? json_encode($data, $option) : $data;
 
         $this->response()
             ->status($code)
-            ->header('Content-Type', 'application/json; charset=' . $charset)
+            ->header('Content-Type', 'application/json')
             ->write($json);
         if ($this->response()->v2_output_buffering === true) {
             $this->response()->send();
@@ -891,6 +977,20 @@ class Engine
     }
 
     /**
+     * Downloads a file
+     *
+     * @param string $filePath The path to the file to download
+     *
+     * @throws Exception If the file cannot be found
+     *
+     * @return void
+     */
+    public function _download(string $filePath): void
+    {
+        $this->response()->downloadFile($filePath);
+    }
+
+    /**
      * Handles ETag HTTP caching.
      *
      * @param string $id ETag identifier
@@ -938,5 +1038,27 @@ class Engine
     public function _getUrl(string $alias, array $params = []): string
     {
         return $this->router()->getUrlByAlias($alias, $params);
+    }
+
+    /**
+     * Adds an event listener.
+     *
+     * @param string $eventName The name of the event to listen to
+     * @param callable $callback The callback to execute when the event is triggered
+     */
+    public function _onEvent(string $eventName, callable $callback): void
+    {
+        $this->eventDispatcher()->on($eventName, $callback);
+    }
+
+    /**
+     * Triggers an event.
+     *
+     * @param string $eventName The name of the event to trigger
+     * @param mixed ...$args The arguments to pass to the event listeners
+     */
+    public function _triggerEvent(string $eventName, ...$args): void
+    {
+        $this->eventDispatcher()->trigger($eventName, ...$args);
     }
 }

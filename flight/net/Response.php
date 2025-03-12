@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace flight\net;
 
 use Exception;
+use flight\core\EventDispatcher;
 
 /**
  * The Response class represents an HTTP response. The object
@@ -286,15 +287,9 @@ class Response
      */
     public function cache($expires): self
     {
-        if ($expires === false) {
+        if ($expires === false || $expires === 0) {
             $this->headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
-
-            $this->headers['Cache-Control'] = [
-                'no-store, no-cache, must-revalidate',
-                'post-check=0, pre-check=0',
-                'max-age=0',
-            ];
-
+            $this->headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0';
             $this->headers['Pragma'] = 'no-cache';
         } else {
             $expires = \is_int($expires) ? $expires : strtotime($expires);
@@ -432,18 +427,31 @@ class Response
             }
         }
 
+        $start = microtime(true);
         // Only for the v3 output buffering.
         if ($this->v2_output_buffering === false) {
             $this->processResponseCallbacks();
         }
 
-        if (headers_sent() === false) {
-            $this->sendHeaders(); // @codeCoverageIgnore
+        if ($this->headersSent() === false) {
+            $this->sendHeaders();
         }
 
         echo $this->body;
-
         $this->sent = true;
+
+        EventDispatcher::getInstance()->trigger('flight.response.sent', $this, microtime(true) - $start);
+    }
+
+    /**
+     * Headers have been sent
+     *
+     * @return bool
+     * @codeCoverageIgnore
+     */
+    public function headersSent(): bool
+    {
+        return headers_sent();
     }
 
     /**
@@ -468,6 +476,44 @@ class Response
     {
         foreach ($this->responseBodyCallbacks as $callback) {
             $this->body = $callback($this->body);
+        }
+    }
+
+    /**
+     * Downloads a file.
+     *
+     * @param string $filePath The path to the file to be downloaded.
+     *
+     * @return void
+     */
+    public function downloadFile(string $filePath): void
+    {
+        if (file_exists($filePath) === false) {
+            throw new Exception("$filePath cannot be found.");
+        }
+
+        $fileSize = filesize($filePath);
+
+        $mimeType = mime_content_type($filePath);
+        $mimeType = $mimeType !== false ? $mimeType : 'application/octet-stream';
+
+        $this->send();
+        $this->setRealHeader('Content-Description: File Transfer');
+        $this->setRealHeader('Content-Type: ' . $mimeType);
+        $this->setRealHeader('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+        $this->setRealHeader('Expires: 0');
+        $this->setRealHeader('Cache-Control: must-revalidate');
+        $this->setRealHeader('Pragma: public');
+        $this->setRealHeader('Content-Length: ' . $fileSize);
+
+        // // Clear the output buffer
+        ob_clean();
+        flush();
+
+        // // Read the file and send it to the output buffer
+        readfile($filePath);
+        if (empty(getenv('PHPUNIT_TEST'))) {
+            exit; // @codeCoverageIgnore
         }
     }
 }
