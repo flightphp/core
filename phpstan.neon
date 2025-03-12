@@ -7,6 +7,7 @@ parameters:
     excludePaths:
         - vendor
         - flight/util/ReturnTypeWillChange.php
+        - tests/named-arguments
     paths:
         - flight
         - index.php
