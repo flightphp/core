@@ -231,7 +231,7 @@ class Dispatcher
 
             if ($parametersNumber === 1) {
                 /** @disregard &$params in after filters are deprecated. */
-                $callback = fn (array &$params, &$output) => $callback($output);
+                $callback = fn(array &$params, &$output) => $callback($output);
             }
         }
 
@@ -437,11 +437,12 @@ class Dispatcher
     public function resolveContainerClass(string $class, array &$params)
     {
         // PSR-11
-        if (
-            is_a($this->containerHandler, '\Psr\Container\ContainerInterface')
-            && $this->containerHandler->has($class)
-        ) {
-            return $this->containerHandler->get($class);
+        if (is_a($this->containerHandler, '\Psr\Container\ContainerInterface')) {
+            try {
+                return $this->containerHandler->get($class);
+            } catch (Throwable) {
+                return null;
+            }
         }
 
         // Just a callable where you configure the behavior (Dice, PHP-DI, etc.)
