@@ -400,7 +400,7 @@ class FlightTest extends TestCase
         <input type="number" />
         html;
 
-        $html = str_replace(["\n", "\r\n"], '', $html);
+        $html = str_replace(["\n", "\r"], '', $html);
 
         $this->expectOutputString($html);
 
