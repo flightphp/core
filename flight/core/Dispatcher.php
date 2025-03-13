@@ -442,7 +442,7 @@ class Dispatcher
         if (is_a($this->containerHandler, '\Psr\Container\ContainerInterface')) {
             try {
                 return $this->containerHandler->get($class);
-            } catch (Throwable) {
+            } catch (Throwable $exception) {
                 return null;
             }
         }
