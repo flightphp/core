@@ -36,6 +36,9 @@ require_once __DIR__ . '/autoload.php';
  * # Class registration
  * @method EventDispatcher eventDispatcher() Gets event dispatcher
  *
+ * # Class registration
+ * @method EventDispatcher eventDispatcher() Gets event dispatcher
+ *
  * # Routing
  * @method static Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * Maps a URL pattern to a callback with all applicable methods.
