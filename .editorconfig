@@ -8,3 +8,6 @@ charset = utf-8
 
 [*.md]
 indent_size = 2
+
+[tests/views/*.php]
+insert_final_newline = false

@@ -1,7 +1,1 @@
-<?php
-
-$type ??= 'text';
-
-?>
-
-<input type="<?= $type ?>" />
+<input type="<?= $type ?? 'text' ?>" />

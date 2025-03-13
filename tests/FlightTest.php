@@ -396,15 +396,11 @@ class FlightTest extends TestCase
         $html = <<<'html'
         <div>Hi</div>
         <div>Hi</div>
-
         <input type="number" />
-
         <input type="number" />
-
         html;
 
-        // if windows replace \n with \r\n
-        $html = str_replace(["\n", "\r\n"], PHP_EOL, $html);
+        $html = str_replace(["\n", "\r\n"], '', $html);
 
         $this->expectOutputString($html);
 

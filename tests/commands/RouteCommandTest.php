@@ -131,10 +131,18 @@ PHP;
         $app->handle(['runway', 'routes', '--post']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
-        $this->assertStringContainsString('+---------+---------+-------+----------+------------+
-| Pattern | Methods | Alias | Streamed | Middleware |
-+---------+---------+-------+----------+------------+
-| /post   | POST    |       | No       | Closure    |
-+---------+---------+-------+----------+------------+', $this->removeColors(file_get_contents(static::$ou)));
+
+        $expected = <<<'output'
+        +---------+---------+-------+----------+------------+
+        | Pattern | Methods | Alias | Streamed | Middleware |
+        +---------+---------+-------+----------+------------+
+        | /post   | POST    |       | No       | Closure    |
+        +---------+---------+-------+----------+------------+
+        output;
+
+        $this->assertStringContainsString(
+            $expected,
+            $this->removeColors(file_get_contents(static::$ou))
+        );
     }
 }
