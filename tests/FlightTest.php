@@ -134,6 +134,21 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
+    public function testStaticNestedGroups(): void {
+        Flight::group('/', static function (): void {
+            Flight::group('/', static function (): void {
+                Flight::route('GET /', static function (): void {
+                    echo "test";
+                });
+            });
+        });
+
+        Flight::request()->url = '/';
+
+        $this->expectOutputString('test');
+        Flight::start();
+    }
+
     public function testStaticRouteGet()
     {
 
