@@ -48,16 +48,16 @@ class ControllerCommandTest extends TestCase
 
     protected function newApp(string $name, string $version = '')
     {
-        $app = new Application($name, $version ?: '0.0.1', fn () => false);
+        $app = @new Application($name, $version ?: '0.0.1', fn () => false);
 
-        return $app->io(new Interactor(static::$in, static::$ou));
+        return @$app->io(new Interactor(static::$in, static::$ou));
     }
 
     public function testConfigAppRootNotSet()
     {
         $app = $this->newApp('test', '0.0.1');
         $app->add(new ControllerCommand([]));
-        $app->handle(['runway', 'make:controller', 'Test']);
+        @$app->handle(['runway', 'make:controller', 'Test']);
 
         $this->assertStringContainsString('app_root not set in .runway-config.json', file_get_contents(static::$ou));
     }

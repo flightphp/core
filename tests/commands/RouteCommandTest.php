@@ -54,7 +54,7 @@ class RouteCommandTest extends TestCase
 
     protected function newApp(string $name, string $version = '')
     {
-        $app = new Application($name, $version ?: '0.0.1', fn() => false);
+        $app = @new Application($name, $version ?: '0.0.1', fn() => false);
 
         return $app->io(new Interactor(static::$in, static::$ou));
     }
@@ -90,19 +90,19 @@ PHP;
 
     public function testConfigIndexRootNotSet()
     {
-        $app = $this->newApp('test', '0.0.1');
+        $app = @$this->newApp('test', '0.0.1');
         $app->add(new RouteCommand([]));
-        $app->handle(['runway', 'routes']);
+        @$app->handle(['runway', 'routes']);
 
         $this->assertStringContainsString('index_root not set in .runway-config.json', file_get_contents(static::$ou));
     }
 
     public function testGetRoutes()
     {
-        $app = $this->newApp('test', '0.0.1');
+        $app = @$this->newApp('test', '0.0.1');
         $this->createIndexFile();
         $app->add(new RouteCommand(['index_root' => 'tests/commands/index.php']));
-        $app->handle(['runway', 'routes']);
+        @$app->handle(['runway', 'routes']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
         $expected = <<<'output'
@@ -125,10 +125,10 @@ PHP;
 
     public function testGetPostRoute()
     {
-        $app = $this->newApp('test', '0.0.1');
+        $app = @$this->newApp('test', '0.0.1');
         $this->createIndexFile();
         $app->add(new RouteCommand(['index_root' => 'tests/commands/index.php']));
-        $app->handle(['runway', 'routes', '--post']);
+        @$app->handle(['runway', 'routes', '--post']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
 
