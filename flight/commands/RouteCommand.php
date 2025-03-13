@@ -106,7 +106,7 @@ class RouteCommand extends AbstractBaseCommand
         if ($showAll === true) {
             $boolval = true;
         } else {
-            $methods = [ 'GET', 'POST', 'PUT', 'DELETE', 'PATCH' ];
+            $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
             foreach ($methods as $method) {
                 $lowercaseMethod = strtolower($method);
                 if (

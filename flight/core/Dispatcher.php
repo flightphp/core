@@ -52,7 +52,9 @@ class Dispatcher
     /**
      * Sets the dependency injection container handler.
      *
-     * @param ContainerInterface|(callable(string $classString, array<int, mixed> $params): (null|object)) $containerHandler
+     * @template T of object
+     *
+     * @param ContainerInterface|(callable(class-string<T> $classString, array<int, mixed> $params): ?T) $containerHandler
      * Dependency injection container.
      *
      * @throws InvalidArgumentException If $containerHandler is not a `callable` or instance of `Psr\Container\ContainerInterface`.

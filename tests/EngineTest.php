@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace tests;
 
-use ErrorException;
 use Exception;
 use flight\database\PdoWrapper;
 use flight\Engine;
@@ -13,7 +12,6 @@ use flight\net\Response;
 use flight\util\Collection;
 use InvalidArgumentException;
 use JsonException;
-use PDOException;
 use PHPUnit\Framework\TestCase;
 use tests\classes\Container;
 use tests\classes\ContainerDefault;
