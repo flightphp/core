@@ -87,7 +87,7 @@ class Route
      */
     public function __construct(string $pattern, $callback, array $methods, bool $pass, string $alias = '')
     {
-        $this->pattern = $pattern;
+        $this->pattern = str_replace('//', '/', $pattern);
         $this->callback = $callback;
         $this->methods = $methods;
         $this->pass = $pass;

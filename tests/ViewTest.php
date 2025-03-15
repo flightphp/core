@@ -178,15 +178,12 @@ class ViewTest extends TestCase
         $html = <<<'html'
         <div>Hi</div>
         <div>Hi</div>
-
         <input type="number" />
-
         <input type="number" />
-
         html;
 
         // if windows replace \n with \r\n
-        $html = str_replace("\n", PHP_EOL, $html);
+        $html = str_replace(["\n", "\r"], '', $html);
 
         $this->expectOutputString($html);
 
@@ -205,11 +202,9 @@ class ViewTest extends TestCase
         $html = <<<'html'
         <div>qux</div>
         <div>bar</div>
-
         html;
 
-        // if windows replace \n with \r\n
-        $html = str_replace("\n", PHP_EOL, $html);
+        $html = str_replace(["\n", "\r"], '', $html);
 
         $this->expectOutputString($html);
 
@@ -222,19 +217,15 @@ class ViewTest extends TestCase
         $html1 = <<<'html'
         <div>Hi</div>
         <div></div>
-
         html;
 
         $html2 = <<<'html'
-
         <input type="number" />
-
         <input type="text" />
-
         html;
 
-        $html1 = str_replace(["\n", "\r\n"], PHP_EOL, $html1);
-        $html2 = str_replace(["\n", "\r\n"], PHP_EOL, $html2);
+        $html1 = str_replace(["\n", "\r"], '', $html1);
+        $html2 = str_replace(["\n", "\r"], '', $html2);
 
         return [
             [
