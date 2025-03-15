@@ -22,6 +22,7 @@
     <testsuites>
         <testsuite name="default">
             <directory>tests/</directory>
+            <exclude>tests/named-arguments/</exclude>
         </testsuite>
     </testsuites>
     <logging />

@@ -16,6 +16,7 @@ use flight\net\Router;
 use flight\template\View;
 use Throwable;
 use flight\net\Route;
+use Psr\Container\ContainerInterface;
 
 /**
  * The Engine class contains the core functionality of the framework.
@@ -265,9 +266,9 @@ class Engine
     /**
      * Registers the container handler
      *
-     * @param callable|object $containerHandler Callback function or PSR-11 Container object that sets the container and how it will inject classes
+     * @template T of object
      *
-     * @return void
+     * @param ContainerInterface|callable(class-string<T> $id, array<int|string, mixed> $params): ?T $containerHandler Callback function or PSR-11 Container object that sets the container and how it will inject classes
      */
     public function registerContainerHandler($containerHandler): void
     {

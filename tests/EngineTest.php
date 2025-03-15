@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace tests;
 
-use ErrorException;
 use Exception;
 use flight\database\PdoWrapper;
 use flight\Engine;

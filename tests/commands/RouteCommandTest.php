@@ -105,15 +105,22 @@ PHP;
         $app->handle(['runway', 'routes']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
-        $this->assertStringContainsString('+---------+-----------+-------+----------+----------------+
-| Pattern | Methods   | Alias | Streamed | Middleware     |
-+---------+-----------+-------+----------+----------------+
-| /       | GET, HEAD |       | No       | -              |
-| /post   | POST      |       | No       | Closure        |
-| /delete | DELETE    |       | No       | -              |
-| /put    | PUT       |       | No       | -              |
-| /patch  | PATCH     |       | No       | Bad Middleware |
-+---------+-----------+-------+----------+----------------+', $this->removeColors(file_get_contents(static::$ou)));
+        $expected = <<<'output'
+        +---------+-----------+-------+----------+----------------+
+        | Pattern | Methods   | Alias | Streamed | Middleware     |
+        +---------+-----------+-------+----------+----------------+
+        | /       | GET, HEAD |       | No       | -              |
+        | /post   | POST      |       | No       | Closure        |
+        | /delete | DELETE    |       | No       | -              |
+        | /put    | PUT       |       | No       | -              |
+        | /patch  | PATCH     |       | No       | Bad Middleware |
+        +---------+-----------+-------+----------+----------------+
+        output;
+
+        $this->assertStringContainsString(
+            $expected,
+            $this->removeColors(file_get_contents(static::$ou))
+        );
     }
 
     public function testGetPostRoute()

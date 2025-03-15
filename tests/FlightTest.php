@@ -389,7 +389,7 @@ class FlightTest extends TestCase
         html;
 
         // if windows replace \n with \r\n
-        $html = str_replace("\n", PHP_EOL, $html);
+        $html = str_replace(["\n", "\r\n"], PHP_EOL, $html);
 
         $this->expectOutputString($html);
 

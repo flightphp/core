@@ -9,6 +9,7 @@ use flight\net\Router;
 use flight\template\View;
 use flight\net\Route;
 use flight\core\EventDispatcher;
+use Psr\Container\ContainerInterface;
 
 require_once __DIR__ . '/autoload.php';
 
@@ -18,9 +19,11 @@ require_once __DIR__ . '/autoload.php';
  * @license MIT, http://flightphp.com/license
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
  *
+ * @template T of object
+ *
  * # Core methods
  * @method static void start() Starts the framework.
- * @method static void path(string $path) Adds a path for autoloading classes.
+ * @method static void path(string $dir) Adds a path for autoloading classes.
  * @method static void stop(?int $code = null) Stops the framework and sends a response.
  * @method static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * Stop the framework with an optional status code and message.
@@ -28,7 +31,10 @@ require_once __DIR__ . '/autoload.php';
  * Registers a class to a framework method.
  * @method static void unregister(string $methodName)
  * Unregisters a class to a framework method.
- * @method static void registerContainerHandler(callable|object $containerHandler) Registers a container handler.
+ * @method static void registerContainerHandler(ContainerInterface|callable(class-string<T> $id, array<int|string, mixed> $params): ?T $containerHandler) Registers a container handler.
+ *
+ * # Class registration
+ * @method EventDispatcher eventDispatcher() Gets event dispatcher
  *
  * # Class registration
  * @method EventDispatcher eventDispatcher() Gets event dispatcher
@@ -104,6 +110,7 @@ class Flight
      */
     private function __construct()
     {
+        //
     }
 
     /**
@@ -114,6 +121,7 @@ class Flight
      */
     private function __clone()
     {
+        //
     }
 
     /**

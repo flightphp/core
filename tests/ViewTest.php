@@ -233,8 +233,8 @@ class ViewTest extends TestCase
 
         html;
 
-        $html1 = str_replace("\n", PHP_EOL, $html1);
-        $html2 = str_replace("\n", PHP_EOL, $html2);
+        $html1 = str_replace(["\n", "\r\n"], PHP_EOL, $html1);
+        $html2 = str_replace(["\n", "\r\n"], PHP_EOL, $html2);
 
         return [
             [

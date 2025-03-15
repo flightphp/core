@@ -33,14 +33,17 @@
     },
     "autoload-dev": {
         "classmap": [
-            "tests/classes/User.php",
-            "tests/classes/Hello.php",
-            "tests/classes/Factory.php",
-            "tests/classes/TesterClass.php"
-        ]
+            "tests/classes/"
+        ],
+        "psr-4": {
+            "Tests\\PHP8\\": [
+                "tests/named-arguments"
+            ]
+        }
     },
     "require-dev": {
         "ext-pdo_sqlite": "*",
+        "flightphp/container": "^1.0",
         "flightphp/runway": "^0.2.3 || ^1.0",
         "league/container": "^4.2",
         "level-2/dice": "^4.0",
