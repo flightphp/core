@@ -266,9 +266,9 @@ class Engine
     /**
      * Registers the container handler
      *
-     * @template T of object
-     *
      * @param ContainerInterface|callable(class-string<T> $id, array<int|string, mixed> $params): ?T $containerHandler Callback function or PSR-11 Container object that sets the container and how it will inject classes
+     *
+     * @template T of object
      */
     public function registerContainerHandler($containerHandler): void
     {

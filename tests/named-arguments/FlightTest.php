@@ -19,7 +19,7 @@ final class FlightTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->engine = new Engine;
+        $this->engine = new Engine();
         Flight::init();
         Flight::setEngine($this->engine);
     }
@@ -27,15 +27,15 @@ final class FlightTest extends TestCase
     //////////////////
     // CORE METHODS //
     //////////////////
-    public function test_path(): void
+    public function testPath(): void
     {
-        Flight::path(dir: __DIR__);
+        Flight::path(dir: __DIR__); // phpcs:ignore
 
         $exampleObject = new ExampleClass();
         self::assertInstanceOf(ExampleClass::class, $exampleObject);
     }
 
-    public function test_stop_with_code(): void
+    public function testStopWithCode(): void
     {
         Flight::stop(code: 500);
 
@@ -43,7 +43,7 @@ final class FlightTest extends TestCase
         self::assertSame(500, Flight::response()->status());
     }
 
-    public function test_halt(): void
+    public function testHalt(): void
     {
         Flight::halt(actuallyExit: false, code: 500, message: 'Test');
 
@@ -51,7 +51,7 @@ final class FlightTest extends TestCase
         self::assertSame(500, Flight::response()->status());
     }
 
-    public function test_register(): void
+    public function testRegister(): void
     {
         Flight::register(
             class: stdClass::class,
@@ -71,11 +71,11 @@ final class FlightTest extends TestCase
         Flight::unregister(methodName: 'customClass');
     }
 
-    public function test_register_container(): void
+    public function testRegisterContainer(): void
     {
         $dateTime = new DateTimeImmutable();
 
-        $controller = new class($dateTime) {
+        $controller = new class ($dateTime) {
             public function __construct(private DateTimeImmutable $dateTime)
             {
                 //
@@ -108,7 +108,7 @@ final class FlightTest extends TestCase
     /////////////////////
     // ROUTING METHODS //
     /////////////////////
-    public function test_static_route(): void
+    public function testStaticRoute(): void
     {
         Flight::request()->url = '/test';
 
