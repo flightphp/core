@@ -44,9 +44,12 @@ class EventDispatcher
      *
      * @param string $event Event name
      * @param mixed ...$args Arguments to pass to the callbacks
+     *
+     * @return mixed
      */
-    public function trigger(string $event, ...$args): void
+    public function trigger(string $event, ...$args)
     {
+        $result = null;
         if (isset($this->listeners[$event]) === true) {
             foreach ($this->listeners[$event] as $callback) {
                 $result = call_user_func_array($callback, $args);
@@ -57,6 +60,7 @@ class EventDispatcher
                 }
             }
         }
+        return $result;
     }
 
     /**

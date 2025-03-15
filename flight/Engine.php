@@ -486,7 +486,7 @@ class Engine
             // Which loosely translates to $class->$method($params)
             $start = microtime(true);
             $middlewareResult = $middlewareObject($params);
-            $this->triggerEvent('flight.middleware.executed', $route, $middleware, microtime(true) - $start);
+            $this->triggerEvent('flight.middleware.executed', $route, $middleware, $eventName, microtime(true) - $start);
 
             if ($useV3OutputBuffering === true) {
                 $this->response()->write(ob_get_clean());
@@ -1002,10 +1002,10 @@ class Engine
 
         $this->response()->header('ETag', '"' . str_replace('"', '\"', $id) . '"');
 
-        if (
-            isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
-            $_SERVER['HTTP_IF_NONE_MATCH'] === $id
-        ) {
+        $hit = isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $id;
+        $this->triggerEvent('flight.cache.checked', 'etag', $hit, 0.0);
+
+        if ($hit === true) {
             $this->response()->clear();
             $this->halt(304, '', empty(getenv('PHPUNIT_TEST')));
         }
@@ -1020,10 +1020,10 @@ class Engine
     {
         $this->response()->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $time));
 
-        if (
-            isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
-            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time
-        ) {
+        $hit = isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time;
+        $this->triggerEvent('flight.cache.checked', 'lastModified', $hit, 0.0);
+
+        if ($hit === true) {
             $this->response()->clear();
             $this->halt(304, '', empty(getenv('PHPUNIT_TEST')));
         }
