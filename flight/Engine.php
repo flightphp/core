@@ -913,7 +913,11 @@ class Engine
             ->status($code)
             ->header('Content-Type', 'application/json')
             ->write($json);
-        if ($this->response()->v2_output_buffering === true) {
+
+        if (
+            $this->response()->v2_output_buffering === true
+            || ($this->requestHandled === false && empty(getenv('PHPUNIT_TEST')))
+        ) {
             $this->response()->send();
         }
     }
