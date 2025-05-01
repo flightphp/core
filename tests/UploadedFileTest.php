@@ -20,7 +20,7 @@ class UploadedFileTest extends TestCase
         }
     }
 
-    public function testMoveToSuccess()
+    public function testMoveToSuccess(): void
     {
         file_put_contents('tmp_name', 'test');
         $uploadedFile = new UploadedFile('file.txt', 'text/plain', 4, 'tmp_name', UPLOAD_ERR_OK);

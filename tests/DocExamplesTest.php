@@ -27,7 +27,7 @@ class DocExamplesTest extends TestCase
         Flight::clear();
     }
 
-    public function testMapNotFoundMethod()
+    public function testMapNotFoundMethod(): void
     {
         Flight::map('notFound', function () {
             Flight::json([], 404);
@@ -45,7 +45,7 @@ class DocExamplesTest extends TestCase
         $this->assertEquals('[]', Flight::response()->getBody());
     }
 
-    public function testMapNotFoundMethodV2OutputBuffering()
+    public function testMapNotFoundMethodV2OutputBuffering(): void
     {
         Flight::map('notFound', function () {
             Flight::json([], 404);
@@ -64,7 +64,7 @@ class DocExamplesTest extends TestCase
         $this->assertEquals('[]', Flight::response()->getBody());
     }
 
-    public function testMapErrorMethod()
+    public function testMapErrorMethod(): void
     {
         Flight::map('error', function (Throwable $error) {
             // Handle error
@@ -75,7 +75,7 @@ class DocExamplesTest extends TestCase
         $this->expectOutputString('Custom: Error');
     }
 
-    public function testGetRouterStatically()
+    public function testGetRouterStatically(): void
     {
         $router = Flight::router();
         Flight::request()->method = 'GET';

@@ -17,7 +17,7 @@ class FilterTest extends TestCase
     }
 
     // Run before and after filters
-    public function testBeforeAndAfter()
+    public function testBeforeAndAfter(): void
     {
         $this->app->map('hello', function ($name) {
             return "Hello, $name!";
@@ -39,7 +39,7 @@ class FilterTest extends TestCase
     }
 
     // Break out of a filter chain by returning false
-    public function testFilterChaining()
+    public function testFilterChaining(): void
     {
         $this->app->map('bye', function ($name) {
             return "Bye, $name!";

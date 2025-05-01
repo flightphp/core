@@ -39,7 +39,7 @@ class RequestTest extends TestCase
         unset($_SERVER);
     }
 
-    public function testDefaults()
+    public function testDefaults(): void
     {
         $this->assertEquals('/', $this->request->url);
         $this->assertEquals('/', $this->request->base);
@@ -54,13 +54,13 @@ class RequestTest extends TestCase
         $this->assertEquals('example.com', $this->request->host);
     }
 
-    public function testIpAddress()
+    public function testIpAddress(): void
     {
         $this->assertEquals('8.8.8.8', $this->request->ip);
         $this->assertEquals('32.32.32.32', $this->request->proxy_ip);
     }
 
-    public function testSubdirectory()
+    public function testSubdirectory(): void
     {
         $_SERVER['SCRIPT_NAME'] = '/subdir/index.php';
 
@@ -69,7 +69,7 @@ class RequestTest extends TestCase
         $this->assertEquals('/subdir', $request->base);
     }
 
-    public function testQueryParameters()
+    public function testQueryParameters(): void
     {
         $_SERVER['REQUEST_URI'] = '/page?id=1&name=bob';
 
@@ -80,7 +80,7 @@ class RequestTest extends TestCase
         $this->assertEquals('bob', $request->query->name);
     }
 
-    public function testCollections()
+    public function testCollections(): void
     {
         $_SERVER['REQUEST_URI'] = '/page?id=1';
 
@@ -98,7 +98,7 @@ class RequestTest extends TestCase
         $this->assertEquals(1, $request->files->q);
     }
 
-    public function testJsonWithEmptyBody()
+    public function testJsonWithEmptyBody(): void
     {
         $_SERVER['CONTENT_TYPE'] = 'application/json';
 
@@ -107,7 +107,7 @@ class RequestTest extends TestCase
         $this->assertSame([], $request->data->getData());
     }
 
-    public function testMethodOverrideWithHeader()
+    public function testMethodOverrideWithHeader(): void
     {
         $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'PUT';
 
@@ -116,7 +116,7 @@ class RequestTest extends TestCase
         $this->assertEquals('PUT', $request->method);
     }
 
-    public function testMethodOverrideWithPost()
+    public function testMethodOverrideWithPost(): void
     {
         $_REQUEST['_method'] = 'PUT';
 
@@ -125,7 +125,7 @@ class RequestTest extends TestCase
         $this->assertEquals('PUT', $request->method);
     }
 
-    public function testHttps()
+    public function testHttps(): void
     {
         $_SERVER['HTTPS'] = 'on';
         $request = new Request();
@@ -156,7 +156,7 @@ class RequestTest extends TestCase
         $this->assertEquals('http', $request->scheme);
     }
 
-    public function testInitUrlSameAsBaseDirectory()
+    public function testInitUrlSameAsBaseDirectory(): void
     {
         $request = new Request([
             'url' => '/vagrant/public/flightphp',
@@ -168,7 +168,7 @@ class RequestTest extends TestCase
         $this->assertEquals('/flightphp', $request->url);
     }
 
-    public function testInitNoUrl()
+    public function testInitNoUrl(): void
     {
         $request = new Request([
             'url' => '',
@@ -179,7 +179,7 @@ class RequestTest extends TestCase
         $this->assertEquals('/', $request->url);
     }
 
-    public function testInitWithJsonBody()
+    public function testInitWithJsonBody(): void
     {
         // create dummy file to pull request body from
         $tmpfile = tmpfile();
@@ -199,7 +199,7 @@ class RequestTest extends TestCase
         $this->assertEquals('{"foo":"bar"}', $request->getBody());
     }
 
-    public function testInitWithFormBody()
+    public function testInitWithFormBody(): void
     {
         // create dummy file to pull request body from
         $tmpfile = tmpfile();
@@ -222,7 +222,7 @@ class RequestTest extends TestCase
         $this->assertEquals('foo=bar&baz=qux', $request->getBody());
     }
 
-    public function testGetHeader()
+    public function testGetHeader(): void
     {
         $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'custom header value';
         $request = new Request();
@@ -236,7 +236,7 @@ class RequestTest extends TestCase
         $this->assertEquals('default value', $request->header('X-Non-Existent-Header', 'default value'));
     }
 
-    public function testGetHeaders()
+    public function testGetHeaders(): void
     {
         $_SERVER = [];
         $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'custom header value';
@@ -244,14 +244,14 @@ class RequestTest extends TestCase
         $this->assertEquals(['X-Custom-Header' => 'custom header value'], $request->getHeaders());
     }
 
-    public function testGetHeadersWithEmptyServer()
+    public function testGetHeadersWithEmptyServer(): void
     {
         $_SERVER = [];
         $request = new Request();
         $this->assertEquals([], $request->getHeaders());
     }
 
-    public function testGetHeadersWithEmptyHeader()
+    public function testGetHeadersWithEmptyHeader(): void
     {
         $_SERVER = [];
         $_SERVER['HTTP_X_CUSTOM_HEADER'] = '';
@@ -259,7 +259,7 @@ class RequestTest extends TestCase
         $this->assertEquals(['X-Custom-Header' => ''], $request->headers());
     }
 
-    public function testGetHeadersWithMultipleHeaders()
+    public function testGetHeadersWithMultipleHeaders(): void
     {
         $_SERVER = [];
         $_SERVER['HTTP_X_CUSTOM_HEADER'] = 'custom header value';
@@ -271,7 +271,7 @@ class RequestTest extends TestCase
         ], $request->getHeaders());
     }
 
-    public function testGetFullUrlNoHttps()
+    public function testGetFullUrlNoHttps(): void
     {
         $_SERVER['HTTP_HOST'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/page?id=1';
@@ -279,7 +279,7 @@ class RequestTest extends TestCase
         $this->assertEquals('http://example.com/page?id=1', $request->getFullUrl());
     }
 
-    public function testGetFullUrlWithHttps()
+    public function testGetFullUrlWithHttps(): void
     {
         $_SERVER['HTTP_HOST'] = 'localhost:8000';
         $_SERVER['REQUEST_URI'] = '/page?id=1';
@@ -288,7 +288,7 @@ class RequestTest extends TestCase
         $this->assertEquals('https://localhost:8000/page?id=1', $request->getFullUrl());
     }
 
-    public function testGetBaseUrlNoHttps()
+    public function testGetBaseUrlNoHttps(): void
     {
         $_SERVER['HTTP_HOST'] = 'example.com';
         $_SERVER['REQUEST_URI'] = '/page?id=1';
@@ -296,7 +296,7 @@ class RequestTest extends TestCase
         $this->assertEquals('http://example.com', $request->getBaseUrl());
     }
 
-    public function testGetBaseUrlWithHttps()
+    public function testGetBaseUrlWithHttps(): void
     {
         $_SERVER['HTTP_HOST'] = 'localhost:8000';
         $_SERVER['REQUEST_URI'] = '/page?id=1';
@@ -305,7 +305,7 @@ class RequestTest extends TestCase
         $this->assertEquals('https://localhost:8000', $request->getBaseUrl());
     }
 
-    public function testGetSingleFileUpload()
+    public function testGetSingleFileUpload(): void
     {
         $_FILES['file'] = [
             'name' => 'file.txt',
@@ -326,7 +326,7 @@ class RequestTest extends TestCase
         $this->assertEquals(0, $file->getError());
     }
 
-    public function testGetMultiFileUpload()
+    public function testGetMultiFileUpload(): void
     {
         $_FILES['files'] = [
             'name' => ['file1.txt', 'file2.txt'],

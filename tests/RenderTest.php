@@ -18,7 +18,7 @@ class RenderTest extends TestCase
     }
 
     // Render a view
-    public function testRenderView()
+    public function testRenderView(): void
     {
         $this->app->render('hello', ['name' => 'Bob']);
 
@@ -26,7 +26,7 @@ class RenderTest extends TestCase
     }
 
     // Renders a view into a layout
-    public function testRenderLayout()
+    public function testRenderLayout(): void
     {
         $this->app->render('hello', ['name' => 'Bob'], 'content');
         $this->app->render('layouts/layout');

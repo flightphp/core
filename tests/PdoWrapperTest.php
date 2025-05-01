@@ -30,55 +30,55 @@ class PdoWrapperTest extends TestCase
         $this->pdo_wrapper->exec('DROP TABLE test');
     }
 
-    public function testRunQuerySelectAllStatement()
+    public function testRunQuerySelectAllStatement(): void
     {
         $statement = $this->pdo_wrapper->runQuery('SELECT * FROM test');
         $this->assertInstanceOf(PDOStatement::class, $statement);
         $this->assertCount(3, $statement->fetchAll());
     }
 
-    public function testRunQuerySelectOneStatement()
+    public function testRunQuerySelectOneStatement(): void
     {
         $statement = $this->pdo_wrapper->runQuery('SELECT * FROM test WHERE id = 1');
         $this->assertInstanceOf(PDOStatement::class, $statement);
         $this->assertCount(1, $statement->fetchAll());
     }
 
-    public function testRunQueryInsertStatement()
+    public function testRunQueryInsertStatement(): void
     {
         $statement = $this->pdo_wrapper->runQuery('INSERT INTO test (name) VALUES ("four")');
         $this->assertInstanceOf(PDOStatement::class, $statement);
         $this->assertEquals(1, $statement->rowCount());
     }
 
-    public function testRunQueryUpdateStatement()
+    public function testRunQueryUpdateStatement(): void
     {
         $statement = $this->pdo_wrapper->runQuery('UPDATE test SET name = "something" WHERE name LIKE ?', ['%t%']);
         $this->assertInstanceOf(PDOStatement::class, $statement);
         $this->assertEquals(2, $statement->rowCount());
     }
 
-    public function testRunQueryDeleteStatement()
+    public function testRunQueryDeleteStatement(): void
     {
         $statement = $this->pdo_wrapper->runQuery('DELETE FROM test WHERE name LIKE ?', ['%t%']);
         $this->assertInstanceOf(PDOStatement::class, $statement);
         $this->assertEquals(2, $statement->rowCount());
     }
 
-    public function testFetchField()
+    public function testFetchField(): void
     {
         $id = $this->pdo_wrapper->fetchField('SELECT id FROM test WHERE name = ?', ['two']);
         $this->assertEquals(2, $id);
     }
 
-    public function testFetchRow()
+    public function testFetchRow(): void
     {
         $row = $this->pdo_wrapper->fetchRow('SELECT * FROM test WHERE name = ?', ['two']);
         $this->assertEquals(2, $row['id']);
         $this->assertEquals('two', $row['name']);
     }
 
-    public function testFetchAll()
+    public function testFetchAll(): void
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT * FROM test');
         $this->assertCount(3, $rows);
@@ -90,14 +90,14 @@ class PdoWrapperTest extends TestCase
         $this->assertEquals('three', $rows[2]['name']);
     }
 
-    public function testFetchAllNoRows()
+    public function testFetchAllNoRows(): void
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT * FROM test WHERE 1 = 2');
         $this->assertCount(0, $rows);
         $this->assertSame([], $rows);
     }
 
-    public function testFetchAllWithNamedParams()
+    public function testFetchAllWithNamedParams(): void
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT * FROM test WHERE name = :name', [ 'name' => 'two']);
         $this->assertCount(1, $rows);
@@ -105,25 +105,25 @@ class PdoWrapperTest extends TestCase
         $this->assertEquals('two', $rows[0]['name']);
     }
 
-    public function testFetchAllWithInInt()
+    public function testFetchAllWithInInt(): void
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE id IN(?   )', [ [1,2 ]]);
         $this->assertEquals(2, count($rows));
     }
 
-    public function testFetchAllWithInString()
+    public function testFetchAllWithInString(): void
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE name IN(?)', [ ['one','two' ]]);
         $this->assertEquals(2, count($rows));
     }
 
-    public function testFetchAllWithInStringCommas()
+    public function testFetchAllWithInStringCommas(): void
     {
         $rows = $this->pdo_wrapper->fetchAll('SELECT id FROM test WHERE id > ? AND name IN( ?)  ', [ 0, 'one,two' ]);
         $this->assertEquals(2, count($rows));
     }
 
-    public function testPullDataFromDsn()
+    public function testPullDataFromDsn(): void
     {
         // Testing protected method using reflection
         $reflection = new ReflectionClass($this->pdo_wrapper);
@@ -158,7 +158,7 @@ class PdoWrapperTest extends TestCase
         ], $pgsqlResult);
     }
 
-    public function testLogQueries()
+    public function testLogQueries(): void
     {
         // Create a new PdoWrapper with tracking enabled
         $trackingPdo = new PdoWrapper('sqlite::memory:', null, null, null, true);

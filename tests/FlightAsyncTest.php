@@ -28,7 +28,7 @@ class FlightAsyncTest extends TestCase
     }
 
     // Checks that default components are loaded
-    public function testSingleRoute()
+    public function testSingleRoute(): void
     {
         Flight::route('GET /', function () {
             echo 'hello world';
@@ -38,7 +38,7 @@ class FlightAsyncTest extends TestCase
         Flight::start();
     }
 
-    public function testMultipleRoutes()
+    public function testMultipleRoutes(): void
     {
         Flight::route('GET /', function () {
             echo 'hello world';
@@ -53,7 +53,7 @@ class FlightAsyncTest extends TestCase
         Flight::start();
     }
 
-    public function testMultipleStartsSingleRoute()
+    public function testMultipleStartsSingleRoute(): void
     {
         Flight::route('GET /', function () {
             echo 'hello world';
@@ -64,7 +64,7 @@ class FlightAsyncTest extends TestCase
         Flight::start();
     }
 
-    public function testMultipleStartsMultipleRoutes()
+    public function testMultipleStartsMultipleRoutes(): void
     {
         Flight::route('GET /', function () {
             echo 'hello world';

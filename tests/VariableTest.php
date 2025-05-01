@@ -17,7 +17,7 @@ class VariableTest extends TestCase
     }
 
     // Set and get a variable
-    public function testSetAndGet()
+    public function testSetAndGet(): void
     {
         $this->app->set('a', 1);
         $var = $this->app->get('a');
@@ -25,7 +25,7 @@ class VariableTest extends TestCase
     }
 
     // Clear a specific variable
-    public function testClear()
+    public function testClear(): void
     {
         $this->app->set('b', 1);
         $this->app->clear('b');
@@ -34,7 +34,7 @@ class VariableTest extends TestCase
     }
 
     // Clear all variables
-    public function testClearAll()
+    public function testClearAll(): void
     {
         $this->app->set('c', 1);
         $this->app->clear();
@@ -43,7 +43,7 @@ class VariableTest extends TestCase
     }
 
     // Check if a variable exists
-    public function testHas()
+    public function testHas(): void
     {
         $this->app->set('d', 1);
         $this->assertTrue($this->app->has('d'));
