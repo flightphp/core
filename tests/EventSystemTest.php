@@ -22,7 +22,7 @@ class EventSystemTest extends TestCase
     /**
      * Test registering and triggering a single listener.
      */
-    public function testRegisterAndTriggerSingleListener()
+    public function testRegisterAndTriggerSingleListener(): void
     {
         $called = false;
         Flight::onEvent('test.event', function () use (&$called) {
@@ -35,7 +35,7 @@ class EventSystemTest extends TestCase
     /**
      * Test registering multiple listeners for the same event.
      */
-    public function testRegisterMultipleListeners()
+    public function testRegisterMultipleListeners(): void
     {
         $counter = 0;
         Flight::onEvent('test.event', function () use (&$counter) {
@@ -51,7 +51,7 @@ class EventSystemTest extends TestCase
     /**
      * Test triggering an event with no listeners registered.
      */
-    public function testTriggerWithNoListeners()
+    public function testTriggerWithNoListeners(): void
     {
         // Should not throw any errors
         Flight::triggerEvent('non.existent.event');
@@ -61,7 +61,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that a listener receives a single argument correctly.
      */
-    public function testListenerReceivesSingleArgument()
+    public function testListenerReceivesSingleArgument(): void
     {
         $received = null;
         Flight::onEvent('test.event', function ($arg) use (&$received) {
@@ -74,7 +74,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that a listener receives multiple arguments correctly.
      */
-    public function testListenerReceivesMultipleArguments()
+    public function testListenerReceivesMultipleArguments(): void
     {
         $received = [];
         Flight::onEvent('test.event', function ($arg1, $arg2) use (&$received) {
@@ -87,7 +87,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that listeners are called in the order they were registered.
      */
-    public function testListenersCalledInOrder()
+    public function testListenersCalledInOrder(): void
     {
         $order = [];
         Flight::onEvent('test.event', function () use (&$order) {
@@ -103,7 +103,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that listeners are not called for unrelated events.
      */
-    public function testListenerNotCalledForOtherEvents()
+    public function testListenerNotCalledForOtherEvents(): void
     {
         $called = false;
         Flight::onEvent('test.event1', function () use (&$called) {
@@ -116,7 +116,7 @@ class EventSystemTest extends TestCase
     /**
      * Test overriding the onEvent method.
      */
-    public function testOverrideOnEvent()
+    public function testOverrideOnEvent(): void
     {
         $called = false;
         Flight::map('onEvent', function ($event, $callback) use (&$called) {
@@ -130,7 +130,7 @@ class EventSystemTest extends TestCase
     /**
      * Test overriding the triggerEvent method.
      */
-    public function testOverrideTriggerEvent()
+    public function testOverrideTriggerEvent(): void
     {
         $called = false;
         Flight::map('triggerEvent', function ($event, ...$args) use (&$called) {
@@ -143,7 +143,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that an overridden onEvent can still register listeners by calling the original method.
      */
-    public function testOverrideOnEventStillRegistersListener()
+    public function testOverrideOnEventStillRegistersListener(): void
     {
         $overrideCalled = false;
         Flight::map('onEvent', function ($event, $callback) use (&$overrideCalled) {
@@ -166,7 +166,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that an overridden triggerEvent can still trigger listeners by calling the original method.
      */
-    public function testOverrideTriggerEventStillTriggersListeners()
+    public function testOverrideTriggerEventStillTriggersListeners(): void
     {
         $overrideCalled = false;
         Flight::map('triggerEvent', function ($event, ...$args) use (&$overrideCalled) {
@@ -189,7 +189,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that an invalid callable throws an exception (if applicable).
      */
-    public function testInvalidCallableThrowsException()
+    public function testInvalidCallableThrowsException(): void
     {
         $this->expectException(TypeError::class);
         // Assuming the event system validates callables
@@ -199,7 +199,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that event propagation stops if a listener returns false.
      */
-    public function testStopPropagation()
+    public function testStopPropagation(): void
     {
         $firstCalled = false;
         $secondCalled = false;
@@ -229,7 +229,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that hasListeners() correctly identifies events with listeners.
      */
-    public function testHasListeners()
+    public function testHasListeners(): void
     {
         $this->assertFalse(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should not have listeners before registration');
 
@@ -242,7 +242,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that getListeners() returns the correct listeners for an event.
      */
-    public function testGetListeners()
+    public function testGetListeners(): void
     {
         $callback1 = function () {
         };
@@ -263,7 +263,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that getListeners() returns an empty array for events with no listeners.
      */
-    public function testGetListenersForNonexistentEvent()
+    public function testGetListenersForNonexistentEvent(): void
     {
         $listeners = Flight::eventDispatcher()->getListeners('nonexistent.event');
         $this->assertIsArray($listeners, 'Should return an array for nonexistent events');
@@ -273,7 +273,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that getAllRegisteredEvents() returns all event names with registered listeners.
      */
-    public function testGetAllRegisteredEvents()
+    public function testGetAllRegisteredEvents(): void
     {
         $this->assertEmpty(Flight::eventDispatcher()->getAllRegisteredEvents(), 'No events should be registered initially');
 
@@ -291,7 +291,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that removeListener() correctly removes a specific listener from an event.
      */
-    public function testRemoveListener()
+    public function testRemoveListener(): void
     {
         $callback1 = function () {
             return 'callback1';
@@ -315,7 +315,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that removeAllListeners() correctly removes all listeners for an event.
      */
-    public function testRemoveAllListeners()
+    public function testRemoveAllListeners(): void
     {
         Flight::onEvent('test.event', function () {
         });
@@ -336,7 +336,7 @@ class EventSystemTest extends TestCase
     /**
      * Test that trying to remove listeners for nonexistent events doesn't cause errors.
      */
-    public function testRemoveListenersForNonexistentEvent()
+    public function testRemoveListenersForNonexistentEvent(): void
     {
         // Should not throw any errors
         Flight::eventDispatcher()->removeListener('nonexistent.event', function () {

@@ -33,7 +33,7 @@ class FlightTest extends TestCase
     }
 
     // Checks that default components are loaded
-    public function testDefaultComponents()
+    public function testDefaultComponents(): void
     {
         $request = Flight::request();
         $response = Flight::response();
@@ -47,7 +47,7 @@ class FlightTest extends TestCase
     }
 
     // Test get/set of variables
-    public function testGetAndSet()
+    public function testGetAndSet(): void
     {
         Flight::set('a', 1);
         $var = Flight::get('a');
@@ -69,7 +69,7 @@ class FlightTest extends TestCase
     }
 
     // Register a class
-    public function testRegister()
+    public function testRegister(): void
     {
         Flight::path(__DIR__ . '/classes');
 
@@ -90,7 +90,7 @@ class FlightTest extends TestCase
     }
 
     // Map a function
-    public function testMap()
+    public function testMap(): void
     {
         Flight::map('map1', function () {
             return 'hello';
@@ -102,7 +102,7 @@ class FlightTest extends TestCase
     }
 
     // Unmapped method
-    public function testUnmapped()
+    public function testUnmapped(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('doesNotExist must be a mapped method.');
@@ -110,7 +110,7 @@ class FlightTest extends TestCase
         Flight::doesNotExist();
     }
 
-    public function testStaticRoute()
+    public function testStaticRoute(): void
     {
         Flight::route('/test', function () {
             echo 'test';
@@ -121,7 +121,7 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
-    public function testStaticRouteGroup()
+    public function testStaticRouteGroup(): void
     {
         Flight::group('/group', function () {
             Flight::route('/test', function () {
@@ -150,7 +150,7 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
-    public function testStaticRouteGet()
+    public function testStaticRouteGet(): void
     {
 
         // can't actually get "get" because that gets a variable
@@ -165,7 +165,7 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
-    public function testStaticRoutePost()
+    public function testStaticRoutePost(): void
     {
 
         Flight::post('/test', function () {
@@ -179,7 +179,7 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
-    public function testStaticRoutePut()
+    public function testStaticRoutePut(): void
     {
         Flight::put('/test', function () {
             echo 'test put';
@@ -192,7 +192,7 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
-    public function testStaticRoutePatch()
+    public function testStaticRoutePatch(): void
     {
 
         Flight::patch('/test', function () {
@@ -206,7 +206,7 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
-    public function testStaticRouteDelete()
+    public function testStaticRouteDelete(): void
     {
 
         Flight::delete('/test', function () {
@@ -220,7 +220,7 @@ class FlightTest extends TestCase
         Flight::start();
     }
 
-    public function testGetUrl()
+    public function testGetUrl(): void
     {
         Flight::route('/path1/@param:[a-zA-Z0-9]{2,3}', function () {
             echo 'I win';
@@ -229,7 +229,7 @@ class FlightTest extends TestCase
         $this->assertEquals('/path1/123', $url);
     }
 
-    public function testRouteGetUrlWithGroupSimpleParams()
+    public function testRouteGetUrlWithGroupSimpleParams(): void
     {
         Flight::group('/path1/@id', function () {
             Flight::route('/@name', function () {
@@ -241,7 +241,7 @@ class FlightTest extends TestCase
         $this->assertEquals('/path1/123/abc', $url);
     }
 
-    public function testRouteGetUrlNestedGroups()
+    public function testRouteGetUrlNestedGroups(): void
     {
         Flight::group('/user', function () {
             Flight::group('/all_users', function () {
@@ -260,7 +260,7 @@ class FlightTest extends TestCase
         $this->assertEquals('/user/all_users/check_user/check_one/normalpath', $url);
     }
 
-    public function testHookOutputBuffering()
+    public function testHookOutputBuffering(): void
     {
         Flight::route('/test', function () {
             echo 'test';
@@ -277,7 +277,7 @@ class FlightTest extends TestCase
         $this->assertEquals('test', Flight::response()->getBody());
     }
 
-    public function testHookOutputBufferingV2OutputBuffering()
+    public function testHookOutputBufferingV2OutputBuffering(): void
     {
         Flight::route('/test', function () {
             echo 'test';
@@ -296,7 +296,7 @@ class FlightTest extends TestCase
         $this->assertEquals('hooked before starttest', Flight::response()->getBody());
     }
 
-    public function testStreamRoute()
+    public function testStreamRoute(): void
     {
         $response_mock = new class extends Response {
             public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
@@ -320,7 +320,7 @@ class FlightTest extends TestCase
         $this->assertEquals(200, Flight::response()->status());
     }
 
-    public function testStreamRouteWithHeaders()
+    public function testStreamRouteWithHeaders(): void
     {
         $response_mock = new class extends Response {
             public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): Response
@@ -346,7 +346,7 @@ class FlightTest extends TestCase
         $this->assertEquals(200, Flight::response()->status());
     }
 
-    public function testOverwriteBodyWithMiddleware()
+    public function testOverwriteBodyWithMiddleware(): void
     {
         $middleware = new class {
             public function after()

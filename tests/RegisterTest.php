@@ -18,7 +18,7 @@ class RegisterTest extends TestCase
     }
 
     // Register a class
-    public function testRegister()
+    public function testRegister(): void
     {
         $this->app->register('reg1', User::class);
 
@@ -30,7 +30,7 @@ class RegisterTest extends TestCase
     }
 
     // Register a class with constructor parameters
-    public function testRegisterWithConstructor()
+    public function testRegisterWithConstructor(): void
     {
         $this->app->register('reg2', User::class, ['Bob']);
 
@@ -42,7 +42,7 @@ class RegisterTest extends TestCase
     }
 
     // Register a class with initialization
-    public function testRegisterWithInitialization()
+    public function testRegisterWithInitialization(): void
     {
         $this->app->register('reg3', User::class, ['Bob'], function ($user) {
             $user->name = 'Fred';
@@ -56,7 +56,7 @@ class RegisterTest extends TestCase
     }
 
     // Get a non-shared instance of a class
-    public function testSharedInstance()
+    public function testSharedInstance(): void
     {
         $this->app->register('reg4', User::class);
 
@@ -69,7 +69,7 @@ class RegisterTest extends TestCase
     }
 
     // Map method takes precedence over register
-    public function testMapOverridesRegister()
+    public function testMapOverridesRegister(): void
     {
         $this->app->register('reg5', User::class);
 

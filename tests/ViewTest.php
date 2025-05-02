@@ -19,7 +19,7 @@ class ViewTest extends TestCase
     }
 
     // Set template variables
-    public function testVariables()
+    public function testVariables(): void
     {
         $this->view->set('test', 123);
 
@@ -33,7 +33,7 @@ class ViewTest extends TestCase
         $this->assertNull($this->view->get('test'));
     }
 
-    public function testMultipleVariables()
+    public function testMultipleVariables(): void
     {
         $this->view->set([
             'test' => 123,
@@ -50,21 +50,21 @@ class ViewTest extends TestCase
     }
 
     // Check if template files exist
-    public function testTemplateExists()
+    public function testTemplateExists(): void
     {
         $this->assertTrue($this->view->exists('hello.php'));
         $this->assertTrue(!$this->view->exists('unknown.php'));
     }
 
     // Render a template
-    public function testRender()
+    public function testRender(): void
     {
         $this->view->render('hello', ['name' => 'Bob']);
 
         $this->expectOutputString('Hello, Bob!');
     }
 
-    public function testRenderBadFilePath()
+    public function testRenderBadFilePath(): void
     {
         $this->expectException(Exception::class);
         $exception_message = sprintf(
@@ -79,7 +79,7 @@ class ViewTest extends TestCase
     }
 
     // Fetch template output
-    public function testFetch()
+    public function testFetch(): void
     {
         $output = $this->view->fetch('hello', ['name' => 'Bob']);
 
@@ -87,7 +87,7 @@ class ViewTest extends TestCase
     }
 
     // Default extension
-    public function testTemplateWithExtension()
+    public function testTemplateWithExtension(): void
     {
         $this->view->set('name', 'Bob');
 
@@ -97,7 +97,7 @@ class ViewTest extends TestCase
     }
 
     // Custom extension
-    public function testTemplateWithCustomExtension()
+    public function testTemplateWithCustomExtension(): void
     {
         $this->view->set('name', 'Bob');
         $this->view->extension = '.html';
@@ -107,7 +107,7 @@ class ViewTest extends TestCase
         $this->expectOutputString('Hello world, Bob!');
     }
 
-    public function testGetTemplateAbsolutePath()
+    public function testGetTemplateAbsolutePath(): void
     {
         $tmpfile = tmpfile();
         $this->view->extension = '';
@@ -115,14 +115,14 @@ class ViewTest extends TestCase
         $this->assertEquals($file_path, $this->view->getTemplate($file_path));
     }
 
-    public function testE()
+    public function testE(): void
     {
         $this->expectOutputString('&lt;script&gt;');
         $result = $this->view->e('<script>');
         $this->assertEquals('&lt;script&gt;', $result);
     }
 
-    public function testeNoNeedToEscape()
+    public function testeNoNeedToEscape(): void
     {
         $this->expectOutputString('script');
         $result = $this->view->e('script');

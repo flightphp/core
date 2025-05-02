@@ -18,13 +18,13 @@ class Container
         $this->pdoWrapper = $pdoWrapper;
     }
 
-    public function testTheContainer()
+    public function testTheContainer(): void
     {
         $this->collection->whatever = 'yay!';
         echo 'yay! I injected a collection, and it has ' . $this->collection->count() . ' items';
     }
 
-    public function testThePdoWrapper()
+    public function testThePdoWrapper(): void
     {
         $value = intval($this->pdoWrapper->fetchField('SELECT 5'));
         echo 'Yay! I injected a PdoWrapper, and it returned the number ' . $value . ' from the database!';

@@ -33,7 +33,7 @@ class RouterTest extends TestCase
     }
 
     // Simple output
-    public function ok()
+    public function ok(): void
     {
         echo 'OK';
     }
@@ -54,7 +54,7 @@ class RouterTest extends TestCase
         $this->expectOutputString($str);
     }
 
-    public function routeRequest()
+    public function routeRequest(): void
     {
         $dispatched = false;
 
@@ -91,7 +91,7 @@ class RouterTest extends TestCase
     }
 
     // Default route
-    public function testDefaultRoute()
+    public function testDefaultRoute(): void
     {
         $this->router->map('/', [$this, 'ok']);
         $this->request->url = '/';
@@ -100,7 +100,7 @@ class RouterTest extends TestCase
     }
 
     // Simple path
-    public function testPathRoute()
+    public function testPathRoute(): void
     {
         $this->router->map('/path', [$this, 'ok']);
         $this->request->url = '/path';
@@ -109,7 +109,7 @@ class RouterTest extends TestCase
     }
 
     // Simple path with trailing slash
-    public function testPathRouteTrailingSlash()
+    public function testPathRouteTrailingSlash(): void
     {
         $this->router->map('/path/', [$this, 'ok']);
         $this->request->url = '/path';
@@ -117,7 +117,7 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testPathRouteWithUrlTrailingSlash()
+    public function testPathRouteWithUrlTrailingSlash(): void
     {
         $this->router->map('/path', [$this, 'ok']);
         $this->request->url = '/path/';
@@ -125,7 +125,7 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testGetRouteShortcut()
+    public function testGetRouteShortcut(): void
     {
         $this->router->get('/path', [$this, 'ok']);
         $this->request->url = '/path';
@@ -134,7 +134,7 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testHeadRouteShortcut()
+    public function testHeadRouteShortcut(): void
     {
         $route = $this->router->get('/path', [$this, 'ok']);
         $this->assertEquals(['GET', 'HEAD'], $route->methods);
@@ -144,7 +144,7 @@ class RouterTest extends TestCase
     }
 
     // POST route
-    public function testPostRoute()
+    public function testPostRoute(): void
     {
         $this->router->map('POST /', [$this, 'ok']);
         $this->request->url = '/';
@@ -153,7 +153,7 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testPostRouteShortcut()
+    public function testPostRouteShortcut(): void
     {
         $this->router->post('/path', [$this, 'ok']);
         $this->request->url = '/path';
@@ -163,7 +163,7 @@ class RouterTest extends TestCase
     }
 
     // Either GET or POST route
-    public function testGetPostRoute()
+    public function testGetPostRoute(): void
     {
         $this->router->map('GET|POST /', [$this, 'ok']);
         $this->request->url = '/';
@@ -172,7 +172,7 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testPutRouteShortcut()
+    public function testPutRouteShortcut(): void
     {
         $this->router->put('/path', [$this, 'ok']);
         $this->request->url = '/path';
@@ -181,7 +181,7 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testPatchRouteShortcut()
+    public function testPatchRouteShortcut(): void
     {
         $this->router->patch('/path', [$this, 'ok']);
         $this->request->url = '/path';
@@ -190,7 +190,7 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testDeleteRouteShortcut()
+    public function testDeleteRouteShortcut(): void
     {
         $this->router->delete('/path', [$this, 'ok']);
         $this->request->url = '/path';
@@ -200,7 +200,7 @@ class RouterTest extends TestCase
     }
 
     // Test regular expression matching
-    public function testRegEx()
+    public function testRegEx(): void
     {
         $this->router->map('/num/[0-9]+', [$this, 'ok']);
         $this->request->url = '/num/1234';
@@ -209,7 +209,7 @@ class RouterTest extends TestCase
     }
 
     // Passing URL parameters
-    public function testUrlParameters()
+    public function testUrlParameters(): void
     {
         $this->router->map('/user/@id', function ($id) {
             echo $id;
@@ -219,7 +219,7 @@ class RouterTest extends TestCase
         $this->check('123');
     }
 
-    public function testUrlParametersWithEncodedSlash()
+    public function testUrlParametersWithEncodedSlash(): void
     {
         $this->router->map('/redirect/@id', function ($id) {
             echo $id;
@@ -229,7 +229,7 @@ class RouterTest extends TestCase
         $this->check('before/after');
     }
 
-    public function testUrlParametersWithRealSlash()
+    public function testUrlParametersWithRealSlash(): void
     {
         $this->router->map('/redirect/@id', function ($id) {
             echo $id;
@@ -239,7 +239,7 @@ class RouterTest extends TestCase
         $this->check('404');
     }
 
-    public function testUrlParametersWithJapanese()
+    public function testUrlParametersWithJapanese(): void
     {
         $this->router->map('/わたしはひとです', function () {
             echo 'はい';
@@ -249,7 +249,7 @@ class RouterTest extends TestCase
         $this->check('はい');
     }
 
-    public function testUrlParametersWithJapaneseAndParam()
+    public function testUrlParametersWithJapaneseAndParam(): void
     {
         $this->router->map('/わたしはひとです/@name', function ($name) {
             echo $name;
@@ -260,7 +260,7 @@ class RouterTest extends TestCase
     }
 
     // Passing URL parameters matched with regular expression for a URL containing Cyrillic letters:
-    public function testRegExParametersCyrillic()
+    public function testRegExParametersCyrillic(): void
     {
         $this->router->map('/категория/@name:[абвгдеёжзийклмнопрстуфхцчшщъыьэюя]+', function ($name) {
             echo $name;
@@ -270,7 +270,7 @@ class RouterTest extends TestCase
         $this->check('цветя');
     }
 
-    public function testRegExOnlyCyrillicUrl()
+    public function testRegExOnlyCyrillicUrl(): void
     {
         $this->router->map('/категория/цветя', function () {
             echo 'цветя';
@@ -281,7 +281,7 @@ class RouterTest extends TestCase
     }
 
     // Passing URL parameters matched with regular expression
-    public function testRegExParameters()
+    public function testRegExParameters(): void
     {
         $this->router->map('/test/@name:[a-z]+', function ($name) {
             echo $name;
@@ -292,7 +292,7 @@ class RouterTest extends TestCase
     }
 
     // Optional parameters
-    public function testOptionalParameters()
+    public function testOptionalParameters(): void
     {
         $this->router->map('/blog(/@year(/@month(/@day)))', function ($year, $month, $day) {
             echo "$year,$month,$day";
@@ -303,7 +303,7 @@ class RouterTest extends TestCase
     }
 
     // Regex in optional parameters
-    public function testRegexOptionalParameters()
+    public function testRegexOptionalParameters(): void
     {
         $this->router->map('/@controller/@method(/@id:[0-9]+)', function ($controller, $method, $id) {
             echo "$controller,$method,$id";
@@ -314,7 +314,7 @@ class RouterTest extends TestCase
     }
 
     // Regex in optional parameters
-    public function testRegexEmptyOptionalParameters()
+    public function testRegexEmptyOptionalParameters(): void
     {
         $this->router->map('/@controller/@method(/@id:[0-9]+)', function ($controller, $method, $id) {
             echo "$controller,$method,$id";
@@ -325,7 +325,7 @@ class RouterTest extends TestCase
     }
 
     // Wildcard matching
-    public function testWildcard()
+    public function testWildcard(): void
     {
         $this->router->map('/account/*', [$this, 'ok']);
         $this->request->url = '/account/123/abc/xyz';
@@ -333,14 +333,14 @@ class RouterTest extends TestCase
         $this->check('OK');
     }
 
-    public function testWildcardDuplicate()
+    public function testWildcardDuplicate(): void
     {
         $this->router->map('/account/*', [$this, 'ok']);
         $this->request->url = '/account/account/account';
         $this->check('OK');
     }
 
-    public function testRouteWithLongQueryParamWithMultilineEncoded()
+    public function testRouteWithLongQueryParamWithMultilineEncoded(): void
     {
         $this->router->map('GET /api/intune/hey', [$this, 'ok']);
 
@@ -364,7 +364,7 @@ class RouterTest extends TestCase
     }
 
     // Check if route object was passed
-    public function testRouteObjectPassing()
+    public function testRouteObjectPassing(): void
     {
         $this->router->map('/yes_route', function ($route) {
             $this->assertIsObject($route);
@@ -387,7 +387,7 @@ class RouterTest extends TestCase
         $this->check();
     }
 
-    public function testRouteWithParameters()
+    public function testRouteWithParameters(): void
     {
         $this->router->map('/@one/@two', function ($one, $two, $route) {
             $this->assertCount(2, $route->params);
@@ -399,7 +399,7 @@ class RouterTest extends TestCase
         $this->check();
     }
 
-    public function testRouteBeingReturned()
+    public function testRouteBeingReturned(): void
     {
         $route = $this->router->map('/hi', function () {
         });
@@ -407,7 +407,7 @@ class RouterTest extends TestCase
         $this->assertSame($route, $route_in_router);
     }
 
-    public function testRouteSetAlias()
+    public function testRouteSetAlias(): void
     {
         $route = $this->router->map('/hi', function () {
         });
@@ -416,7 +416,7 @@ class RouterTest extends TestCase
     }
 
     // Test splat
-    public function testSplatWildcard()
+    public function testSplatWildcard(): void
     {
         $this->router->map('/account/*', function ($route) {
             echo $route->splat;
@@ -427,7 +427,7 @@ class RouterTest extends TestCase
     }
 
     // Test splat without trailing slash
-    public function testSplatWildcardTrailingSlash()
+    public function testSplatWildcardTrailingSlash(): void
     {
         $this->router->map('/account/*', function ($route) {
             echo $route->splat;
@@ -438,7 +438,7 @@ class RouterTest extends TestCase
     }
 
     // Test splat with named parameters
-    public function testSplatNamedPlusWildcard()
+    public function testSplatNamedPlusWildcard(): void
     {
         $this->router->map('/account/@name/*', function ($name, $route) {
             echo $route->splat;
@@ -450,7 +450,7 @@ class RouterTest extends TestCase
     }
 
     // Test not found
-    public function testNotFound()
+    public function testNotFound(): void
     {
         $this->router->map('/does_exist', [$this, 'ok']);
         $this->request->url = '/does_not_exist';
@@ -459,7 +459,7 @@ class RouterTest extends TestCase
     }
 
     // Test case sensitivity
-    public function testCaseSensitivity()
+    public function testCaseSensitivity(): void
     {
         $this->router->map('/hello', [$this, 'ok']);
         $this->request->url = '/HELLO';
@@ -468,7 +468,7 @@ class RouterTest extends TestCase
         $this->check('404');
     }
 
-    public function testGetAndClearRoutes()
+    public function testGetAndClearRoutes(): void
     {
         $this->router->map('/path1', [$this, 'ok']);
         $this->router->map('/path2', [$this, 'ok']);
@@ -488,7 +488,7 @@ class RouterTest extends TestCase
         $this->assertEquals(0, count($this->router->getRoutes()));
     }
 
-    public function testResetRoutes()
+    public function testResetRoutes(): void
     {
         $router = new class extends Router
         {
@@ -518,7 +518,7 @@ class RouterTest extends TestCase
     }
 
     // Passing URL parameters
-    public function testGroupRoutes()
+    public function testGroupRoutes(): void
     {
         $this->router->group('/user', function (Router $router) {
             $router->map('/@id', function ($id) {
@@ -532,7 +532,7 @@ class RouterTest extends TestCase
         $this->check('123');
     }
 
-    public function testGroupRouteWithEmptyMapPath()
+    public function testGroupRouteWithEmptyMapPath(): void
     {
         $this->router->group('/user', function (Router $router) {
             $router->map('', function () {
@@ -543,7 +543,7 @@ class RouterTest extends TestCase
         $this->check('I\'m a little teapot');
     }
 
-    public function testGroupRouteWithEmptyGetPath()
+    public function testGroupRouteWithEmptyGetPath(): void
     {
         $this->router->group('/user', function (Router $router) {
             $router->get('', function () {
@@ -555,7 +555,7 @@ class RouterTest extends TestCase
         $this->check('I\'m a little teapot');
     }
 
-    public function testGroupRouteWithEmptyMultipleMethodsPath()
+    public function testGroupRouteWithEmptyMultipleMethodsPath(): void
     {
         $this->router->group('/user', function (Router $router) {
             $router->map('GET|POST ', function () {
@@ -567,7 +567,7 @@ class RouterTest extends TestCase
         $this->check('I\'m a little teapot');
     }
 
-    public function testGroupRoutesMultiParams()
+    public function testGroupRoutesMultiParams(): void
     {
         $this->router->group('/user', function (Router $router) {
             $router->map('/@id', function ($id) {
@@ -581,7 +581,7 @@ class RouterTest extends TestCase
         $this->check('123abc');
     }
 
-    public function testGroupNestedRoutes()
+    public function testGroupNestedRoutes(): void
     {
         $this->router->group('/client', function (Router $router) {
             $router->group('/user', function (Router $router) {
@@ -597,7 +597,7 @@ class RouterTest extends TestCase
         $this->check('123abc');
     }
 
-    public function testGroupNestedRoutesWithCustomMethods()
+    public function testGroupNestedRoutesWithCustomMethods(): void
     {
         $this->router->group('/client', function (Router $router) {
             $router->group('/user', function (Router $router) {
@@ -614,7 +614,7 @@ class RouterTest extends TestCase
         $this->check('123abc');
     }
 
-    public function testGetUrlByAliasBadReferenceButCatchRecommendation()
+    public function testGetUrlByAliasBadReferenceButCatchRecommendation(): void
     {
         $this->router->map('/path1', [$this, 'ok'], false, 'path1');
         $this->expectException(\Exception::class);
@@ -622,7 +622,7 @@ class RouterTest extends TestCase
         $this->router->getUrlByAlias('path2');
     }
 
-    public function testRewindAndValid()
+    public function testRewindAndValid(): void
     {
         $this->router->map('/path1', [$this, 'ok']);
         $this->router->map('/path2', [$this, 'ok']);
@@ -645,14 +645,14 @@ class RouterTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testGetRootUrlByAlias()
+    public function testGetRootUrlByAlias(): void
     {
         $this->router->map('/', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1');
         $this->assertEquals('/', $url);
     }
 
-    public function testGetUrlByAliasNoMatches()
+    public function testGetUrlByAliasNoMatches(): void
     {
         $this->router->map('/path1', [$this, 'ok'], false, 'path1');
         $this->expectException(\Exception::class);
@@ -660,98 +660,98 @@ class RouterTest extends TestCase
         $this->router->getUrlByAlias('path2');
     }
 
-    public function testGetUrlByAliasNoParams()
+    public function testGetUrlByAliasNoParams(): void
     {
         $this->router->map('/path1', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1');
         $this->assertEquals('/path1', $url);
     }
 
-    public function testGetUrlByAliasSimpleParams()
+    public function testGetUrlByAliasSimpleParams(): void
     {
         $this->router->map('/path1/@id', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id' => 123]);
         $this->assertEquals('/path1/123', $url);
     }
 
-    public function testGetUrlByAliasSimpleParamsWithNumber()
+    public function testGetUrlByAliasSimpleParamsWithNumber(): void
     {
         $this->router->map('/path1/@id1', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
         $this->assertEquals('/path1/123', $url);
     }
 
-    public function testGetUrlByAliasSimpleOptionalParamsWithParam()
+    public function testGetUrlByAliasSimpleOptionalParamsWithParam(): void
     {
         $this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id' => 123]);
         $this->assertEquals('/path1/123', $url);
     }
 
-    public function testGetUrlByAliasSimpleOptionalParamsWithNumberWithParam()
+    public function testGetUrlByAliasSimpleOptionalParamsWithNumberWithParam(): void
     {
         $this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id1' => 123]);
         $this->assertEquals('/path1/123', $url);
     }
 
-    public function testGetUrlByAliasSimpleOptionalParamsNoParam()
+    public function testGetUrlByAliasSimpleOptionalParamsNoParam(): void
     {
         $this->router->map('/path1(/@id)', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1');
         $this->assertEquals('/path1', $url);
     }
 
-    public function testGetUrlByAliasSimpleOptionalParamsWithNumberNoParam()
+    public function testGetUrlByAliasSimpleOptionalParamsWithNumberNoParam(): void
     {
         $this->router->map('/path1(/@id1)', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1');
         $this->assertEquals('/path1', $url);
     }
 
-    public function testGetUrlByAliasMultipleParams()
+    public function testGetUrlByAliasMultipleParams(): void
     {
         $this->router->map('/path1/@id/@name', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id' => 123, 'name' => 'abc']);
         $this->assertEquals('/path1/123/abc', $url);
     }
 
-    public function testGetUrlByAliasMultipleComplexParams()
+    public function testGetUrlByAliasMultipleComplexParams(): void
     {
         $this->router->map('/path1/@id:[0-9]+/@name:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
         $this->assertEquals('/path1/123/abc', $url);
     }
 
-    public function testGetUrlByAliasMultipleComplexParamsWithNumbers()
+    public function testGetUrlByAliasMultipleComplexParamsWithNumbers(): void
     {
         $this->router->map('/path1/@5id:[0-9]+/@n1ame:[a-zA-Z0-9]{5}', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['5id' => '123', 'n1ame' => 'abc']);
         $this->assertEquals('/path1/123/abc', $url);
     }
 
-    public function testGetUrlByAliasMultipleComplexOptionalParamsMissingOne()
+    public function testGetUrlByAliasMultipleComplexOptionalParamsMissingOne(): void
     {
         $this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc']);
         $this->assertEquals('/path1/123/abc', $url);
     }
 
-    public function testGetUrlByAliasMultipleComplexOptionalParamsAllParams()
+    public function testGetUrlByAliasMultipleComplexOptionalParamsAllParams(): void
     {
         $this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1', ['id' => '123', 'name' => 'abc', 'crazy' => 'xyz']);
         $this->assertEquals('/path1/123/abc/xyz', $url);
     }
 
-    public function testGetUrlByAliasMultipleComplexOptionalParamsNoParams()
+    public function testGetUrlByAliasMultipleComplexOptionalParamsNoParams(): void
     {
         $this->router->map('/path1(/@id:[0-9]+(/@name(/@crazy:[a-z]{5})))', [$this, 'ok'], false, 'path1');
         $url = $this->router->getUrlByAlias('path1');
         $this->assertEquals('/path1', $url);
     }
 
-    public function testGetUrlByAliasWithGroupSimpleParams()
+    public function testGetUrlByAliasWithGroupSimpleParams(): void
     {
         $this->router->group('/path1/@id', function ($router) {
             $router->get('/@name', [$this, 'ok'], false, 'path1');
@@ -761,7 +761,7 @@ class RouterTest extends TestCase
         $this->assertEquals('/path1/123/abc', $url);
     }
 
-    public function testStripMultipleSlashesFromUrlAndStillMatch()
+    public function testStripMultipleSlashesFromUrlAndStillMatch(): void
     {
         $this->router->get('/', [ $this, 'ok' ]);
         $this->request->url = '///';

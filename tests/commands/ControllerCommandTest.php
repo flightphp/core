@@ -53,7 +53,7 @@ class ControllerCommandTest extends TestCase
         return @$app->io(new Interactor(static::$in, static::$ou));
     }
 
-    public function testConfigAppRootNotSet()
+    public function testConfigAppRootNotSet(): void
     {
         $app = $this->newApp('test', '0.0.1');
         $app->add(new ControllerCommand([]));
@@ -62,7 +62,7 @@ class ControllerCommandTest extends TestCase
         $this->assertStringContainsString('app_root not set in .runway-config.json', file_get_contents(static::$ou));
     }
 
-    public function testControllerAlreadyExists()
+    public function testControllerAlreadyExists(): void
     {
         $app = $this->newApp('test', '0.0.1');
         mkdir(__DIR__ . '/controllers/');
@@ -73,7 +73,7 @@ class ControllerCommandTest extends TestCase
         $this->assertStringContainsString('TestController already exists.', file_get_contents(static::$ou));
     }
 
-    public function testCreateController()
+    public function testCreateController(): void
     {
         $app = $this->newApp('test', '0.0.1');
         $app->add(new ControllerCommand(['app_root' => 'tests/commands/']));

@@ -331,7 +331,7 @@ class DispatcherTest extends TestCase
         $result = $this->dispatcher->execute([ContainerDefault::class, 'testTheContainer']);
     }
 
-    public function testContainerDicePdoWrapperTestBadParams()
+    public function testContainerDicePdoWrapperTestBadParams(): void
     {
         $dice = new \Dice\Dice();
         $this->dispatcher->setContainerHandler(function ($class, $params) use ($dice) {

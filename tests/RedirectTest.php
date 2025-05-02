@@ -29,7 +29,7 @@ class RedirectTest extends TestCase
     }
 
     // The base should be the subdirectory
-    public function testBase()
+    public function testBase(): void
     {
         $base = $this->app->request()->base;
 
@@ -37,7 +37,7 @@ class RedirectTest extends TestCase
     }
 
     // Absolute URLs should include the base
-    public function testAbsoluteUrl()
+    public function testAbsoluteUrl(): void
     {
         $url = '/login';
         $base = $this->app->request()->base;
@@ -46,7 +46,7 @@ class RedirectTest extends TestCase
     }
 
     // Relative URLs should include the base
-    public function testRelativeUrl()
+    public function testRelativeUrl(): void
     {
         $url = 'login';
         $base = $this->app->request()->base;
@@ -55,7 +55,7 @@ class RedirectTest extends TestCase
     }
 
     // External URLs should ignore the base
-    public function testHttpUrl()
+    public function testHttpUrl(): void
     {
         $url = 'http://www.yahoo.com';
         $base = $this->app->request()->base;
@@ -64,7 +64,7 @@ class RedirectTest extends TestCase
     }
 
     // Configuration should override derived value
-    public function testBaseOverride()
+    public function testBaseOverride(): void
     {
         $url = 'login';
         $base = $this->app->get('flight.base_url') ?? $this->app->request()->base;

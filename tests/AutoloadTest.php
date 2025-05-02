@@ -19,7 +19,7 @@ class AutoloadTest extends TestCase
     }
 
     // Autoload a class
-    public function testAutoload()
+    public function testAutoload(): void
     {
         $this->app->register('user', User::class);
 
@@ -33,7 +33,7 @@ class AutoloadTest extends TestCase
     }
 
     // Check autoload failure
-    public function testMissingClass()
+    public function testMissingClass(): void
     {
         $test = null;
         $this->app->register('test', 'NonExistentClass');

@@ -19,7 +19,7 @@ class MapTest extends TestCase
     }
 
     // Map a closure
-    public function testClosureMapping()
+    public function testClosureMapping(): void
     {
         $this->app->map('map1', function () {
             return 'hello';
@@ -31,7 +31,7 @@ class MapTest extends TestCase
     }
 
     // Map a function
-    public function testFunctionMapping()
+    public function testFunctionMapping(): void
     {
         $this->app->map('map2', function () {
             return 'hello';
@@ -43,7 +43,7 @@ class MapTest extends TestCase
     }
 
     // Map a class method
-    public function testClassMethodMapping()
+    public function testClassMethodMapping(): void
     {
         $h = new Hello();
 
@@ -55,7 +55,7 @@ class MapTest extends TestCase
     }
 
     // Map a static class method
-    public function testStaticClassMethodMapping()
+    public function testStaticClassMethodMapping(): void
     {
         $this->app->map('map4', [Hello::class, 'sayBye']);
 
@@ -65,7 +65,7 @@ class MapTest extends TestCase
     }
 
     // Unmapped method
-    public function testUnmapped()
+    public function testUnmapped(): void
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('doesNotExist must be a mapped method.');

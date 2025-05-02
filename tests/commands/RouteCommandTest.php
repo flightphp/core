@@ -59,7 +59,7 @@ class RouteCommandTest extends TestCase
         return $app->io(new Interactor(static::$in, static::$ou));
     }
 
-    protected function createIndexFile()
+    protected function createIndexFile(): void
     {
         $index = <<<'PHP'
 <?php
@@ -88,7 +88,7 @@ PHP;
         return preg_replace('/\e\[[\d;]*m/', '', $str);
     }
 
-    public function testConfigIndexRootNotSet()
+    public function testConfigIndexRootNotSet(): void
     {
         $app = @$this->newApp('test', '0.0.1');
         $app->add(new RouteCommand([]));
@@ -97,7 +97,7 @@ PHP;
         $this->assertStringContainsString('index_root not set in .runway-config.json', file_get_contents(static::$ou));
     }
 
-    public function testGetRoutes()
+    public function testGetRoutes(): void
     {
         $app = @$this->newApp('test', '0.0.1');
         $this->createIndexFile();
@@ -123,7 +123,7 @@ PHP;
         );
     }
 
-    public function testGetPostRoute()
+    public function testGetPostRoute(): void
     {
         $app = @$this->newApp('test', '0.0.1');
         $this->createIndexFile();

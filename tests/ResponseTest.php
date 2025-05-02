@@ -26,20 +26,20 @@ class ResponseTest extends TestCase
         unset($_SERVER);
     }
 
-    public function testStatusDefault()
+    public function testStatusDefault(): void
     {
         $response = new Response();
         $this->assertSame(200, $response->status());
     }
 
-    public function testStatusValidCode()
+    public function testStatusValidCode(): void
     {
         $response = new Response();
         $response->status(200);
         $this->assertEquals(200, $response->status());
     }
 
-    public function testStatusInvalidCode()
+    public function testStatusInvalidCode(): void
     {
         $response = new Response();
         $this->expectException(Exception::class);
@@ -47,20 +47,20 @@ class ResponseTest extends TestCase
         $response->status(999);
     }
 
-    public function testStatusReturnObject()
+    public function testStatusReturnObject(): void
     {
         $response = new Response();
         $this->assertEquals($response, $response->status(200));
     }
 
-    public function testHeaderSingle()
+    public function testHeaderSingle(): void
     {
         $response = new Response();
         $response->header('Content-Type', 'text/html');
         $this->assertEquals(['Content-Type' => 'text/html'], $response->headers());
     }
 
-    public function testHeaderSingleKeepCaseSensitive()
+    public function testHeaderSingleKeepCaseSensitive(): void
     {
         $response = new Response();
         $response->header('content-type', 'text/html');
@@ -68,47 +68,47 @@ class ResponseTest extends TestCase
         $this->assertEquals(['content-type' => 'text/html', 'x-test' => 'test'], $response->getHeaders());
     }
 
-    public function testHeaderArray()
+    public function testHeaderArray(): void
     {
         $response = new Response();
         $response->header(['Content-Type' => 'text/html', 'X-Test' => 'test']);
         $this->assertEquals(['Content-Type' => 'text/html', 'X-Test' => 'test'], $response->headers());
     }
 
-    public function testHeaderReturnObject()
+    public function testHeaderReturnObject(): void
     {
         $response = new Response();
         $this->assertEquals($response, $response->header('Content-Type', 'text/html'));
     }
 
-    public function testGetHeaderCrazyCase()
+    public function testGetHeaderCrazyCase(): void
     {
         $response = new Response();
         $response->setHeader('CoNtEnT-tYpE', 'text/html');
         $this->assertEquals('text/html', $response->getHeader('content-type'));
     }
 
-    public function testWrite()
+    public function testWrite(): void
     {
         $response = new Response();
         $response->write('test');
         $this->assertEquals('test', $response->getBody());
     }
 
-    public function testWriteEmptyString()
+    public function testWriteEmptyString(): void
     {
         $response = new Response();
         $response->write('');
         $this->assertEquals('', $response->getBody());
     }
 
-    public function testWriteReturnObject()
+    public function testWriteReturnObject(): void
     {
         $response = new Response();
         $this->assertEquals($response, $response->write('test'));
     }
 
-    public function testClear()
+    public function testClear(): void
     {
         $response = new Response();
 
@@ -124,7 +124,7 @@ class ResponseTest extends TestCase
         $this->assertEquals(0, ob_get_length());
     }
 
-    public function testCacheSimple()
+    public function testCacheSimple(): void
     {
         $response = new Response();
         $cache_time = time() + 60;
@@ -135,7 +135,7 @@ class ResponseTest extends TestCase
         ], $response->headers());
     }
 
-    public function testCacheSimpleWithString()
+    public function testCacheSimpleWithString(): void
     {
         $response = new Response();
         $cache_time = time() + 60;
@@ -146,7 +146,7 @@ class ResponseTest extends TestCase
         ], $response->headers());
     }
 
-    public function testCacheSimpleWithPragma()
+    public function testCacheSimpleWithPragma(): void
     {
         $response = new Response();
         $cache_time = time() + 60;
@@ -158,7 +158,7 @@ class ResponseTest extends TestCase
         ], $response->headers());
     }
 
-    public function testCacheFalseExpiresValue()
+    public function testCacheFalseExpiresValue(): void
     {
         $response = new Response();
         $response->cache(false);
@@ -169,7 +169,7 @@ class ResponseTest extends TestCase
         ], $response->headers());
     }
 
-    public function testSendHeadersRegular()
+    public function testSendHeadersRegular(): void
     {
         $response = new class extends Response {
             protected $test_sent_headers = [];
@@ -209,13 +209,13 @@ class ResponseTest extends TestCase
         ], $sent_headers);
     }
 
-    public function testSentDefault()
+    public function testSentDefault(): void
     {
         $response = new Response();
         $this->assertFalse($response->sent());
     }
 
-    public function testSentTrue()
+    public function testSentTrue(): void
     {
         $response = new class extends Response {
             protected $test_sent_headers = [];
@@ -235,7 +235,7 @@ class ResponseTest extends TestCase
         $this->assertTrue($response->sent());
     }
 
-    public function testSendWithNoHeadersSent()
+    public function testSendWithNoHeadersSent(): void
     {
         $response = new class extends Response {
             protected $test_sent_headers = [];
@@ -272,7 +272,7 @@ class ResponseTest extends TestCase
         ], $sent_headers);
     }
 
-    public function testClearBody()
+    public function testClearBody(): void
     {
         $response = new Response();
         $response->write('test');
@@ -280,7 +280,7 @@ class ResponseTest extends TestCase
         $this->assertEquals('', $response->getBody());
     }
 
-    public function testOverwriteBody()
+    public function testOverwriteBody(): void
     {
         $response = new Response();
         $response->write('test');
@@ -289,7 +289,7 @@ class ResponseTest extends TestCase
         $this->assertEquals('new', $response->getBody());
     }
 
-    public function testResponseBodyCallback()
+    public function testResponseBodyCallback(): void
     {
         $response = new Response();
         $response->write('test');
@@ -303,7 +303,7 @@ class ResponseTest extends TestCase
         $this->assertEquals('grfg', $rot13_body);
     }
 
-    public function testResponseBodyCallbackGzip()
+    public function testResponseBodyCallbackGzip(): void
     {
         $response = new Response();
         $response->content_length = true;
@@ -329,7 +329,7 @@ class ResponseTest extends TestCase
         $this->assertEquals(strlen(gzencode('test')), strlen($gzip_body));
     }
 
-    public function testResponseBodyCallbackMultiple()
+    public function testResponseBodyCallbackMultiple(): void
     {
         $response = new Response();
         $response->write('test');

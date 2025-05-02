@@ -30,7 +30,7 @@ class EngineTest extends TestCase
         $_SERVER = [];
     }
 
-    public function testInitBeforeStart()
+    public function testInitBeforeStart(): void
     {
         $engine = new class extends Engine {
             public function getInitializedVar()
@@ -49,7 +49,7 @@ class EngineTest extends TestCase
         $this->assertTrue($engine->response()->content_length);
     }
 
-	public function testInitBeforeStartV2OutputBuffering()
+	public function testInitBeforeStartV2OutputBuffering(): void
     {
         $engine = new class extends Engine {
             public function getInitializedVar()
@@ -68,14 +68,14 @@ class EngineTest extends TestCase
         $this->assertTrue($engine->response()->content_length);
     }
 
-    public function testHandleErrorNoErrorNumber()
+    public function testHandleErrorNoErrorNumber(): void
     {
         $engine = new Engine();
         $result = $engine->handleError(0, '', '', 0);
         $this->assertFalse($result);
     }
 
-    public function testHandleErrorWithException()
+    public function testHandleErrorWithException(): void
     {
         $engine = new Engine();
         $this->expectException(Exception::class);
@@ -84,14 +84,14 @@ class EngineTest extends TestCase
         $engine->handleError(5, 'thrown error message', '', 0);
     }
 
-    public function testHandleException()
+    public function testHandleException(): void
     {
         $engine = new Engine();
         $this->expectOutputRegex('~\<h1\>500 Internal Server Error\</h1\>[\s\S]*\<h3\>thrown exception message \(20\)\</h3\>~');
         $engine->handleException(new Exception('thrown exception message', 20));
     }
 
-    public function testMapExistingMethod()
+    public function testMapExistingMethod(): void
     {
         $engine = new Engine();
         $this->expectException(Exception::class);
@@ -100,7 +100,7 @@ class EngineTest extends TestCase
         });
     }
 
-    public function testRegisterExistingMethod()
+    public function testRegisterExistingMethod(): void
     {
         $engine = new Engine();
         $this->expectException(Exception::class);
@@ -108,7 +108,7 @@ class EngineTest extends TestCase
         $engine->register('_error', 'stdClass');
     }
 
-    public function testSetArrayOfValues()
+    public function testSetArrayOfValues(): void
     {
         $engine = new Engine();
         $engine->set([ 'key1' => 'value1', 'key2' => 'value2']);
@@ -116,7 +116,7 @@ class EngineTest extends TestCase
         $this->assertEquals('value2', $engine->get('key2'));
     }
 
-    public function testStartWithRoute()
+    public function testStartWithRoute(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/someRoute';
@@ -135,7 +135,7 @@ class EngineTest extends TestCase
     }
 
     // n0nag0n - I don't know why this does what it does, but it's existing framework functionality 1/1/24
-    public function testStartWithRouteButReturnedValueThrows404()
+    public function testStartWithRouteButReturnedValueThrows404(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/someRoute';
@@ -154,7 +154,7 @@ class EngineTest extends TestCase
         $engine->start();
     }
 	
-	public function testStartWithRouteButReturnedValueThrows404V2OutputBuffering()
+	public function testStartWithRouteButReturnedValueThrows404V2OutputBuffering(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/someRoute';
@@ -198,7 +198,7 @@ class EngineTest extends TestCase
 		$this->expectOutputString('i rani ran');
 	}
 
-    public function testStopWithCode()
+    public function testStopWithCode(): void
     {
         $engine = new class extends Engine {
             public function getLoader()
@@ -221,7 +221,7 @@ class EngineTest extends TestCase
         $this->assertEquals(500, $engine->response()->status());
     }
 
-	public function testStopWithCodeV2OutputBuffering()
+	public function testStopWithCodeV2OutputBuffering(): void
     {
         $engine = new class extends Engine {
             public function getLoader()
@@ -249,7 +249,7 @@ class EngineTest extends TestCase
         $this->assertEquals(500, $engine->response()->status());
     }
 
-    public function testPostRoute()
+    public function testPostRoute(): void
     {
         $engine = new Engine();
         $engine->post('/someRoute', function () {
@@ -260,7 +260,7 @@ class EngineTest extends TestCase
         $this->assertEquals('/someRoute', $routes[0]->pattern);
     }
 
-    public function testPutRoute()
+    public function testPutRoute(): void
     {
         $engine = new Engine();
         $engine->put('/someRoute', function () {
@@ -271,7 +271,7 @@ class EngineTest extends TestCase
         $this->assertEquals('/someRoute', $routes[0]->pattern);
     }
 
-    public function testPatchRoute()
+    public function testPatchRoute(): void
     {
         $engine = new Engine();
         $engine->patch('/someRoute', function () {
@@ -282,7 +282,7 @@ class EngineTest extends TestCase
         $this->assertEquals('/someRoute', $routes[0]->pattern);
     }
 
-    public function testDeleteRoute()
+    public function testDeleteRoute(): void
     {
         $engine = new Engine();
         $engine->delete('/someRoute', function () {
@@ -293,7 +293,7 @@ class EngineTest extends TestCase
         $this->assertEquals('/someRoute', $routes[0]->pattern);
     }
 
-    public function testHeadRoute()
+    public function testHeadRoute(): void
     {
         $engine = new Engine();
         $engine->route('GET /someRoute', function () {
@@ -307,7 +307,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('');
     }
 
-    public function testHalt()
+    public function testHalt(): void
     {
         $engine = new class extends Engine {
             public function getLoader()
@@ -331,7 +331,7 @@ class EngineTest extends TestCase
         $this->assertEquals(500, $engine->response()->status());
     }
 
-    public function testRedirect()
+    public function testRedirect(): void
     {
         $engine = new Engine();
         $engine->redirect('https://github.com', 302);
@@ -339,7 +339,7 @@ class EngineTest extends TestCase
         $this->assertEquals(302, $engine->response()->status());
     }
 
-    public function testRedirectWithBaseUrl()
+    public function testRedirectWithBaseUrl(): void
     {
         $engine = new Engine();
         $engine->set('flight.base_url', '/subdirectory');
@@ -348,7 +348,7 @@ class EngineTest extends TestCase
         $this->assertEquals(301, $engine->response()->status());
     }
 
-    public function testJsonRequestBody()
+    public function testJsonRequestBody(): void
     {
         $engine = new Engine();
         $tmpfile = tmpfile();
@@ -375,7 +375,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('value1value2');
     }
 
-    public function testJson()
+    public function testJson(): void
     {
         $engine = new Engine();
         $engine->json(['key1' => 'value1', 'key2' => 'value2']);
@@ -402,7 +402,7 @@ class EngineTest extends TestCase
 		$engine->json(['key1' => 'value1', 'key2' => 'value2', 'utf8_emoji' => "\xB1\x31"]);
 	}
 
-	public function testJsonV2OutputBuffering()
+	public function testJsonV2OutputBuffering(): void
     {
         $engine = new Engine();
 		$engine->response()->v2_output_buffering = true;
@@ -412,7 +412,7 @@ class EngineTest extends TestCase
         $this->assertEquals(200, $engine->response()->status());
     }
 
-	public function testJsonHalt()
+	public function testJsonHalt(): void
     {
         $engine = new Engine();
 		$this->expectOutputString('{"key1":"value1","key2":"value2"}');
@@ -422,7 +422,7 @@ class EngineTest extends TestCase
 		$this->assertEquals('{"key1":"value1","key2":"value2"}', $engine->response()->getBody());
     }
 
-    public function testJsonP()
+    public function testJsonP(): void
     {
         $engine = new Engine();
         $engine->request()->query['jsonp'] = 'whatever';
@@ -432,7 +432,7 @@ class EngineTest extends TestCase
 		$this->assertEquals('whatever({"key1":"value1","key2":"value2"});', $engine->response()->getBody());
     }
 
-	public function testJsonPV2OutputBuffering()
+	public function testJsonPV2OutputBuffering(): void
     {
         $engine = new Engine();
 		$engine->response()->v2_output_buffering = true;
@@ -443,7 +443,7 @@ class EngineTest extends TestCase
         $this->assertEquals(200, $engine->response()->status());
     }
 
-    public function testJsonpBadParam()
+    public function testJsonpBadParam(): void
     {
         $engine = new Engine();
         $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
@@ -452,7 +452,7 @@ class EngineTest extends TestCase
         $this->assertEquals(200, $engine->response()->status());
     }
 
-	public function testJsonpBadParamV2OutputBuffering()
+	public function testJsonpBadParamV2OutputBuffering(): void
     {
         $engine = new Engine();
 		$engine->response()->v2_output_buffering = true;
@@ -462,14 +462,14 @@ class EngineTest extends TestCase
         $this->assertEquals(200, $engine->response()->status());
     }
 
-    public function testEtagSimple()
+    public function testEtagSimple(): void
     {
         $engine = new Engine();
         $engine->etag('etag');
         $this->assertEquals('"etag"', $engine->response()->headers()['ETag']);
     }
 
-    public function testEtagWithHttpIfNoneMatch()
+    public function testEtagWithHttpIfNoneMatch(): void
     {
         $engine = new Engine;
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'etag';
@@ -478,14 +478,14 @@ class EngineTest extends TestCase
         $this->assertEquals(304, $engine->response()->status());
     }
 
-    public function testLastModifiedSimple()
+    public function testLastModifiedSimple(): void
     {
         $engine = new Engine();
         $engine->lastModified(1234567890);
         $this->assertEquals('Fri, 13 Feb 2009 23:31:30 GMT', $engine->response()->headers()['Last-Modified']);
     }
 
-    public function testLastModifiedWithHttpIfModifiedSince()
+    public function testLastModifiedWithHttpIfModifiedSince(): void
     {
         $engine = new Engine;
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = 'Fri, 13 Feb 2009 23:31:30 GMT';
@@ -494,7 +494,7 @@ class EngineTest extends TestCase
         $this->assertEquals(304, $engine->response()->status());
     }
 
-    public function testGetUrl()
+    public function testGetUrl(): void
     {
         $engine = new Engine();
         $engine->route('/path1/@param:[0-9]{3}', function () {
@@ -504,7 +504,7 @@ class EngineTest extends TestCase
         $this->assertEquals('/path1/123', $url);
     }
 
-    public function testGetUrlComplex()
+    public function testGetUrlComplex(): void
     {
         $engine = new Engine();
         $engine->route('/item/@item_param:[a-z0-9]{16}/by-status/@token:[a-z0-9]{16}', function () {
@@ -514,7 +514,7 @@ class EngineTest extends TestCase
         $this->assertEquals('/item/1234567890123456/by-status/6543210987654321', $url);
     }
 
-    public function testGetUrlInsideRoute()
+    public function testGetUrlInsideRoute(): void
     {
         $engine = new Engine();
         $engine->route('/path1/@param:[0-9]{3}', function () {
@@ -532,7 +532,7 @@ class EngineTest extends TestCase
         $this->assertEquals('/path1/123', $found_url);
     }
 
-    public function testMiddlewareCallableFunction()
+    public function testMiddlewareCallableFunction(): void
     {
         $engine = new Engine();
         $engine->route('/path1/@id', function ($id) {
@@ -546,7 +546,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('before123OK123');
     }
 
-    public function testMiddlewareCallableFunctionReturnFalse()
+    public function testMiddlewareCallableFunctionReturnFalse(): void
     {
         $engine = new class extends Engine {
         };
@@ -563,7 +563,7 @@ class EngineTest extends TestCase
         $this->assertEquals(403, $engine->response()->status());
     }
 
-    public function testMiddlewareClassBefore()
+    public function testMiddlewareClassBefore(): void
     {
         $middleware = new class {
             public function before($params)
@@ -582,7 +582,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('before123OK123');
     }
 
-    public function testMiddlewareClassBeforeAndAfter()
+    public function testMiddlewareClassBeforeAndAfter(): void
     {
         $middleware = new class {
             public function before($params)
@@ -605,7 +605,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('before123OK123after123');
     }
 
-    public function testMiddlewareClassAfter()
+    public function testMiddlewareClassAfter(): void
     {
         $middleware = new class {
             public function after($params)
@@ -624,7 +624,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('OK123after123');
     }
 
-	public function testMiddlewareClassStringNoContainer()
+	public function testMiddlewareClassStringNoContainer(): void
     {
         $middleware = new class {
             public function after($params)
@@ -643,7 +643,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('OK123after123');
     }
 
-	public function testMiddlewareClassStringWithContainer()
+	public function testMiddlewareClassStringWithContainer(): void
     {
 
 		$engine = new Engine();
@@ -667,7 +667,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('I returned before the route was called with the following parameters: {"id":"123"}OK123');
     }
 
-    public function testMiddlewareClassAfterFailedCheck()
+    public function testMiddlewareClassAfterFailedCheck(): void
     {
         $middleware = new class {
             public function after($params)
@@ -689,7 +689,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('Forbidden');
     }
 
-    public function testMiddlewareCallableFunctionMultiple()
+    public function testMiddlewareCallableFunctionMultiple(): void
     {
         $engine = new Engine();
         $engine->route('/path1/@id', function ($id) {
@@ -707,7 +707,7 @@ class EngineTest extends TestCase
     }
 
     // Pay attention to the order on how the middleware is executed in this test.
-    public function testMiddlewareClassCallableRouteMultiple()
+    public function testMiddlewareClassCallableRouteMultiple(): void
     {
         $middleware = new class {
             public function before($params)
@@ -739,7 +739,7 @@ class EngineTest extends TestCase
         $this->expectOutputString('before456before123OKafter123456after123');
     }
 
-    public function testMiddlewareClassGroupRouteMultipleBooyah()
+    public function testMiddlewareClassGroupRouteMultipleBooyah(): void
     {
         $middleware = new class {
             public function before($params)
@@ -972,7 +972,7 @@ class EngineTest extends TestCase
 		$this->assertEquals('Method Not Allowed', $engine->response()->getBody());
 	}
 
-	public function testDownload()
+	public function testDownload(): void
     {
         $engine = new class extends Engine {
             public function getLoader()

@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 class LayoutMiddleware
 {
-    /**
-     * Before
-     *
-     * @return void
-     */
-    public function before()
+    public function before(): void
     {
         $final_route = Flight::getUrl('final_group');
         echo <<<HTML
@@ -93,7 +88,7 @@ HTML;
         echo '<div id="container">';
     }
 
-    public function after()
+    public function after(): void
     {
         echo '</div>';
         echo '<div id="debugrequest">';
