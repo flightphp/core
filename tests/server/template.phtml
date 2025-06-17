@@ -1,1 +1,5 @@
+<?php if(isset($name)): ?>
 <span id="infotext">Route text:</span> Template <?=$name?> works!
+<?php elseif(isset($data)): ?>
+<span id="infotext">Route text:</span> Template with variable name "data" works! See: <?=$data?>
+<?php endif; ?>

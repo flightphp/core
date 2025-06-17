@@ -63,6 +63,7 @@ class LayoutMiddleware
 <li><a href="/alias">Alias Route</a></li>
 <li><a href="/protected">Protected path</a></li>
 <li><a href="/template/templatevariable">Template path</a></li>
+<li><a href="/template-data/template-data-variable">Template Data Variable</a></li>
 <li><a href="/querytestpath?test=1&variable2=uuid&variable3=tester">Query path</a></li>
 <li><a href="/badpagename">404 Not Found</a></li>
 <li><a href="/postpage">405 Method Not Found</a></li>
