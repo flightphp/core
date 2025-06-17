@@ -98,6 +98,10 @@ Flight::group('', function () {
         Flight::render('template.phtml', ['name' => $name]);
     });
 
+	Flight::route('/template-data/@data', function ($data) {
+		Flight::render('template.phtml', ['data' => $data]);
+	});
+
     // Test 8: Throw an error
     Flight::route('/error', function () {
         trigger_error('This is a successful error');

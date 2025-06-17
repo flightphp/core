@@ -103,11 +103,11 @@ class View
      * Renders a template.
      *
      * @param string $file Template file
-     * @param ?array<string, mixed> $data Template data
+     * @param ?array<string, mixed> $templateData Template data
      *
      * @throws \Exception If template not found
      */
-    public function render(string $file, ?array $data = null): void
+    public function render(string $file, ?array $templateData = null): void
     {
         $this->template = $this->getTemplate($file);
 
@@ -118,11 +118,11 @@ class View
 
         \extract($this->vars);
 
-        if (\is_array($data) === true) {
-            \extract($data);
+        if (\is_array($templateData) === true) {
+            \extract($templateData);
 
             if ($this->preserveVars === true) {
-                $this->vars = \array_merge($this->vars, $data);
+                $this->vars = \array_merge($this->vars, $templateData);
             }
         }
 
