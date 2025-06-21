@@ -23,6 +23,7 @@ class RequestTest extends TestCase
         $_SERVER['REMOTE_ADDR'] = '8.8.8.8';
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '32.32.32.32';
         $_SERVER['HTTP_HOST'] = 'example.com';
+        $_SERVER['SERVER_NAME'] = 'test.com';
         $_SERVER['CONTENT_TYPE'] = '';
 
         $_GET = [];
@@ -52,6 +53,7 @@ class RequestTest extends TestCase
         $this->assertFalse($this->request->secure);
         $this->assertEquals('', $this->request->accept);
         $this->assertEquals('example.com', $this->request->host);
+        $this->assertEquals('test.com', $this->request->servername);
     }
 
     public function testIpAddress(): void

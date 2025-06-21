@@ -33,6 +33,8 @@ use flight\util\Collection;
  *   - **secure** - Connection is secure
  *   - **accept** - HTTP accept parameters
  *   - **proxy_ip** - Proxy IP address of the client
+ *   - **host** - The hostname from the request.
+ *   - **servername** - The server's hostname. See `$_SERVER['SERVER_NAME']`.
  */
 class Request
 {
@@ -127,6 +129,15 @@ class Request
     public string $host;
 
     /**
+     * Server name
+     *
+     * CAUTION: Note: Under Apache 2, UseCanonicalName = On and ServerName must be set.
+     * Otherwise, this value reflects the hostname supplied by the client, which can be spoofed.
+     * It is not safe to rely on this value in security-dependent contexts.
+     */
+    public string $servername;
+
+    /**
      * Stream path for where to pull the request body from
      */
     private string $stream_path = 'php://input';
@@ -164,6 +175,7 @@ class Request
                 'accept'     => self::getVar('HTTP_ACCEPT'),
                 'proxy_ip'   => self::getProxyIpAddress(),
                 'host'       => self::getVar('HTTP_HOST'),
+                'servername' => self::getVar('SERVER_NAME', ''),
             ];
         }
 
