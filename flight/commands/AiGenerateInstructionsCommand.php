@@ -1,20 +1,44 @@
 <?php
-namespace app\commands;
+
+declare(strict_types=1);
+
+namespace flight\commands;
 
 use Ahc\Cli\Input\Command;
 
+/**
+ * @property-read ?string $credsFile
+ * @property-read ?string $baseDir
+ */
 class AiGenerateInstructionsCommand extends Command
 {
+    /**
+     * Constructor for the AiGenerateInstructionsCommand class.
+     *
+     * Initializes a new instance of the command.
+     */
     public function __construct()
     {
         parent::__construct('ai:generate-instructions', 'Generate project-specific AI coding instructions');
+        $this->option('--creds-file', 'Path to .runway-creds.json file', null, '');
+        $this->option('--base-dir', 'Project base directory (for testing or custom use)', null, '');
     }
 
+    /**
+     * Executes the command logic for generating AI instructions.
+     *
+     * This method is called to perform the main functionality of the
+     * AiGenerateInstructionsCommand. It should contain the steps required
+     * to generate and output instructions using AI, based on the command's
+     * configuration and input.
+     *
+     * @return int
+     */
     public function execute()
     {
         $io = $this->app()->io();
-        $baseDir = getcwd() . DIRECTORY_SEPARATOR;
-        $runwayCredsFile = $baseDir . '.runway-creds.json';
+        $baseDir = $this->baseDir ? rtrim($this->baseDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : getcwd() . DIRECTORY_SEPARATOR;
+        $runwayCredsFile = $this->credsFile ?: $baseDir . '.runway-creds.json';
 
         // Check for runway creds
         if (!file_exists($runwayCredsFile)) {
@@ -55,11 +79,13 @@ class AiGenerateInstructionsCommand extends Command
         foreach ($userDetails as $k => $v) {
             $detailsText .= "$k: $v\n";
         }
-        $prompt = "" .
-            "You are an AI coding assistant. Update the following project instructions for this FlightPHP project based on the latest user answers. " .
-            "Only output the new instructions, no extra commentary.\n" .
-            "User answers:\n$detailsText\n" .
-            "Current instructions:\n$context\n";
+        $prompt = <<<EOT
+			You are an AI coding assistant. Update the following project instructions for this FlightPHP project based on the latest user answers. Only output the new instructions, no extra commentary.
+			User answers:
+			$detailsText
+			Current instructions:
+			$context
+			EOT;
 
         // Read LLM creds
         $creds = json_decode(file_get_contents($runwayCredsFile), true);
@@ -82,20 +108,13 @@ class AiGenerateInstructionsCommand extends Command
         ];
         $jsonData = json_encode($data);
 
-		// add info line that this may take a few minutes
-		$io->info('Generating AI instructions, this may take a few minutes...', true);
+        // add info line that this may take a few minutes
+        $io->info('Generating AI instructions, this may take a few minutes...', true);
 
-        $ch = curl_init($baseUrl . '/v1/chat/completions');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
-        $result = curl_exec($ch);
-        if (curl_errno($ch)) {
-            $io->error('Failed to call LLM API: ' . curl_error($ch), true);
+        $result = $this->callLlmApi($baseUrl, $headers, $jsonData, $io);
+        if ($result === false) {
             return 1;
         }
-        curl_close($ch);
         $response = json_decode($result, true);
         $instructions = $response['choices'][0]['message']['content'] ?? '';
         if (!$instructions) {
@@ -108,13 +127,42 @@ class AiGenerateInstructionsCommand extends Command
         if (!is_dir($baseDir . '.github')) {
             mkdir($baseDir . '.github', 0755, true);
         }
-		if (!is_dir($baseDir . '.cursor/rules')) {
-			mkdir($baseDir . '.cursor/rules', 0755, true);
-		}
+        if (!is_dir($baseDir . '.cursor/rules')) {
+            mkdir($baseDir . '.cursor/rules', 0755, true);
+        }
         file_put_contents($baseDir . '.github/copilot-instructions.md', $instructions);
         file_put_contents($baseDir . '.cursor/rules/project-overview.mdc', $instructions);
         file_put_contents($baseDir . '.windsurfrules', $instructions);
         $io->ok('AI instructions updated successfully.', true);
         return 0;
+    }
+
+    /**
+     * Make the LLM API call using curl
+     *
+     * @param string $baseUrl
+     * @param array<int,string> $headers
+     * @param string $jsonData
+     * @param object $io
+     *
+     * @return string|false
+     *
+     * @codeCoverageIgnore
+     */
+    protected function callLlmApi($baseUrl, $headers, $jsonData, $io)
+    {
+        $ch = curl_init($baseUrl . '/v1/chat/completions');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            $io->error('Failed to call LLM API: ' . curl_error($ch), true);
+            curl_close($ch);
+            return false;
+        }
+        curl_close($ch);
+        return $result;
     }
 }
