@@ -9,3 +9,4 @@ coverage/
 clover.xml
 phpcs.xml
 .runway-config.json
+.runway-creds.json
