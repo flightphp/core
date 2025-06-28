@@ -4,7 +4,7 @@
 This is the main FlightPHP core library for building fast, simple, and extensible PHP web applications. It is dependency-free for core usage and supports PHP 7.4+.
 
 ## Project Guidelines
-- PHP 7.4 must be supported. PHP8 or greater also supported, but avoid PHP8+ only features.
+- PHP 7.4 must be supported. PHP 8 or greater also supported, but avoid PHP 8+ only features.
 - Keep the core library dependency-free (no polyfills or interface-only repositories).
 - All Flight projects are meant to be kept simple and fast. Performance is a priority.
 - Flight is extensible and when implementing new features, consider how they can be added as plugins or extensions rather than bloating the core library.
