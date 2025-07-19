@@ -521,6 +521,12 @@ class Engine
         if ($this->requestHandled === false) {
             // not doing much here, just setting the requestHandled flag to true
             $this->requestHandled = true;
+
+			// Allow filters to run
+			// This prevents multiple after events from being registered
+			$this->after('start', function () use ($self) {
+				$self->stop();
+			});
         } else {
             // deregister the request and response objects and re-register them with new instances
             $this->unregister('request');
@@ -534,11 +540,6 @@ class Engine
 
         $response = $this->response();
         $router = $this->router();
-
-        // Allow filters to run
-        $this->after('start', function () use ($self) {
-            $self->stop();
-        });
 
         if ($response->v2_output_buffering === true) {
             // Flush any existing output
