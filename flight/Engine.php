@@ -14,6 +14,7 @@ use flight\net\Request;
 use flight\net\Response;
 use flight\net\Router;
 use flight\template\View;
+use flight\util\Json;
 use Throwable;
 use flight\net\Route;
 use Psr\Container\ContainerInterface;
@@ -522,11 +523,11 @@ class Engine
             // not doing much here, just setting the requestHandled flag to true
             $this->requestHandled = true;
 
-			// Allow filters to run
-			// This prevents multiple after events from being registered
-			$this->after('start', function () use ($self) {
-				$self->stop();
-			});
+            // Allow filters to run
+            // This prevents multiple after events from being registered
+            $this->after('start', function () use ($self) {
+                $self->stop();
+            });
         } else {
             // deregister the request and response objects and re-register them with new instances
             $this->unregister('request');
@@ -665,7 +666,7 @@ class Engine
             <h1>500 Internal Server Error</h1>
                 <h3>%s (%s)</h3>
                 <pre>%s</pre>
-            HTML,
+            HTML, // phpcs:ignore
             $e->getMessage(),
             $e->getCode(),
             $e->getTraceAsString()
@@ -906,9 +907,7 @@ class Engine
         ?string $charset = 'utf-8',
         int $option = 0
     ): void {
-        // add some default flags
-        $option |= JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR;
-        $json = $encode ? json_encode($data, $option) : $data;
+        $json = $encode ? Json::encode($data, $option) : $data;
 
         $this->response()
             ->status($code)
@@ -966,7 +965,7 @@ class Engine
         string $charset = 'utf-8',
         int $option = 0
     ): void {
-        $json = $encode ? json_encode($data, $option) : $data;
+        $json = $encode ? Json::encode($data, $option) : $data;
         $callback = $this->request()->query[$param];
 
         $this->response()

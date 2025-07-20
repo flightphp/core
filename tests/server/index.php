@@ -190,7 +190,7 @@ Flight::map('error', function (Throwable $e) {
         <h1>500 Internal Server Error</h1>
             <h3>%s (%s)</h3>
             <pre style="border: 2px solid red; padding: 21px; background: lightgray; font-weight: bold;">%s</pre>
-        HTML,
+        HTML, // phpcs:ignore
         $e->getMessage(),
         $e->getCode(),
         str_replace(getenv('PWD'), '***CONFIDENTIAL***', $e->getTraceAsString())

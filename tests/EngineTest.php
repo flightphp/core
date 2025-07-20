@@ -387,8 +387,9 @@ class EngineTest extends TestCase
 	public function testJsonWithDuplicateDefaultFlags()
 	{
 		$engine = new Engine();
+		$flags = JSON_HEX_TAG | JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE;
 		// utf8 emoji
-		$engine->json(['key1' => 'value1', 'key2' => 'value2', 'utf8_emoji' => '😀'], 201, true, '', JSON_HEX_TAG | JSON_HEX_TAG | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		$engine->json(['key1' => 'value1', 'key2' => 'value2', 'utf8_emoji' => '😀'], 201, true, '', $flags);
 		$this->assertEquals('application/json', $engine->response()->headers()['Content-Type']);
 		$this->assertEquals(201, $engine->response()->status());
 		$this->assertEquals('{"key1":"value1","key2":"value2","utf8_emoji":"😀"}', $engine->response()->getBody());
