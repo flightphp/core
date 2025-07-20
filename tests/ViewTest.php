@@ -180,7 +180,7 @@ class ViewTest extends TestCase
         <div>Hi</div>
         <input type="number" />
         <input type="number" />
-        html;
+        html; // phpcs:ignore
 
         // if windows replace \n with \r\n
         $html = str_replace(["\n", "\r"], '', $html);
@@ -202,7 +202,7 @@ class ViewTest extends TestCase
         $html = <<<'html'
         <div>qux</div>
         <div>bar</div>
-        html;
+        html; // phpcs:ignore
 
         $html = str_replace(["\n", "\r"], '', $html);
 
@@ -217,12 +217,12 @@ class ViewTest extends TestCase
         $html1 = <<<'html'
         <div>Hi</div>
         <div></div>
-        html;
+        html; // phpcs:ignore
 
         $html2 = <<<'html'
         <input type="number" />
         <input type="text" />
-        html;
+        html; // phpcs:ignore
 
         $html1 = str_replace(["\n", "\r"], '', $html1);
         $html2 = str_replace(["\n", "\r"], '', $html2);

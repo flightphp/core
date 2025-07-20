@@ -399,7 +399,7 @@ class FlightTest extends TestCase
         <div>Hi</div>
         <input type="number" />
         <input type="number" />
-        html;
+        html; // phpcs:ignore
 
         $html = str_replace(["\n", "\r"], '', $html);
 

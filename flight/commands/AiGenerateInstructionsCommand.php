@@ -85,7 +85,7 @@ class AiGenerateInstructionsCommand extends Command
 			$detailsText
 			Current instructions:
 			$context
-			EOT;
+			EOT; // phpcs:ignore
 
         // Read LLM creds
         $creds = json_decode(file_get_contents($runwayCredsFile), true);

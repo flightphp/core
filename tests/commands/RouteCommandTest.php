@@ -115,7 +115,7 @@ PHP;
         | /put    | PUT       |       | No       | -              |
         | /patch  | PATCH     |       | No       | Bad Middleware |
         +---------+-----------+-------+----------+----------------+
-        output;
+        output; // phpcs:ignore
 
         $this->assertStringContainsString(
             $expected,
@@ -138,7 +138,7 @@ PHP;
         +---------+---------+-------+----------+------------+
         | /post   | POST    |       | No       | Closure    |
         +---------+---------+-------+----------+------------+
-        output;
+        output; // phpcs:ignore
 
         $this->assertStringContainsString(
             $expected,
