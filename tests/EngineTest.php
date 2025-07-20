@@ -398,7 +398,7 @@ class EngineTest extends TestCase
 	public function testJsonThrowOnErrorByDefault()
 	{
 		$engine = new Engine();
-		$this->expectException(JsonException::class);
+		$this->expectException(Exception::class);
 		$this->expectExceptionMessage('Malformed UTF-8 characters, possibly incorrectly encoded');
 		$engine->json(['key1' => 'value1', 'key2' => 'value2', 'utf8_emoji' => "\xB1\x31"]);
 	}

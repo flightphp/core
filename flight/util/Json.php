@@ -41,7 +41,7 @@ class Json
         try {
             return json_encode($data, $options, $depth);
         } catch (JsonException $e) {
-            throw new JsonException('JSON encoding failed: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new Exception('JSON encoding failed: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -56,13 +56,13 @@ class Json
      * @return mixed Decoded data
      * @throws Exception If decoding fails
      */
-    public static function decode(string $json, bool $associative = false, int $depth = 512, int $options = self::DEFAULT_DECODE_OPTIONS)
+    public static function decode(string $json, bool $associative = false, int $depth = 512, int $options = 0)
     {
         $options = $options | self::DEFAULT_DECODE_OPTIONS; // Ensure default options are applied
         try {
             return json_decode($json, $associative, $depth, $options);
         } catch (JsonException $e) {
-            throw new JsonException('JSON decoding failed: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new Exception('JSON decoding failed: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
