@@ -1020,8 +1020,10 @@ class Engine
     public function _lastModified(int $time): void
     {
         $this->response()->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $time));
+		$request = $this->request();
+		$ifModifiedSince = $request->header('If-Modified-Since');
 
-        $hit = isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time;
+        $hit = isset($ifModifiedSince) && strtotime($ifModifiedSince) === $time;
         $this->triggerEvent('flight.cache.checked', 'lastModified', $hit, 0.0);
 
         if ($hit === true) {

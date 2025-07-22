@@ -356,4 +356,25 @@ class RequestTest extends TestCase
         $this->assertEquals('/tmp/php456', $files[1]->getTempName());
         $this->assertEquals(0, $files[1]->getError());
     }
+
+    public function testUrlWithAtSymbol(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/user@domain';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $request = new Request();
+        $this->assertEquals('/user%40domain', $request->url);
+    }
+
+    public function testBaseWithSpaceAndBackslash(): void
+    {
+        $_SERVER['SCRIPT_NAME'] = '\\dir name\\base folder\\index.php';
+        $request = new Request();
+        $this->assertEquals('/dir%20name/base%20folder', $request->base);
+    }
+
+    public function testParseQueryWithEmptyQueryString(): void
+    {
+        $result = Request::parseQuery('/foo?');
+        $this->assertEquals([], $result);
+    }
 }
