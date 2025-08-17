@@ -422,6 +422,7 @@ class Request
 		if ($query === '') {
 			return [];
 		}
+		$params = [];
 		parse_str($query, $params);
 		return $params;
     }
