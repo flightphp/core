@@ -1,6 +1,7 @@
 #!/bin/bash
 
-URL="http://firefly74.com/flight-test/test-static"
+# Allow URL to be set via environment variable or first command-line argument, default to localhost for safety
+URL="${URL:-${1:-http://localhost:8080/test-static}}"
 REQUESTS=1000
 CONCURRENCY=10
 ITERATIONS=10
