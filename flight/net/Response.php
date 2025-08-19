@@ -324,10 +324,11 @@ class Response
             );
             // @codeCoverageIgnoreEnd
         } else {
+			$serverProtocol = Request::getVar('SERVER_PROTOCOL') ?: 'HTTP/1.1';
             $this->setRealHeader(
                 sprintf(
                     '%s %d %s',
-                    $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1',
+                    $serverProtocol,
                     $this->status,
                     self::$codes[$this->status]
                 ),

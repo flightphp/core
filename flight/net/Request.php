@@ -155,27 +155,37 @@ class Request
     public function __construct(array $config = [])
     {
         // Default properties
-        if (empty($config)) {
+        if (empty($config) === true) {
+			$scheme = $this->getScheme();
+			$url = $this->getVar('REQUEST_URI', '/');
+			if (strpos($url, '@') !== false) {
+				$url = str_replace('@', '%40', $url);
+			}
+			$base = $this->getVar('SCRIPT_NAME', '');
+			if (strpos($base, ' ') !== false || strpos($base, '\\') !== false) {
+				$base = str_replace(['\\', ' '], ['/', '%20'], $base);
+			}
+			$base = dirname($base);
             $config = [
-                'url'        => str_replace('@', '%40', self::getVar('REQUEST_URI', '/')),
-                'base'       => str_replace(['\\', ' '], ['/', '%20'], \dirname(self::getVar('SCRIPT_NAME'))),
-                'method'     => self::getMethod(),
-                'referrer'   => self::getVar('HTTP_REFERER'),
-                'ip'         => self::getVar('REMOTE_ADDR'),
-                'ajax'       => self::getVar('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest',
-                'scheme'     => self::getScheme(),
-                'user_agent' => self::getVar('HTTP_USER_AGENT'),
-                'type'       => self::getVar('CONTENT_TYPE'),
-                'length'     => intval(self::getVar('CONTENT_LENGTH', 0)),
+                'url'        => $url,
+                'base'       => $base,
+                'method'     => $this->getMethod(),
+                'referrer'   => $this->getVar('HTTP_REFERER'),
+                'ip'         => $this->getVar('REMOTE_ADDR'),
+                'ajax'       => $this->getVar('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest',
+                'scheme'     => $scheme,
+                'user_agent' => $this->getVar('HTTP_USER_AGENT'),
+                'type'       => $this->getVar('CONTENT_TYPE'),
+                'length'     => intval($this->getVar('CONTENT_LENGTH', 0)),
                 'query'      => new Collection($_GET),
                 'data'       => new Collection($_POST),
                 'cookies'    => new Collection($_COOKIE),
                 'files'      => new Collection($_FILES),
-                'secure'     => self::getScheme() === 'https',
-                'accept'     => self::getVar('HTTP_ACCEPT'),
-                'proxy_ip'   => self::getProxyIpAddress(),
-                'host'       => self::getVar('HTTP_HOST'),
-                'servername' => self::getVar('SERVER_NAME', ''),
+                'secure'     => $scheme === 'https',
+                'accept'     => $this->getVar('HTTP_ACCEPT'),
+                'proxy_ip'   => $this->getProxyIpAddress(),
+                'host'       => $this->getVar('HTTP_HOST'),
+                'servername' => $this->getVar('SERVER_NAME', ''),
             ];
         }
 
@@ -201,7 +211,7 @@ class Request
         // (such as installing on a subdirectory in a web server)
         // @see testInitUrlSameAsBaseDirectory
         if ($this->base !== '/' && $this->base !== '' && strpos($this->url, $this->base) === 0) {
-            $this->url = substr($this->url, \strlen($this->base));
+            $this->url = substr($this->url, strlen($this->base));
         }
 
         // Default url
@@ -249,11 +259,11 @@ class Request
             return $body;
         }
 
-        $method = $this->method ?? self::getMethod();
+        $method = $this->method ?? $this->getMethod();
 
-        if ($method === 'POST' || $method === 'PUT' || $method === 'DELETE' || $method === 'PATCH') {
-            $body = file_get_contents($this->stream_path);
-        }
+		if (in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true) === true) {
+			$body = file_get_contents($this->stream_path);
+		}
 
         $this->body = $body;
 
@@ -267,8 +277,8 @@ class Request
     {
         $method = self::getVar('REQUEST_METHOD', 'GET');
 
-        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']) === true) {
-            $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+        if (self::getVar('HTTP_X_HTTP_METHOD_OVERRIDE') !== '') {
+            $method = self::getVar('HTTP_X_HTTP_METHOD_OVERRIDE');
         } elseif (isset($_REQUEST['_method']) === true) {
             $method = $_REQUEST['_method'];
         }
@@ -295,8 +305,9 @@ class Request
         $flags = \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE;
 
         foreach ($forwarded as $key) {
-            if (\array_key_exists($key, $_SERVER) === true) {
-                sscanf($_SERVER[$key], '%[^,]', $ip);
+			$serverVar = self::getVar($key);
+            if ($serverVar !== '') {
+                sscanf($serverVar, '%[^,]', $ip);
                 if (filter_var($ip, \FILTER_VALIDATE_IP, $flags) !== false) {
                     return $ip;
                 }
@@ -403,14 +414,17 @@ class Request
      */
     public static function parseQuery(string $url): array
     {
-        $params = [];
-
-        $args = parse_url($url);
-        if (isset($args['query']) === true) {
-            parse_str($args['query'], $params);
-        }
-
-        return $params;
+		$queryPos = strpos($url, '?');
+		if ($queryPos === false) {
+			return [];
+		}
+		$query = substr($url, $queryPos + 1);
+		if ($query === '') {
+			return [];
+		}
+		$params = [];
+		parse_str($query, $params);
+		return $params;
     }
 
     /**
@@ -421,13 +435,13 @@ class Request
     public static function getScheme(): string
     {
         if (
-            (isset($_SERVER['HTTPS']) === true && strtolower($_SERVER['HTTPS']) === 'on')
+            (strtolower(self::getVar('HTTPS')) === 'on')
             ||
-            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) === true && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            (self::getVar('HTTP_X_FORWARDED_PROTO') === 'https')
             ||
-            (isset($_SERVER['HTTP_FRONT_END_HTTPS']) === true && $_SERVER['HTTP_FRONT_END_HTTPS'] === 'on')
+            (self::getVar('HTTP_FRONT_END_HTTPS') === 'on')
             ||
-            (isset($_SERVER['REQUEST_SCHEME']) === true && $_SERVER['REQUEST_SCHEME'] === 'https')
+            (self::getVar('REQUEST_SCHEME') === 'https')
         ) {
             return 'https';
         }
