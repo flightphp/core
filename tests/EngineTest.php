@@ -174,6 +174,108 @@ class EngineTest extends TestCase
         $engine->start();
     }
 
+    public function testDoubleReturnTrueRoutesContinueIteration(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/someRoute';
+
+        $engine = new class extends Engine {
+            public function getInitializedVar()
+            {
+                return $this->initialized;
+            }
+        };
+        
+        // First route that returns true (should continue routing)
+        $engine->route('/someRoute', function () {
+            echo 'first route ran, ';
+            return true;
+        }, true);
+        
+        // Second route that should be found and executed
+        $engine->route('/someRoute', function () {
+            echo 'second route executed!';
+        }, true);
+        
+        $this->expectOutputString('first route ran, second route executed!');
+        $engine->start();
+    }
+
+    public function testDoubleReturnTrueWithMethodMismatchDuringIteration(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/someRoute';
+
+        $engine = new class extends Engine {
+            public function getInitializedVar()
+            {
+                return $this->initialized;
+            }
+            
+            public function getLoader()
+            {
+                return $this->loader;
+            }
+        };
+        
+        // Mock response to prevent actual headers
+        $engine->getLoader()->register('response', function () {
+            return new class extends Response {
+                public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
+                {
+                    return $this;
+                }
+            };
+        });
+        
+        // First route that returns true and matches POST
+        $engine->route('POST /someRoute', function () {
+            echo 'first POST route ran, ';
+            return true;
+        }, true);
+        
+        // Second route that matches URL but wrong method (GET) - should be captured for 405
+        $engine->route('GET /someRoute', function () {
+            echo 'should not execute';
+        }, true);
+        
+        // Third route that matches POST and should execute
+        $engine->route('POST /someRoute', function () {
+            echo 'second POST route executed!';
+        }, true);
+        
+        $this->expectOutputString('first POST route ran, second POST route executed!');
+        $engine->start();
+    }
+
+    public function testIteratorReachesEndWithoutMatch(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/someRoute';
+
+        $engine = new class extends Engine {
+            public function getInitializedVar()
+            {
+                return $this->initialized;
+            }
+        };
+        
+        // Route that returns true (continues iteration)
+        $engine->route('/someRoute', function () {
+            echo 'first route ran, ';
+            return true;
+        }, true);
+        
+        // Route with different URL that won't match
+        $engine->route('/differentRoute', function () {
+            echo 'should not execute';
+        }, true);
+        
+        // No more matching routes - should reach end of iterator and return 404
+        $this->expectOutputString('<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>');
+        $engine->start();
+    }
+
 	public function testDoubleStart() 
     {
 		$engine = new Engine();
