@@ -128,7 +128,9 @@ class PdoWrapperTest extends TestCase
         // Testing protected method using reflection
         $reflection = new ReflectionClass($this->pdo_wrapper);
         $method = $reflection->getMethod('pullDataFromDsn');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         // Test SQLite DSN
         $sqliteDsn = 'sqlite::memory:';
@@ -205,7 +207,9 @@ class PdoWrapperTest extends TestCase
         // Verify metrics are reset after logging
         $reflection = new ReflectionClass($trackingPdo);
         $property = $reflection->getProperty('queryMetrics');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $this->assertCount(0, $property->getValue($trackingPdo));
     }
 }
