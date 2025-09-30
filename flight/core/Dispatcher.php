@@ -20,6 +20,7 @@ use TypeError;
  *
  * @license MIT, http://flightphp.com/license
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @phpstan-template EngineTemplate of object
  */
 class Dispatcher
 {
@@ -29,7 +30,7 @@ class Dispatcher
     /** Exception message if thrown by setting the container as a callable method. */
     protected ?Throwable $containerException = null;
 
-    /** @var ?Engine $engine Engine instance. */
+    /** @var ?Engine<EngineTemplate> $engine Engine instance. */
     protected ?Engine $engine = null;
 
     /** @var array<string, callable(): (void|mixed)> Mapped events. */
@@ -77,6 +78,13 @@ class Dispatcher
         );
     }
 
+    /**
+     * Sets the engine instance
+     *
+     * @param Engine<EngineTemplate> $engine Flight instance
+     *
+     * @return void
+     */
     public function setEngine(Engine $engine): void
     {
         $this->engine = $engine;
@@ -88,8 +96,9 @@ class Dispatcher
      * @param string $name Event name.
      * @param array<int, mixed> $params Callback parameters.
      *
-     * @return mixed Output of callback
      * @throws Exception If event name isn't found or if event throws an `Exception`.
+     *
+     * @return mixed Output of callback
      */
     public function run(string $name, array $params = [])
     {
@@ -102,8 +111,9 @@ class Dispatcher
     /**
      * @param array<int, mixed> &$params
      *
-     * @return $this
      * @throws Exception
+     *
+     * @return $this
      */
     protected function runPreFilters(string $eventName, array &$params): self
     {

@@ -156,16 +156,16 @@ class Request
     {
         // Default properties
         if (empty($config) === true) {
-			$scheme = $this->getScheme();
-			$url = $this->getVar('REQUEST_URI', '/');
-			if (strpos($url, '@') !== false) {
-				$url = str_replace('@', '%40', $url);
-			}
-			$base = $this->getVar('SCRIPT_NAME', '');
-			if (strpos($base, ' ') !== false || strpos($base, '\\') !== false) {
-				$base = str_replace(['\\', ' '], ['/', '%20'], $base);
-			}
-			$base = dirname($base);
+            $scheme = $this->getScheme();
+            $url = $this->getVar('REQUEST_URI', '/');
+            if (strpos($url, '@') !== false) {
+                $url = str_replace('@', '%40', $url);
+            }
+            $base = $this->getVar('SCRIPT_NAME', '');
+            if (strpos($base, ' ') !== false || strpos($base, '\\') !== false) {
+                $base = str_replace(['\\', ' '], ['/', '%20'], $base);
+            }
+            $base = dirname($base);
             $config = [
                 'url'        => $url,
                 'base'       => $base,
@@ -261,9 +261,9 @@ class Request
 
         $method = $this->method ?? $this->getMethod();
 
-		if (in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true) === true) {
-			$body = file_get_contents($this->stream_path);
-		}
+        if (in_array($method, ['POST', 'PUT', 'DELETE', 'PATCH'], true) === true) {
+            $body = file_get_contents($this->stream_path);
+        }
 
         $this->body = $body;
 
@@ -305,7 +305,7 @@ class Request
         $flags = \FILTER_FLAG_NO_PRIV_RANGE | \FILTER_FLAG_NO_RES_RANGE;
 
         foreach ($forwarded as $key) {
-			$serverVar = self::getVar($key);
+            $serverVar = self::getVar($key);
             if ($serverVar !== '') {
                 sscanf($serverVar, '%[^,]', $ip);
                 if (filter_var($ip, \FILTER_VALIDATE_IP, $flags) !== false) {
@@ -414,17 +414,17 @@ class Request
      */
     public static function parseQuery(string $url): array
     {
-		$queryPos = strpos($url, '?');
-		if ($queryPos === false) {
-			return [];
-		}
-		$query = substr($url, $queryPos + 1);
-		if ($query === '') {
-			return [];
-		}
-		$params = [];
-		parse_str($query, $params);
-		return $params;
+        $queryPos = strpos($url, '?');
+        if ($queryPos === false) {
+            return [];
+        }
+        $query = substr($url, $queryPos + 1);
+        if ($query === '') {
+            return [];
+        }
+        $params = [];
+        parse_str($query, $params);
+        return $params;
     }
 
     /**

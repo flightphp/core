@@ -24,60 +24,58 @@ use Psr\Container\ContainerInterface;
  * It is responsible for loading an HTTP request, running the assigned services,
  * and generating an HTTP response.
  *
- * @license MIT, http://flightphp.com/license
- * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @license MIT, https://docs.flightphp.com/license
+ * @copyright Copyright (c) 2011-2025, Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>
  *
- * # Core methods
- * @method void start() Starts engine
- * @method void stop() Stops framework and outputs current response
- * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true) Stops processing and returns a given response.
+ * @method void start()
+ * @method void stop()
+ * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
+ * @method EventDispatcher eventDispatcher()
+ * @method Route route(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
+ * @method void group(string $pattern, callable $callback, array $group_middlewares = [])
+ * @method Route post(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
+ * @method Route put(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
+ * @method Route patch(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
+ * @method Route delete(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
+ * @method void resource(string $pattern, string $controllerClass, array $methods = [])
+ * @method Router router()
+ * @method string getUrl(string $alias)
+ * @method void render(string $file, array $data = null, string $key = null)
+ * @method View view()
+ * @method void onEvent(string $event, callable $callback)
+ * @method void triggerEvent(string $event, ...$args)
+ * @method Request request()
+ * @method Response response()
+ * @method void error(Throwable $e)
+ * @method void notFound()
+ * @method void redirect(string $url, int $code = 303)
+ * @method void json($data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * @method void jsonHalt($data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * @method void jsonp($data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * @method void etag(string $id, string $type = 'strong')
+ * @method void lastModified(int $time)
+ * @method void download(string $filePath)
  *
- * # Class registration
- * @method EventDispatcher eventDispatcher() Gets event dispatcher
+ * @phpstan-template EngineTemplate of object
+ * @phpstan-method void registerContainerHandler(ContainerInterface|callable(class-string<EngineTemplate> $id, array<int|string, mixed> $params): ?EngineTemplate $containerHandler)
+ * @phpstan-method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @phpstan-method void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
+ * @phpstan-method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @phpstan-method Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @phpstan-method Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @phpstan-method Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @phpstan-method void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
+ * @phpstan-method string getUrl(string $alias, array<string, mixed> $params = [])
+ * @phpstan-method void before(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
+ * @phpstan-method void after(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
+ * @phpstan-method void set(string|iterable<string, mixed> $key, ?mixed $value = null)
+ * @phpstan-method mixed get(?string $key)
+ * @phpstan-method void render(string $file, ?array<string, mixed> $data = null, ?string $key = null)
+ * @phpstan-method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
+ * @phpstan-method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
+ * @phpstan-method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  *
- * # Routing
- * @method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * Routes a URL to a callback function with all applicable methods
- * @method void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
- * Groups a set of routes together under a common prefix.
- * @method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * Routes a POST URL to a callback function.
- * @method Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * Routes a PUT URL to a callback function.
- * @method Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * Routes a PATCH URL to a callback function.
- * @method Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * Routes a DELETE URL to a callback function.
- * @method void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
- * Adds standardized RESTful routes for a controller.
- * @method Router router() Gets router
- * @method string getUrl(string $alias) Gets a url from an alias
- *
- * # Views
- * @method void render(string $file, ?array<string,mixed> $data = null, ?string $key = null) Renders template
- * @method View view() Gets current view
- *
- * # Events
- * @method void onEvent(string $event, callable $callback) Registers a callback for an event.
- * @method void triggerEvent(string $event, ...$args) Triggers an event.
- *
- * # Request-Response
- * @method Request request() Gets current request
- * @method Response response() Gets current response
- * @method void error(Throwable $e) Sends an HTTP 500 response for any errors.
- * @method void notFound() Sends an HTTP 404 response when a URL is not found.
- * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
- * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
- * Sends a JSON response.
- * @method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
- * Sends a JSON response and immediately halts the request.
- * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
- * Sends a JSONP response.
- *
- * # HTTP methods
- * @method void etag(string $id, ('strong'|'weak') $type = 'strong') Handles ETag HTTP caching.
- * @method void lastModified(int $time) Handles last modified HTTP caching.
- * @method void download(string $filePath) Downloads a file
+ * Note: IDEs will use standard @method tags for autocompletion, while PHPStan will use @phpstan-* tags for advanced type checking.
  *
  * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
@@ -118,7 +116,7 @@ class Engine
     /** Class loader. */
     protected Loader $loader;
 
-    /** Method and class dispatcher. */
+    /** @var Dispatcher<EngineTemplate> Method and class dispatcher. */
     protected Dispatcher $dispatcher;
 
     /** Event dispatcher. */
@@ -370,7 +368,7 @@ class Engine
      *
      * @param string|iterable<string, mixed> $key
      * Variable name as `string` or an iterable of `'varName' => $varValue`
-     * @param mixed $value Ignored if `$key` is an `iterable`
+     * @param ?mixed $value Ignored if `$key` is an `iterable`
      */
     public function set($key, $value = null): void
     {
@@ -981,14 +979,15 @@ class Engine
      * Downloads a file
      *
      * @param string $filePath The path to the file to download
+     * @param string $fileName The name the file should be downloaded as
      *
      * @throws Exception If the file cannot be found
      *
      * @return void
      */
-    public function _download(string $filePath): void
+    public function _download(string $filePath, string $fileName = ''): void
     {
-        $this->response()->downloadFile($filePath);
+        $this->response()->downloadFile($filePath, $fileName);
     }
 
     /**
@@ -1020,8 +1019,8 @@ class Engine
     public function _lastModified(int $time): void
     {
         $this->response()->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $time));
-		$request = $this->request();
-		$ifModifiedSince = $request->header('If-Modified-Since');
+        $request = $this->request();
+        $ifModifiedSince = $request->header('If-Modified-Since');
 
         $hit = isset($ifModifiedSince) && strtotime($ifModifiedSince) === $time;
         $this->triggerEvent('flight.cache.checked', 'lastModified', $hit, 0.0);
