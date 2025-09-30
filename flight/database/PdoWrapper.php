@@ -100,9 +100,9 @@ class PdoWrapper extends PDO
      * @param string $sql   - Ex: "SELECT * FROM table WHERE something = ?"
      * @param array<int|string,mixed> $params - Ex: [ $something ]
      *
-     * @return Collection
+     * @return Collection|array<mixed,mixed>
      */
-    public function fetchRow(string $sql, array $params = []): Collection
+    public function fetchRow(string $sql, array $params = [])
     {
         $sql .= stripos($sql, 'LIMIT') === false ? ' LIMIT 1' : '';
         $result = $this->fetchAll($sql, $params);
@@ -120,7 +120,7 @@ class PdoWrapper extends PDO
      * @param string $sql   - Ex: "SELECT * FROM table WHERE something = ?"
      * @param array<int|string,mixed> $params   - Ex: [ $something ]
      *
-     * @return array<int,Collection>
+     * @return array<int,Collection|array<string,mixed>>
      */
     public function fetchAll(string $sql, array $params = [])
     {

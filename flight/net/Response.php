@@ -324,7 +324,7 @@ class Response
             );
             // @codeCoverageIgnoreEnd
         } else {
-			$serverProtocol = Request::getVar('SERVER_PROTOCOL') ?: 'HTTP/1.1';
+            $serverProtocol = Request::getVar('SERVER_PROTOCOL') ?: 'HTTP/1.1';
             $this->setRealHeader(
                 sprintf(
                     '%s %d %s',
@@ -484,10 +484,13 @@ class Response
      * Downloads a file.
      *
      * @param string $filePath The path to the file to be downloaded.
+     * @param string $fileName The name the downloaded file should have. If not provided, the name of the file on disk will be used.
+     *
+     * @throws Exception If the file cannot be found.
      *
      * @return void
      */
-    public function downloadFile(string $filePath): void
+    public function downloadFile(string $filePath, string $fileName = ''): void
     {
         if (file_exists($filePath) === false) {
             throw new Exception("$filePath cannot be found.");
@@ -498,10 +501,14 @@ class Response
         $mimeType = mime_content_type($filePath);
         $mimeType = $mimeType !== false ? $mimeType : 'application/octet-stream';
 
+        if ($fileName === '') {
+            $fileName = basename($filePath);
+        }
+
         $this->send();
         $this->setRealHeader('Content-Description: File Transfer');
         $this->setRealHeader('Content-Type: ' . $mimeType);
-        $this->setRealHeader('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+        $this->setRealHeader('Content-Disposition: attachment; filename="' . $fileName . '"');
         $this->setRealHeader('Expires: 0');
         $this->setRealHeader('Cache-Control: must-revalidate');
         $this->setRealHeader('Pragma: public');
