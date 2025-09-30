@@ -484,7 +484,7 @@ class Response
      * Downloads a file.
      *
      * @param string $filePath The path to the file to be downloaded.
-     * @param string $fileName The name the downloaded file should have. If not provided, the name of the file on disk will be used.
+     * @param string $fileName The name the downloaded file should have. If not provided or is an empty string, the name of the file on disk will be used.
      *
      * @throws Exception If the file cannot be found.
      *
@@ -501,6 +501,8 @@ class Response
         $mimeType = mime_content_type($filePath);
         $mimeType = $mimeType !== false ? $mimeType : 'application/octet-stream';
 
+        // Sanitize filename to prevent header injection
+        $fileName = str_replace(["\r", "\n", '"'], '', $fileName);
         if ($fileName === '') {
             $fileName = basename($filePath);
         }
