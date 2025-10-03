@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Allow URL to be set via environment variable or first command-line argument, default to localhost for safety
-URL="${URL:-${1:-http://localhost:8080/test-static}}"
+URL="${URL:-${1:-http://localhost:8077/test-static}}"
 REQUESTS=1000
 CONCURRENCY=10
 ITERATIONS=10
@@ -24,15 +24,20 @@ echo "----------------------------------------"
 
 for i in $(seq 1 $ITERATIONS); do
     printf "Run %2d/%d: " $i $ITERATIONS
-    
+
     # Run ab and extract time per request
     result=$(ab -n $REQUESTS -c $CONCURRENCY $URL 2>/dev/null)
     time_per_request=$(echo "$result" | grep "Time per request:" | head -1 | awk '{print $4}')
     requests_per_sec=$(echo "$result" | grep "Requests per second:" | awk '{print $4}')
-    
+
+    if [[ -z "$time_per_request" || ! "$time_per_request" =~ ^[0-9.]+$ ]]; then
+        echo "Warning: Could not parse time per request (ab output may be malformed)"
+        continue
+    fi
+
     times+=($time_per_request)
     total=$(echo "$total + $time_per_request" | bc -l)
-    
+
     printf "%.3f ms (%.2f req/s)\n" $time_per_request $requests_per_sec
 done
 
