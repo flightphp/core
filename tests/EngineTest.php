@@ -409,6 +409,21 @@ class EngineTest extends TestCase
         $this->expectOutputString('');
     }
 
+	public function testOptionsRoute(): void
+    {
+        $engine = new Engine();
+        $engine->route('GET /someRoute', function () {
+            echo 'i ran';
+        }, true);
+        $engine->request()->method = 'OPTIONS';
+        $engine->request()->url = '/someRoute';
+        $engine->start();
+
+        // No body should be sent
+        $this->expectOutputString('');
+		$this->assertEquals('GET, HEAD, OPTIONS', $engine->response()->headers()['Allow']);
+    }
+
     public function testHalt(): void
     {
         $engine = new class extends Engine {
@@ -1070,9 +1085,10 @@ class EngineTest extends TestCase
 
         $engine->start();
 
-		$this->expectOutputString('Method Not Allowed');
+		$this->expectOutputString('Method Not Allowed. Allowed Methods are: POST, OPTIONS');
         $this->assertEquals(405, $engine->response()->status());
-		$this->assertEquals('Method Not Allowed', $engine->response()->getBody());
+		$this->assertEquals('Method Not Allowed. Allowed Methods are: POST, OPTIONS', $engine->response()->getBody());
+		$this->assertEquals('POST, OPTIONS', $engine->response()->headers()['Allow']);
 	}
 
 	public function testDownload(): void

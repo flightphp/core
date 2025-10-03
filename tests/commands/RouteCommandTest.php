@@ -106,15 +106,15 @@ PHP;
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
         $expected = <<<'output'
-        +---------+-----------+-------+----------+----------------+
-        | Pattern | Methods   | Alias | Streamed | Middleware     |
-        +---------+-----------+-------+----------+----------------+
-        | /       | GET, HEAD |       | No       | -              |
-        | /post   | POST      |       | No       | Closure        |
-        | /delete | DELETE    |       | No       | -              |
-        | /put    | PUT       |       | No       | -              |
-        | /patch  | PATCH     |       | No       | Bad Middleware |
-        +---------+-----------+-------+----------+----------------+
+        +---------+--------------------+-------+----------+----------------+
+        | Pattern | Methods            | Alias | Streamed | Middleware     |
+        +---------+--------------------+-------+----------+----------------+
+        | /       | GET, HEAD, OPTIONS |       | No       | -              |
+        | /post   | POST, OPTIONS      |       | No       | Closure        |
+        | /delete | DELETE, OPTIONS    |       | No       | -              |
+        | /put    | PUT, OPTIONS       |       | No       | -              |
+        | /patch  | PATCH, OPTIONS     |       | No       | Bad Middleware |
+        +---------+--------------------+-------+----------+----------------+
         output; // phpcs:ignore
 
         $this->assertStringContainsString(
@@ -133,11 +133,11 @@ PHP;
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
 
         $expected = <<<'output'
-        +---------+---------+-------+----------+------------+
-        | Pattern | Methods | Alias | Streamed | Middleware |
-        +---------+---------+-------+----------+------------+
-        | /post   | POST    |       | No       | Closure    |
-        +---------+---------+-------+----------+------------+
+        +---------+---------------+-------+----------+------------+
+        | Pattern | Methods       | Alias | Streamed | Middleware |
+        +---------+---------------+-------+----------+------------+
+        | /post   | POST, OPTIONS |       | No       | Closure    |
+        +---------+---------------+-------+----------+------------+
         output; // phpcs:ignore
 
         $this->assertStringContainsString(

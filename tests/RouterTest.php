@@ -137,7 +137,7 @@ class RouterTest extends TestCase
     public function testHeadRouteShortcut(): void
     {
         $route = $this->router->get('/path', [$this, 'ok']);
-        $this->assertEquals(['GET', 'HEAD'], $route->methods);
+        $this->assertEquals(['GET', 'HEAD', 'OPTIONS'], $route->methods);
         $this->request->url = '/path';
         $this->request->method = 'HEAD';
         $this->check('');
@@ -168,6 +168,16 @@ class RouterTest extends TestCase
         $this->router->map('GET|POST /', [$this, 'ok']);
         $this->request->url = '/';
         $this->request->method = 'GET';
+
+        $this->check('OK');
+    }
+
+    public function testOptionsRouteShortcut(): void
+    {
+        $route = $this->router->map('GET|POST /path', [$this, 'ok']);
+        $this->assertEquals(['GET', 'POST', 'HEAD', 'OPTIONS'], $route->methods);
+        $this->request->url = '/path';
+        $this->request->method = 'OPTIONS';
 
         $this->check('OK');
     }

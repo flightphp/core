@@ -450,6 +450,27 @@ class Request
     }
 
     /**
+     * Negotiates the best content type from the Accept header.
+     *
+     * @param array<int, string> $supported List of supported content types.
+     *
+     * @return ?string The negotiated content type.
+     */
+    public function negotiateContentType(array $supported): ?string
+    {
+        $accept = $this->header('Accept') ?? '';
+        if ($accept === '') {
+            return $supported[0];
+        }
+        foreach ($supported as $type) {
+            if (stripos($accept, $type) !== false) {
+                return $type;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Retrieves the array of uploaded files.
      *
      * @return array<string, array<string,UploadedFile>|array<string,array<string,UploadedFile>>> The array of uploaded files.

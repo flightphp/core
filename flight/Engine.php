@@ -48,6 +48,7 @@ use Psr\Container\ContainerInterface;
  * @method Response response()
  * @method void error(Throwable $e)
  * @method void notFound()
+ * @method void methodNotFound(Route $route)
  * @method void redirect(string $url, int $code = 303)
  * @method void json($data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * @method void jsonHalt($data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
@@ -91,6 +92,7 @@ class Engine
         'halt',
         'error',
         'notFound',
+        'methodNotFound',
         'render',
         'redirect',
         'etag',
@@ -562,6 +564,15 @@ class Engine
                 $params[] = $route;
             }
 
+            // OPTIONS request handling
+            if ($request->method === 'OPTIONS') {
+                $allowedMethods = $route->methods;
+                $response->status(204)
+                    ->header('Allow', implode(', ', $allowedMethods))
+                    ->send();
+                return;
+            }
+
             // If this route is to be streamed, we need to output the headers now
             if ($route->is_streamed === true) {
                 if (count($route->streamed_headers) > 0) {
@@ -644,7 +655,7 @@ class Engine
             // Get the previous route and check if the method failed, but the URL was good.
             $lastRouteExecuted = $router->executedRoute;
             if ($lastRouteExecuted !== null && $lastRouteExecuted->matchUrl($request->url) === true && $lastRouteExecuted->matchMethod($request->method) === false) {
-                $this->halt(405, 'Method Not Allowed', empty(getenv('PHPUNIT_TEST')));
+                $this->methodNotFound($lastRouteExecuted);
             } else {
                 $this->notFound();
             }
@@ -837,6 +848,19 @@ class Engine
             ->status(404)
             ->write($output)
             ->send();
+    }
+
+    /**
+     * Function to run if the route has been found but not the method.
+     *
+     * @param Route $route - The executed route
+     *
+     * @return void
+     */
+    public function _methodNotFound(Route $route): void
+    {
+        $this->response()->setHeader('Allow', implode(', ', $route->methods));
+        $this->halt(405, 'Method Not Allowed. Allowed Methods are: ' . implode(', ', $route->methods), empty(getenv('PHPUNIT_TEST')));
     }
 
     /**

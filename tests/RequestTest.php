@@ -377,4 +377,27 @@ class RequestTest extends TestCase
         $result = Request::parseQuery('/foo?');
         $this->assertEquals([], $result);
     }
+
+    public function testNegotiateContentType(): void
+    {
+        // Find best match first
+        $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+        $request = new Request();
+        $this->assertEquals('application/xml', $request->negotiateContentType(['application/xml', 'application/json', 'text/html']));
+
+        // Find the first match
+        $_SERVER['HTTP_ACCEPT'] = 'application/json,text/html';
+        $request = new Request();
+        $this->assertEquals('application/json', $request->negotiateContentType(['application/json', 'text/html']));
+
+        // No match found
+        $_SERVER['HTTP_ACCEPT'] = 'application/xml';
+        $request = new Request();
+        $this->assertNull($request->negotiateContentType(['application/json', 'text/html']));
+
+        // No header present, return first supported type
+        $_SERVER['HTTP_ACCEPT'] = '';
+        $request = new Request();
+        $this->assertEquals('application/json', $request->negotiateContentType(['application/json', 'text/html']));
+    }
 }

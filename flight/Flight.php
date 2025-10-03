@@ -55,6 +55,7 @@ require_once __DIR__ . '/autoload.php';
  * @method static void jsonp($data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  * @method static void error(Throwable $exception)
  * @method static void notFound()
+ * @method static void methodNotFound(Route $route)
  * @method static void etag(string $id, string $type = 'strong')
  * @method static void lastModified(int $time)
  * @method static void download(string $filePath)

@@ -126,6 +126,11 @@ class Router
             if (in_array('GET', $methods, true) === true && in_array('HEAD', $methods, true) === false) {
                 $methods[] = 'HEAD';
             }
+
+            // Always allow an OPTIONS request
+            if (in_array('OPTIONS', $methods, true) === false) {
+                $methods[] = 'OPTIONS';
+            }
         }
 
         // And this finishes it off.
