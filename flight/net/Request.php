@@ -477,7 +477,7 @@ class Request
      */
     public function getUploadedFiles(): array
     {
-        $files = [];
+        $uploadedFiles = [];
         $correctedFilesArray = $this->reArrayFiles($this->files);
         foreach ($correctedFilesArray as $keyName => $files) {
             foreach ($files as $file) {
@@ -489,14 +489,14 @@ class Request
                     $file['error']
                 );
                 if (count($files) > 1) {
-                    $files[$keyName][] = $UploadedFile;
+                    $uploadedFiles[$keyName][] = $UploadedFile;
                 } else {
-                    $files[$keyName] = $UploadedFile;
+                    $uploadedFiles[$keyName] = $UploadedFile;
                 }
             }
         }
 
-        return $files;
+        return $uploadedFiles;
     }
 
     /**
