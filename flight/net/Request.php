@@ -480,6 +480,10 @@ class Request
         $uploadedFiles = [];
         $correctedFilesArray = $this->reArrayFiles($this->files);
         foreach ($correctedFilesArray as $keyName => $files) {
+            // Check if original data was array format (files_name[] style)
+            $originalFile = $this->files->getData()[$keyName] ?? null;
+            $isArrayFormat = $originalFile && is_array($originalFile['name']);
+            
             foreach ($files as $file) {
                 $UploadedFile = new UploadedFile(
                     $file['name'],
@@ -488,7 +492,9 @@ class Request
                     $file['tmp_name'],
                     $file['error']
                 );
-                if (count($files) > 1) {
+                
+                // Always use array format if original data was array, regardless of count
+                if ($isArrayFormat) {
                     $uploadedFiles[$keyName][] = $UploadedFile;
                 } else {
                     $uploadedFiles[$keyName] = $UploadedFile;
@@ -508,10 +514,9 @@ class Request
      */
     protected function reArrayFiles(Collection $filesCollection): array
     {
-
         $fileArray = [];
         foreach ($filesCollection as $fileKeyName => $file) {
-            $isMulti = is_array($file['name']) === true && count($file['name']) > 1;
+            $isMulti = is_array($file['name']) === true ;
             $fileCount = $isMulti === true ? count($file['name']) : 1;
             $fileKeys = array_keys($file);
 

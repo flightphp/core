@@ -332,13 +332,20 @@ class RequestTest extends TestCase
     {
         // Arrange: Setup multiple file upload arrays
         $_FILES['files_1'] = [
-            'name' => ['file1.txt', 'file2.txt'],
-            'type' => ['text/plain', 'text/plain'],
-            'size' => [123, 456],
-            'tmp_name' => ['/tmp/php123', '/tmp/php456'],
-            'error' => [0, 0]
+            'name' => 'file1.txt',
+            'type' => 'text/plain',
+            'size' => 123,
+            'tmp_name' => '/tmp/php123',
+            'error' => 0
         ];
         $_FILES['files_2'] = [
+            'name' => ['file2.txt'],
+            'type' => ['text/plain'],
+            'size' => [456],
+            'tmp_name' => ['/tmp/php456'],
+            'error' => [0]
+        ];
+        $_FILES['files_3'] = [
             'name' => ['file3.txt', 'file4.txt'],
             'type' => ['text/html', 'application/json'],
             'size' => [789, 321],
@@ -350,19 +357,33 @@ class RequestTest extends TestCase
         $request = new Request();
         $uploadedFiles = $request->getUploadedFiles();
 
-        // Assert: Verify first file group
-        $firstGroup = $uploadedFiles['files_1'] ?? [];
-        $this->assertCount(2, $firstGroup, 'First file group should contain 2 files');
+        // Assert: Verify first file group (single file)
+        /*
+            <input type="file" name="files_1">
+        */
+        $firstFile = $uploadedFiles['files_1'] ?? null;
+        $this->assertNotNull($firstFile, 'First file should exist');
+        $this->assertUploadedFile($firstFile, 'file1.txt', 'text/plain', 123, '/tmp/php123', 0);
 
-        $this->assertUploadedFile($firstGroup[0], 'file1.txt', 'text/plain', 123, '/tmp/php123', 0);
-        $this->assertUploadedFile($firstGroup[1], 'file2.txt', 'text/plain', 456, '/tmp/php456', 0);
-
-        // Assert: Verify second file group
+        // Assert: Verify second file group (array format with single file)
+        /*
+            <input type="file" name="files_2[]">
+        */
         $secondGroup = $uploadedFiles['files_2'] ?? [];
-        $this->assertCount(2, $secondGroup, 'Second file group should contain 2 files');
+        $this->assertCount(1, $secondGroup, 'Second file group should contain 1 file in array format');
 
-        $this->assertUploadedFile($secondGroup[0], 'file3.txt', 'text/html', 789, '/tmp/php789', 0);
-        $this->assertUploadedFile($secondGroup[1], 'file4.txt', 'application/json', 321, '/tmp/php321', 0);
+        $this->assertUploadedFile($secondGroup[0], 'file2.txt', 'text/plain', 456, '/tmp/php456', 0);
+
+        // Assert: Verify third file group (multiple files)
+        /*
+            <input type="file" name="files_3[]">
+            <input type="file" name="files_3[]">
+        */
+        $thirdGroup = $uploadedFiles['files_3'] ?? [];
+        $this->assertCount(2, $thirdGroup, 'Third file group should contain 2 files');
+
+        $this->assertUploadedFile($thirdGroup[0], 'file3.txt', 'text/html', 789, '/tmp/php789', 0);
+        $this->assertUploadedFile($thirdGroup[1], 'file4.txt', 'application/json', 321, '/tmp/php321', 0);
     }
 
     /**
