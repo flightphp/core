@@ -233,14 +233,9 @@ class Request
                     $this->data->setData($data);
                 }
             }
-            // Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data
-        } elseif (in_array($this->method, ['PUT', 'DELETE', 'PATCH'], true) === true) {
-            $body = $this->getBody();
-            if ($body !== '') {
-                $data = [];
-                parse_str($body, $data);
-                $this->data->setData($data);
-            }
+            // Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data or multipart/form-data
+        } elseif (in_array($this->method, [ 'PUT', 'DELETE', 'PATCH' ], true) === true) {
+            $this->parseRequestBodyForHttpMethods();
         }
 
         return $this;
@@ -532,5 +527,205 @@ class Request
         }
 
         return $fileArray;
+    }
+
+    /**
+     * Parse request body data for HTTP methods that don't natively support form data (PUT, DELETE, PATCH)
+     * @return void
+     */
+    protected function parseRequestBodyForHttpMethods(): void {
+        $body = $this->getBody();
+        
+        // Empty body
+        if ($body === '') {
+            return;
+        }
+        
+        // Check Content-Type for multipart/form-data
+        $contentType = strtolower(trim($this->type));
+        $isMultipart = strpos($contentType, 'multipart/form-data') === 0;
+        $boundary = null;
+        
+        if ($isMultipart) {
+            // Extract boundary more safely
+            if (preg_match('/boundary=(["\']?)([^"\';,\s]+)\1/i', $this->type, $matches)) {
+                $boundary = $matches[2];
+            }
+            
+            // If no boundary found, it's not valid multipart
+            if (empty($boundary)) {
+                $isMultipart = false;
+            }
+        }
+
+        $data = [];
+        $file = [];
+
+        // Parse application/x-www-form-urlencoded
+        if ($isMultipart === false) {
+            parse_str($body, $data);
+            $this->data->setData($data);
+
+            return;
+        }
+        
+        // Parse multipart/form-data
+        $bodyParts = preg_split('/\\R?-+' . preg_quote($boundary, '/') . '/s', $body);
+        array_pop($bodyParts); //  Remove last element (empty)
+        
+        foreach ($bodyParts as $bodyPart) {
+            if (empty($bodyPart)) {
+                continue;
+            }
+
+            // Get the headers and value
+            [$header, $value] = preg_split('/\\R\\R/', $bodyPart, 2);
+            
+            // Check if the header is normal
+            if (strpos(strtolower($header), 'content-disposition') === false) {
+                continue;
+            }
+
+            $value = ltrim($value, "\r\n");
+
+            /**
+             * Process Header
+             */
+            $headers = [];
+            // split the headers
+            $headerParts = preg_split('/\\R/', $header);
+            foreach ($headerParts as $headerPart) {
+                if (strpos($headerPart, ':') === false) {
+                    continue;
+                }
+
+                // Process the header
+                [$headerKey, $headerValue] = explode(':', $headerPart, 2);
+                
+                $headerKey = strtolower(trim($headerKey));
+                $headerValue = trim($headerValue);
+                
+                if (strpos($headerValue, ';') !== false) {
+                    $headers[$headerKey] = [];
+                    foreach (explode(';', $headerValue) as $headerValuePart) {
+                        preg_match_all('/(\w+)=\"?([^";]+)\"?/', $headerValuePart, $headerMatches, PREG_SET_ORDER);
+
+                        foreach ($headerMatches as $headerMatch) {
+                            $headerSubKey = strtolower($headerMatch[1]);
+                            $headerSubValue = $headerMatch[2];
+
+                            $headers[$headerKey][$headerSubKey] = $headerSubValue;
+                        }
+                    }
+                } else {
+                    $headers[$headerKey] = $headerValue;
+                }
+            }
+
+            /**
+             * Process Value
+             */
+            if (!isset($headers['content-disposition']) || !isset($headers['content-disposition']['name'])) {
+                continue;
+            }
+
+            $keyName = str_replace("[]", "", $headers['content-disposition']['name']);
+
+            // if is not file
+            if (!isset($headers['content-disposition']['filename'])) {
+                if (isset($data[$keyName])) {
+                    if (!is_array($data[$keyName])) {
+                        $data[$keyName] = [$data[$keyName]];
+                    }
+                    $data[$keyName][] = $value;
+                }
+                else {
+                    $data[$keyName] = $value;
+                }
+                continue;
+            }
+
+            $tmpFile = [
+                'name' => $headers['content-disposition']['filename'],
+                'type' => $headers['content-type'] ?? 'application/octet-stream',
+                'size' => mb_strlen($value, '8bit'),
+                'tmp_name' => null,
+                'error' => UPLOAD_ERR_OK,
+            ];
+
+            if ($tmpFile['size'] > $this->getUploadMaxFileSize()) {
+                $tmpFile['error'] = UPLOAD_ERR_INI_SIZE;
+            } else {
+                // Create a temporary file
+                $tmpName = tempnam(sys_get_temp_dir(), 'flight_tmp_');
+                if ($tmpName === false) {
+                    $tmpFile['error'] = UPLOAD_ERR_CANT_WRITE;
+                } else {
+                    // Write the value to a temporary file
+                    $bytes = file_put_contents($tmpName, $value);
+
+                    if ($bytes === false) {
+                        $tmpFile['error'] = UPLOAD_ERR_CANT_WRITE;
+                    }
+                    else {
+                        // delete the temporary file before ended script
+                        register_shutdown_function(function () use ($tmpName): void {
+                            if (file_exists($tmpName)) {
+                                unlink($tmpName);
+                            }
+                        });
+    
+                        $tmpFile['tmp_name'] = $tmpName;
+                    }
+                }
+            }
+
+            foreach ($tmpFile as $key => $value) {
+                if (isset($file[$keyName][$key])) {
+                    if (!is_array($file[$keyName][$key])) {
+                        $file[$keyName][$key] = [$file[$keyName][$key]];
+                    }
+                    $file[$keyName][$key][] = $value;
+                } else {
+                    $file[$keyName][$key] = $value;
+                }
+            }
+        }
+        
+        $this->data->setData($data);
+        $this->files->setData($file);
+    }
+
+    /**
+     * Get the maximum file size that can be uploaded.
+     * @return int The maximum file size in bytes.
+     */
+    protected function getUploadMaxFileSize() {
+        $value = ini_get('upload_max_filesize');
+
+        $unit = strtolower(preg_replace('/[^a-zA-Z]/', '', $value));
+        $value = preg_replace('/[^\d.]/', '', $value);
+
+        switch ($unit) {
+            case 'p':	// PentaByte
+            case 'pb':
+                $value *= 1024;
+            case 't':	// Terabyte
+            case 'tb':
+                $value *= 1024;
+            case 'g':	// Gigabyte
+            case 'gb':
+                $value *= 1024;
+            case 'm':	// Megabyte
+            case 'mb':
+                $value *= 1024;
+            case 'k':	// Kilobyte
+            case 'kb':
+                $value *= 1024;
+            case 'b':	// Byte
+                return $value *= 1;
+            default:
+                return 0;
+        }
     }
 }
