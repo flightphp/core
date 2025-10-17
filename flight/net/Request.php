@@ -511,7 +511,7 @@ class Request
     {
         $fileArray = [];
         foreach ($filesCollection as $fileKeyName => $file) {
-            $isMulti = is_array($file['name']) === true ;
+            $isMulti = is_array($file['name']) === true;
             $fileCount = $isMulti === true ? count($file['name']) : 1;
             $fileKeys = array_keys($file);
 
@@ -533,7 +533,8 @@ class Request
      * Parse request body data for HTTP methods that don't natively support form data (PUT, DELETE, PATCH)
      * @return void
      */
-    protected function parseRequestBodyForHttpMethods(): void {
+    protected function parseRequestBodyForHttpMethods(): void
+    {
         $body = $this->getBody();
         
         // Empty body
@@ -571,7 +572,7 @@ class Request
         
         // Parse multipart/form-data
         $bodyParts = preg_split('/\\R?-+' . preg_quote($boundary, '/') . '/s', $body);
-        array_pop($bodyParts); //  Remove last element (empty)
+        array_pop($bodyParts); // Remove last element (empty)
         
         foreach ($bodyParts as $bodyPart) {
             if (empty($bodyPart)) {
@@ -700,7 +701,7 @@ class Request
      * Get the maximum file size that can be uploaded.
      * @return int The maximum file size in bytes.
      */
-    protected function getUploadMaxFileSize() {
+    protected function getUploadMaxFileSize(): int {
         $value = ini_get('upload_max_filesize');
 
         $unit = strtolower(preg_replace('/[^a-zA-Z]/', '', $value));
@@ -723,7 +724,7 @@ class Request
             case 'kb':
                 $value *= 1024;
             case 'b':	// Byte
-                return $value *= 1;
+                return (int)$value;
             default:
                 return 0;
         }
