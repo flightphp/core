@@ -650,7 +650,7 @@ class Request
                 'name' => $headers['content-disposition']['filename'],
                 'type' => $headers['content-type'] ?? 'application/octet-stream',
                 'size' => mb_strlen($value, '8bit'),
-                'tmp_name' => null,
+                'tmp_name' => '',
                 'error' => UPLOAD_ERR_OK,
             ];
 
