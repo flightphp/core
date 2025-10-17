@@ -330,31 +330,78 @@ class RequestTest extends TestCase
 
     public function testGetMultiFileUpload(): void
     {
-        $_FILES['files'] = [
-            'name' => ['file1.txt', 'file2.txt'],
-            'type' => ['text/plain', 'text/plain'],
-            'size' => [123, 456],
-            'tmp_name' => ['/tmp/php123', '/tmp/php456'],
+        // Arrange: Setup multiple file upload arrays
+        $_FILES['files_1'] = [
+            'name' => 'file1.txt',
+            'type' => 'text/plain',
+            'size' => 123,
+            'tmp_name' => '/tmp/php123',
+            'error' => 0
+        ];
+        $_FILES['files_2'] = [
+            'name' => ['file2.txt'],
+            'type' => ['text/plain'],
+            'size' => [456],
+            'tmp_name' => ['/tmp/php456'],
+            'error' => [0]
+        ];
+        $_FILES['files_3'] = [
+            'name' => ['file3.txt', 'file4.txt'],
+            'type' => ['text/html', 'application/json'],
+            'size' => [789, 321],
+            'tmp_name' => ['/tmp/php789', '/tmp/php321'],
             'error' => [0, 0]
         ];
 
+        // Act
         $request = new Request();
+        $uploadedFiles = $request->getUploadedFiles();
 
-        $files = $request->getUploadedFiles()['files'];
+        // Assert: Verify first file group (single file)
+        /*
+            <input type="file" name="files_1">
+        */
+        $firstFile = $uploadedFiles['files_1'] ?? null;
+        $this->assertNotNull($firstFile, 'First file should exist');
+        $this->assertUploadedFile($firstFile, 'file1.txt', 'text/plain', 123, '/tmp/php123', 0);
 
-        $this->assertCount(2, $files);
+        // Assert: Verify second file group (array format with single file)
+        /*
+            <input type="file" name="files_2[]">
+        */
+        $secondGroup = $uploadedFiles['files_2'] ?? [];
+        $this->assertCount(1, $secondGroup, 'Second file group should contain 1 file in array format');
 
-        $this->assertEquals('file1.txt', $files[0]->getClientFilename());
-        $this->assertEquals('text/plain', $files[0]->getClientMediaType());
-        $this->assertEquals(123, $files[0]->getSize());
-        $this->assertEquals('/tmp/php123', $files[0]->getTempName());
-        $this->assertEquals(0, $files[0]->getError());
+        $this->assertUploadedFile($secondGroup[0], 'file2.txt', 'text/plain', 456, '/tmp/php456', 0);
 
-        $this->assertEquals('file2.txt', $files[1]->getClientFilename());
-        $this->assertEquals('text/plain', $files[1]->getClientMediaType());
-        $this->assertEquals(456, $files[1]->getSize());
-        $this->assertEquals('/tmp/php456', $files[1]->getTempName());
-        $this->assertEquals(0, $files[1]->getError());
+        // Assert: Verify third file group (multiple files)
+        /*
+            <input type="file" name="files_3[]">
+            <input type="file" name="files_3[]">
+        */
+        $thirdGroup = $uploadedFiles['files_3'] ?? [];
+        $this->assertCount(2, $thirdGroup, 'Third file group should contain 2 files');
+
+        $this->assertUploadedFile($thirdGroup[0], 'file3.txt', 'text/html', 789, '/tmp/php789', 0);
+        $this->assertUploadedFile($thirdGroup[1], 'file4.txt', 'application/json', 321, '/tmp/php321', 0);
+    }
+
+    /**
+     * Helper method to assert uploaded file properties
+     */
+    private function assertUploadedFile(
+        $file,
+        string $expectedName,
+        string $expectedType,
+        int $expectedSize,
+        string $expectedTmpName,
+        int $expectedError
+    ): void {
+        $this->assertEquals($expectedName, $file->getClientFilename());
+        $this->assertEquals($expectedType, $file->getClientMediaType());
+        $this->assertEquals($expectedSize, $file->getSize());
+        $this->assertEquals($expectedTmpName, $file->getTempName());
+        $this->assertEquals($expectedError, $file->getError());
     }
 
     public function testUrlWithAtSymbol(): void
