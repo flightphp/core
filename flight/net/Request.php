@@ -639,8 +639,7 @@ class Request
                         $data[$keyName] = [$data[$keyName]];
                     }
                     $data[$keyName][] = $value;
-                }
-                else {
+                } else {
                     $data[$keyName] = $value;
                 }
                 continue;
@@ -667,8 +666,7 @@ class Request
 
                     if ($bytes === false) {
                         $tmpFile['error'] = UPLOAD_ERR_CANT_WRITE;
-                    }
-                    else {
+                    } else {
                         // delete the temporary file before ended script
                         register_shutdown_function(function () use ($tmpName): void {
                             if (file_exists($tmpName)) {

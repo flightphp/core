@@ -63,32 +63,8 @@ class RequestBodyParserTest extends TestCase
     private function assertUrlEncodedParsing(string $method): void
     {
         $body = 'foo=bar&baz=qux&key=value';
-        $tmpfile = tmpfile();
-        $stream_path = stream_get_meta_data($tmpfile)['uri'];
-        file_put_contents($stream_path, $body);
-        
-        $config = [
-            'url' => '/',
-            'base' => '/',
-            'method' => $method,
-            'referrer' => '',
-            'ip' => '127.0.0.1',
-            'ajax' => false,
-            'scheme' => 'http',
-            'user_agent' => 'Test',
-            'type' => 'application/x-www-form-urlencoded',
-            'length' => strlen($body),
-            'secure' => false,
-            'accept' => '',
-            'proxy_ip' => '',
-            'host' => 'localhost',
-            'servername' => 'localhost',
-            'stream_path' => $stream_path,
-            'data' => new Collection(),
-            'query' => new Collection(),
-            'cookies' => new Collection(),
-            'files' => new Collection()
-        ];
+        $tmpfile = null;
+        $config = $this->createRequestConfig($method, 'application/x-www-form-urlencoded', $body, $tmpfile);
         
         $request = new Request($config);
 
