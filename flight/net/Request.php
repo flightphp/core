@@ -711,19 +711,14 @@ class Request
             case 'p':	// PentaByte
             case 'pb':
                 $value *= 1024;
-                return (int)$value;
             case 't':	// Terabyte
                 $value *= 1024;
-                return (int)$value;
             case 'g':	// Gigabyte
                 $value *= 1024;
-                return (int)$value;
             case 'm':	// Megabyte
                 $value *= 1024;
-                return (int)$value;
             case 'k':	// Kilobyte
                 $value *= 1024;
-                return (int)$value;
             case 'b':	// Byte
                 break;
             default:
