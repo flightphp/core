@@ -724,7 +724,7 @@ class Request
             case 'kb':
                 $value *= 1024;
             case 'b':	// Byte
-                return (int)$value;
+                break;
             default:
                 return 0;
         }
