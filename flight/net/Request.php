@@ -177,10 +177,10 @@ class Request
                 'user_agent' => $this->getVar('HTTP_USER_AGENT'),
                 'type'       => $this->getVar('CONTENT_TYPE'),
                 'length'     => intval($this->getVar('CONTENT_LENGTH', 0)),
-                'query'      => new Collection($_GET ?? []),
-                'data'       => new Collection($_POST ?? []),
-                'cookies'    => new Collection($_COOKIE ?? []),
-                'files'      => new Collection($_FILES ?? []),
+                'query'      => new Collection($_GET),
+                'data'       => new Collection($_POST),
+                'cookies'    => new Collection($_COOKIE),
+                'files'      => new Collection($_FILES),
                 'secure'     => $scheme === 'https',
                 'accept'     => $this->getVar('HTTP_ACCEPT'),
                 'proxy_ip'   => $this->getProxyIpAddress(),
@@ -219,7 +219,7 @@ class Request
             $this->url = '/';
         } else {
             // Merge URL query parameters with $_GET
-            $_GET = array_merge($_GET ?? [], self::parseQuery($this->url));
+            $_GET = array_merge($_GET, self::parseQuery($this->url));
 
             $this->query->setData($_GET);
         }
@@ -546,7 +546,7 @@ class Request
         $contentType = strtolower(trim($this->type));
         $isMultipart = strpos($contentType, 'multipart/form-data') === 0;
         $boundary = null;
-         
+        
         if ($isMultipart) {
             // Extract boundary more safely
             if (preg_match('/boundary=(["\']?)([^"\';,\s]+)\1/i', $this->type, $matches)) {
