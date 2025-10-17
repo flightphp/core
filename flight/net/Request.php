@@ -728,5 +728,7 @@ class Request
             default:
                 return 0;
         }
+
+        return (int)$value;
     }
 }
