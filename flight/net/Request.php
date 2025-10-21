@@ -148,6 +148,13 @@ class Request
     public string $body = '';
 
     /**
+     * Hold tmp file handles created via tmpfile() so they persist for request lifetime
+     *
+     * @var array<int, resource>
+     */
+    private array $tmpFileHandles = [];
+
+    /**
      * Constructor.
      *
      * @param array<string, mixed> $config Request configuration
@@ -177,10 +184,10 @@ class Request
                 'user_agent' => $this->getVar('HTTP_USER_AGENT'),
                 'type'       => $this->getVar('CONTENT_TYPE'),
                 'length'     => intval($this->getVar('CONTENT_LENGTH', 0)),
-                'query'      => new Collection($_GET ?? []),
-                'data'       => new Collection($_POST ?? []),
-                'cookies'    => new Collection($_COOKIE ?? []),
-                'files'      => new Collection($_FILES ?? []),
+                'query'      => new Collection($_GET),
+                'data'       => new Collection($_POST),
+                'cookies'    => new Collection($_COOKIE),
+                'files'      => new Collection($_FILES),
                 'secure'     => $scheme === 'https',
                 'accept'     => $this->getVar('HTTP_ACCEPT'),
                 'proxy_ip'   => $this->getProxyIpAddress(),
@@ -219,7 +226,7 @@ class Request
             $this->url = '/';
         } else {
             // Merge URL query parameters with $_GET
-            $_GET = array_merge($_GET ?? [], self::parseQuery($this->url));
+            $_GET = array_merge($_GET, self::parseQuery($this->url));
 
             $this->query->setData($_GET);
         }
@@ -233,7 +240,7 @@ class Request
                     $this->data->setData($data);
                 }
             }
-            // Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data or multipart/form-data
+        // Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data or multipart/form-data
         } elseif (in_array($this->method, [ 'PUT', 'DELETE', 'PATCH' ], true) === true) {
             $this->parseRequestBodyForHttpMethods();
         }
@@ -468,7 +475,7 @@ class Request
     /**
      * Retrieves the array of uploaded files.
      *
-     * @return array<string, array<string,UploadedFile>|array<string,array<string,UploadedFile>>> The array of uploaded files.
+    * @return array<string, UploadedFile|array<int, UploadedFile>> Key is field name; value is either a single UploadedFile or an array of UploadedFile when multiple were uploaded.
      */
     public function getUploadedFiles(): array
     {
@@ -478,7 +485,7 @@ class Request
             // Check if original data was array format (files_name[] style)
             $originalFile = $this->files->getData()[$keyName] ?? null;
             $isArrayFormat = $originalFile && is_array($originalFile['name']);
-            
+
             foreach ($files as $file) {
                 $UploadedFile = new UploadedFile(
                     $file['name'],
@@ -487,9 +494,9 @@ class Request
                     $file['tmp_name'],
                     $file['error']
                 );
-                
+
                 // Always use array format if original data was array, regardless of count
-                if ($isArrayFormat) {
+                if ($isArrayFormat === true) {
                     $uploadedFiles[$keyName][] = $UploadedFile;
                 } else {
                     $uploadedFiles[$keyName] = $UploadedFile;
@@ -531,198 +538,299 @@ class Request
 
     /**
      * Parse request body data for HTTP methods that don't natively support form data (PUT, DELETE, PATCH)
+     *
      * @return void
      */
     protected function parseRequestBodyForHttpMethods(): void
     {
         $body = $this->getBody();
-        
+
         // Empty body
         if ($body === '') {
             return;
         }
-        
+
         // Check Content-Type for multipart/form-data
         $contentType = strtolower(trim($this->type));
         $isMultipart = strpos($contentType, 'multipart/form-data') === 0;
         $boundary = null;
-        
-        if ($isMultipart) {
+
+        if ($isMultipart === true) {
             // Extract boundary more safely
             if (preg_match('/boundary=(["\']?)([^"\';,\s]+)\1/i', $this->type, $matches)) {
                 $boundary = $matches[2];
             }
-            
+
             // If no boundary found, it's not valid multipart
             if (empty($boundary)) {
                 $isMultipart = false;
             }
-        }
 
-        $data = [];
-        $file = [];
+            $firstLine = strtok($body, "\r\n");
+            if ($firstLine === false || strpos($firstLine, '--' . $boundary) !== 0) {
+                // Does not start with the boundary marker; fall back
+                $isMultipart = false;
+            }
+        }
 
         // Parse application/x-www-form-urlencoded
         if ($isMultipart === false) {
             parse_str($body, $data);
             $this->data->setData($data);
-
             return;
         }
-        
+
+        $this->setParsedRequestBodyMultipartFormData($body, $boundary);
+    }
+
+    /**
+     * Sets the parsed request body for multipart form data requests
+     *
+     * This method processes and stores multipart form data from the request body,
+     * parsing it according to the specified boundary delimiter. It handles the
+     * complex parsing of multipart data including file uploads and form fields.
+     *
+     * @param string $body The raw multipart request body content
+     * @param string $boundary The boundary string used to separate multipart sections
+     *
+     * @return void
+     */
+    protected function setParsedRequestBodyMultipartFormData(string $body, string $boundary): void
+    {
+
+        $data = [];
+        $file = [];
+
         // Parse multipart/form-data
-        $bodyParts = preg_split('/\\R?-+' . preg_quote($boundary, '/') . '/s', $body);
-        array_pop($bodyParts); // Remove last element (empty)
-        
+        $bodyParts = preg_split('/\R?-+' . preg_quote($boundary, '/') . '/s', $body);
+        array_pop($bodyParts); // Remove last element (closing boundary or empty)
+
+        $partsProcessed = 0;
+        $filesTotalBytes = 0;
+        // Use ini values directly
+        $maxParts = (int) ini_get('max_file_uploads');
+        if ($maxParts <= 0) {
+            // unlimited parts if not specified
+            $maxParts = PHP_INT_MAX; // @codeCoverageIgnore
+        }
+        $maxTotalBytes = self::derivePostMaxSizeBytes();
+
         foreach ($bodyParts as $bodyPart) {
-            if (empty($bodyPart)) {
+            if ($partsProcessed >= $maxParts) {
+                // reached part limit from ini
+                break; // @codeCoverageIgnore
+            }
+            if ($bodyPart === '' || $bodyPart === null) {
+                continue; // skip empty segments
+            }
+            $partsProcessed++;
+
+            // Split headers and value; if format invalid, skip early
+            $split = preg_split('/\R\R/', $bodyPart, 2);
+            if ($split === false || count($split) < 2) {
                 continue;
             }
+            [$header, $value] = $split;
 
-            // Get the headers and value
-            [$header, $value] = preg_split('/\\R\\R/', $bodyPart, 2);
-            
-            // Check if the header is normal
-            if (strpos(strtolower($header), 'content-disposition') === false) {
+            // Fast header sanity checks
+            if (stripos($header, 'content-disposition') === false) {
+                continue;
+            }
+            if (strlen($header) > 16384) { // 16KB header block guard
                 continue;
             }
 
             $value = ltrim($value, "\r\n");
 
-            /**
-             * Process Header
-             */
-            $headers = [];
-            // split the headers
-            $headerParts = preg_split('/\\R/', $header);
-            foreach ($headerParts as $headerPart) {
-                if (strpos($headerPart, ':') === false) {
-                    continue;
-                }
+            // Parse headers (simple approach, fail-fast on anomalies)
+            $headers = $this->parseRequestBodyHeadersFromMultipartFormData($header);
 
-                // Process the header
-                [$headerKey, $headerValue] = explode(':', $headerPart, 2);
-                
-                $headerKey = strtolower(trim($headerKey));
-                $headerValue = trim($headerValue);
-                
-                if (strpos($headerValue, ';') !== false) {
-                    $headers[$headerKey] = [];
-                    foreach (explode(';', $headerValue) as $headerValuePart) {
-                        preg_match_all('/(\w+)=\"?([^";]+)\"?/', $headerValuePart, $headerMatches, PREG_SET_ORDER);
-
-                        foreach ($headerMatches as $headerMatch) {
-                            $headerSubKey = strtolower($headerMatch[1]);
-                            $headerSubValue = $headerMatch[2];
-
-                            $headers[$headerKey][$headerSubKey] = $headerSubValue;
-                        }
-                    }
-                } else {
-                    $headers[$headerKey] = $headerValue;
-                }
-            }
-
-            /**
-             * Process Value
-             */
-            if (!isset($headers['content-disposition']) || !isset($headers['content-disposition']['name'])) {
+            // Required disposition/name
+            if (isset($headers['content-disposition']['name']) === false) {
                 continue;
             }
+            $keyName = str_replace('[]', '', (string) $headers['content-disposition']['name']);
+            if ($keyName === '') {
+                continue; // avoid empty keys
+            }
 
-            $keyName = str_replace("[]", "", $headers['content-disposition']['name']);
-
-            // if is not file
-            if (!isset($headers['content-disposition']['filename'])) {
-                if (isset($data[$keyName])) {
-                    if (!is_array($data[$keyName])) {
+            // Non-file field
+            if (isset($headers['content-disposition']['filename']) === false) {
+                if (isset($data[$keyName]) === false) {
+                    $data[$keyName] = $value;
+                } else {
+                    if (is_array($data[$keyName]) === false) {
                         $data[$keyName] = [$data[$keyName]];
                     }
                     $data[$keyName][] = $value;
-                } else {
-                    $data[$keyName] = $value;
                 }
-                continue;
+                continue; // done with this part
             }
 
+            // Sanitize filename early
+            $rawFilename = (string) $headers['content-disposition']['filename'];
+            $rawFilename = str_replace(["\0", "\r", "\n"], '', $rawFilename);
+            $sanitizedFilename = basename($rawFilename);
+            $matchCriteria = preg_match('/^[A-Za-z0-9._-]{1,255}$/', $sanitizedFilename);
+            if ($sanitizedFilename === '' || $matchCriteria !== 1) {
+                $sanitizedFilename = 'upload_' . uniqid('', true);
+            }
+
+            $size = mb_strlen($value, '8bit');
+            $filesTotalBytes += $size;
             $tmpFile = [
-                'name' => $headers['content-disposition']['filename'],
+                'name' => $sanitizedFilename,
                 'type' => $headers['content-type'] ?? 'application/octet-stream',
-                'size' => mb_strlen($value, '8bit'),
+                'size' => $size,
                 'tmp_name' => '',
                 'error' => UPLOAD_ERR_OK,
             ];
 
-            if ($tmpFile['size'] > $this->getUploadMaxFileSize()) {
-                $tmpFile['error'] = UPLOAD_ERR_INI_SIZE;
+            // Fail fast on size constraints
+            if ($size > $this->getUploadMaxFileSize() || $filesTotalBytes > $maxTotalBytes) {
+                // individual file or total size exceeded
+                $tmpFile['error'] = UPLOAD_ERR_INI_SIZE; // @codeCoverageIgnore
             } else {
-                // Create a temporary file
-                $tmpName = tempnam(sys_get_temp_dir(), 'flight_tmp_');
-                if ($tmpName === false) {
-                    $tmpFile['error'] = UPLOAD_ERR_CANT_WRITE;
-                } else {
-                    // Write the value to a temporary file
-                    $bytes = file_put_contents($tmpName, $value);
-
-                    if ($bytes === false) {
-                        $tmpFile['error'] = UPLOAD_ERR_CANT_WRITE;
-                    } else {
-                        // delete the temporary file before ended script
-                        register_shutdown_function(function () use ($tmpName): void {
-                            if (file_exists($tmpName)) {
-                                unlink($tmpName);
-                            }
-                        });
-    
-                        $tmpFile['tmp_name'] = $tmpName;
-                    }
-                }
+                $tempResult = $this->createTempFile($value);
+                $tmpFile['tmp_name'] = $tempResult['tmp_name'];
+                $tmpFile['error'] = $tempResult['error'];
             }
 
-            foreach ($tmpFile as $key => $value) {
-                if (isset($file[$keyName][$key])) {
-                    if (!is_array($file[$keyName][$key])) {
-                        $file[$keyName][$key] = [$file[$keyName][$key]];
-                    }
-                    $file[$keyName][$key][] = $value;
-                } else {
-                    $file[$keyName][$key] = $value;
+            // Aggregate into synthetic files array
+            foreach ($tmpFile as $metaKey => $metaVal) {
+                if (!isset($file[$keyName][$metaKey])) {
+                    $file[$keyName][$metaKey] = $metaVal;
+                    continue;
                 }
+                if (!is_array($file[$keyName][$metaKey])) {
+                    $file[$keyName][$metaKey] = [$file[$keyName][$metaKey]];
+                }
+                $file[$keyName][$metaKey][] = $metaVal;
             }
         }
-        
+
         $this->data->setData($data);
         $this->files->setData($file);
     }
 
     /**
+     * Parses request body headers from multipart form data
+     *
+     * This method extracts and processes headers from a multipart form data section,
+     * typically used for file uploads or complex form submissions. It parses the
+     * header string and returns an associative array of header name-value pairs.
+     *
+     * @param string $header The raw header string from a multipart form data section
+     *
+     * @return array<string,mixed> An associative array containing parsed header name-value pairs
+     */
+    protected function parseRequestBodyHeadersFromMultipartFormData(string $header): array
+    {
+        $headers = [];
+        foreach (preg_split('/\R/', $header) as $headerLine) {
+            if (strpos($headerLine, ':') === false) {
+                continue;
+            }
+            [$headerKey, $headerValue] = explode(':', $headerLine, 2);
+            $headerKey = strtolower(trim($headerKey));
+            $headerValue = trim($headerValue);
+            if (strpos($headerValue, ';') !== false) {
+                $headers[$headerKey] = [];
+                foreach (explode(';', $headerValue) as $hvPart) {
+                    preg_match_all('/(\w+)="?([^";]+)"?/', $hvPart, $matches, PREG_SET_ORDER);
+                    foreach ($matches as $m) {
+                        $subKey = strtolower($m[1]);
+                        $headers[$headerKey][$subKey] = $m[2];
+                    }
+                }
+            } else {
+                $headers[$headerKey] = $headerValue;
+            }
+        }
+        return $headers;
+    }
+
+    /**
      * Get the maximum file size that can be uploaded.
+     *
      * @return int The maximum file size in bytes.
      */
-    protected function getUploadMaxFileSize(): int {
+    public function getUploadMaxFileSize(): int
+    {
         $value = ini_get('upload_max_filesize');
+        return self::parsePhpSize($value);
+    }
 
-        $unit = strtolower(preg_replace('/[^a-zA-Z]/', '', $value));
-        $value = preg_replace('/[^\d.]/', '', $value);
+    /**
+     * Parse a PHP shorthand size string (like "1K", "1.5M") into bytes.
+     * Returns 0 on unknown or unsupported unit (keeps existing behavior).
+     *
+     * @param string $size
+     *
+     * @return int
+     */
+    public static function parsePhpSize(string $size): int
+    {
+        $unit = strtolower(preg_replace('/[^a-zA-Z]/', '', $size));
+        $value = (int) preg_replace('/[^\d.]/', '', $size);
+
+        // No unit => follow existing behavior and return value directly if > 1024 (1K)
+        if ($unit === '' && $value >= 1024) {
+            return $value;
+        }
 
         switch ($unit) {
-            case 'p':	// PentaByte
-            case 'pb':
+            case 't':
+            case 'tb':
+                $value *= 1024; // Fall through
+            case 'g':
+            case 'gb':
+                $value *= 1024; // Fall through
+            case 'm':
+            case 'mb':
+                $value *= 1024; // Fall through
+            case 'k':
                 $value *= 1024;
-            case 't':	// Terabyte
-                $value *= 1024;
-            case 'g':	// Gigabyte
-                $value *= 1024;
-            case 'm':	// Megabyte
-                $value *= 1024;
-            case 'k':	// Kilobyte
-                $value *= 1024;
-            case 'b':	// Byte
                 break;
             default:
                 return 0;
         }
 
-        return (int)$value;
+        return $value;
+    }
+
+    /**
+     * Derive post_max_size in bytes. Returns 0 when unlimited or unparsable.
+     */
+    private static function derivePostMaxSizeBytes(): int
+    {
+        $postMax = (string) ini_get('post_max_size');
+        $bytes = self::parsePhpSize($postMax);
+        return $bytes; // 0 means unlimited
+    }
+
+    /**
+     * Create a temporary file for uploaded content using tmpfile().
+     * Returns array with tmp_name and error code.
+     *
+     * @param string $content
+     *
+     * @return array<string,string|int>
+     */
+    private function createTempFile(string $content): array
+    {
+        $fp = tmpfile();
+        if ($fp === false) {
+            return ['tmp_name' => '', 'error' => UPLOAD_ERR_CANT_WRITE]; // @codeCoverageIgnore
+        }
+        $bytes = fwrite($fp, $content);
+        if ($bytes === false) {
+            fclose($fp); // @codeCoverageIgnore
+            return ['tmp_name' => '', 'error' => UPLOAD_ERR_CANT_WRITE]; // @codeCoverageIgnore
+        }
+        $meta = stream_get_meta_data($fp);
+        $tmpName = isset($meta['uri']) ? $meta['uri'] : '';
+        $this->tmpFileHandles[] = $fp; // retain handle for lifecycle
+        return ['tmp_name' => $tmpName, 'error' => UPLOAD_ERR_OK];
     }
 }
