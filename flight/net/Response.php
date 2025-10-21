@@ -237,7 +237,7 @@ class Response
      *
      * @return $this Self reference
      */
-    public function write(string $str, bool $overwrite = false): self
+    public function write($str, bool $overwrite = false): self
     {
         if ($overwrite === true) {
             $this->clearBody();
