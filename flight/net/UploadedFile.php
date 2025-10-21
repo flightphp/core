@@ -114,15 +114,32 @@ class UploadedFile
             throw new Exception($this->getUploadErrorMessage($this->error));
         }
 
+        // Check if this is a legitimate uploaded file (POST method uploads)
         $isUploadedFile = is_uploaded_file($this->tmpName) === true;
-        if (
-            $isUploadedFile === true
-            &&
-            move_uploaded_file($this->tmpName, $targetPath) === false
-        ) {
-            throw new Exception('Cannot move uploaded file'); // @codeCoverageIgnore
-        } elseif ($isUploadedFile === false && getenv('PHPUNIT_TEST')) {
+        
+        if ($isUploadedFile === true) {
+            // Standard POST upload - use move_uploaded_file for security
+            if (move_uploaded_file($this->tmpName, $targetPath) === false) {
+                throw new Exception('Cannot move uploaded file'); // @codeCoverageIgnore
+            }
+        } elseif (getenv('PHPUNIT_TEST')) {
             rename($this->tmpName, $targetPath);
+        } elseif (file_exists($this->tmpName) === true && is_readable($this->tmpName) === true) {
+            // Handle non-POST uploads (PATCH, PUT, DELETE) or other valid temp files
+            // Verify the file is in a valid temp directory for security
+            $tempDir = sys_get_temp_dir();
+            $uploadTmpDir = ini_get('upload_tmp_dir') ?: $tempDir;
+            
+            if (strpos(realpath($this->tmpName), realpath($uploadTmpDir)) === 0 || 
+                strpos(realpath($this->tmpName), realpath($tempDir)) === 0) {
+                if (rename($this->tmpName, $targetPath) === false) {
+                    throw new Exception('Cannot move uploaded file');
+                }
+            } else {
+                throw new Exception('Invalid temporary file location');
+            }
+        } else {
+            throw new Exception('Temporary file does not exist or is not readable');
         }
     }
 
