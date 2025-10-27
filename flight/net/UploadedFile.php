@@ -34,6 +34,11 @@ class UploadedFile
     private int $error;
 
     /**
+     * @var bool $isPostUploadedFile Indicates if the file was uploaded via POST method.
+     */
+    private bool $isPostUploadedFile = false;
+
+    /**
      * Constructs a new UploadedFile object.
      *
      * @param string $name The name of the uploaded file.
@@ -41,14 +46,20 @@ class UploadedFile
      * @param int $size The size of the uploaded file in bytes.
      * @param string $tmpName The temporary name of the uploaded file.
      * @param int $error The error code associated with the uploaded file.
+     * @param bool|null $isPostUploadedFile Indicates if the file was uploaded via POST method.
      */
-    public function __construct(string $name, string $mimeType, int $size, string $tmpName, int $error)
+    public function __construct(string $name, string $mimeType, int $size, string $tmpName, int $error, ?bool $isPostUploadedFile = null)
     {
         $this->name = $name;
         $this->mimeType = $mimeType;
         $this->size = $size;
         $this->tmpName = $tmpName;
         $this->error = $error;
+        if (is_uploaded_file($tmpName) === true) {
+            $this->isPostUploadedFile = true; // @codeCoverageIgnore
+        } else {
+            $this->isPostUploadedFile = $isPostUploadedFile ?? false;
+        }
     }
 
     /**
@@ -114,32 +125,42 @@ class UploadedFile
             throw new Exception($this->getUploadErrorMessage($this->error));
         }
 
+        if (is_writeable(dirname($targetPath)) === false) {
+            throw new Exception('Target directory is not writable');
+        }
+
+        // Prevent path traversal attacks
+        if (strpos($targetPath, '..') !== false) {
+            throw new Exception('Invalid target path: contains directory traversal');
+        }
+        // Prevent absolute paths (basic check for Unix/Windows)
+        if ($targetPath[0] === '/' || (strlen($targetPath) > 1 && $targetPath[1] === ':')) {
+            throw new Exception('Invalid target path: absolute paths not allowed');
+        }
+
+        // Prevent overwriting existing files
+        if (file_exists($targetPath)) {
+            throw new Exception('Target file already exists');
+        }
+
         // Check if this is a legitimate uploaded file (POST method uploads)
-        $isUploadedFile = is_uploaded_file($this->tmpName) === true;
-        
-        if ($isUploadedFile === true) {
+        $isUploadedFile = $this->isPostUploadedFile;
+
+        // Prevent symlink attacks for non-POST uploads
+        if (!$isUploadedFile && is_link($this->tmpName)) {
+            throw new Exception('Invalid temp file: symlink detected');
+        }
+
+        $uploadFunctionToCall = $isUploadedFile === true ?
             // Standard POST upload - use move_uploaded_file for security
-            if (move_uploaded_file($this->tmpName, $targetPath) === false) {
-                throw new Exception('Cannot move uploaded file'); // @codeCoverageIgnore
-            }
-        } elseif (getenv('PHPUNIT_TEST')) {
-            rename($this->tmpName, $targetPath);
-        } elseif (file_exists($this->tmpName) === true && is_readable($this->tmpName) === true) {
-            // Handle non-POST uploads (PATCH, PUT, DELETE) or other valid temp files
-            // Verify the file is in a valid temp directory for security
-            $tempDir = sys_get_temp_dir();
-            $uploadTmpDir = ini_get('upload_tmp_dir') ?: $tempDir;
-            
-            if (strpos(realpath($this->tmpName), realpath($uploadTmpDir)) === 0 || 
-                strpos(realpath($this->tmpName), realpath($tempDir)) === 0) {
-                if (rename($this->tmpName, $targetPath) === false) {
-                    throw new Exception('Cannot move uploaded file');
-                }
-            } else {
-                throw new Exception('Invalid temporary file location');
-            }
-        } else {
-            throw new Exception('Temporary file does not exist or is not readable');
+            'move_uploaded_file' :
+             // Handle non-POST uploads (PATCH, PUT, DELETE) or other valid temp files
+            'rename';
+
+        $result = $uploadFunctionToCall($this->tmpName, $targetPath);
+
+        if ($result === false) {
+            throw new Exception('Cannot move uploaded file');
         }
     }
 
