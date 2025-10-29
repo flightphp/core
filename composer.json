@@ -51,7 +51,6 @@
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6",
         "rregeer/phpunit-coverage-check": "^0.3.1",
-        "spatie/phpunit-watcher": "^1.23 || ^1.24",
         "squizlabs/php_codesniffer": "^3.11"
     },
     "config": {
@@ -62,7 +61,7 @@
         "sort-packages": true
     },
     "scripts": {
-        "test": "vendor/bin/phpunit-watcher watch",
+        "test": "phpunit",
         "test-ci": "phpunit",
         "test-coverage": "rm -f clover.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
         "test-server": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server/",
