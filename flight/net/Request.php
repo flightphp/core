@@ -173,6 +173,9 @@ class Request
                 $base = str_replace(['\\', ' '], ['/', '%20'], $base);
             }
             $base = dirname($base);
+            if ($base === '\\') {
+                $base = '/';
+            }
             $config = [
                 'url'        => $url,
                 'base'       => $base,
