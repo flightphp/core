@@ -41,7 +41,8 @@ class RouteCommand extends AbstractBaseCommand
     {
         $io = $this->app()->io();
 
-        if (isset($this->config['index_root']) === false) {
+        
+        if (isset($this->config['runway']['index_root']) === false) {
             $io->error('index_root not set in .runway-config.json', true);
             return;
         }
@@ -50,7 +51,7 @@ class RouteCommand extends AbstractBaseCommand
 
         $cwd = getcwd();
 
-        $index_root = $cwd . '/' . $this->config['index_root'];
+        $index_root = $cwd . '/' . $this->config['runway']['index_root'];
 
         // This makes it so the framework doesn't actually execute
         Flight::map('start', function () {
