@@ -101,7 +101,7 @@ PHP;
     {
         $app = @$this->newApp('test', '0.0.1');
         $this->createIndexFile();
-        $app->add(new RouteCommand(['subway' => ['index_root' => 'tests/commands/index.php']]));
+        $app->add(new RouteCommand(['runway' => ['index_root' => 'tests/commands/index.php']]));
         @$app->handle(['runway', 'routes']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
