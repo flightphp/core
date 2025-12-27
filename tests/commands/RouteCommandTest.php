@@ -23,6 +23,7 @@ class RouteCommandTest extends TestCase
         static::$ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test' . uniqid('', true) . '.txt';
         file_put_contents(static::$in, '');
         file_put_contents(static::$ou, '');
+
         $_SERVER = [];
         $_REQUEST = [];
         Flight::init();
@@ -91,21 +92,22 @@ PHP;
     public function testConfigIndexRootNotSet(): void
     {
         $app = @$this->newApp('test', '0.0.1');
-        $app->add(new RouteCommand([]));
+        $app->add(new RouteCommand(['runway' => ['something' => 'else']]));
         @$app->handle(['runway', 'routes']);
 
-        $this->assertStringContainsString('index_root not set in .runway-config.json', file_get_contents(static::$ou));
+        $this->assertStringContainsString('index_root not set in app/config/config.php', file_get_contents(static::$ou));
     }
 
     public function testGetRoutes(): void
     {
         $app = @$this->newApp('test', '0.0.1');
         $this->createIndexFile();
-        $app->add(new RouteCommand(['index_root' => 'tests/commands/index.php']));
+        $app->add(new RouteCommand(['runway' => ['index_root' => 'tests/commands/index.php']]));
         @$app->handle(['runway', 'routes']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
         $expected = <<<'output'
+        Routes
         +---------+--------------------+-------+----------+----------------+
         | Pattern | Methods            | Alias | Streamed | Middleware     |
         +---------+--------------------+-------+----------+----------------+
@@ -127,18 +129,21 @@ PHP;
     {
         $app = @$this->newApp('test', '0.0.1');
         $this->createIndexFile();
-        $app->add(new RouteCommand(['index_root' => 'tests/commands/index.php']));
+        $app->add(new RouteCommand(['runway' => ['index_root' => 'tests/commands/index.php']]));
         @$app->handle(['runway', 'routes', '--post']);
 
         $this->assertStringContainsString('Routes', file_get_contents(static::$ou));
 
         $expected = <<<'output'
+        Routes
         +---------+---------------+-------+----------+------------+
         | Pattern | Methods       | Alias | Streamed | Middleware |
         +---------+---------------+-------+----------+------------+
         | /post   | POST, OPTIONS |       | No       | Closure    |
         +---------+---------------+-------+----------+------------+
         output; // phpcs:ignore
+
+        $expected = str_replace(["\r\n", "\\n", "\n"], ["\n", "", "\n"], $expected);
 
         $this->assertStringContainsString(
             $expected,

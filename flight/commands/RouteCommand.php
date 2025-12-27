@@ -41,16 +41,21 @@ class RouteCommand extends AbstractBaseCommand
     {
         $io = $this->app()->io();
 
-        if (isset($this->config['index_root']) === false) {
-            $io->error('index_root not set in .runway-config.json', true);
+        if (empty($this->config['runway'])) {
+            $io->warn('Using a .runway-config.json file is deprecated. Move your config values to app/config/config.php with `php runway config:migrate`.', true); // @codeCoverageIgnore
+            $runwayConfig = json_decode(file_get_contents($this->projectRoot . '/.runway-config.json'), true); // @codeCoverageIgnore
+        } else {
+            $runwayConfig = $this->config['runway'];
+        }
+
+        if (isset($runwayConfig['index_root']) === false) {
+            $io->error('index_root not set in app/config/config.php', true);
             return;
         }
 
         $io->bold('Routes', true);
 
-        $cwd = getcwd();
-
-        $index_root = $cwd . '/' . $this->config['index_root'];
+        $index_root = $this->projectRoot . '/' . $runwayConfig['index_root'];
 
         // This makes it so the framework doesn't actually execute
         Flight::map('start', function () {
@@ -72,8 +77,8 @@ class RouteCommand extends AbstractBaseCommand
                             }
                             return preg_match("/^class@anonymous/", end($middleware_class_name)) ? 'Anonymous' : end($middleware_class_name);
                         }, $route->middleware);
-                    } catch (\TypeError $e) {
-                        $middlewares[] = 'Bad Middleware';
+                    } catch (\TypeError $e) { // @codeCoverageIgnore
+                        $middlewares[] = 'Bad Middleware'; // @codeCoverageIgnore
                     } finally {
                         if (is_string($route->middleware) === true) {
                             $middlewares[] = $route->middleware;

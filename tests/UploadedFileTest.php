@@ -25,8 +25,8 @@ class UploadedFileTest extends TestCase
             unlink('real_file');
         }
 
-		// not found with file_exists...just delete it brute force
-		@unlink('tmp_symlink');
+        // not found with file_exists...just delete it brute force
+        @unlink('tmp_symlink');
     }
 
     public function testMoveToFalseSuccess(): void
