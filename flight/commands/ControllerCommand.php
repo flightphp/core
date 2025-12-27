@@ -29,7 +29,7 @@ class ControllerCommand extends AbstractBaseCommand
     public function execute(string $controller)
     {
         $io = $this->app()->io();
-        if (isset($this->config['app_root']) === false) {
+        if (isset($this->config['runway']['app_root']) === false) {
             $io->error('app_root not set in .runway-config.json', true);
             return;
         }
@@ -38,7 +38,7 @@ class ControllerCommand extends AbstractBaseCommand
             $controller .= 'Controller';
         }
 
-        $controllerPath = getcwd() . DIRECTORY_SEPARATOR . $this->config['app_root'] . 'controllers' . DIRECTORY_SEPARATOR . $controller . '.php';
+        $controllerPath = getcwd() . DIRECTORY_SEPARATOR . $this->config['runway']['app_root'] . 'controllers' . DIRECTORY_SEPARATOR . $controller . '.php';
         if (file_exists($controllerPath) === true) {
             $io->error($controller . ' already exists.', true);
             return;
@@ -86,6 +86,6 @@ class ControllerCommand extends AbstractBaseCommand
     protected function persistClass(string $controllerName, PhpFile $file)
     {
         $printer = new \Nette\PhpGenerator\PsrPrinter();
-        file_put_contents(getcwd() . DIRECTORY_SEPARATOR . $this->config['app_root'] . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . '.php', $printer->printFile($file));
+        file_put_contents(getcwd() . DIRECTORY_SEPARATOR . $this->config['runway']['app_root'] . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . '.php', $printer->printFile($file));
     }
 }
