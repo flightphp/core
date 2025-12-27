@@ -9,14 +9,12 @@ use flight\commands\AiGenerateInstructionsCommand;
 use PHPUnit\Framework\TestCase;
 use tests\classes\NoExitInteractor;
 
-class AiGenerateInstructionsCommandTest extends TestCase
-{
+class AiGenerateInstructionsCommandTest extends TestCase {
     protected static $in;
     protected static $ou;
     protected $baseDir;
 
-    public function setUp(): void
-    {
+    public function setUp(): void {
         self::$in = __DIR__ . DIRECTORY_SEPARATOR . 'input.test' . uniqid('', true) . '.txt';
         self::$ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test' . uniqid('', true) . '.txt';
         file_put_contents(self::$in, '');
@@ -27,8 +25,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         }
     }
 
-    public function tearDown(): void
-    {
+    public function tearDown(): void {
         if (file_exists(self::$in)) {
             unlink(self::$in);
         }
@@ -38,8 +35,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->recursiveRmdir($this->baseDir);
     }
 
-    protected function recursiveRmdir($dir)
-    {
+    protected function recursiveRmdir($dir) {
         if (!is_dir($dir)) {
             return;
         }
@@ -50,8 +46,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         return rmdir($dir);
     }
 
-    protected function newApp($command): Application
-    {
+    protected function newApp($command): Application {
         $app = new Application('test', '0.0.1', function ($exitCode) {
             return $exitCode;
         });
@@ -60,13 +55,11 @@ class AiGenerateInstructionsCommandTest extends TestCase
         return $app;
     }
 
-    protected function setInput(array $lines): void
-    {
+    protected function setInput(array $lines): void {
         file_put_contents(self::$in, implode("\n", $lines) . "\n");
     }
 
-    protected function setProjectRoot($command, $path)
-    {
+    protected function setProjectRoot($command, $path) {
         $reflection = new \ReflectionClass(get_class($command));
         $property = null;
         $currentClass = $reflection;
@@ -78,13 +71,11 @@ class AiGenerateInstructionsCommandTest extends TestCase
             }
         }
         if ($property) {
-            $property->setAccessible(true);
             $property->setValue($command, $path);
         }
     }
 
-    public function testFailsIfAiConfigMissing()
-    {
+    public function testFailsIfAiConfigMissing() {
         $this->setInput([
             'desc',
             'none',
@@ -112,8 +103,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->assertStringContainsString('Missing AI configuration', file_get_contents(self::$ou));
     }
 
-    public function testWritesInstructionsToFiles()
-    {
+    public function testWritesInstructionsToFiles() {
         $creds = [
             'api_key' => 'key',
             'model' => 'gpt-4o',
@@ -160,8 +150,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->assertFileExists($this->baseDir . '.windsurfrules');
     }
 
-    public function testNoInstructionsReturnedFromLlm()
-    {
+    public function testNoInstructionsReturnedFromLlm() {
         $creds = [
             'api_key' => 'key',
             'model' => 'gpt-4o',
@@ -203,8 +192,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->assertSame(1, $result);
     }
 
-    public function testLlmApiCallFails()
-    {
+    public function testLlmApiCallFails() {
         $creds = [
             'api_key' => 'key',
             'model' => 'gpt-4o',
@@ -242,8 +230,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->assertSame(1, $result);
     }
 
-    public function testUsesDeprecatedConfigFile()
-    {
+    public function testUsesDeprecatedConfigFile() {
         $creds = [
             'ai' => [
                 'api_key' => 'key',
