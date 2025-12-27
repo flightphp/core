@@ -48,7 +48,7 @@ class ControllerCommandTest extends TestCase
 
     protected function newApp(string $name, string $version = '')
     {
-        $app = @new Application($name, $version ?: '0.0.1', fn () => false);
+        $app = @new Application($name, $version ?: '0.0.1', fn() => false);
 
         return @$app->io(new Interactor(static::$in, static::$ou));
     }
@@ -56,10 +56,10 @@ class ControllerCommandTest extends TestCase
     public function testConfigAppRootNotSet(): void
     {
         $app = $this->newApp('test', '0.0.1');
-        $app->add(new ControllerCommand([]));
+        $app->add(new ControllerCommand(['runway' => ['something' => '']]));
         @$app->handle(['runway', 'make:controller', 'Test']);
 
-        $this->assertStringContainsString('app_root not set in .runway-config.json', file_get_contents(static::$ou));
+        $this->assertStringContainsString('app_root not set in app/config/config.php', file_get_contents(static::$ou));
     }
 
     public function testControllerAlreadyExists(): void
@@ -67,7 +67,7 @@ class ControllerCommandTest extends TestCase
         $app = $this->newApp('test', '0.0.1');
         mkdir(__DIR__ . '/controllers/');
         file_put_contents(__DIR__ . '/controllers/TestController.php', '<?php class TestController {}');
-        $app->add(new ControllerCommand(['app_root' => 'tests/commands/']));
+        $app->add(new ControllerCommand(['runway' => ['app_root' => 'tests/commands/']]));
         $app->handle(['runway', 'make:controller', 'Test']);
 
         $this->assertStringContainsString('TestController already exists.', file_get_contents(static::$ou));
@@ -76,7 +76,7 @@ class ControllerCommandTest extends TestCase
     public function testCreateController(): void
     {
         $app = $this->newApp('test', '0.0.1');
-        $app->add(new ControllerCommand(['app_root' => 'tests/commands/']));
+        $app->add(new ControllerCommand(['runway' => ['app_root' => 'tests/commands/']]));
         $app->handle(['runway', 'make:controller', 'Test']);
 
         $this->assertFileExists(__DIR__ . '/controllers/TestController.php');

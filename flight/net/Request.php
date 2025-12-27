@@ -174,7 +174,7 @@ class Request
             }
             $base = dirname($base);
             if ($base === '\\') {
-                $base = '/';
+                $base = '/'; // @codeCoverageIgnore
             }
             $config = [
                 'url'        => $url,
@@ -243,8 +243,8 @@ class Request
                     $this->data->setData($data);
                 }
             }
-        // Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data or multipart/form-data
-        } elseif (in_array($this->method, [ 'PUT', 'DELETE', 'PATCH' ], true) === true) {
+            // Check PUT, PATCH, DELETE for application/x-www-form-urlencoded data or multipart/form-data
+        } elseif (in_array($this->method, ['PUT', 'DELETE', 'PATCH'], true) === true) {
             $this->parseRequestBodyForHttpMethods();
         }
 
@@ -478,7 +478,7 @@ class Request
     /**
      * Retrieves the array of uploaded files.
      *
-    * @return array<string, UploadedFile|array<int, UploadedFile>> Key is field name; value is either a single UploadedFile or an array of UploadedFile when multiple were uploaded.
+     * @return array<string, UploadedFile|array<int, UploadedFile>> Key is field name; value is either a single UploadedFile or an array of UploadedFile when multiple were uploaded.
      */
     public function getUploadedFiles(): array
     {
