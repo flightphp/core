@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace flight\commands;
 
-use Ahc\Cli\Input\Command;
-
 /**
- * @property-read ?string $credsFile
+ * @property-read ?string $configFile
  * @property-read ?string $baseDir
  */
-class AiGenerateInstructionsCommand extends Command
+class AiGenerateInstructionsCommand extends AbstractBaseCommand
 {
     /**
      * Constructor for the AiGenerateInstructionsCommand class.
      *
      * Initializes a new instance of the command.
+     *
+     * @param array<string,mixed> $config Config from config.php
      */
-    public function __construct()
+    public function __construct(array $config)
     {
-        parent::__construct('ai:generate-instructions', 'Generate project-specific AI coding instructions');
-        $this->option('--creds-file', 'Path to .runway-creds.json file', null, '');
-        $this->option('--base-dir', 'Project base directory (for testing or custom use)', null, '');
+        parent::__construct('ai:generate-instructions', 'Generate project-specific AI coding instructions', $config);
+        $this->option('--config-file', 'Path to .runway-config.json file (deprecated, use config.php instead)', null, '');
     }
 
     /**
@@ -37,12 +36,19 @@ class AiGenerateInstructionsCommand extends Command
     public function execute()
     {
         $io = $this->app()->io();
-        $baseDir = $this->baseDir ? rtrim($this->baseDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : getcwd() . DIRECTORY_SEPARATOR;
-        $runwayCredsFile = $this->credsFile ?: $baseDir . '.runway-creds.json';
 
-        // Check for runway creds
-        if (!file_exists($runwayCredsFile)) {
-            $io->error('Missing .runway-creds.json. Please run the \'ai:init\' command first.', true);
+        if (empty($this->config['runway'])) {
+            $configFile = $this->configFile;
+            $io = $this->app()->io();
+            $io->warn('The --config-file option is deprecated. Move your config values to the \'runway\' key in the config.php file for configuration.', true);
+            $runwayConfig = json_decode(file_get_contents($configFile), true) ?? [];
+        } else {
+            $runwayConfig = $this->config['runway'];
+        }
+
+        // Check for runway creds ai
+        if (empty($runwayConfig['ai'])) {
+            $io->error('Missing AI configuration. Please run the \'ai:init\' command first.', true);
             return 1;
         }
 
@@ -61,8 +67,8 @@ class AiGenerateInstructionsCommand extends Command
         $other = $io->prompt('Any other important requirements or context? (optional)', 'no');
 
         // Prepare prompt for LLM
-        $contextFile = $baseDir . '.github/copilot-instructions.md';
-        $context = file_exists($contextFile) ? file_get_contents($contextFile) : '';
+        $contextFile = $this->projectRoot . '.github/copilot-instructions.md';
+        $context = file_exists($contextFile) === true ? file_get_contents($contextFile) : '';
         $userDetails = [
             'Project Description' => $projectDesc,
             'Database' => $database,
@@ -80,7 +86,7 @@ class AiGenerateInstructionsCommand extends Command
             $detailsText .= "$k: $v\n";
         }
         $prompt = <<<EOT
-			You are an AI coding assistant. Update the following project instructions for this FlightPHP project based on the latest user answers. Only output the new instructions, no extra commentary.
+			You are an AI coding assistant. Update the following project instructions for this Flight PHP project based on the latest user answers. Only output the new instructions, no extra commentary.
 			User answers:
 			$detailsText
 			Current instructions:
@@ -88,10 +94,10 @@ class AiGenerateInstructionsCommand extends Command
 			EOT; // phpcs:ignore
 
         // Read LLM creds
-        $creds = json_decode(file_get_contents($runwayCredsFile), true);
-        $apiKey = $creds['api_key'] ?? '';
-        $model = $creds['model'] ?? 'gpt-4o';
-        $baseUrl = $creds['base_url'] ?? 'https://api.openai.com';
+        $creds = $runwayConfig['ai'];
+        $apiKey = $creds['api_key'];
+        $model = $creds['model'];
+        $baseUrl = $creds['base_url'];
 
         // Prepare curl call (OpenAI compatible)
         $headers = [
@@ -123,16 +129,20 @@ class AiGenerateInstructionsCommand extends Command
         }
 
         // Write to files
-        $io->info('Updating .github/copilot-instructions.md, .cursor/rules/project-overview.mdc, and .windsurfrules...', true);
-        if (!is_dir($baseDir . '.github')) {
-            mkdir($baseDir . '.github', 0755, true);
+        $io->info('Updating .github/copilot-instructions.md, .cursor/rules/project-overview.mdc, .gemini/GEMINI.md and .windsurfrules...', true);
+        if (!is_dir($this->projectRoot . '.github')) {
+            mkdir($this->projectRoot . '.github', 0755, true);
         }
-        if (!is_dir($baseDir . '.cursor/rules')) {
-            mkdir($baseDir . '.cursor/rules', 0755, true);
+        if (!is_dir($this->projectRoot . '.cursor/rules')) {
+            mkdir($this->projectRoot . '.cursor/rules', 0755, true);
         }
-        file_put_contents($baseDir . '.github/copilot-instructions.md', $instructions);
-        file_put_contents($baseDir . '.cursor/rules/project-overview.mdc', $instructions);
-        file_put_contents($baseDir . '.windsurfrules', $instructions);
+        if (!is_dir($this->projectRoot . '.gemini')) {
+            mkdir($this->projectRoot . '.gemini', 0755, true);
+        }
+        file_put_contents($this->projectRoot . '.github/copilot-instructions.md', $instructions);
+        file_put_contents($this->projectRoot . '.cursor/rules/project-overview.mdc', $instructions);
+        file_put_contents($this->projectRoot . '.gemini/GEMINI.md', $instructions);
+        file_put_contents($this->projectRoot . '.windsurfrules', $instructions);
         $io->ok('AI instructions updated successfully.', true);
         return 0;
     }

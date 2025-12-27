@@ -44,7 +44,7 @@
     "require-dev": {
         "ext-pdo_sqlite": "*",
         "flightphp/container": "^1.0",
-        "flightphp/runway": "^0.2.3 || ^1.0",
+        "flightphp/runway": "^1.2",
         "league/container": "^4.2",
         "level-2/dice": "^4.0",
         "phpstan/extension-installer": "^1.4",
@@ -62,20 +62,21 @@
     },
     "scripts": {
         "test": "phpunit",
+        "test-watcher": "phpunit-watcher watch",
         "test-ci": "phpunit",
         "test-coverage": "rm -f clover.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
         "test-server": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server/",
         "test-server-v2": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server-v2/",
         "test-coverage:win": "del clover.xml && phpunit --coverage-html=coverage --coverage-clover=clover.xml && coverage-check clover.xml 100",
-		"test-performance": [
-			"echo \"Running Performance Tests...\"",
-			"php -S localhost:8077 -t tests/performance/ > /dev/null 2>&1 & echo $! > server.pid",
-			"sleep 2",
-			"bash tests/performance/performance_tests.sh",
-			"kill `cat server.pid`",
-			"rm server.pid",
-			"echo \"Performance Tests Completed.\""
-		],
+        "test-performance": [
+            "echo \"Running Performance Tests...\"",
+            "php -S localhost:8077 -t tests/performance/ > /dev/null 2>&1 & echo $! > server.pid",
+            "sleep 2",
+            "bash tests/performance/performance_tests.sh",
+            "kill `cat server.pid`",
+            "rm server.pid",
+            "echo \"Performance Tests Completed.\""
+        ],
         "lint": "phpstan --no-progress --memory-limit=256M -cphpstan.neon",
         "beautify": "phpcbf --standard=phpcs.xml",
         "phpcs": "phpcs --standard=phpcs.xml -n",

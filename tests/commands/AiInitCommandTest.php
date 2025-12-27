@@ -13,9 +13,6 @@ class AiInitCommandTest extends TestCase
 {
     protected static $in;
     protected static $ou;
-    protected $baseDir;
-    protected $runwayCredsFile;
-    protected $gitignoreFile;
 
     public function setUp(): void
     {
@@ -23,15 +20,6 @@ class AiInitCommandTest extends TestCase
         self::$ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test' . uniqid('', true) . '.txt';
         file_put_contents(self::$in, '');
         file_put_contents(self::$ou, '');
-        $this->baseDir = getcwd() . DIRECTORY_SEPARATOR;
-        $this->runwayCredsFile = __DIR__ . DIRECTORY_SEPARATOR . 'dummy-creds-' . uniqid('', true) . '.json';
-        $this->gitignoreFile = __DIR__ . DIRECTORY_SEPARATOR . 'dummy-gitignore-' . uniqid('', true);
-        if (file_exists($this->runwayCredsFile)) {
-            unlink($this->runwayCredsFile);
-        }
-        if (file_exists($this->gitignoreFile)) {
-            unlink($this->gitignoreFile);
-        }
     }
 
     public function tearDown(): void
@@ -42,24 +30,15 @@ class AiInitCommandTest extends TestCase
         if (file_exists(self::$ou)) {
             unlink(self::$ou);
         }
-        if (file_exists($this->runwayCredsFile)) {
-            if (is_dir($this->runwayCredsFile)) {
-                rmdir($this->runwayCredsFile);
-            } else {
-                unlink($this->runwayCredsFile);
-            }
-        }
-        if (file_exists($this->gitignoreFile)) {
-            unlink($this->gitignoreFile);
-        }
     }
 
-    protected function newApp(): Application
+    protected function newApp($command): Application
     {
         $app = new Application('test', '0.0.1', function ($exitCode) {
             return $exitCode;
         });
         $app->io(new Interactor(self::$in, self::$ou));
+        $app->add($command);
         return $app;
     }
 
@@ -68,135 +47,55 @@ class AiInitCommandTest extends TestCase
         file_put_contents(self::$in, implode("\n", $lines) . "\n");
     }
 
-    public function testInitCreatesCredsAndGitignore()
+    public function testInitSavesCreds()
     {
         $this->setInput([
-            '1', // provider
+            '1', // provider (openai)
             '', // accept default base url
             'test-key', // api key
             '', // accept default model
         ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
+        $cmd = $this->getMockBuilder(AiInitCommand::class)
+            ->setConstructorArgs([[]])
+            ->onlyMethods(['setRunwayConfigValue'])
+            ->getMock();
+        $cmd->expects($this->once())
+            ->method('setRunwayConfigValue')
+            ->with('ai', [
+                'provider' => 'openai',
+                'api_key' => 'test-key',
+                'model' => 'gpt-5',
+                'base_url' => 'https://api.openai.com',
+            ]);
+        $app = $this->newApp($cmd);
+        $result = $app->handle(['runway', 'ai:init']);
         $this->assertSame(0, $result);
-        $this->assertFileExists($this->runwayCredsFile);
-        $creds = json_decode(file_get_contents($this->runwayCredsFile), true);
-        $this->assertSame('openai', $creds['provider']);
-        $this->assertSame('test-key', $creds['api_key']);
-        $this->assertSame('gpt-4o', $creds['model']);
-        $this->assertSame('https://api.openai.com', $creds['base_url']);
-        $this->assertFileExists($this->gitignoreFile);
-        $this->assertStringContainsString(basename($this->runwayCredsFile), file_get_contents($this->gitignoreFile));
+        $this->assertStringContainsString('Credentials saved', file_get_contents(self::$ou));
     }
 
-    public function testInitWithExistingCredsNoOverwrite()
+    public function testInitWithGrokProvider()
     {
-        file_put_contents($this->runwayCredsFile, '{}');
         $this->setInput([
-            'n', // do not overwrite
-        ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
-        $this->assertSame(0, $result);
-        $this->assertSame('{}', file_get_contents($this->runwayCredsFile));
-    }
-
-    public function testInitWithExistingCredsOverwrite()
-    {
-        file_put_contents($this->runwayCredsFile, '{}');
-        $this->setInput([
-            'y', // overwrite
-            '2', // provider
+            '2', // provider (grok)
             '', // accept default base url
             'grok-key', // api key
             '', // accept default model
         ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
+        $cmd = $this->getMockBuilder(AiInitCommand::class)
+            ->setConstructorArgs([[]])
+            ->onlyMethods(['setRunwayConfigValue'])
+            ->getMock();
+        $cmd->expects($this->once())
+            ->method('setRunwayConfigValue')
+            ->with('ai', [
+                'provider' => 'grok',
+                'api_key' => 'grok-key',
+                'model' => 'grok-4.1-fast-non-reasoning',
+                'base_url' => 'https://api.x.ai',
+            ]);
+        $app = $this->newApp($cmd);
+        $result = $app->handle(['runway', 'ai:init']);
         $this->assertSame(0, $result);
-        $creds = json_decode(file_get_contents($this->runwayCredsFile), true);
-        $this->assertSame('grok', $creds['provider']);
-        $this->assertSame('grok-key', $creds['api_key']);
-        $this->assertSame('grok-3-beta', $creds['model']);
-        $this->assertSame('https://api.x.ai', $creds['base_url']);
-    }
-
-    public function testEmptyApiKeyPromptsAgain()
-    {
-        $this->setInput([
-            '1',
-            '', // accept default base url
-            '', // empty api key, should error and exit
-        ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
-        $this->assertSame(1, $result);
-        $this->assertFileDoesNotExist($this->runwayCredsFile);
-    }
-
-    public function testEmptyModelPrompts()
-    {
-        $this->setInput([
-            '1',
-            '',
-            'key',
-            '', // accept default model (should use default)
-        ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
-        $this->assertSame(0, $result);
-        $creds = json_decode(file_get_contents($this->runwayCredsFile), true);
-        $this->assertSame('gpt-4o', $creds['model']);
-    }
-
-    public function testGitignoreAlreadyHasCreds()
-    {
-        file_put_contents($this->gitignoreFile, basename($this->runwayCredsFile) . "\n");
-        $this->setInput([
-            '1',
-            '',
-            'key',
-            '',
-        ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
-        $this->assertSame(0, $result);
-        $this->assertFileExists($this->gitignoreFile);
-        $lines = file($this->gitignoreFile, FILE_IGNORE_NEW_LINES);
-        $this->assertContains(basename($this->runwayCredsFile), $lines);
-        $this->assertCount(1, array_filter($lines, function ($l) {
-            return trim($l) === basename($this->runwayCredsFile);
-        }));
     }
 
     public function testInitWithClaudeProvider()
@@ -207,44 +106,41 @@ class AiInitCommandTest extends TestCase
             'claude-key', // api key
             '', // accept default model
         ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
+        $cmd = $this->getMockBuilder(AiInitCommand::class)
+            ->setConstructorArgs([[]])
+            ->onlyMethods(['setRunwayConfigValue'])
+            ->getMock();
+        $cmd->expects($this->once())
+            ->method('setRunwayConfigValue')
+            ->with('ai', [
+                'provider' => 'claude',
+                'api_key' => 'claude-key',
+                'model' => 'claude-sonnet-4-5',
+                'base_url' => 'https://api.anthropic.com',
+            ]);
+        $app = $this->newApp($cmd);
+        $result = $app->handle(['runway', 'ai:init']);
         $this->assertSame(0, $result);
-        $creds = json_decode(file_get_contents($this->runwayCredsFile), true);
-        $this->assertSame('claude', $creds['provider']);
-        $this->assertSame('claude-key', $creds['api_key']);
-        $this->assertSame('claude-3-opus', $creds['model']);
-        $this->assertSame('https://api.anthropic.com', $creds['base_url']);
     }
 
-    public function testAddsCredsFileToExistingGitignoreIfMissing()
+    public function testEmptyApiKeyFails()
     {
-        // .gitignore exists but does not contain creds file
-        file_put_contents($this->gitignoreFile, "vendor\nnode_modules\n.DS_Store\n");
         $this->setInput([
-            '1', // provider
+            '1',
             '', // accept default base url
-            'test-key', // api key
-            '', // accept default model
+            '', // empty api key
         ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
-        $this->assertSame(0, $result);
-        $lines = file($this->gitignoreFile, FILE_IGNORE_NEW_LINES);
-        $this->assertContains(basename($this->runwayCredsFile), $lines);
-        $this->assertCount(1, array_filter($lines, function ($l) {
-            return trim($l) === basename($this->runwayCredsFile);
-        }));
+        $cmd = $this->getMockBuilder(AiInitCommand::class)
+            ->setConstructorArgs([[]])
+            ->onlyMethods(['setRunwayConfigValue'])
+            ->getMock();
+        $cmd->expects($this->never())
+            ->method('setRunwayConfigValue');
+        $app = $this->newApp($cmd);
+        $result = $app->handle(['runway', 'ai:init']);
+        // Since $io->error(..., true) exits, Ahc\Cli will return the exit code.
+        // If it exits with 1, it should be 1.
+        $this->assertSame(1, $result);
     }
 
     public function testInvalidBaseUrlFails()
@@ -253,14 +149,14 @@ class AiInitCommandTest extends TestCase
             '1', // provider
             'not-a-valid-url', // invalid base url
         ]);
-        $app = $this->newApp();
-        $app->add(new AiInitCommand());
-        $result = $app->handle([
-            'runway', 'ai:init',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--gitignore-file=' . $this->gitignoreFile
-        ]);
+        $cmd = $this->getMockBuilder(AiInitCommand::class)
+            ->setConstructorArgs([[]])
+            ->onlyMethods(['setRunwayConfigValue'])
+            ->getMock();
+        $cmd->expects($this->never())
+            ->method('setRunwayConfigValue');
+        $app = $this->newApp($cmd);
+        $result = $app->handle(['runway', 'ai:init']);
         $this->assertSame(1, $result);
-        $this->assertFileDoesNotExist($this->runwayCredsFile);
     }
 }
