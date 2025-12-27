@@ -51,7 +51,6 @@
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6",
         "rregeer/phpunit-coverage-check": "^0.3.1",
-        "spatie/phpunit-watcher": "^1.23 || ^1.24",
         "squizlabs/php_codesniffer": "^3.11"
     },
     "config": {

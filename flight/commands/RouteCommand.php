@@ -65,7 +65,11 @@ class RouteCommand extends AbstractBaseCommand
                 if (!empty($route->middleware)) {
                     try {
                         $middlewares = array_map(function ($middleware) {
-                            $middleware_class_name = explode("\\", get_class($middleware));
+                            if (is_string($middleware)) {
+                                $middleware_class_name = explode("\\", $middleware);
+                            } else {
+                                $middleware_class_name = explode("\\", get_class($middleware));
+                            }
                             return preg_match("/^class@anonymous/", end($middleware_class_name)) ? 'Anonymous' : end($middleware_class_name);
                         }, $route->middleware);
                     } catch (\TypeError $e) {
