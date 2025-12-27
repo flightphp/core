@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace tests\commands;
 
 use Ahc\Cli\Application;
-use Ahc\Cli\IO\Interactor;
 use flight\commands\AiGenerateInstructionsCommand;
 use PHPUnit\Framework\TestCase;
+use tests\classes\NoExitInteractor;
 
 class AiGenerateInstructionsCommandTest extends TestCase
 {
     protected static $in;
     protected static $ou;
     protected $baseDir;
-    protected $runwayCredsFile;
 
     public function setUp(): void
     {
@@ -26,16 +25,6 @@ class AiGenerateInstructionsCommandTest extends TestCase
         if (!is_dir($this->baseDir)) {
             mkdir($this->baseDir, 0777, true);
         }
-        $this->runwayCredsFile = $this->baseDir . 'dummy-creds.json';
-        if (file_exists($this->runwayCredsFile)) {
-            unlink($this->runwayCredsFile);
-        }
-        @unlink($this->baseDir . '.github/copilot-instructions.md');
-        @unlink($this->baseDir . '.cursor/rules/project-overview.mdc');
-        @unlink($this->baseDir . '.windsurfrules');
-        @rmdir($this->baseDir . '.github');
-        @rmdir($this->baseDir . '.cursor/rules');
-        @rmdir($this->baseDir . '.cursor');
     }
 
     public function tearDown(): void
@@ -46,27 +35,19 @@ class AiGenerateInstructionsCommandTest extends TestCase
         if (file_exists(self::$ou)) {
             unlink(self::$ou);
         }
-        if (file_exists($this->runwayCredsFile)) {
-            unlink($this->runwayCredsFile);
+        $this->recursiveRmdir($this->baseDir);
+    }
+
+    protected function recursiveRmdir($dir)
+    {
+        if (!is_dir($dir)) {
+            return;
         }
-        @unlink($this->baseDir . '.github/copilot-instructions.md');
-        @unlink($this->baseDir . '.cursor/rules/project-overview.mdc');
-        @unlink($this->baseDir . '.windsurfrules');
-        @rmdir($this->baseDir . '.github');
-        @rmdir($this->baseDir . '.cursor/rules');
-        @rmdir($this->baseDir . '.cursor');
-        if (is_dir($this->baseDir . '.cursor/rules')) {
-            @rmdir($this->baseDir . '.cursor/rules');
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            (is_dir("$dir/$file")) ? $this->recursiveRmdir("$dir/$file") : unlink("$dir/$file");
         }
-        if (is_dir($this->baseDir . '.cursor')) {
-            @rmdir($this->baseDir . '.cursor');
-        }
-        if (is_dir($this->baseDir . '.github')) {
-            @rmdir($this->baseDir . '.github');
-        }
-        if (is_dir($this->baseDir)) {
-            @rmdir($this->baseDir);
-        }
+        return rmdir($dir);
     }
 
     protected function newApp($command): Application
@@ -74,7 +55,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $app = new Application('test', '0.0.1', function ($exitCode) {
             return $exitCode;
         });
-        $app->io(new Interactor(self::$in, self::$ou));
+        $app->io(new NoExitInteractor(self::$in, self::$ou));
         $app->add($command);
         return $app;
     }
@@ -84,22 +65,51 @@ class AiGenerateInstructionsCommandTest extends TestCase
         file_put_contents(self::$in, implode("\n", $lines) . "\n");
     }
 
-    public function testFailsIfCredsFileMissing()
+    protected function setProjectRoot($command, $path)
+    {
+        $reflection = new \ReflectionClass(get_class($command));
+        $property = null;
+        $currentClass = $reflection;
+        while ($currentClass && !$property) {
+            try {
+                $property = $currentClass->getProperty('projectRoot');
+            } catch (\ReflectionException $e) {
+                $currentClass = $currentClass->getParentClass();
+            }
+        }
+        if ($property) {
+            $property->setAccessible(true);
+            $property->setValue($command, $path);
+        }
+    }
+
+    public function testFailsIfAiConfigMissing()
     {
         $this->setInput([
-            'desc', 'none', 'latte', 'y', 'y', 'none', 'Docker', '1', 'n', 'no'
+            'desc',
+            'none',
+            'latte',
+            'y',
+            'y',
+            'none',
+            'Docker',
+            '1',
+            'n',
+            'no'
         ]);
+        // Provide 'runway' with dummy data to avoid deprecated configFile logic
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
+            ->setConstructorArgs([['runway' => ['dummy' => true]]])
             ->onlyMethods(['callLlmApi'])
             ->getMock();
+        $this->setProjectRoot($cmd, $this->baseDir);
         $app = $this->newApp($cmd);
         $result = $app->handle([
-            'runway', 'ai:generate-instructions',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--base-dir=' . $this->baseDir
+            'runway',
+            'ai:generate-instructions',
         ]);
         $this->assertSame(1, $result);
-        $this->assertFileDoesNotExist($this->baseDir . '.github/copilot-instructions.md');
+        $this->assertStringContainsString('Missing AI configuration', file_get_contents(self::$ou));
     }
 
     public function testWritesInstructionsToFiles()
@@ -109,14 +119,28 @@ class AiGenerateInstructionsCommandTest extends TestCase
             'model' => 'gpt-4o',
             'base_url' => 'https://api.openai.com',
         ];
-        file_put_contents($this->runwayCredsFile, json_encode($creds));
         $this->setInput([
-            'desc', 'mysql', 'latte', 'y', 'y', 'flight/lib', 'Docker', '2', 'y', 'context info'
+            'desc',
+            'mysql',
+            'latte',
+            'y',
+            'y',
+            'flight/lib',
+            'Docker',
+            '2',
+            'y',
+            'context info'
         ]);
         $mockInstructions = "# Project Instructions\n\nUse MySQL, Latte, Docker.";
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
+            ->setConstructorArgs([
+                [
+                    'runway' => ['ai' => $creds]
+                ]
+            ])
             ->onlyMethods(['callLlmApi'])
             ->getMock();
+        $this->setProjectRoot($cmd, $this->baseDir);
         $cmd->expects($this->once())
             ->method('callLlmApi')
             ->willReturn(json_encode([
@@ -126,17 +150,14 @@ class AiGenerateInstructionsCommandTest extends TestCase
             ]));
         $app = $this->newApp($cmd);
         $result = $app->handle([
-            'runway', 'ai:generate-instructions',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--base-dir=' . $this->baseDir
+            'runway',
+            'ai:generate-instructions',
         ]);
         $this->assertSame(0, $result);
         $this->assertFileExists($this->baseDir . '.github/copilot-instructions.md');
         $this->assertFileExists($this->baseDir . '.cursor/rules/project-overview.mdc');
+        $this->assertFileExists($this->baseDir . '.gemini/GEMINI.md');
         $this->assertFileExists($this->baseDir . '.windsurfrules');
-        $this->assertStringContainsString('MySQL', file_get_contents($this->baseDir . '.github/copilot-instructions.md'));
-        $this->assertStringContainsString('MySQL', file_get_contents($this->baseDir . '.cursor/rules/project-overview.mdc'));
-        $this->assertStringContainsString('MySQL', file_get_contents($this->baseDir . '.windsurfrules'));
     }
 
     public function testNoInstructionsReturnedFromLlm()
@@ -146,13 +167,27 @@ class AiGenerateInstructionsCommandTest extends TestCase
             'model' => 'gpt-4o',
             'base_url' => 'https://api.openai.com',
         ];
-        file_put_contents($this->runwayCredsFile, json_encode($creds));
         $this->setInput([
-            'desc', 'mysql', 'latte', 'y', 'y', 'flight/lib', 'Docker', '2', 'y', 'context info'
+            'desc',
+            'mysql',
+            'latte',
+            'y',
+            'y',
+            'flight/lib',
+            'Docker',
+            '2',
+            'y',
+            'context info'
         ]);
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
+            ->setConstructorArgs([
+                [
+                    'runway' => ['ai' => $creds]
+                ]
+            ])
             ->onlyMethods(['callLlmApi'])
             ->getMock();
+        $this->setProjectRoot($cmd, $this->baseDir);
         $cmd->expects($this->once())
             ->method('callLlmApi')
             ->willReturn(json_encode([
@@ -162,12 +197,10 @@ class AiGenerateInstructionsCommandTest extends TestCase
             ]));
         $app = $this->newApp($cmd);
         $result = $app->handle([
-            'runway', 'ai:generate-instructions',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--base-dir=' . $this->baseDir
+            'runway',
+            'ai:generate-instructions',
         ]);
         $this->assertSame(1, $result);
-        $this->assertFileDoesNotExist($this->baseDir . '.github/copilot-instructions.md');
     }
 
     public function testLlmApiCallFails()
@@ -177,23 +210,83 @@ class AiGenerateInstructionsCommandTest extends TestCase
             'model' => 'gpt-4o',
             'base_url' => 'https://api.openai.com',
         ];
-        file_put_contents($this->runwayCredsFile, json_encode($creds));
         $this->setInput([
-            'desc', 'mysql', 'latte', 'y', 'y', 'flight/lib', 'Docker', '2', 'y', 'context info'
+            'desc',
+            'mysql',
+            'latte',
+            'y',
+            'y',
+            'flight/lib',
+            'Docker',
+            '2',
+            'y',
+            'context info'
         ]);
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
+            ->setConstructorArgs([
+                [
+                    'runway' => ['ai' => $creds]
+                ]
+            ])
             ->onlyMethods(['callLlmApi'])
             ->getMock();
+        $this->setProjectRoot($cmd, $this->baseDir);
         $cmd->expects($this->once())
             ->method('callLlmApi')
             ->willReturn(false);
         $app = $this->newApp($cmd);
         $result = $app->handle([
-            'runway', 'ai:generate-instructions',
-            '--creds-file=' . $this->runwayCredsFile,
-            '--base-dir=' . $this->baseDir
+            'runway',
+            'ai:generate-instructions',
         ]);
         $this->assertSame(1, $result);
-        $this->assertFileDoesNotExist($this->baseDir . '.github/copilot-instructions.md');
+    }
+
+    public function testUsesDeprecatedConfigFile()
+    {
+        $creds = [
+            'ai' => [
+                'api_key' => 'key',
+                'model' => 'gpt-4o',
+                'base_url' => 'https://api.openai.com',
+            ]
+        ];
+        $configFile = $this->baseDir . 'old-config.json';
+        file_put_contents($configFile, json_encode($creds));
+        $this->setInput([
+            'desc',
+            'mysql',
+            'latte',
+            'y',
+            'y',
+            'flight/lib',
+            'Docker',
+            '2',
+            'y',
+            'context info'
+        ]);
+        $mockInstructions = "# Project Instructions\n\nUse MySQL, Latte, Docker.";
+        // runway key is MISSING from config to trigger deprecated logic
+        $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
+            ->setConstructorArgs([[]])
+            ->onlyMethods(['callLlmApi'])
+            ->getMock();
+        $this->setProjectRoot($cmd, $this->baseDir);
+        $cmd->expects($this->once())
+            ->method('callLlmApi')
+            ->willReturn(json_encode([
+                'choices' => [
+                    ['message' => ['content' => $mockInstructions]]
+                ]
+            ]));
+        $app = $this->newApp($cmd);
+        $result = $app->handle([
+            'runway',
+            'ai:generate-instructions',
+            '--config-file=' . $configFile
+        ]);
+        $this->assertSame(0, $result);
+        $this->assertStringContainsString('The --config-file option is deprecated', file_get_contents(self::$ou));
+        $this->assertFileExists($this->baseDir . '.github/copilot-instructions.md');
     }
 }

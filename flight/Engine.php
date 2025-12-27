@@ -621,7 +621,7 @@ class Engine
                 $response->write(ob_get_clean());
             }
 
-            // Run any before middlewares
+            // Run any after middlewares
             if (count($route->middleware) > 0) {
                 // process the middleware in reverse order now
                 $atLeastOneMiddlewareFailed = $this->processMiddleware($route, 'after');

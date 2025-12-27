@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace flight\commands;
 
-use Ahc\Cli\Input\Command;
-
 /**
- * @property-read ?string $gitignoreFile
- * @property-read ?string $credsFile
+ * @property-read ?string $credsFile Deprecated, use config.php instead
  */
-class AiInitCommand extends Command
+class AiInitCommand extends AbstractBaseCommand
 {
     /**
      * Constructor for the AiInitCommand class.
      *
      * Initializes the command instance and sets up any required dependencies.
+     *
+     * @param array<string,mixed> $config Config from config.php
      */
-    public function __construct()
+    public function __construct(array $config)
     {
-        parent::__construct('ai:init', 'Initialize LLM API credentials and settings');
-        $this
-            ->option('--gitignore-file', 'Path to .gitignore file', null, '')
-            ->option('--creds-file', 'Path to .runway-creds.json file', null, '');
+        parent::__construct('ai:init', 'Initialize LLM API credentials and settings', $config);
+        $this->option('--creds-file', 'Path to .runway-creds.json file (deprecated, use config.php instead)', null, '');
     }
 
     /**
@@ -35,21 +32,6 @@ class AiInitCommand extends Command
         $io = $this->app()->io();
 
         $io->info('Welcome to AI Init!', true);
-
-        $baseDir = getcwd() . DIRECTORY_SEPARATOR;
-        $runwayCredsFile = $this->credsFile ?: $baseDir . '.runway-creds.json';
-        $gitignoreFile = $this->gitignoreFile ?: $baseDir . '.gitignore';
-
-        // make sure the .runway-creds.json file is not already present
-        if (file_exists($runwayCredsFile)) {
-            $io->error('.runway-creds.json file already exists. Please remove it before running this command.', true);
-            // prompt to overwrite
-            $overwrite = $io->confirm('Do you want to overwrite the existing .runway-creds.json file?', 'n');
-            if ($overwrite === false) {
-                $io->info('Exiting without changes.', true);
-                return 0;
-            }
-        }
 
         // Prompt for API provider with validation
         $allowedApis = [
@@ -88,50 +70,26 @@ class AiInitCommand extends Command
         // Validate model input
         switch ($api) {
             case 'openai':
-                $defaultModel = 'gpt-4o';
+                $defaultModel = 'gpt-5';
                 break;
             case 'grok':
-                $defaultModel = 'grok-3-beta';
+                $defaultModel = 'grok-4.1-fast-non-reasoning';
                 break;
             case 'claude':
-                $defaultModel = 'claude-3-opus';
+                $defaultModel = 'claude-sonnet-4-5';
                 break;
         }
-        $model = trim($io->prompt('Enter the model name you want to use (e.g. gpt-4, claude-3-opus, etc)', $defaultModel));
+        $model = trim($io->prompt('Enter the model name you want to use (e.g. gpt-5, claude-sonnet-4-5, etc)', $defaultModel));
 
-        $creds = [
+        $runwayAiConfig = [
             'provider' => $api,
             'api_key' => $apiKey,
             'model' => $model,
             'base_url' => $baseUrl,
         ];
+        $this->setRunwayConfigValue('ai', $runwayAiConfig);
 
-        $json = json_encode($creds, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        $file = $runwayCredsFile;
-        file_put_contents($file, $json);
-
-        // change permissions to 600
-        chmod($file, 0600);
-
-        $io->ok('Credentials saved to ' . $file, true);
-
-        // run a check to make sure that the creds file is in the .gitignore file
-        // use $gitignoreFile instead of hardcoded path
-        if (!file_exists($gitignoreFile)) {
-            // create the .gitignore file if it doesn't exist
-            file_put_contents($gitignoreFile, basename($runwayCredsFile) . "\n");
-            $io->info(basename($gitignoreFile) . ' file created and ' . basename($runwayCredsFile) . ' added to it.', true);
-        } else {
-            // check if the creds file is already in the .gitignore file
-            $gitignoreContents = file_get_contents($gitignoreFile);
-            if (strpos($gitignoreContents, basename($runwayCredsFile)) === false) {
-                // add the creds file to the .gitignore file
-                file_put_contents($gitignoreFile, "\n" . basename($runwayCredsFile) . "\n", FILE_APPEND);
-                $io->info(basename($runwayCredsFile) . ' added to ' . basename($gitignoreFile) . ' file.', true);
-            } else {
-                $io->info(basename($runwayCredsFile) . ' is already in the ' . basename($gitignoreFile) . ' file.', true);
-            }
-        }
+        $io->ok('Credentials saved to app/config/config.php', true);
 
         return 0;
     }
