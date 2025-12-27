@@ -71,6 +71,10 @@ class AiGenerateInstructionsCommandTest extends TestCase {
             }
         }
         if ($property) {
+            // only setAccessible if php 8 or php 7.4
+            if (PHP_VERSION_ID < 80100) {
+                $property->setAccessible(true);
+            }
             $property->setValue($command, $path);
         }
     }
