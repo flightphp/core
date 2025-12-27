@@ -67,7 +67,7 @@ class ControllerCommandTest extends TestCase
         $app = $this->newApp('test', '0.0.1');
         mkdir(__DIR__ . '/controllers/');
         file_put_contents(__DIR__ . '/controllers/TestController.php', '<?php class TestController {}');
-        $app->add(new ControllerCommand(['subway' => ['app_root' => 'tests/commands/']]));
+        $app->add(new ControllerCommand(['runway' => ['app_root' => 'tests/commands/']]));
         $app->handle(['runway', 'make:controller', 'Test']);
 
         $this->assertStringContainsString('TestController already exists.', file_get_contents(static::$ou));
@@ -76,7 +76,7 @@ class ControllerCommandTest extends TestCase
     public function testCreateController(): void
     {
         $app = $this->newApp('test', '0.0.1');
-        $app->add(new ControllerCommand(['subway' => ['app_root' => 'tests/commands/']]));
+        $app->add(new ControllerCommand(['runway' => ['app_root' => 'tests/commands/']]));
         $app->handle(['runway', 'make:controller', 'Test']);
 
         $this->assertFileExists(__DIR__ . '/controllers/TestController.php');
