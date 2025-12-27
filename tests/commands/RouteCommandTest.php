@@ -113,7 +113,7 @@ PHP;
         | /post   | POST, OPTIONS      |       | No       | Closure        |
         | /delete | DELETE, OPTIONS    |       | No       | -              |
         | /put    | PUT, OPTIONS       |       | No       | -              |
-        | /patch  | PATCH, OPTIONS     |       | No       | Bad Middleware |
+        | /patch  | PATCH, OPTIONS     |       | No       | SomeMiddleware |
         +---------+--------------------+-------+----------+----------------+
         output; // phpcs:ignore
 
