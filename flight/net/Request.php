@@ -375,7 +375,7 @@ class Request
      *
      * @return string
      */
-    public static function header(string $header, $default = '')
+    public static function header(string $header, $default = ''): string
     {
         return self::getHeader($header, $default);
     }

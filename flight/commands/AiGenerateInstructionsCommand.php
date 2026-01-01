@@ -33,7 +33,7 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
      *
      * @return int
      */
-    public function execute()
+    public function execute(): int
     {
         $io = $this->app()->io();
 

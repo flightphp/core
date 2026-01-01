@@ -26,7 +26,7 @@ class ControllerCommand extends AbstractBaseCommand
      *
      * @return void
      */
-    public function execute(string $controller)
+    public function execute(string $controller): void
     {
         $io = $this->app()->io();
 
