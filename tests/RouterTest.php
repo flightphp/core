@@ -39,7 +39,7 @@ class RouterTest extends TestCase
     }
 
     // Checks if a route was matched with a given output
-    public function check($str = '')
+    public function check($str = ''): void
     {
 
         /*$route = $this->router->route($this->request);
@@ -502,7 +502,7 @@ class RouterTest extends TestCase
     {
         $router = new class extends Router
         {
-            public function getIndex()
+            public function getIndex(): int
             {
                 return $this->index;
             }
