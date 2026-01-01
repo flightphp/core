@@ -37,7 +37,7 @@ class RouteCommand extends AbstractBaseCommand
      *
      * @return void
      */
-    public function execute()
+    public function execute(): void
     {
         $io = $this->app()->io();
 

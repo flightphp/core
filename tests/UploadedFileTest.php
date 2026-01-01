@@ -55,7 +55,7 @@ class UploadedFileTest extends TestCase
     /**
      * @dataProvider getFileErrorMessageTests
      */
-    public function testMoveToFailureMessages($error, $message)
+    public function testMoveToFailureMessages(int $error, string $message): void
     {
         file_put_contents('tmp_name', 'test');
         $uploadedFile = new UploadedFile('file.txt', 'text/plain', 4, 'tmp_name', $error);

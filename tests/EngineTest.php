@@ -52,7 +52,7 @@ class EngineTest extends TestCase
 	public function testInitBeforeStartV2OutputBuffering(): void
     {
         $engine = new class extends Engine {
-            public function getInitializedVar()
+            public function getInitializedVar(): bool
             {
                 return $this->initialized;
             }
@@ -122,7 +122,7 @@ class EngineTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/someRoute';
 
         $engine = new class extends Engine {
-            public function getInitializedVar()
+            public function getInitializedVar(): bool
             {
                 return $this->initialized;
             }
@@ -141,7 +141,7 @@ class EngineTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/someRoute';
 
         $engine = new class extends Engine {
-            public function getInitializedVar()
+            public function getInitializedVar(): bool
             {
                 return $this->initialized;
             }
@@ -160,7 +160,7 @@ class EngineTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/someRoute';
 
         $engine = new class extends Engine {
-            public function getInitializedVar()
+            public function getInitializedVar(): bool
             {
                 return $this->initialized;
             }
@@ -180,7 +180,7 @@ class EngineTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/someRoute';
 
         $engine = new class extends Engine {
-            public function getInitializedVar()
+            public function getInitializedVar(): bool
             {
                 return $this->initialized;
             }
@@ -207,7 +207,7 @@ class EngineTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/someRoute';
 
         $engine = new class extends Engine {
-            public function getInitializedVar()
+            public function getInitializedVar(): bool
             {
                 return $this->initialized;
             }
@@ -254,7 +254,7 @@ class EngineTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/someRoute';
 
         $engine = new class extends Engine {
-            public function getInitializedVar()
+            public function getInitializedVar(): bool
             {
                 return $this->initialized;
             }
@@ -276,7 +276,7 @@ class EngineTest extends TestCase
         $engine->start();
     }
 
-	public function testDoubleStart() 
+	public function testDoubleStart(): void
     {
 		$engine = new Engine();
 		$engine->route('/someRoute', function () {
@@ -512,7 +512,7 @@ class EngineTest extends TestCase
 		$this->assertEquals('{"key1":"value1","key2":"value2","utf8_emoji":"😀"}', $engine->response()->getBody());
 	}
 
-	public function testJsonThrowOnErrorByDefault()
+	public function testJsonThrowOnErrorByDefault(): void
 	{
 		$engine = new Engine();
 		$this->expectException(Exception::class);
@@ -1000,7 +1000,7 @@ class EngineTest extends TestCase
         $engine->start();
     }
 
-    public function testContainerPsr11() {
+    public function testContainerPsr11(): void {
         $engine = new Engine();
         $container = new \League\Container\Container();
         $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
@@ -1031,7 +1031,7 @@ class EngineTest extends TestCase
         $engine->start();
     }
 
-    public function testContainerPsr11MethodNotFound() {
+    public function testContainerPsr11MethodNotFound(): void {
         $engine = new Engine();
         $container = new \League\Container\Container();
         $container->add(Container::class)->addArgument(Collection::class)->addArgument(PdoWrapper::class);
@@ -1048,7 +1048,7 @@ class EngineTest extends TestCase
         $engine->start();
     }
 
-	public function testRouteFoundButBadMethod() {
+	public function testRouteFoundButBadMethod(): void {
         $engine = new class extends Engine {
             public function getLoader()
             {
