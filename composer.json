@@ -61,16 +61,21 @@
         "sort-packages": true
     },
     "scripts": {
-        "test": "phpunit",
-        "test-watcher": "phpunit-watcher watch",
-        "test-ci": "phpunit",
-        "test-coverage": "rm -f clover.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml && vendor/bin/coverage-check clover.xml 100",
-        "test-server": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server/",
-        "test-server-v2": "echo \"Running Test Server\" && php -S localhost:8000 -t tests/server-v2/",
+        "test": "@php vendor/bin/phpunit",
+        "test-watcher": "@php vendor/bin/phpunit-watcher watch",
+        "test-ci": "@php vendor/bin/phpunit",
+        "test-coverage": [
+            "rm -f clover.xml",
+            "@putenv XDEBUG_MODE=coverage",
+            "@php vendor/bin/phpunit --coverage-html=coverage --coverage-clover=clover.xml",
+            "@php vendor/bin/coverage-check clover.xml 100"
+        ],
+        "test-server": "echo \"Running Test Server\" && @php -S localhost:8000 -t tests/server/",
+        "test-server-v2": "echo \"Running Test Server\" && @php -S localhost:8000 -t tests/server-v2/",
         "test-coverage:win": "del clover.xml && phpunit --coverage-html=coverage --coverage-clover=clover.xml && coverage-check clover.xml 100",
         "test-performance": [
             "echo \"Running Performance Tests...\"",
-            "php -S localhost:8077 -t tests/performance/ > /dev/null 2>&1 & echo $! > server.pid",
+            "@php -S localhost:8077 -t tests/performance/ > /dev/null 2>&1 & echo $! > server.pid",
             "sleep 2",
             "bash tests/performance/performance_tests.sh",
             "kill `cat server.pid`",

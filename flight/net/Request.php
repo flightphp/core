@@ -177,24 +177,24 @@ class Request
                 $base = '/'; // @codeCoverageIgnore
             }
             $config = [
-                'url'        => $url,
-                'base'       => $base,
-                'method'     => $this->getMethod(),
-                'referrer'   => $this->getVar('HTTP_REFERER'),
-                'ip'         => $this->getVar('REMOTE_ADDR'),
-                'ajax'       => $this->getVar('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest',
-                'scheme'     => $scheme,
+                'url' => $url,
+                'base' => $base,
+                'method' => $this->getMethod(),
+                'referrer' => $this->getVar('HTTP_REFERER'),
+                'ip' => $this->getVar('REMOTE_ADDR'),
+                'ajax' => $this->getVar('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest',
+                'scheme' => $scheme,
                 'user_agent' => $this->getVar('HTTP_USER_AGENT'),
-                'type'       => $this->getVar('CONTENT_TYPE'),
-                'length'     => intval($this->getVar('CONTENT_LENGTH', 0)),
-                'query'      => new Collection($_GET),
-                'data'       => new Collection($_POST),
-                'cookies'    => new Collection($_COOKIE),
-                'files'      => new Collection($_FILES),
-                'secure'     => $scheme === 'https',
-                'accept'     => $this->getVar('HTTP_ACCEPT'),
-                'proxy_ip'   => $this->getProxyIpAddress(),
-                'host'       => $this->getVar('HTTP_HOST'),
+                'type' => $this->getVar('CONTENT_TYPE'),
+                'length' => intval($this->getVar('CONTENT_LENGTH', 0)),
+                'query' => new Collection($_GET),
+                'data' => new Collection($_POST),
+                'cookies' => new Collection($_COOKIE),
+                'files' => new Collection($_FILES),
+                'secure' => $scheme === 'https',
+                'accept' => $this->getVar('HTTP_ACCEPT'),
+                'proxy_ip' => $this->getProxyIpAddress(),
+                'host' => $this->getVar('HTTP_HOST'),
                 'servername' => $this->getVar('SERVER_NAME', ''),
             ];
         }
@@ -463,7 +463,7 @@ class Request
      */
     public function negotiateContentType(array $supported): ?string
     {
-        $accept = $this->header('Accept') ?? '';
+        $accept = $this->header('Accept') ?: '';
         if ($accept === '') {
             return $supported[0];
         }
