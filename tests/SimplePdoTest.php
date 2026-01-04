@@ -444,5 +444,4 @@ class SimplePdoTest extends TestCase
         $id = $this->db->fetchField('SELECT id, name FROM users WHERE id = ?', [1]);
         $this->assertEquals(1, $id);
     }
-
 }

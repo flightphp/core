@@ -247,6 +247,7 @@ class SimplePdo extends PdoWrapper
      *
      * @param string $sql
      * @param array<int|string,mixed> $params
+     *
      * @return array<int,mixed>
      */
     public function fetchColumn(string $sql, array $params = []): array
@@ -262,6 +263,7 @@ class SimplePdo extends PdoWrapper
      *
      * @param string $sql
      * @param array<int|string,mixed> $params
+     *
      * @return array<string|int,mixed>
      */
     public function fetchPairs(string $sql, array $params = []): array
@@ -280,7 +282,9 @@ class SimplePdo extends PdoWrapper
      *     });
      *
      * @param callable $callback
+     *
      * @return mixed The return value of the callback
+     *
      * @throws \Throwable
      */
     public function transaction(callable $callback)
@@ -310,6 +314,7 @@ class SimplePdo extends PdoWrapper
      *
      * @param string $table
      * @param array<string,mixed>|array<int,array<string,mixed>> $data Single row or array of rows
+     *
      * @return string Last insert ID (for single insert or last row of bulk insert)
      */
     public function insert(string $table, array $data): string
@@ -386,6 +391,7 @@ class SimplePdo extends PdoWrapper
      * @param array<string,mixed> $data
      * @param string $where - e.g., "id = ?"
      * @param array<int|string,mixed> $whereParams
+     *
      * @return int Number of affected rows (rows where data actually changed)
      */
     public function update(string $table, array $data, string $where, array $whereParams = []): int
@@ -415,6 +421,7 @@ class SimplePdo extends PdoWrapper
      * @param string $table
      * @param string $where - e.g., "id = ?"
      * @param array<int|string,mixed> $whereParams
+     *
      * @return int Number of deleted rows
      */
     public function delete(string $table, string $where, array $whereParams = []): int
@@ -423,5 +430,4 @@ class SimplePdo extends PdoWrapper
         $stmt = $this->runQuery($sql, $whereParams);
         return $stmt->rowCount();
     }
-
 }
