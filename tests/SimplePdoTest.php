@@ -153,6 +153,17 @@ class SimplePdoTest extends TestCase
         $this->assertInstanceOf(Collection::class, $row);
         $this->assertEquals(3, $row['id']); // Should be Bob (id=3)
     }
+    
+    public function testFetchRowDoesNotAddLimitAfterReturningClause(): void
+    {
+        $row = $this->db->fetchRow(
+            'INSERT INTO users (name, email) VALUES (?, ?) RETURNING id, name',
+            ['Alice', 'alice@example.com']
+        );
+
+        $this->assertInstanceOf(Collection::class, $row);
+        $this->assertSame('Alice', $row['name']);
+    }
 
     // =========================================================================
     // fetchAll Tests

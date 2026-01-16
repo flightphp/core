@@ -68,7 +68,7 @@ class SimplePdo extends PdoWrapper
     public function fetchRow(string $sql, array $params = []): ?Collection
     {
         // Smart LIMIT 1 addition (avoid if already present at end or complex query)
-        if (!preg_match('/\sLIMIT\s+\d+(?:\s+OFFSET\s+\d+)?\s*$/i', trim($sql))) {
+        if (!preg_match('/\s(LIMIT\s+\d+(?:\s+OFFSET\s+\d+)?|RETURNING\s+.+)\s*$/i', trim($sql))) {
             $sql .= ' LIMIT 1';
         }
 
