@@ -934,6 +934,9 @@ class Engine
         $this->response()
             ->status($code)
             ->header('Content-Type', 'application/json')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0')
             ->write($json);
         if ($this->response()->v2_output_buffering === true) {
             $this->response()->send();
