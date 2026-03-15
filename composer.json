@@ -43,7 +43,7 @@
     },
     "require-dev": {
         "ext-pdo_sqlite": "*",
-        "flightphp/container": "^1.0",
+        "flightphp/container": "^1.3",
         "flightphp/runway": "^1.2",
         "league/container": "^4.2",
         "level-2/dice": "^4.0",
