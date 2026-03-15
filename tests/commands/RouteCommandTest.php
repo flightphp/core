@@ -120,8 +120,8 @@ PHP;
         output; // phpcs:ignore
 
         $this->assertStringContainsString(
-            $expected,
-            $this->removeColors(file_get_contents(static::$ou))
+            str_replace(PHP_EOL, '', $expected),
+            str_replace(PHP_EOL, '', $this->removeColors(file_get_contents(static::$ou))),
         );
     }
 

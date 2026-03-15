@@ -96,7 +96,7 @@ class UploadedFileTest extends TestCase
         $uploadedFile = new UploadedFile('file.txt', 'text/plain', 4, 'tmp_name', UPLOAD_ERR_OK, false);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Invalid target path: absolute paths not allowed');
-        $uploadedFile->moveTo('/tmp/file.txt');
+        $uploadedFile->moveTo(__DIR__ . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'file.txt');
     }
 
     public function testMoveToOverwrite(): void
