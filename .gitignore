@@ -8,6 +8,8 @@ coverage/
 *.sublime*
 clover.xml
 phpcs.xml
+phpstan.neon
+phpunit.xml
 .runway-config.json
 .runway-creds.json
 .DS_Store
