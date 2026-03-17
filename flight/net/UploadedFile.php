@@ -154,7 +154,7 @@ class UploadedFile
         $uploadFunctionToCall = $isUploadedFile === true ?
             // Standard POST upload - use move_uploaded_file for security
             'move_uploaded_file' :
-             // Handle non-POST uploads (PATCH, PUT, DELETE) or other valid temp files
+            // Handle non-POST uploads (PATCH, PUT, DELETE) or other valid temp files
             'rename';
 
         $result = $uploadFunctionToCall($this->tmpName, $targetPath);
