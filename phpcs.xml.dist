@@ -17,6 +17,10 @@
     <rule ref="PSR2">
     </rule>
 
+    <rule ref="PSR12">
+        <exclude name="PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword"/>
+    </rule>
+
     <file>index.php</file>
     <file>flight</file>
     <file>tests</file>
