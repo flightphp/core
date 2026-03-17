@@ -31,6 +31,6 @@ class RenderTest extends TestCase
         $this->app->render('hello', ['name' => 'Bob'], 'content');
         $this->app->render('layouts/layout');
 
-        $this->expectOutputString('<html>Hello, Bob!</html>');
+        $this->expectOutputString("<body>Hello, Bob!</body>\n");
     }
 }

@@ -75,7 +75,7 @@ final class FlightTest extends TestCase
     {
         $dateTime = new DateTimeImmutable();
 
-        $controller = new class ($dateTime) {
+        $controller = new class($dateTime) {
             public function __construct(private DateTimeImmutable $dateTime)
             {
                 //

@@ -9,50 +9,50 @@ class LayoutMiddleware
         $final_route = Flight::getUrl('final_group');
         echo <<<HTML
 <style>
-	ul {
-		list-style-type: none;
-		margin: 0;
-		padding: 0;
-		overflow: hidden;
-		background-color: #333;
-	}
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333;
+    }
 
-	li {
-		float: left;
-	}
-	#infotext {
-		font-weight: bold;
-		color: blueviolet;
-		}
-	li a {
-		display: block;
-		color: white;
-		text-align: center;
-		padding: 14px 16px;
-		text-decoration: none;
-	}
+    li {
+        float: left;
+    }
+    #infotext {
+        font-weight: bold;
+        color: blueviolet;
+        }
+    li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
 
-	li a:hover {
-		background-color: #111;
-	}
-	#container {
-		color: #333;
-		font-size: 16px;
-		line-height: 1.5;
-		margin: 20px 0;
-		padding: 10px;
-		border: 1px solid #ddd;
-		background-color: #f9f9f9;
-	}
-	#debugrequest {
-		color: #333;
-		font-size: 16px;
-		line-height: 1.5;
-		margin: 20px 0;
-		padding: 10px;
-		border: 1px solid #ddd;
-		background-color: #f9f9f9;
-	}
+    li a:hover {
+        background-color: #111;
+    }
+    #container {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.5;
+        margin: 20px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+    }
+    #debugrequest {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.5;
+        margin: 20px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+    }
 </style>
 <ul>
 <li><a href="/">Root Route</a></li>

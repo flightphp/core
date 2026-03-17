@@ -121,7 +121,7 @@ class LoaderTest extends TestCase
     {
         $this->loader->register('g', User::class);
         $current_class = $this->loader->get('g');
-        $this->assertEquals([ User::class, [], null ], $current_class);
+        $this->assertEquals([User::class, [], null], $current_class);
         $this->loader->unregister('g');
         $unregistered_class_result = $this->loader->get('g');
         $this->assertNull($unregistered_class_result);
@@ -129,7 +129,7 @@ class LoaderTest extends TestCase
 
     public function testNewInstance6Params(): void
     {
-        $TesterClass = $this->loader->newInstance(TesterClass::class, ['Bob','Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
+        $TesterClass = $this->loader->newInstance(TesterClass::class, ['Bob', 'Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
         $this->assertEquals('Bob', $TesterClass->param1);
         $this->assertEquals('Fred', $TesterClass->param2);
         $this->assertEquals('Joe', $TesterClass->param3);

@@ -14,7 +14,7 @@ use tests\classes\ContainerDefault;
  * @author Kristaps Muižnieks https://github.com/krmu
  */
 
- require file_exists(__DIR__ . '/../../vendor/autoload.php') ? __DIR__ . '/../../vendor/autoload.php' : __DIR__ . '/../../flight/autoload.php';
+require file_exists(__DIR__ . '/../../vendor/autoload.php') ? __DIR__ . '/../../vendor/autoload.php' : __DIR__ . '/../../flight/autoload.php';
 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
@@ -137,7 +137,7 @@ Flight::group('', function () {
             ob_flush();
         }
         echo "is successful!!";
-    })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
+    })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200]);
 
     // Test 14: Overwrite the body with a middleware
     Flight::route('/overwrite', function () {
@@ -163,7 +163,7 @@ Flight::group('', function () {
     Flight::route('/no-container', ContainerDefault::class . '->testUi');
     Flight::route('/dice', Container::class . '->testThePdoWrapper');
     Flight::route('/Pascal_Snake_Case', Pascal_Snake_Case::class . '->doILoad');
-}, [ new LayoutMiddleware() ]);
+}, [new LayoutMiddleware()]);
 
 // Test 9: JSON output (should not output any other html)
 Flight::route('/json', function () {
@@ -209,7 +209,7 @@ Flight::map('start', function () {
         $dice = $dice->addRules([
             PdoWrapper::class => [
                 'shared' => true,
-                'constructParams' => [ 'sqlite::memory:' ]
+                'constructParams' => ['sqlite::memory:']
             ]
         ]);
         Flight::registerContainerHandler(function ($class, $params) use ($dice) {

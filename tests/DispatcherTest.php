@@ -38,23 +38,21 @@ class DispatcherTest extends TestCase
 
     public function testFunctionMapping(): void
     {
-        $this->dispatcher->set('map2', fn (): string => 'hello');
+        $this->dispatcher->set('map2', fn(): string => 'hello');
 
         $this->assertSame('hello', $this->dispatcher->run('map2'));
     }
 
     public function testHasEvent(): void
     {
-        $this->dispatcher->set('map-event', function (): void {
-        });
+        $this->dispatcher->set('map-event', function (): void {});
 
         $this->assertTrue($this->dispatcher->has('map-event'));
     }
 
     public function testClearAllRegisteredEvents(): void
     {
-        $customFunction = $anotherFunction = function (): void {
-        };
+        $customFunction = $anotherFunction = function (): void {};
 
         $this->dispatcher
             ->set('map-event', $customFunction)
@@ -71,8 +69,7 @@ class DispatcherTest extends TestCase
 
     public function testClearDeclaredRegisteredEvent(): void
     {
-        $customFunction = $anotherFunction = function (): void {
-        };
+        $customFunction = $anotherFunction = function (): void {};
 
         $this->dispatcher
             ->set('map-event', $customFunction)
@@ -110,7 +107,7 @@ class DispatcherTest extends TestCase
 
     public function testBeforeAndAfter(): void
     {
-        $this->dispatcher->set('hello', fn (string $name): string => "Hello, $name!");
+        $this->dispatcher->set('hello', fn(string $name): string => "Hello, $name!");
 
         $this->dispatcher
             ->hook('hello', Dispatcher::FILTER_BEFORE, function (array &$params): void {
@@ -129,7 +126,7 @@ class DispatcherTest extends TestCase
 
     public function testBeforeAndAfterWithShortAfterFilterSyntax(): void
     {
-        $this->dispatcher->set('hello', fn (string $name): string => "Hello, $name!");
+        $this->dispatcher->set('hello', fn(string $name): string => "Hello, $name!");
 
         $this->dispatcher
             ->hook('hello', Dispatcher::FILTER_BEFORE, function (array &$params): void {
@@ -246,8 +243,7 @@ class DispatcherTest extends TestCase
         $output = '';
         $invalidCallable = 'invalidGlobalFunction';
 
-        $validCallable = function (): void {
-        };
+        $validCallable = function (): void {};
 
         $this->dispatcher->filter([$validCallable, $invalidCallable], $params, $output);
     }
@@ -341,6 +337,6 @@ class DispatcherTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('This is an exception in the constructor');
 
-        $this->dispatcher->invokeCallable([ ClassWithExceptionInConstruct::class, '__construct' ]);
+        $this->dispatcher->invokeCallable([ClassWithExceptionInConstruct::class, '__construct']);
     }
 }
