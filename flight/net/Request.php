@@ -439,15 +439,7 @@ class Request
      */
     public static function getScheme(): string
     {
-        if (
-            (strtolower(self::getVar('HTTPS')) === 'on')
-            ||
-            (self::getVar('HTTP_X_FORWARDED_PROTO') === 'https')
-            ||
-            (self::getVar('HTTP_FRONT_END_HTTPS') === 'on')
-            ||
-            (self::getVar('REQUEST_SCHEME') === 'https')
-        ) {
+        if ((strtolower(self::getVar('HTTPS')) === 'on') || (self::getVar('HTTP_X_FORWARDED_PROTO') === 'https') || (self::getVar('HTTP_FRONT_END_HTTPS') === 'on') || (self::getVar('REQUEST_SCHEME') === 'https')) {
             return 'https';
         }
 

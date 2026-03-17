@@ -64,10 +64,7 @@ class Dispatcher
     {
         $containerInterfaceNS = '\Psr\Container\ContainerInterface';
 
-        if (
-            is_a($containerHandler, $containerInterfaceNS)
-            || is_callable($containerHandler)
-        ) {
+        if (is_a($containerHandler, $containerInterfaceNS) || is_callable($containerHandler)) {
             $this->containerHandler = $containerHandler;
 
             return;
@@ -289,10 +286,7 @@ class Dispatcher
      */
     public function execute($callback, array &$params = [])
     {
-        if (
-            is_string($callback) === true
-            && (strpos($callback, '->') !== false || strpos($callback, '::') !== false)
-        ) {
+        if (is_string($callback) === true && (strpos($callback, '->') !== false || strpos($callback, '::') !== false)) {
             $callback = $this->parseStringClassAndMethod($callback);
         }
 

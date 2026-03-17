@@ -45,14 +45,18 @@ class DispatcherTest extends TestCase
 
     public function testHasEvent(): void
     {
-        $this->dispatcher->set('map-event', function (): void {});
+        $this->dispatcher->set('map-event', function (): void {
+            //
+        });
 
         $this->assertTrue($this->dispatcher->has('map-event'));
     }
 
     public function testClearAllRegisteredEvents(): void
     {
-        $customFunction = $anotherFunction = function (): void {};
+        $customFunction = $anotherFunction = function (): void {
+            //
+        };
 
         $this->dispatcher
             ->set('map-event', $customFunction)
@@ -69,7 +73,9 @@ class DispatcherTest extends TestCase
 
     public function testClearDeclaredRegisteredEvent(): void
     {
-        $customFunction = $anotherFunction = function (): void {};
+        $customFunction = $anotherFunction = function (): void {
+            //
+        };
 
         $this->dispatcher
             ->set('map-event', $customFunction)
@@ -243,7 +249,9 @@ class DispatcherTest extends TestCase
         $output = '';
         $invalidCallable = 'invalidGlobalFunction';
 
-        $validCallable = function (): void {};
+        $validCallable = function (): void {
+            //
+        };
 
         $this->dispatcher->filter([$validCallable, $invalidCallable], $params, $output);
     }
@@ -324,7 +332,7 @@ class DispatcherTest extends TestCase
     {
         $this->expectException(TypeError::class);
         $this->expectExceptionMessageMatches('#tests\\\\classes\\\\ContainerDefault::__construct\(\).+flight\\\\Engine, null given#');
-        $result = $this->dispatcher->execute([ContainerDefault::class, 'testTheContainer']);
+        $this->dispatcher->execute([ContainerDefault::class, 'testTheContainer']);
     }
 
     public function testContainerDicePdoWrapperTestBadParams(): void

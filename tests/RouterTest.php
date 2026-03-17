@@ -411,14 +411,18 @@ class RouterTest extends TestCase
 
     public function testRouteBeingReturned(): void
     {
-        $route = $this->router->map('/hi', function () {});
+        $route = $this->router->map('/hi', function () {
+            //
+        });
         $route_in_router = $this->router->getRoutes()[0];
         $this->assertSame($route, $route_in_router);
     }
 
     public function testRouteSetAlias(): void
     {
-        $route = $this->router->map('/hi', function () {});
+        $route = $this->router->map('/hi', function () {
+            //
+        });
         $route->setAlias('hello');
         $this->assertEquals('hello', $route->alias);
     }

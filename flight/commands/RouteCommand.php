@@ -118,13 +118,7 @@ class RouteCommand extends AbstractBaseCommand
             $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
             foreach ($methods as $method) {
                 $lowercaseMethod = strtolower($method);
-                if (
-                    $this->{$lowercaseMethod} === true &&
-                    (
-                        $route->methods[0] === '*' ||
-                        in_array($method, $route->methods, true) === true
-                    )
-                ) {
+                if ($this->{$lowercaseMethod} === true && ($route->methods[0] === '*' || in_array($method, $route->methods, true) === true)) {
                     $boolval = true;
                     break;
                 }
