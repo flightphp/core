@@ -4,8 +4,8 @@
     xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
     <!-- <arg name="report" value="source" /> -->
     <!-- <arg name="report" value="summary" /> -->
-    <arg name="report" value="diff" />
-    <!-- <arg name="report" value="full" /> -->
+    <!-- <arg name="report" value="diff" /> -->
+    <arg name="report" value="full" />
     <arg name="report-width" value="80" />
     <arg name="colors" />
     <arg name="encoding" value="utf-8" />
