@@ -38,7 +38,10 @@
         "psr-4": {
             "Tests\\PHP8\\": [
                 "tests/named-arguments"
-            ]
+            ],
+            "Tests\\Server\\": "tests/server",
+            "Tests\\ServerV2\\": "tests/server-v2",
+            "tests\\groupcompactsyntax\\": "tests/groupcompactsyntax"
         }
     },
     "require-dev": {
