@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+namespace Tests\Server;
+
+use Flight;
+
 class LayoutMiddleware
 {
     public function before(): void

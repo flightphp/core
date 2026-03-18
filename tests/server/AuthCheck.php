@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Tests\Server;
+
 class AuthCheck
 {
     public function before(): void
