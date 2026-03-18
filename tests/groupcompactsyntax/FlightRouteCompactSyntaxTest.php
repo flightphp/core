@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
+namespace tests\groupcompactsyntax;
+
+use Flight;
 use PHPUnit\Framework\TestCase;
 use tests\groupcompactsyntax\PostsController;
 use tests\groupcompactsyntax\TodosController;
 use tests\groupcompactsyntax\UsersController;
-
-require_once __DIR__ . '/UsersController.php';
-require_once __DIR__ . '/PostsController.php';
 
 final class FlightRouteCompactSyntaxTest extends TestCase
 {
@@ -38,7 +38,7 @@ final class FlightRouteCompactSyntaxTest extends TestCase
     public function testOptionsOnly(): void
     {
         Flight::resource('/users', UsersController::class, [
-            'only' => [ 'index', 'destroy' ]
+            'only' => ['index', 'destroy']
         ]);
 
         $routes = Flight::router()->getRoutes();
@@ -100,7 +100,7 @@ final class FlightRouteCompactSyntaxTest extends TestCase
     public function testOptionsExcept(): void
     {
         Flight::resource('/todos', TodosController::class, [
-            'except' => [ 'create', 'store', 'update', 'destroy', 'edit' ]
+            'except' => ['create', 'store', 'update', 'destroy', 'edit']
         ]);
 
         $routes = Flight::router()->getRoutes();
@@ -119,7 +119,7 @@ final class FlightRouteCompactSyntaxTest extends TestCase
     public function testOptionsMiddlewareAndAliasBase(): void
     {
         Flight::resource('/todos', TodosController::class, [
-            'middleware' => [ 'auth' ],
+            'middleware' => ['auth'],
             'alias_base' => 'nothanks'
         ]);
 

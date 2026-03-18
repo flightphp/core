@@ -104,7 +104,7 @@ class ViewTest extends TestCase
 
         $this->view->render('world');
 
-        $this->expectOutputString('Hello world, Bob!');
+        $this->expectOutputString("Hello world, Bob!\n");
     }
 
     public function testGetTemplateAbsolutePath(): void

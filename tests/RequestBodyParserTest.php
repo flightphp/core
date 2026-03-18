@@ -266,13 +266,13 @@ class RequestBodyParserTest extends TestCase
         // Use PHP CLI with -d to set upload_max_filesize (ini_set can't change this setting in many SAPIs)
         $cases = [
             // No unit yields default branch which returns 0 in current implementation
-            ['1'    , 0], // no unit and number too small
-            ['1K'   , 1024],
-            ['2M'   , 2 * 1024 * 1024],
-            ['1G'   , 1024 * 1024 * 1024],
-            ['1T'   , 1024 * 1024 * 1024 * 1024],
-            ['1Z'   , 0 ],  // Unknown unit and number too small
-            [ '1024', 1024 ]
+            ['1', 0], // no unit and number too small
+            ['1K', 1024],
+            ['2M', 2 * 1024 * 1024],
+            ['1G', 1024 * 1024 * 1024],
+            ['1T', 1024 * 1024 * 1024 * 1024],
+            ['1Z', 0],  // Unknown unit and number too small
+            ['1024', 1024]
         ];
 
         foreach ($cases as [$iniVal, $expected]) {
@@ -321,7 +321,9 @@ class RequestBodyParserTest extends TestCase
         $parts[] = "Content-Type: text/plain\r\n\r\nignoredvalue";
 
         // C: header too long (>16384) => skipped
-        $longHeader = 'Content-Disposition: form-data; name="toolong"; filename="toolong.txt"; ' . str_repeat('x', 16500);
+        $longHeader = 'Content-Disposition: form-data; name="toolong"; filename="toolong.txt"; '
+            . str_repeat('x', 16500);
+
         $parts[] = $longHeader . "\r\n\r\nlongvalue";
 
         // D: header line without colon gets skipped but rest processed; becomes non-file field
@@ -334,14 +336,24 @@ class RequestBodyParserTest extends TestCase
         $parts[] = "Content-Disposition: form-data; name=\"\"; filename=\"empty.txt\"\r\n\r\nemptyNameValue";
 
         // G: invalid filename triggers sanitized fallback
-        $parts[] = "Content-Disposition: form-data; name=\"filebad\"; filename=\"a*b?.txt\"\r\nContent-Type: text/plain\r\n\r\nFILEBAD";
+        $parts[] = "Content-Disposition: form-data; "
+            . "name=\"filebad\"; "
+            . "filename=\"a*b?.txt\"\r\nContent-Type: text/plain\r\n\r\nFILEBAD";
 
         // H1 & H2: two files same key for aggregation logic (arrays)
-        $parts[] = "Content-Disposition: form-data; name=\"filemulti\"; filename=\"one.txt\"\r\nContent-Type: text/plain\r\n\r\nONE";
-        $parts[] = "Content-Disposition: form-data; name=\"filemulti\"; filename=\"two.txt\"\r\nContent-Type: text/plain\r\n\r\nTWO";
+        $parts[] = "Content-Disposition: form-data; "
+            . "name=\"filemulti\"; "
+            . "filename=\"one.txt\"\r\nContent-Type: text/plain\r\n\r\nONE";
+
+        $parts[] = "Content-Disposition: form-data; "
+            . "name=\"filemulti\"; "
+            . "filename=\"two.txt\"\r\nContent-Type: text/plain\r\n\r\nTWO";
 
         // I: file exceeding total bytes triggers UPLOAD_ERR_INI_SIZE
-        $parts[] = "Content-Disposition: form-data; name=\"filebig\"; filename=\"big.txt\"\r\nContent-Type: text/plain\r\n\r\n" . str_repeat('A', 10);
+        $parts[] = "Content-Disposition: form-data; "
+            . "name=\"filebig\"; "
+            . "filename=\"big.txt\"\r\nContent-Type: text/plain\r\n\r\n"
+            . str_repeat('A', 10);
 
         // Build full body
         $body = '';
@@ -394,11 +406,31 @@ class RequestBodyParserTest extends TestCase
 
     public function testMultipartEmptyArrayNameStripped(): void
     {
-        // Covers line where keyName becomes empty after removing [] (name="[]") and header param extraction (preg_match_all)
+        // Covers line where keyName becomes empty after removing [] (name="[]")
+        // and header param extraction (preg_match_all)
         $boundary = 'BOUNDARYEMPTY';
-        $validFilePart = "Content-Disposition: form-data; name=\"fileok\"; filename=\"ok.txt\"\r\nContent-Type: text/plain\r\n\r\nOK";
-        $emptyNameFilePart = "Content-Disposition: form-data; name=\"[]\"; filename=\"empty.txt\"\r\nContent-Type: text/plain\r\n\r\nSHOULD_SKIP";
-        $body = '--' . $boundary . "\r\n" . $validFilePart . "\r\n" . '--' . $boundary . "\r\n" . $emptyNameFilePart . "\r\n" . '--' . $boundary . "--\r\n";
+
+        $validFilePart = "Content-Disposition: form-data; "
+            . "name=\"fileok\"; "
+            . "filename=\"ok.txt\"\r\nContent-Type: text/plain\r\n\r\nOK";
+
+        $emptyNameFilePart = "Content-Disposition: form-data; "
+            . "name=\"[]\"; "
+            . "filename=\"empty.txt\"\r\nContent-Type: text/plain\r\n\r\nSHOULD_SKIP";
+
+        $body = '--'
+            . $boundary
+            . "\r\n"
+            . $validFilePart
+            . "\r\n"
+            . '--'
+            . $boundary
+            . "\r\n"
+            . $emptyNameFilePart
+            . "\r\n"
+            . '--'
+            . $boundary
+            . "--\r\n";
 
         $tmp = tmpfile();
         $path = stream_get_meta_data($tmp)['uri'];

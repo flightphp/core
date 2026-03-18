@@ -48,8 +48,14 @@ class UploadedFile
      * @param int $error The error code associated with the uploaded file.
      * @param bool|null $isPostUploadedFile Indicates if the file was uploaded via POST method.
      */
-    public function __construct(string $name, string $mimeType, int $size, string $tmpName, int $error, ?bool $isPostUploadedFile = null)
-    {
+    public function __construct(
+        string $name,
+        string $mimeType,
+        int $size,
+        string $tmpName,
+        int $error,
+        ?bool $isPostUploadedFile = null
+    ) {
         $this->name = $name;
         $this->mimeType = $mimeType;
         $this->size = $size;
@@ -154,7 +160,7 @@ class UploadedFile
         $uploadFunctionToCall = $isUploadedFile === true ?
             // Standard POST upload - use move_uploaded_file for security
             'move_uploaded_file' :
-             // Handle non-POST uploads (PATCH, PUT, DELETE) or other valid temp files
+            // Handle non-POST uploads (PATCH, PUT, DELETE) or other valid temp files
             'rename';
 
         $result = $uploadFunctionToCall($this->tmpName, $targetPath);

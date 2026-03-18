@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
+use Dice\Dice;
 use flight\core\Loader;
 use flight\database\PdoWrapper;
 use tests\classes\Container;
 use tests\classes\ContainerDefault;
+use Tests\Server\AuthCheck;
+use Tests\Server\LayoutMiddleware;
+use Tests\Server\OverwriteBodyMiddleware;
+use Tests\Server\Pascal_Snake_Case;
 
 /*
  * This is the test file where we can open up a quick test server and make
@@ -14,7 +19,7 @@ use tests\classes\ContainerDefault;
  * @author Kristaps Muižnieks https://github.com/krmu
  */
 
- require file_exists(__DIR__ . '/../../vendor/autoload.php') ? __DIR__ . '/../../vendor/autoload.php' : __DIR__ . '/../../flight/autoload.php';
+require_once __DIR__ . '/../phpunit_autoload.php';
 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');
@@ -23,20 +28,20 @@ Loader::setV2ClassLoading(false);
 Flight::path(__DIR__);
 
 Flight::group('', function () {
-
     // Test 1: Root route
     Flight::route('/', function () {
         echo '<span id="infotext">Route text:</span> Root route works!';
-        if (Flight::request()->query->redirected) {
+        if (Flight::request()->query['redirected']) {
             echo '<br>Redirected from /redirect route successfully!';
         }
     });
+
     Flight::route('/querytestpath', function () {
         echo '<span id="infotext">Route text:</span> This is query route<br>';
-        echo "Query parameters:<pre>";
+        echo 'Query parameters:<pre>';
         print_r(Flight::request()->query);
-        echo "</pre>";
-    }, false, "querytestpath");
+        echo '</pre>';
+    }, false, 'querytestpath');
 
     // Test 2: Simple route
     Flight::route('/test', function () {
@@ -47,18 +52,21 @@ Flight::group('', function () {
     Flight::route('/user/@name', function ($name) {
         echo "<span id='infotext'>Route text:</span> Hello, $name!";
     });
+
     Flight::route('POST /postpage', function () {
         echo '<span id="infotext">Route text:</span> THIS IS POST METHOD PAGE';
-    }, false, "postpage");
+    }, false, 'postpage');
 
     // Test 4: Grouped routes
     Flight::group('/group', function () {
         Flight::route('/test', function () {
             echo '<span id="infotext">Route text:</span> Group test route works!';
         });
+
         Flight::route('/user/@name', function ($name) {
             echo "<span id='infotext'>Route text:</span> There is variable called name and it is $name";
         });
+
         Flight::group('/group1', function () {
             Flight::group('/group2', function () {
                 Flight::group('/group3', function () {
@@ -69,7 +77,7 @@ Flight::group('', function () {
                                     Flight::group('/group8', function () {
                                         Flight::route('/final_group', function () {
                                             echo 'Mega Group test route works!';
-                                        }, false, "final_group");
+                                        }, false, 'final_group');
                                     });
                                 });
                             });
@@ -86,8 +94,8 @@ Flight::group('', function () {
     }, false, 'aliasroute');
 
     /** Middleware test */
-    include_once 'AuthCheck.php';
     $middle = new AuthCheck();
+
     // Test 6: Route with middleware
     Flight::route('/protected', function () {
         echo '<span id="infotext">Route text:</span> Protected route works!';
@@ -119,51 +127,75 @@ Flight::group('', function () {
 
     // Test 12: Redirect with status code
     Flight::route('/streamResponse', function () {
-        echo "Streaming a response";
+        echo 'Streaming a response';
+
         for ($i = 1; $i <= 50; $i++) {
             echo ".";
             usleep(50000);
             ob_flush();
         }
-        echo "is successful!!";
+
+        echo 'is successful!!';
     })->stream();
 
     // Test 12: Redirect with status code
     Flight::route('/streamWithHeaders', function () {
-        echo "Streaming a response";
+        echo 'Streaming a response';
+
         for ($i = 1; $i <= 50; $i++) {
             echo ".";
             usleep(50000);
             ob_flush();
         }
-        echo "is successful!!";
-    })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200 ]);
+
+        echo 'is successful!!';
+    })->streamWithHeaders(['Content-Type' => 'text/html', 'status' => 200]);
 
     // Test 14: Overwrite the body with a middleware
     Flight::route('/overwrite', function () {
-        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:red; font-weight: bold;">failed</span>';
+        echo <<<'html'
+            <span id="infotext">Route text:</span>
+            This route status is that it
+            <span style="color:red; font-weight: bold;">failed</span>
+        html;
     })->addMiddleware([new OverwriteBodyMiddleware()]);
 
     // Test 15: UTF8 Chars in url
     Flight::route('/わたしはひとです', function () {
-        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:green; font-weight: bold;">succeeded はい!!!</span>';
+        echo <<<'html'
+            <span id="infotext">Route text:</span>
+            This route status is that it
+            <span style="color:green; font-weight: bold;">succeeded はい!!!</span>
+        html;
     });
 
     // Test 16: UTF8 Chars in url with utf8 params
     Flight::route('/わたしはひとです/@name', function ($name) {
-        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:' . ($name === 'ええ' ? 'green' : 'red') . '; font-weight: bold;">' . ($name === 'ええ' ? 'succeeded' : 'failed') . ' URL Param: ' . $name . '</span>';
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:'
+            . ($name === 'ええ' ? 'green' : 'red')
+            . '; font-weight: bold;">'
+            . ($name === 'ええ' ? 'succeeded' : 'failed')
+            . ' URL Param: '
+            . $name
+            . '</span>';
     });
 
     // Test 17: Slash in param
     Flight::route('/redirect/@id', function ($id) {
-        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:' . ($id === 'before/after' ? 'green' : 'red') . '; font-weight: bold;">' . ($id === 'before/after' ? 'succeeded' : 'failed') . ' URL Param: ' . $id . '</span>';
+        echo '<span id="infotext">Route text:</span> This route status is that it <span style="color:'
+            . ($id === 'before/after' ? 'green' : 'red')
+            . '; font-weight: bold;">'
+            . ($id === 'before/after' ? 'succeeded' : 'failed')
+            . ' URL Param: '
+            . $id
+            . '</span>';
     });
 
     Flight::set('test_me_out', 'You got it boss!'); // used in /no-container route
     Flight::route('/no-container', ContainerDefault::class . '->testUi');
     Flight::route('/dice', Container::class . '->testThePdoWrapper');
     Flight::route('/Pascal_Snake_Case', Pascal_Snake_Case::class . '->doILoad');
-}, [ new LayoutMiddleware() ]);
+}, [new LayoutMiddleware()]);
 
 // Test 9: JSON output (should not output any other html)
 Flight::route('/json', function () {
@@ -195,23 +227,25 @@ Flight::map('error', function (Throwable $e) {
         $e->getCode(),
         str_replace(getenv('PWD'), '***CONFIDENTIAL***', $e->getTraceAsString())
     );
+
     echo "<br><a href='/'>Go back</a>";
 });
+
 Flight::map('notFound', function () {
     echo '<span id="infotext">Route text:</span> The requested URL was not found<br>';
     echo "<a href='/'>Go back</a>";
 });
 
 Flight::map('start', function () {
-
     if (Flight::request()->url === '/dice') {
-        $dice = new \Dice\Dice();
+        $dice = new Dice();
         $dice = $dice->addRules([
             PdoWrapper::class => [
                 'shared' => true,
-                'constructParams' => [ 'sqlite::memory:' ]
+                'constructParams' => ['sqlite::memory:']
             ]
         ]);
+
         Flight::registerContainerHandler(function ($class, $params) use ($dice) {
             return $dice->create($class, $params);
         });

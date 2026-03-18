@@ -20,7 +20,13 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
     public function __construct(array $config)
     {
         parent::__construct('ai:generate-instructions', 'Generate project-specific AI coding instructions', $config);
-        $this->option('--config-file', 'Path to .runway-config.json file (deprecated, use config.php instead)', null, '');
+
+        $this->option(
+            '--config-file',
+            'Path to .runway-config.json file (deprecated, use config.php instead)',
+            null,
+            ''
+        );
     }
 
     /**
@@ -40,7 +46,12 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
         if (empty($this->config['runway'])) {
             $configFile = $this->configFile;
             $io = $this->app()->io();
-            $io->warn('The --config-file option is deprecated. Move your config values to the \'runway\' key in the config.php file for configuration.', true);
+
+            $io->warn(
+                'The --config-file option is deprecated. '
+                    . 'Move your config values to the \'runway\' key in the config.php file for configuration.',
+                true
+            );
             $runwayConfig = json_decode(file_get_contents($configFile), true) ?? [];
         } else {
             $runwayConfig = $this->config['runway'];
@@ -56,12 +67,30 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
 
         // Ask questions
         $projectDesc = $io->prompt('Please describe what your project is for?');
-        $database = $io->prompt('What database are you planning on using? (e.g. MySQL, SQLite, PostgreSQL, none)', 'none');
-        $templating = $io->prompt('What HTML templating engine will you plan on using (if any)? (recommend latte)', 'latte');
+
+        $database = $io->prompt(
+            'What database are you planning on using? (e.g. MySQL, SQLite, PostgreSQL, none)',
+            'none'
+        );
+
+        $templating = $io->prompt(
+            'What HTML templating engine will you plan on using (if any)? (recommend latte)',
+            'latte'
+        );
+
         $security = $io->confirm('Is security an important element of this project?', 'y');
         $performance = $io->confirm('Is performance and speed an important part of this project?', 'y');
-        $composerLibs = $io->prompt('What major composer libraries will you be using if you know them right now?', 'none');
-        $envSetup = $io->prompt('How will you set up your development environment? (e.g. Docker, Vagrant, PHP dev server, other)', 'Docker');
+
+        $composerLibs = $io->prompt(
+            'What major composer libraries will you be using if you know them right now?',
+            'none'
+        );
+
+        $envSetup = $io->prompt(
+            'How will you set up your development environment? (e.g. Docker, Vagrant, PHP dev server, other)',
+            'Docker'
+        );
+
         $teamSize = $io->prompt('How many developers will be working on this project?', '1');
         $api = $io->confirm('Will this project expose an API?', 'n');
         $other = $io->prompt('Any other important requirements or context? (optional)', 'no');
@@ -107,7 +136,13 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
         $data = [
             'model' => $model,
             'messages' => [
-                ['role' => 'system', 'content' => 'You are a helpful AI coding assistant focused on the Flight Framework for PHP. You are up to date with all your knowledge from https://docs.flightphp.com. As an expert into the programming language PHP, you are top notch at architecting out proper instructions for FlightPHP projects.'],
+                [
+                    'role' => 'system',
+                    'content' => 'You are a helpful AI coding assistant focused on the Flight Framework for PHP. '
+                        . 'You are up to date with all your knowledge from https://docs.flightphp.com. '
+                        . 'As an expert into the programming language PHP, '
+                        . 'you are top notch at architecting out proper instructions for FlightPHP projects.'
+                ],
                 ['role' => 'user', 'content' => $prompt],
             ],
             'temperature' => 0.2,
@@ -129,7 +164,11 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
         }
 
         // Write to files
-        $io->info('Updating .github/copilot-instructions.md, .cursor/rules/project-overview.mdc, .gemini/GEMINI.md and .windsurfrules...', true);
+        $io->info(
+            'Updating .github/copilot-instructions.md, .cursor/rules/project-overview.mdc, .gemini/GEMINI.md and .windsurfrules...',
+            true
+        );
+        
         if (!is_dir($this->projectRoot . '.github')) {
             mkdir($this->projectRoot . '.github', 0755, true);
         }

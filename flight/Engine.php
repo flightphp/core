@@ -267,7 +267,8 @@ class Engine
     /**
      * Registers the container handler
      *
-     * @param ContainerInterface|callable(class-string<T> $id, array<int|string, mixed> $params): ?T $containerHandler Callback function or PSR-11 Container object that sets the container and how it will inject classes
+     * @param ContainerInterface|callable(class-string<T> $id, array<int|string, mixed> $params): ?T $containerHandler
+     * Callback function or PSR-11 Container object that sets the container and how it will inject classes
      *
      * @template T of object
      */
@@ -488,7 +489,14 @@ class Engine
             // Which loosely translates to $class->$method($params)
             $start = microtime(true);
             $middlewareResult = $middlewareObject($params);
-            $this->triggerEvent('flight.middleware.executed', $route, $middleware, $eventName, microtime(true) - $start);
+
+            $this->triggerEvent(
+                'flight.middleware.executed',
+                $route,
+                $middleware,
+                $eventName,
+                microtime(true) - $start
+            );
 
             if ($useV3OutputBuffering === true) {
                 $this->response()->write(ob_get_clean());
@@ -860,7 +868,12 @@ class Engine
     public function _methodNotFound(Route $route): void
     {
         $this->response()->setHeader('Allow', implode(', ', $route->methods));
-        $this->halt(405, 'Method Not Allowed. Allowed Methods are: ' . implode(', ', $route->methods), empty(getenv('PHPUNIT_TEST')));
+
+        $this->halt(
+            405,
+            'Method Not Allowed. Allowed Methods are: ' . implode(', ', $route->methods),
+            empty(getenv('PHPUNIT_TEST'))
+        );
     }
 
     /**

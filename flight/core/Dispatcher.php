@@ -58,16 +58,14 @@ class Dispatcher
      *
      * @template T of object
      *
-     * @throws InvalidArgumentException If $containerHandler is not a `callable` or instance of `Psr\Container\ContainerInterface`.
+     * @throws InvalidArgumentException
+     * If $containerHandler is not a `callable` or instance of `Psr\Container\ContainerInterface`.
      */
     public function setContainerHandler($containerHandler): void
     {
         $containerInterfaceNS = '\Psr\Container\ContainerInterface';
 
-        if (
-            is_a($containerHandler, $containerInterfaceNS)
-            || is_callable($containerHandler)
-        ) {
+        if (is_a($containerHandler, $containerInterfaceNS) || is_callable($containerHandler)) {
             $this->containerHandler = $containerHandler;
 
             return;
@@ -289,10 +287,7 @@ class Dispatcher
      */
     public function execute($callback, array &$params = [])
     {
-        if (
-            is_string($callback) === true
-            && (strpos($callback, '->') !== false || strpos($callback, '::') !== false)
-        ) {
+        if (is_string($callback) === true && (strpos($callback, '->') !== false || strpos($callback, '::') !== false)) {
             $callback = $this->parseStringClassAndMethod($callback);
         }
 
@@ -419,7 +414,10 @@ class Dispatcher
 
         // Final check to make sure it's actually a class and a method, or throw an error
         if (is_object($class) === false && class_exists($class) === false) {
-            $exception = new Exception("Class '$class' not found. Is it being correctly autoloaded with Flight::path()?");
+            $exception = new Exception(
+                "Class '$class' not found. "
+                    . "Is it being correctly autoloaded with Flight::path()?"
+            );
 
             // If this tried to resolve a class in a container and failed somehow, throw the exception
         } elseif (!$resolvedClass && $this->containerException !== null) {

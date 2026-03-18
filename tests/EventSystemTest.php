@@ -123,6 +123,7 @@ class EventSystemTest extends TestCase
             $called = true;
         });
         Flight::onEvent('test.event', function () {
+            //
         });
         $this->assertTrue($called, 'Overridden onEvent method should be called.');
     }
@@ -231,12 +232,19 @@ class EventSystemTest extends TestCase
      */
     public function testHasListeners(): void
     {
-        $this->assertFalse(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should not have listeners before registration');
+        $this->assertFalse(
+            Flight::eventDispatcher()->hasListeners('test.event'),
+            'Event should not have listeners before registration'
+        );
 
         Flight::onEvent('test.event', function () {
+            //
         });
 
-        $this->assertTrue(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should have listeners after registration');
+        $this->assertTrue(
+            Flight::eventDispatcher()->hasListeners('test.event'),
+            'Event should have listeners after registration'
+        );
     }
 
     /**
@@ -245,11 +253,16 @@ class EventSystemTest extends TestCase
     public function testGetListeners(): void
     {
         $callback1 = function () {
+            //
         };
         $callback2 = function () {
+            //
         };
 
-        $this->assertEmpty(Flight::eventDispatcher()->getListeners('test.event'), 'Event should have no listeners before registration');
+        $this->assertEmpty(
+            Flight::eventDispatcher()->getListeners('test.event'),
+            'Event should have no listeners before registration'
+        );
 
         Flight::onEvent('test.event', $callback1);
         Flight::onEvent('test.event', $callback2);
@@ -275,11 +288,16 @@ class EventSystemTest extends TestCase
      */
     public function testGetAllRegisteredEvents(): void
     {
-        $this->assertEmpty(Flight::eventDispatcher()->getAllRegisteredEvents(), 'No events should be registered initially');
+        $this->assertEmpty(
+            Flight::eventDispatcher()->getAllRegisteredEvents(),
+            'No events should be registered initially'
+        );
 
         Flight::onEvent('test.event1', function () {
+            //
         });
         Flight::onEvent('test.event2', function () {
+            //
         });
 
         $events = Flight::eventDispatcher()->getAllRegisteredEvents();
@@ -303,7 +321,11 @@ class EventSystemTest extends TestCase
         Flight::onEvent('test.event', $callback1);
         Flight::onEvent('test.event', $callback2);
 
-        $this->assertCount(2, Flight::eventDispatcher()->getListeners('test.event'), 'Event should have two listeners initially');
+        $this->assertCount(
+            2,
+            Flight::eventDispatcher()->getListeners('test.event'),
+            'Event should have two listeners initially'
+        );
 
         Flight::eventDispatcher()->removeListener('test.event', $callback1);
 
@@ -318,19 +340,36 @@ class EventSystemTest extends TestCase
     public function testRemoveAllListeners(): void
     {
         Flight::onEvent('test.event', function () {
+            //
         });
         Flight::onEvent('test.event', function () {
+            //
         });
         Flight::onEvent('another.event', function () {
+            //
         });
 
-        $this->assertTrue(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should have listeners before removal');
-        $this->assertTrue(Flight::eventDispatcher()->hasListeners('another.event'), 'Another event should have listeners');
+        $this->assertTrue(
+            Flight::eventDispatcher()->hasListeners('test.event'),
+            'Event should have listeners before removal'
+        );
+
+        $this->assertTrue(
+            Flight::eventDispatcher()->hasListeners('another.event'),
+            'Another event should have listeners'
+        );
 
         Flight::eventDispatcher()->removeAllListeners('test.event');
 
-        $this->assertFalse(Flight::eventDispatcher()->hasListeners('test.event'), 'Event should have no listeners after removal');
-        $this->assertTrue(Flight::eventDispatcher()->hasListeners('another.event'), 'Another event should still have listeners');
+        $this->assertFalse(
+            Flight::eventDispatcher()->hasListeners('test.event'),
+            'Event should have no listeners after removal'
+        );
+
+        $this->assertTrue(
+            Flight::eventDispatcher()->hasListeners('another.event'),
+            'Another event should still have listeners'
+        );
     }
 
     /**
@@ -340,9 +379,13 @@ class EventSystemTest extends TestCase
     {
         // Should not throw any errors
         Flight::eventDispatcher()->removeListener('nonexistent.event', function () {
+            //
         });
         Flight::eventDispatcher()->removeAllListeners('nonexistent.event');
 
-        $this->assertTrue(true, 'Removing listeners for nonexistent events should not throw errors');
+        $this->assertTrue(
+            true,
+            'Removing listeners for nonexistent events should not throw errors'
+        );
     }
 }
