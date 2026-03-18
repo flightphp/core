@@ -1,0 +1,14 @@
+includes:
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    excludePaths:
+        - vendor
+        - flight/util/ReturnTypeWillChange.php
+        - tests/named-arguments
+    paths:
+        - flight
+        - index.php
+    treatPhpDocTypesAsCertain: false
