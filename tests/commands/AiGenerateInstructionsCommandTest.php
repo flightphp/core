@@ -21,7 +21,13 @@ class AiGenerateInstructionsCommandTest extends TestCase
         self::$ou = __DIR__ . DIRECTORY_SEPARATOR . 'output.test' . uniqid('', true) . '.txt';
         file_put_contents(self::$in, '');
         file_put_contents(self::$ou, '');
-        $this->baseDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flightphp-test-basedir-' . uniqid('', true) . DIRECTORY_SEPARATOR;
+
+        $this->baseDir = sys_get_temp_dir()
+            . DIRECTORY_SEPARATOR
+            . 'flightphp-test-basedir-'
+            . uniqid('', true)
+            . DIRECTORY_SEPARATOR;
+
         if (!is_dir($this->baseDir)) {
             mkdir($this->baseDir, 0777, true);
         }

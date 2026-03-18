@@ -439,7 +439,13 @@ class Request
      */
     public static function getScheme(): string
     {
-        if ((strtolower(self::getVar('HTTPS')) === 'on') || (self::getVar('HTTP_X_FORWARDED_PROTO') === 'https') || (self::getVar('HTTP_FRONT_END_HTTPS') === 'on') || (self::getVar('REQUEST_SCHEME') === 'https')) {
+        if (strtolower(self::getVar('HTTPS')) === 'on') {
+            return 'https';
+        } elseif (self::getVar('HTTP_X_FORWARDED_PROTO') === 'https') {
+            return 'https';
+        } elseif (self::getVar('HTTP_FRONT_END_HTTPS') === 'on') {
+            return 'https';
+        } elseif (self::getVar('REQUEST_SCHEME') === 'https') {
             return 'https';
         }
 
@@ -470,7 +476,8 @@ class Request
     /**
      * Retrieves the array of uploaded files.
      *
-     * @return array<string, UploadedFile|array<int, UploadedFile>> Key is field name; value is either a single UploadedFile or an array of UploadedFile when multiple were uploaded.
+     * @return array<string, UploadedFile|array<int, UploadedFile>>
+     * Key is field name; value is either a single UploadedFile or an array of UploadedFile when multiple were uploaded.
      */
     public function getUploadedFiles(): array
     {

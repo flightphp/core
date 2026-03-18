@@ -178,7 +178,15 @@ class PdoWrapperTest extends TestCase
         $queriesData = null;
 
         $dispatcher = EventDispatcher::getInstance();
-        $dispatcher->on('flight.db.queries', function ($conn, $queries) use (&$eventTriggered, &$connectionData, &$queriesData) {
+
+        $dispatcher->on('flight.db.queries', function (
+            $conn,
+            $queries
+        ) use (
+            &$eventTriggered,
+            &$connectionData,
+            &$queriesData
+        ) {
             $eventTriggered = true;
             $connectionData = $conn;
             $queriesData = $queries;

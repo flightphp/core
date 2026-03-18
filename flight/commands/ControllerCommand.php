@@ -31,8 +31,16 @@ class ControllerCommand extends AbstractBaseCommand
         $io = $this->app()->io();
 
         if (empty($this->config['runway'])) {
-            $io->warn('Using a .runway-config.json file is deprecated. Move your config values to app/config/config.php with `php runway config:migrate`.', true); // @codeCoverageIgnore
-            $runwayConfig = json_decode(file_get_contents($this->projectRoot . '/.runway-config.json'), true); // @codeCoverageIgnore
+            $io->warn(
+                'Using a .runway-config.json file is deprecated. '
+                    . 'Move your config values to app/config/config.php with `php runway config:migrate`.',
+                true
+            ); // @codeCoverageIgnore
+
+            $runwayConfig = json_decode(
+                file_get_contents($this->projectRoot . '/.runway-config.json'),
+                true
+            ); // @codeCoverageIgnore
         } else {
             $runwayConfig = $this->config['runway'];
         }
@@ -95,6 +103,9 @@ class ControllerCommand extends AbstractBaseCommand
     protected function persistClass(string $controllerName, PhpFile $file, string $appRoot)
     {
         $printer = new \Nette\PhpGenerator\PsrPrinter();
-        file_put_contents($this->projectRoot . '/' . $appRoot . 'controllers/' . $controllerName . '.php', $printer->printFile($file));
+        file_put_contents(
+            $this->projectRoot . '/' . $appRoot . 'controllers/' . $controllerName . '.php',
+            $printer->printFile($file)
+        );
     }
 }

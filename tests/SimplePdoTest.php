@@ -88,7 +88,13 @@ class SimplePdoTest extends TestCase
 
     public function testRunQueryWithoutParamsWithMaxQueryMetrics(): void
     {
-        $db = new class('sqlite::memory:', null, null, null, ['maxQueryMetrics' => 2, 'trackApmQueries' => true]) extends SimplePdo {
+        $db = new class(
+            'sqlite::memory:',
+            null,
+            null,
+            null,
+            ['maxQueryMetrics' => 2, 'trackApmQueries' => true]
+        ) extends SimplePdo {
             public function getQueryMetrics(): array
             {
                 return $this->queryMetrics;

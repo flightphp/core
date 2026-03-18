@@ -152,7 +152,11 @@ class DispatcherTest extends TestCase
     public function testInvalidCallback(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Class 'NonExistentClass' not found. Is it being correctly autoloaded with Flight::path()?");
+
+        $this->expectExceptionMessage(
+            "Class 'NonExistentClass' not found. "
+                . "Is it being correctly autoloaded with Flight::path()?"
+        );
 
         $this->dispatcher->execute(['NonExistentClass', 'nonExistentMethod']);
     }
@@ -279,7 +283,12 @@ class DispatcherTest extends TestCase
     public function testExecuteStringClassBadConstructParams(): void
     {
         $this->expectException(ArgumentCountError::class);
-        $this->expectExceptionMessageMatches('#Too few arguments to function tests\\\\classes\\\\TesterClass::__construct\(\), 1 passed .+ and exactly 6 expected#');
+
+        $this->expectExceptionMessageMatches(
+            '#Too few arguments to function tests\\\\classes\\\\TesterClass::__construct\(\), 1 passed'
+                . ' .+ and exactly 6 expected#'
+        );
+
         $this->dispatcher->execute(TesterClass::class . '->instanceMethod');
     }
 
@@ -331,7 +340,11 @@ class DispatcherTest extends TestCase
     public function testExecuteStringClassDefaultContainerButForgotInjectingEngine(): void
     {
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessageMatches('#tests\\\\classes\\\\ContainerDefault::__construct\(\).+flight\\\\Engine, null given#');
+
+        $this->expectExceptionMessageMatches(
+            '#tests\\\\classes\\\\ContainerDefault::__construct\(\).+flight\\\\Engine, null given#'
+        );
+
         $this->dispatcher->execute([ContainerDefault::class, 'testTheContainer']);
     }
 

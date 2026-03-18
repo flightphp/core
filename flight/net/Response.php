@@ -484,7 +484,8 @@ class Response
      * Downloads a file.
      *
      * @param string $filePath The path to the file to be downloaded.
-     * @param string $fileName The name the downloaded file should have. If not provided or is an empty string, the name of the file on disk will be used.
+     * @param string $fileName The name the downloaded file should have.
+     * If not provided or is an empty string, the name of the file on disk will be used.
      *
      * @throws Exception If the file cannot be found.
      *

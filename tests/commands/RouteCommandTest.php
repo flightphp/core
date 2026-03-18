@@ -95,7 +95,10 @@ PHP;
         $app->add(new RouteCommand(['runway' => ['something' => 'else']]));
         @$app->handle(['runway', 'routes']);
 
-        $this->assertStringContainsString('index_root not set in app/config/config.php', file_get_contents(static::$ou));
+        $this->assertStringContainsString(
+            'index_root not set in app/config/config.php',
+            file_get_contents(static::$ou)
+        );
     }
 
     public function testGetRoutes(): void

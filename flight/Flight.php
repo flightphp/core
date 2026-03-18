@@ -80,7 +80,8 @@ require_once __DIR__ . '/autoload.php';
  * @phpstan-method static void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * @phpstan-method static void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  *
- * Note: IDEs will use standard @method tags for autocompletion, while PHPStan will use @phpstan-* tags for advanced type checking.
+ * Note: IDEs will use standard @method tags for autocompletion,
+ * while PHPStan will use @phpstan-* tags for advanced type checking.
  */
 class Flight
 {

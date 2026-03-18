@@ -197,7 +197,7 @@ class RequestTest extends TestCase
             'stream_path' => $stream_path,
             'method' => 'POST'
         ]);
-        $this->assertEquals([ 'foo' => 'bar' ], $request->data->getData());
+        $this->assertEquals(['foo' => 'bar'], $request->data->getData());
         $this->assertEquals('{"foo":"bar"}', $request->getBody());
     }
 
@@ -430,7 +430,12 @@ class RequestTest extends TestCase
         // Find best match first
         $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
         $request = new Request();
-        $this->assertEquals('application/xml', $request->negotiateContentType(['application/xml', 'application/json', 'text/html']));
+
+        $this->assertEquals('application/xml', $request->negotiateContentType([
+            'application/xml',
+            'application/json',
+            'text/html'
+        ]));
 
         // Find the first match
         $_SERVER['HTTP_ACCEPT'] = 'application/json,text/html';

@@ -79,7 +79,11 @@ class AiInitCommand extends AbstractBaseCommand
                 $defaultModel = 'claude-sonnet-4-5';
                 break;
         }
-        $model = trim($io->prompt('Enter the model name you want to use (e.g. gpt-5, claude-sonnet-4-5, etc)', $defaultModel));
+        
+        $model = trim($io->prompt(
+            'Enter the model name you want to use (e.g. gpt-5, claude-sonnet-4-5, etc)',
+            $defaultModel
+        ));
 
         $runwayAiConfig = [
             'provider' => $api,
