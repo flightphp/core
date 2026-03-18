@@ -83,6 +83,7 @@ require_once __DIR__ . '/autoload.php';
  * Note: IDEs will use standard @method tags for autocompletion,
  * while PHPStan will use @phpstan-* tags for advanced type checking.
  */
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 class Flight
 {
     /**
