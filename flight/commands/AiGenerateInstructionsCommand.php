@@ -165,10 +165,12 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
 
         // Write to files
         $io->info(
-            'Updating .github/copilot-instructions.md, .cursor/rules/project-overview.mdc, .gemini/GEMINI.md and .windsurfrules...',
+            'Updating .github/copilot-instructions.md, '
+                . '.cursor/rules/project-overview.mdc, '
+                . '.gemini/GEMINI.md and .windsurfrules...',
             true
         );
-        
+
         if (!is_dir($this->projectRoot . '.github')) {
             mkdir($this->projectRoot . '.github', 0755, true);
         }

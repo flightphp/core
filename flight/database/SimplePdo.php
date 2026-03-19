@@ -17,10 +17,10 @@ class SimplePdo extends PdoWrapper
      * Constructor for the SimplePdo class.
      *
      * @param string $dsn The Data Source Name (DSN) for the database connection.
-     * @param string|null $username The username for the database connection.
-     * @param string|null $password The password for the database connection.
-     * @param array<int|string, mixed>|null $pdoOptions An array of options for the PDO connection.
-     * @param array<string, mixed> $options An array of options for the SimplePdo class
+     * @param ?string $username The username for the database connection.
+     * @param ?string $password The password for the database connection.
+     * @param ?mixed[] $pdoOptions An array of options for the PDO connection.
+     * @param mixed[] $options An array of options for the SimplePdo class
      */
     public function __construct(
         ?string $dsn = null,
