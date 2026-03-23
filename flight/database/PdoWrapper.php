@@ -27,13 +27,18 @@ class PdoWrapper extends PDO
      * Constructor for the PdoWrapper class.
      *
      * @param string $dsn The Data Source Name (DSN) for the database connection.
-     * @param string|null $username The username for the database connection.
-     * @param string|null $password The password for the database connection.
-     * @param array<string, mixed>|null $options An array of options for the PDO connection.
+     * @param ?string $username The username for the database connection.
+     * @param ?string $password The password for the database connection.
+     * @param ?mixed[] $options An array of options for the PDO connection.
      * @param bool $trackApmQueries Whether to track application performance metrics (APM) for queries.
      */
-    public function __construct(?string $dsn = null, ?string $username = '', ?string $password = '', ?array $options = null, bool $trackApmQueries = false)
-    {
+    public function __construct(
+        ?string $dsn = null,
+        ?string $username = '',
+        ?string $password = '',
+        ?array $options = null,
+        bool $trackApmQueries = false
+    ) {
         parent::__construct($dsn, $username, $password, $options);
         $this->trackApmQueries = $trackApmQueries;
         if ($this->trackApmQueries === true) {

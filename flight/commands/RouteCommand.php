@@ -42,8 +42,16 @@ class RouteCommand extends AbstractBaseCommand
         $io = $this->app()->io();
 
         if (empty($this->config['runway'])) {
-            $io->warn('Using a .runway-config.json file is deprecated. Move your config values to app/config/config.php with `php runway config:migrate`.', true); // @codeCoverageIgnore
-            $runwayConfig = json_decode(file_get_contents($this->projectRoot . '/.runway-config.json'), true); // @codeCoverageIgnore
+            $io->warn(
+                'Using a .runway-config.json file is deprecated. '
+                    . 'Move your config values to app/config/config.php with `php runway config:migrate`.',
+                true
+            ); // @codeCoverageIgnore
+
+            $runwayConfig = json_decode(
+                file_get_contents($this->projectRoot . '/.runway-config.json'),
+                true
+            ); // @codeCoverageIgnore
         } else {
             $runwayConfig = $this->config['runway'];
         }
@@ -75,7 +83,9 @@ class RouteCommand extends AbstractBaseCommand
                             } else {
                                 $middleware_class_name = explode("\\", get_class($middleware));
                             }
-                            return preg_match("/^class@anonymous/", end($middleware_class_name)) ? 'Anonymous' : end($middleware_class_name);
+                            return preg_match("/^class@anonymous/", end($middleware_class_name))
+                                ? 'Anonymous'
+                                : end($middleware_class_name);
                         }, $route->middleware);
                     } catch (\TypeError $e) { // @codeCoverageIgnore
                         $middlewares[] = 'Bad Middleware'; // @codeCoverageIgnore
