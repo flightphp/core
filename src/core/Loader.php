@@ -21,9 +21,6 @@ class Loader
     /** @var array<string, object> Class instances */
     protected array $instances = [];
 
-    /** @var array<int, string> Autoload directories */
-    protected static array $dirs = [];
-
     /**
      * Registers a class.
      * @template T of object
@@ -130,44 +127,5 @@ class Loader
     {
         $this->classes = [];
         $this->instances = [];
-    }
-
-    /**
-     * Autoloads classes.
-     * Classes are not allowed to have underscores in their names.
-     *
-     * @param string $class Class name
-     */
-    public static function loadClass(string $class): void
-    {
-        $replace_chars = ['\\'];
-        $classFile = str_replace($replace_chars, '/', $class) . '.php';
-
-        foreach (self::$dirs as $dir) {
-            $filePath = "$dir/$classFile";
-
-            if (file_exists($filePath)) {
-                require_once $filePath;
-
-                return;
-            }
-        }
-    }
-
-    /**
-     * Adds a directory for autoloading classes.
-     * @param string|iterable<int, string> $dir Directory path
-     */
-    public static function addDirectory($dir): void
-    {
-        if (is_array($dir) || is_object($dir)) {
-            foreach ($dir as $value) {
-                self::addDirectory($value);
-            }
-        } elseif (is_string($dir)) {
-            if (!in_array($dir, self::$dirs, true)) {
-                self::$dirs[] = $dir;
-            }
-        }
     }
 }

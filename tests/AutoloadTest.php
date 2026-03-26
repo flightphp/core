@@ -15,7 +15,6 @@ class AutoloadTest extends TestCase
     protected function setUp(): void
     {
         $this->app = new Engine();
-        $this->app->path(__DIR__ . '/classes');
     }
 
     // Autoload a class

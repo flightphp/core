@@ -71,8 +71,6 @@ class FlightTest extends TestCase
     // Register a class
     public function testRegister(): void
     {
-        Flight::path(__DIR__ . '/classes');
-
         Flight::register('user', User::class);
         $user = Flight::user();
 
