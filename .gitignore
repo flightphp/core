@@ -1,15 +1,3 @@
-.idea/
-.vscode/
-vendor/
-composer.phar
-composer.lock
-.phpunit.result.cache
-coverage/
 *.sublime*
-clover.xml
-phpcs.xml
-phpstan.neon
-phpunit.xml
-.runway-config.json
-.runway-creds.json
-.DS_Store
+/vendor/
+composer.lock
