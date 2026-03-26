@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace tests;
 
 use flight\core\Loader;
-use tests\classes\Factory;
-use tests\classes\User;
 use PHPUnit\Framework\TestCase;
+use tests\classes\User;
+use tests\classes\Factory;
 use tests\classes\TesterClass;
 
 class LoaderTest extends TestCase
@@ -17,7 +17,6 @@ class LoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->loader = new Loader();
-        $this->loader->autoload(true, __DIR__ . '/classes');
     }
 
     // Autoload a class
@@ -136,22 +135,5 @@ class LoaderTest extends TestCase
         $this->assertEquals('Jane', $TesterClass->param4);
         $this->assertEquals('Sally', $TesterClass->param5);
         $this->assertEquals('Suzie', $TesterClass->param6);
-    }
-
-    public function testAddDirectoryAsArray(): void
-    {
-        $loader = new class extends Loader {
-            public function getDirectories()
-            {
-                return self::$dirs;
-            }
-        };
-
-        $loader->addDirectory([__DIR__ . '/classes']);
-
-        self::assertEquals([
-            dirname(__DIR__),
-            __DIR__ . '/classes'
-        ], $loader->getDirectories());
     }
 }

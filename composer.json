@@ -27,8 +27,8 @@
         "ext-json": "*"
     },
     "autoload": {
-        "files": [
-            "src/autoload.php"
+        "classmap": [
+            "src/Flight.php"
         ],
         "psr-4": {
             "flight\\": "src"

@@ -11,8 +11,6 @@ use flight\net\Route;
 use flight\core\EventDispatcher;
 use Psr\Container\ContainerInterface;
 
-require_once __DIR__ . '/autoload.php';
-
 /**
  * The Flight class is a static representation of the framework.
  *

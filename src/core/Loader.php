@@ -133,24 +133,6 @@ class Loader
     }
 
     /**
-     * Starts/stops autoloader.
-     * @param bool $enabled Enable/disable autoloading
-     * @param string|iterable<int, string> $dirs Autoload directories
-     */
-    public static function autoload(bool $enabled = true, $dirs = []): void
-    {
-        if ($enabled) {
-            spl_autoload_register([__CLASS__, 'loadClass']);
-        } else {
-            spl_autoload_unregister([__CLASS__, 'loadClass']); // @codeCoverageIgnore
-        }
-
-        if (!empty($dirs)) {
-            self::addDirectory($dirs);
-        }
-    }
-
-    /**
      * Autoloads classes.
      * Classes are not allowed to have underscores in their names.
      *
