@@ -18,7 +18,6 @@
     </rule>
 
     <rule ref="PSR12">
-        <exclude name="PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword"/>
     </rule>
 
     <file>flight</file>
