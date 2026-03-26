@@ -18,7 +18,7 @@ class Loader
     /** @var array<string, array{class-string|callable(): object, array<int, mixed>, ?callable(object): void}> */
     protected array $classes = [];
 
-    /** @var array<string, object> Class instances */
+    /** @var array<string, object> */
     protected array $instances = [];
 
     /**
@@ -76,8 +76,7 @@ class Loader
             }
 
             if ($callback && (!$shared || !$exists)) {
-                $ref = [&$obj];
-                call_user_func_array($callback, $ref);
+                call_user_func_array($callback, [$obj]);
             }
         }
 

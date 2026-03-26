@@ -50,7 +50,8 @@
         "phpunit/phpunit": "^9.6",
         "rregeer/phpunit-coverage-check": "^0.3.1",
         "spatie/phpunit-watcher": "^1.23",
-        "squizlabs/php_codesniffer": "^4.0"
+        "squizlabs/php_codesniffer": "^4.0",
+        "symfony/var-dumper": "^5.4"
     },
     "config": {
         "allow-plugins": {
