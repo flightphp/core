@@ -5,6 +5,5 @@ includes:
 parameters:
     level: 6
     paths:
-        - flight
-        - index.php
+        - src
     treatPhpDocTypesAsCertain: false
