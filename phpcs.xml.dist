@@ -21,7 +21,6 @@
         <exclude name="PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword"/>
     </rule>
 
-    <file>index.php</file>
     <file>flight</file>
     <file>tests</file>
 </ruleset>
