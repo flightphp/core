@@ -19,60 +19,39 @@ class LoaderTest extends TestCase
         $this->loader = new Loader();
     }
 
-    // Autoload a class
-    public function testAutoload(): void
-    {
-        $this->loader->register('tests', User::class);
-
-        $test = $this->loader->load('tests');
-
-        self::assertIsObject($test);
-        self::assertInstanceOf(User::class, $test);
-    }
-
-    // Register a class
     public function testRegister(): void
     {
         $this->loader->register('a', User::class);
-
         $user = $this->loader->load('a');
 
-        self::assertIsObject($user);
         self::assertInstanceOf(User::class, $user);
-        self::assertEquals('', $user->name);
+        self::assertSame('', $user->name);
     }
 
-    // Register a class with constructor parameters
     public function testRegisterWithConstructor(): void
     {
         $this->loader->register('b', User::class, ['Bob']);
-
         $user = $this->loader->load('b');
 
-        self::assertIsObject($user);
         self::assertInstanceOf(User::class, $user);
-        self::assertEquals('Bob', $user->name);
+        self::assertSame('Bob', $user->name);
     }
 
-    // Register a class with initialization
     public function testRegisterWithInitialization(): void
     {
-        $this->loader->register('c', User::class, ['Bob'], function ($user) {
+        $this->loader->register('c', User::class, ['Bob'], static function (User $user): void {
             $user->name = 'Fred';
         });
 
         $user = $this->loader->load('c');
 
-        self::assertIsObject($user);
         self::assertInstanceOf(User::class, $user);
         self::assertEquals('Fred', $user->name);
     }
 
-    // Get a non-shared instance of a class
     public function testSharedInstance(): void
     {
         $this->loader->register('d', User::class);
-
         $user1 = $this->loader->load('d');
         $user2 = $this->loader->load('d');
         $user3 = $this->loader->load('d', false);
@@ -81,38 +60,24 @@ class LoaderTest extends TestCase
         self::assertNotSame($user1, $user3);
     }
 
-    // Gets an object from a factory method
     public function testRegisterUsingCallable(): void
     {
-        $this->loader->register('e', ['\tests\classes\Factory', 'create']);
-
+        $this->loader->register('e', [Factory::class, 'create']);
         $obj = $this->loader->load('e');
-
-        self::assertIsObject($obj);
-        self::assertInstanceOf(Factory::class, $obj);
-
         $obj2 = $this->loader->load('e');
-
-        self::assertIsObject($obj2);
-        self::assertInstanceOf(Factory::class, $obj2);
-        self::assertSame($obj, $obj2);
-
         $obj3 = $this->loader->load('e', false);
-        self::assertIsObject($obj3);
+
+        self::assertInstanceOf(Factory::class, $obj);
+        self::assertSame($obj, $obj2);
         self::assertInstanceOf(Factory::class, $obj3);
         self::assertNotSame($obj, $obj3);
     }
 
-    // Gets an object from a callback function
     public function testRegisterUsingCallback(): void
     {
-        $this->loader->register('f', function () {
-            return Factory::create();
-        });
-
+        $this->loader->register('f', static fn(): Factory => Factory::create());
         $obj = $this->loader->load('f');
 
-        self::assertIsObject($obj);
         self::assertInstanceOf(Factory::class, $obj);
     }
 
@@ -120,15 +85,22 @@ class LoaderTest extends TestCase
     {
         $this->loader->register('g', User::class);
         $current_class = $this->loader->get('g');
-        $this->assertEquals([User::class, [], null], $current_class);
+
+        $this->assertSame([User::class, [], null], $current_class);
+
         $this->loader->unregister('g');
         $unregistered_class_result = $this->loader->get('g');
+
         $this->assertNull($unregistered_class_result);
     }
 
     public function testNewInstance6Params(): void
     {
-        $TesterClass = $this->loader->newInstance(TesterClass::class, ['Bob', 'Fred', 'Joe', 'Jane', 'Sally', 'Suzie']);
+        $TesterClass = $this->loader->newInstance(
+            TesterClass::class,
+            ['Bob', 'Fred', 'Joe', 'Jane', 'Sally', 'Suzie']
+        );
+
         $this->assertEquals('Bob', $TesterClass->param1);
         $this->assertEquals('Fred', $TesterClass->param2);
         $this->assertEquals('Joe', $TesterClass->param3);
