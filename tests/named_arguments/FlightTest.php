@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\PHP8;
+namespace tests\named_arguments;
 
 use DateTimeImmutable;
-use ExampleClass;
 use Flight;
 use flight\Container;
 use flight\Engine;

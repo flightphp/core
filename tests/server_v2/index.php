@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @author Kristaps Muižnieks https://github.com/krmu
  */
 
-namespace Tests\ServerV2 {
+namespace tests\server_v2 {
     class AuthCheck
     {
         public function before(): void
@@ -23,7 +23,7 @@ namespace Tests\ServerV2 {
 
 namespace {
 
-    use Tests\ServerV2\AuthCheck;
+    use tests\server_v2\AuthCheck;
 
     require_once __DIR__ . '/../phpunit_autoload.php';
 
