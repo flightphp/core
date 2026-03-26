@@ -10,3 +10,4 @@
 /phpstan.dist.neon export-ignore
 /phpunit-watcher.yml export-ignore
 /phpunit.xml.dist export-ignore
+/README.md export-ignore
