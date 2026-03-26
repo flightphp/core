@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace flight\core;
 
-use Exception;
+use Throwable;
 
 /**
  * The Loader class is responsible for loading objects. It maintains a list of
@@ -52,7 +52,7 @@ class Loader
      * Loads a registered class.
      * @param string $name Method name
      * @param bool $shared Shared instance
-     * @throws Exception
+     * @throws Throwable
      * @return ?object Class instance
      */
     public function load(string $name, bool $shared = true): ?object
@@ -98,7 +98,7 @@ class Loader
      * @template T of object
      * @param class-string<T>|callable(): T $class Class name or callback function to instantiate class
      * @param array<int, string> $params Class initialization parameters
-     * @throws Exception
+     * @throws Throwable
      * @return T Class instance
      */
     public function newInstance($class, array $params = []): object
