@@ -15,14 +15,8 @@ use Exception;
  */
 class Loader
 {
-    /**
-     * Registered classes.
-     * @var array<string, array{class-string|callable(): object, array<int, mixed>, ?callable(object): void}>
-     */
+    /** @var array<string, array{class-string|callable(): object, array<int, mixed>, ?callable(object): void}> */
     protected array $classes = [];
-
-    /** If this is disabled, classes can load with underscores */
-    protected static bool $v2ClassLoading = true;
 
     /** @var array<string, object> Class instances */
     protected array $instances = [];
@@ -164,7 +158,7 @@ class Loader
      */
     public static function loadClass(string $class): void
     {
-        $replace_chars = self::$v2ClassLoading ? ['\\', '_'] : ['\\'];
+        $replace_chars = ['\\'];
         $classFile = str_replace($replace_chars, '/', $class) . '.php';
 
         foreach (self::$dirs as $dir) {
@@ -193,15 +187,5 @@ class Loader
                 self::$dirs[] = $dir;
             }
         }
-    }
-
-
-    /**
-     * Sets the value for V2 class loading.
-     * @param bool $value The value to set for V2 class loading.
-     */
-    public static function setV2ClassLoading(bool $value): void
-    {
-        self::$v2ClassLoading = $value;
     }
 }
