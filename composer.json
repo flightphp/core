@@ -28,8 +28,11 @@
     },
     "autoload": {
         "files": [
-            "flight/autoload.php"
-        ]
+            "src/autoload.php"
+        ],
+        "psr-4": {
+            "flight\\": "src"
+        }
     },
     "autoload-dev": {
         "classmap": [
