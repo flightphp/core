@@ -2,7 +2,7 @@ hideManual: true
 watch:
     directories:
         - tests
-        - flight
+        - src
     fileMask: '*.php'
 notifications:
     passingTests: false

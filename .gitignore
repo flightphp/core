@@ -4,4 +4,5 @@
 composer.lock
 phpcs.xml
 phpstan.neon
+phpunit-watcher.yml
 phpunit.xml
