@@ -63,10 +63,10 @@
         "test": "phpunit",
         "test-watcher": "phpunit-watcher watch",
         "test-coverage": [
-            "rm -f clover.xml",
+            "rm -rf coverage",
             "@putenv XDEBUG_MODE=coverage",
-            "phpunit --coverage-html=coverage --coverage-clover=clover.xml",
-            "coverage-check clover.xml 100"
+            "phpunit --coverage-html coverage --coverage-clover coverage/clover.xml",
+            "coverage-check coverage/clover.xml 100"
         ],
         "test-server": [
             "echo \"Running Test Server\"",

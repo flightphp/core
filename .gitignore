@@ -1,5 +1,6 @@
 *.sublime*
 .phpunit.result.cache
+/coverage/
 /vendor/
 composer.lock
 phpcs.xml

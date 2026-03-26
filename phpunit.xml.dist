@@ -13,10 +13,10 @@
     colors="true">
     <coverage processUncoveredFiles="false">
         <include>
-            <directory suffix=".php">flight/</directory>
+            <directory suffix=".php">src/</directory>
         </include>
 		<exclude>
-			<file>flight/autoload.php</file>
+			<file>src/autoload.php</file>
 		</exclude>
     </coverage>
     <testsuites>
