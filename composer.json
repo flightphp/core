@@ -76,11 +76,6 @@
             "echo \"Running Test Server\"",
             "@php -S localhost:8000 -t tests/server_v2"
         ],
-        "test-coverage:win": [
-            "del clover.xml",
-            "phpunit --coverage-html=coverage --coverage-clover=clover.xml",
-            "coverage-check clover.xml 100"
-        ],
         "test-performance": [
             "echo \"Running Performance Tests...\"",
             "@php -S localhost:8077 -t tests/performance/ > /dev/null 2>&1 & echo $! > server.pid",
