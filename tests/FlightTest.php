@@ -20,7 +20,7 @@ class FlightTest extends TestCase
     {
         $_SERVER = [];
         $_REQUEST = [];
-        Flight::init();
+        Flight::app();
         Flight::setEngine(new Engine());
         Flight::set('flight.views.path', __DIR__ . '/views');
     }

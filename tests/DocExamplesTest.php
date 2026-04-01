@@ -16,7 +16,7 @@ class DocExamplesTest extends TestCase
     {
         $_SERVER = [];
         $_REQUEST = [];
-        Flight::init();
+        Flight::app();
         Flight::setEngine(new Engine());
     }
 

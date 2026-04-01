@@ -113,7 +113,33 @@ class Engine
     {
         $this->loader = new Loader();
         $this->dispatcher = new Dispatcher();
-        $this->init();
+
+        // Register default components
+        $this->loader->register('eventDispatcher', EventDispatcher::class);
+        $this->loader->register('request', Request::class);
+
+        $this->loader->register('response', Response::class, [], function (Response $response): void {
+            $response->content_length = $this->get('flight.content_length');
+        });
+
+        $this->loader->register('router', Router::class, [], function (Router $router): void {
+            $router->caseSensitive = $this->get('flight.case_sensitive');
+        });
+
+        $this->loader->register('view', View::class, [], function (View $view): void {
+            $view->path = $this->get('flight.views.path');
+            $view->extension = $this->get('flight.views.extension');
+        });
+
+        foreach (self::MAPPABLE_METHODS as $name) {
+            $this->dispatcher->set($name, [$this, "_$name"]);
+        }
+
+        // Enable error handling
+        if ($this->get('flight.handle_errors')) {
+            set_error_handler([$this, 'handleError']);
+            set_exception_handler([$this, 'handleException']);
+        }
     }
 
     /**
@@ -142,37 +168,6 @@ class Engine
     //////////////////
     // Core Methods //
     //////////////////
-
-    /** Initializes the framework */
-    public function init(): void
-    {
-        // Register default components
-        $this->loader->register('eventDispatcher', EventDispatcher::class);
-        $this->loader->register('request', Request::class);
-
-        $this->loader->register('response', Response::class, [], function (Response $response): void {
-            $response->content_length = $this->get('flight.content_length');
-        });
-
-        $this->loader->register('router', Router::class, [], function (Router $router): void {
-            $router->caseSensitive = $this->get('flight.case_sensitive');
-        });
-
-        $this->loader->register('view', View::class, [], function (View $view): void {
-            $view->path = $this->get('flight.views.path');
-            $view->extension = $this->get('flight.views.extension');
-        });
-
-        foreach (self::MAPPABLE_METHODS as $name) {
-            $this->dispatcher->set($name, [$this, "_$name"]);
-        }
-
-        // Enable error handling
-        if ($this->get('flight.handle_errors')) {
-            set_error_handler([$this, 'handleError']);
-            set_exception_handler([$this, 'handleException']);
-        }
-    }
 
     /**
      * Custom error handler. Converts errors into exceptions.
