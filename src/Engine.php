@@ -28,7 +28,7 @@ use Psr\Container\ContainerInterface;
  * @copyright Copyright (c) 2011-2025, Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>
  *
  * @method void start()
- * @method void stop()
+ * @method void stop(?int $code = null)
  * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * @method EventDispatcher eventDispatcher()
  * @method Route route(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')

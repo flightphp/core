@@ -15,71 +15,8 @@ use Psr\Container\ContainerInterface;
  * The Flight class is a static representation of the framework.
  *
  * @license MIT, https://docs.flightphp.com/license
- * @copyright Copyright (c) 2011-2025, Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>
- *
- * @method static void start()
- * @method static void path(string $dir)
- * @method static void stop(int $code = null)
- * @method static void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
- * @method static void register(string $name, string $class, array $params = [], callable $callback = null)
- * @method static void unregister(string $methodName)
- * @method static void registerContainerHandler($containerHandler)
- * @method static EventDispatcher eventDispatcher()
- * @method static Route route(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
- * @method static void group(string $pattern, callable $callback, array $group_middlewares = [])
- * @method static Route post(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
- * @method static Route put(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
- * @method static Route patch(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
- * @method static Route delete(string $pattern, callable $callback, bool $pass_route = false, string $alias = '')
- * @method static void resource(string $pattern, string $controllerClass, array $methods = [])
- * @method static Router router()
- * @method static string getUrl(string $alias, array $params = [])
- * @method static void map(string $name, callable $callback)
- * @method static void before(string $name, Closure $callback)
- * @method static void after(string $name, Closure $callback)
- * @method static void set($key, $value)
- * @method static mixed get($key = null)
- * @method static bool has(string $key)
- * @method static void clear($key = null)
- * @method static void render(string $file, array $data = null, string $key = null)
- * @method static View view()
- * @method void onEvent(string $event, callable $callback)
- * @method void triggerEvent(string $event, ...$args)
- * @method static Request request()
- * @method static Response response()
- * @method static void redirect(string $url, int $code = 303)
- * @method static void json($data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- * @method static void jsonHalt($data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
- * @method static void jsonp($data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- * @method static void error(Throwable $exception)
- * @method static void notFound()
- * @method static void methodNotFound(Route $route)
- * @method static void etag(string $id, string $type = 'strong')
- * @method static void lastModified(int $time)
- * @method static void download(string $filePath)
- *
- * @phpstan-template FlightTemplate of object
- * @phpstan-method static void register(string $name, class-string<FlightTemplate> $class, array<int|string, mixed> $params = [], (callable(class-string<FlightTemplate> $class, array<int|string, mixed> $params): void)|null $callback = null)
- * @phpstan-method static void registerContainerHandler(ContainerInterface|callable(class-string<FlightTemplate> $id, array<int|string, mixed> $params): ?FlightTemplate $containerHandler)
- * @phpstan-method static Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method static void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
- * @phpstan-method static Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method static Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method static Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method static Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method static void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
- * @phpstan-method static string getUrl(string $alias, array<string, mixed> $params = [])
- * @phpstan-method static void before(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
- * @phpstan-method static void after(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
- * @phpstan-method static void set(string|iterable<string, mixed> $key, mixed $value)
- * @phpstan-method static mixed get(?string $key)
- * @phpstan-method static void render(string $file, ?array<string, mixed> $data = null, ?string $key = null)
- * @phpstan-method static void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- * @phpstan-method static void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
- * @phpstan-method static void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- *
- * Note: IDEs will use standard @method tags for autocompletion,
- * while PHPStan will use @phpstan-* tags for advanced type checking.
+ * @copyright Copyright (c) 2011-2026,
+ * Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>, fadrian06 <https://github.com/fadrian06>
  */
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 class Flight
@@ -115,5 +52,272 @@ class Flight
     public static function setEngine(Engine $engine): void
     {
         self::$engine = $engine;
+    }
+
+    public static function start(): void
+    {
+        self::app()->start();
+    }
+
+    public static function stop(?int $code = null): void
+    {
+        self::app()->stop($code);
+    }
+
+    public static function halt(int $code = 200, string $message = '', bool $actuallyExit = true): void
+    {
+        self::app()->halt($code, $message, $actuallyExit);
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $class
+     * @param mixed[] $params
+     * @param ?callable(T): void $callback
+     */
+    public static function register(string $name, string $class, array $params = [], callable $callback = null): void
+    {
+        self::app()->register($name, $class, $params, $callback);
+    }
+
+    public static function unregister(string $methodName): void
+    {
+        self::app()->unregister($methodName);
+    }
+
+    /**
+     * @template T of object
+     * @param ContainerInterface|callable(class-string<T>, mixed[]): ?T $containerHandler
+     */
+    public static function registerContainerHandler($containerHandler): void
+    {
+        self::app()->registerContainerHandler($containerHandler);
+    }
+
+    public static function eventDispatcher(): EventDispatcher
+    {
+        return self::app()->eventDispatcher();
+    }
+
+    /** @param callable|string|array{0: class-string, 1: string} $callback */
+    public static function route(
+        string $pattern,
+        $callback,
+        bool $pass_route = false,
+        string $alias = ''
+    ): Route {
+        return self::app()->route($pattern, $callback, $pass_route, $alias);
+    }
+
+    /** @param array<int, class-string|callable|array{0: class-string, 1: string}> $group_middlewares */
+    public static function group(string $pattern, callable $callback, array $group_middlewares = []): void
+    {
+        self::app()->group($pattern, $callback, $group_middlewares);
+    }
+
+    /** @param callable|string|array{0: class-string, 1: string} $callback */
+    public static function post(
+        string $pattern,
+        $callback,
+        bool $pass_route = false,
+        string $alias = ''
+    ): Route {
+        return self::app()->post($pattern, $callback, $pass_route, $alias);
+    }
+
+    /** @param callable|string|array{0: class-string, 1: string} $callback */
+    public static function put(
+        string $pattern,
+        $callback,
+        bool $pass_route = false,
+        string $alias = ''
+    ): Route {
+        return self::app()->put($pattern, $callback, $pass_route, $alias);
+    }
+
+    /** @param callable|string|array{0: class-string, 1: string} $callback */
+    public static function patch(
+        string $pattern,
+        $callback,
+        bool $pass_route = false,
+        string $alias = ''
+    ): Route {
+        return self::app()->patch($pattern, $callback, $pass_route, $alias);
+    }
+
+    /** @param callable|string|array{0: class-string, 1: string} $callback */
+    public static function delete(
+        string $pattern,
+        $callback,
+        bool $pass_route = false,
+        string $alias = ''
+    ): Route {
+        return self::app()->delete($pattern, $callback, $pass_route, $alias);
+    }
+
+    /**
+     * @param class-string $controllerClass
+     * @param array<string, string|array<int, string>> $methods
+     */
+    public static function resource(string $pattern, string $controllerClass, array $methods = []): void
+    {
+        self::app()->resource($pattern, $controllerClass, $methods);
+    }
+
+    public static function router(): Router
+    {
+        return self::app()->router();
+    }
+
+    /** @param array<string, mixed> $params */
+    public static function getUrl(string $alias, array $params = []): string
+    {
+        return self::app()->getUrl($alias, $params);
+    }
+
+    public static function map(string $name, callable $callback): void
+    {
+        self::app()->map($name, $callback);
+    }
+
+    /** @param callable(array<int, mixed> &$params, string &$output): (void|false) $callback */
+    public static function before(string $name, callable $callback): void
+    {
+        self::app()->before($name, $callback);
+    }
+
+    /** @param callable(array<int, mixed> &$params, string &$output): (void|false) $callback */
+    public static function after(string $name, callable $callback): void
+    {
+        self::app()->after($name, $callback);
+    }
+
+    /**
+     * @param string|iterable<string, mixed> $key
+     * @param mixed $value
+     */
+    public static function set($key, $value): void
+    {
+        self::app()->set($key, $value);
+    }
+
+    /** @return mixed */
+    public static function get(?string $key = null)
+    {
+        return self::app()->get($key);
+    }
+
+    public static function has(string $key): bool
+    {
+        return self::app()->has($key);
+    }
+
+    public static function clear(?string $key = null): void
+    {
+        self::app()->clear($key);
+    }
+
+    /** @param array<string, mixed> $data */
+    public static function render(string $file, ?array $data = null, ?string $key = null): void
+    {
+        self::app()->render($file, $data, $key);
+    }
+
+    public static function view(): View
+    {
+        return self::app()->view();
+    }
+
+    public static function onEvent(string $event, callable $callback): void
+    {
+        self::app()->onEvent($event, $callback);
+    }
+
+    /** @param ...mixed $args */
+    public static function triggerEvent(string $event, ...$args): void
+    {
+        self::app()->triggerEvent($event, ...$args);
+    }
+
+    public static function request(): Request
+    {
+        return self::app()->request();
+    }
+
+    public static function response(): Response
+    {
+        return self::app()->response();
+    }
+
+    public static function redirect(string $url, int $code = 303): void
+    {
+        self::app()->redirect($url, $code);
+    }
+
+    /** @param mixed $data */
+    public static function json(
+        $data,
+        int $code = 200,
+        bool $encode = true,
+        string $charset = 'utf8',
+        int $encodeOption = 0,
+        int $encodeDepth = 512
+    ): void {
+        self::app()->json($data, $code, $encode, $charset, $encodeOption, $encodeDepth);
+    }
+
+    /** @param mixed $data */
+    public static function jsonHalt(
+        $data,
+        int $code = 200,
+        bool $encode = true,
+        string $charset = 'utf8',
+        int $encodeOption = 0,
+        int $encodeDepth = 512
+    ): void {
+        self::app()->jsonHalt($data, $code, $encode, $charset, $encodeOption, $encodeDepth);
+    }
+
+    /** @param mixed $data */
+    public static function jsonp(
+        $data,
+        string $param = 'jsonp',
+        int $code = 200,
+        bool $encode = true,
+        string $charset = 'utf8',
+        int $encodeOption = 0,
+        int $encodeDepth = 512
+    ): void {
+        self::app()->jsonp($data, $param, $code, $encode, $charset, $encodeOption, $encodeDepth);
+    }
+
+    public static function error(Throwable $exception): void
+    {
+        self::app()->error($exception);
+    }
+
+    public static function notFound(): void
+    {
+        self::app()->notFound();
+    }
+
+    public function methodNotFound(Route $route): void
+    {
+        self::app()->methodNotFound($route);
+    }
+
+    public static function etag(string $id, string $type = 'strong'): void
+    {
+        self::app()->etag($id, $type);
+    }
+
+    public static function lastModified(int $time): void
+    {
+        self::app()->lastModified($time);
+    }
+
+    public static function download(string $filePath): void
+    {
+        self::app()->download($filePath);
     }
 }
