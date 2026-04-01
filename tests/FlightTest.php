@@ -275,25 +275,6 @@ class FlightTest extends TestCase
         $this->assertEquals('test', Flight::response()->getBody());
     }
 
-    public function testHookOutputBufferingV2OutputBuffering(): void
-    {
-        Flight::route('/test', function () {
-            echo 'test';
-        });
-
-        Flight::before('start', function ($output) {
-            echo 'hooked before start';
-        });
-
-        Flight::set('flight.v2.output_buffering', true);
-        Flight::request()->url = '/test';
-
-        $this->expectOutputString('hooked before starttest');
-        ob_start();
-        Flight::start();
-        $this->assertEquals('hooked before starttest', Flight::response()->getBody());
-    }
-
     public function testStreamRoute(): void
     {
         $response_mock = new class extends Response {

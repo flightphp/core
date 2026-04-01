@@ -49,25 +49,6 @@ class EngineTest extends TestCase
         $this->assertTrue($engine->response()->content_length);
     }
 
-    public function testInitBeforeStartV2OutputBuffering(): void
-    {
-        $engine = new class extends Engine {
-            public function getInitializedVar(): bool
-            {
-                return $this->initialized;
-            }
-        };
-        $engine->set('flight.v2.output_buffering', true);
-        $this->assertTrue($engine->getInitializedVar());
-        $engine->start();
-
-        // This is a necessary evil because of how the v2 output buffer works.
-        ob_end_clean();
-
-        $this->assertFalse($engine->router()->caseSensitive);
-        $this->assertTrue($engine->response()->content_length);
-    }
-
     public function testHandleErrorNoErrorNumber(): void
     {
         $engine = new Engine();
@@ -322,34 +303,6 @@ class EngineTest extends TestCase
         $this->assertEquals(500, $engine->response()->status());
     }
 
-    public function testStopWithCodeV2OutputBuffering(): void
-    {
-        $engine = new class extends Engine {
-            public function getLoader()
-            {
-                return $this->loader;
-            }
-        };
-        // doing this so we can overwrite some parts of the response
-        $engine->getLoader()->register('response', function () {
-            return new class extends Response {
-                public function setRealHeader(string $header_string, bool $replace = true, int $response_code = 0): self
-                {
-                    return $this;
-                }
-            };
-        });
-        $engine->set('flight.v2.output_buffering', true);
-        $engine->route('/testRoute', function () use ($engine) {
-            echo 'I am a teapot';
-            $engine->stop(500);
-        });
-        $engine->request()->url = '/testRoute';
-        $engine->start();
-        $this->expectOutputString('I am a teapot');
-        $this->assertEquals(500, $engine->response()->status());
-    }
-
     public function testPostRoute(): void
     {
         $engine = new Engine();
@@ -519,16 +472,6 @@ class EngineTest extends TestCase
         $engine->json(['key1' => 'value1', 'key2' => 'value2', 'utf8_emoji' => "\xB1\x31"]);
     }
 
-    public function testJsonV2OutputBuffering(): void
-    {
-        $engine = new Engine();
-        $engine->response()->v2_output_buffering = true;
-        $engine->json(['key1' => 'value1', 'key2' => 'value2']);
-        $this->expectOutputString('{"key1":"value1","key2":"value2"}');
-        $this->assertEquals('application/json', $engine->response()->headers()['Content-Type']);
-        $this->assertEquals(200, $engine->response()->status());
-    }
-
     public function testJsonHalt(): void
     {
         $engine = new Engine();
@@ -549,32 +492,11 @@ class EngineTest extends TestCase
         $this->assertEquals('whatever({"key1":"value1","key2":"value2"});', $engine->response()->getBody());
     }
 
-    public function testJsonPV2OutputBuffering(): void
-    {
-        $engine = new Engine();
-        $engine->response()->v2_output_buffering = true;
-        $engine->request()->query['jsonp'] = 'whatever';
-        $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
-        $this->expectOutputString('whatever({"key1":"value1","key2":"value2"});');
-        $this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
-        $this->assertEquals(200, $engine->response()->status());
-    }
-
     public function testJsonpBadParam(): void
     {
         $engine = new Engine();
         $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
         $this->assertEquals('({"key1":"value1","key2":"value2"});', $engine->response()->getBody());
-        $this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
-        $this->assertEquals(200, $engine->response()->status());
-    }
-
-    public function testJsonpBadParamV2OutputBuffering(): void
-    {
-        $engine = new Engine();
-        $engine->response()->v2_output_buffering = true;
-        $engine->jsonp(['key1' => 'value1', 'key2' => 'value2']);
-        $this->expectOutputString('({"key1":"value1","key2":"value2"});');
         $this->assertEquals('application/javascript; charset=utf-8', $engine->response()->headers()['Content-Type']);
         $this->assertEquals(200, $engine->response()->status());
     }

@@ -170,7 +170,6 @@ class Engine
         $this->set('flight.views.path', './views');
         $this->set('flight.views.extension', '.php');
         $this->set('flight.content_length', true);
-        $this->set('flight.v2.output_buffering', false);
 
         // Startup configuration
         $this->before('start', function (): void {
@@ -185,11 +184,6 @@ class Engine
 
             // Set Content-Length
             $this->response()->content_length = $this->get('flight.content_length');
-
-            // This is to maintain legacy handling of output buffering
-            // which causes a lot of problems. This will be removed
-            // in v4
-            $this->response()->v2_output_buffering = $this->get('flight.v2.output_buffering');
         });
 
         $this->initialized = true;
@@ -431,9 +425,7 @@ class Engine
             }
 
             // This is the way that v3 handles output buffering (which captures output correctly)
-            $useV3OutputBuffering =
-                $this->response()->v2_output_buffering === false &&
-                $route->is_streamed === false;
+            $useV3OutputBuffering = !$route->is_streamed;
 
             if ($useV3OutputBuffering === true) {
                 ob_start();
@@ -505,17 +497,6 @@ class Engine
         $response = $this->response();
         $router = $this->router();
 
-        if ($response->v2_output_buffering === true) {
-            // Flush any existing output
-            if (ob_get_length() > 0) {
-                $response->write(ob_get_clean()); // @codeCoverageIgnore
-            }
-
-            // Enable output buffering
-            // This is closed in the Engine->_stop() method
-            ob_start();
-        }
-
         // Route the request
         $failedMiddlewareCheck = false;
         while ($route = $router->route($request)) {
@@ -565,9 +546,7 @@ class Engine
                 $this->triggerEvent('flight.middleware.before', $route);
             }
 
-            $useV3OutputBuffering =
-                $this->response()->v2_output_buffering === false &&
-                $route->is_streamed === false;
+            $useV3OutputBuffering = !$route->is_streamed;
 
             if ($useV3OutputBuffering === true) {
                 ob_start();
@@ -673,10 +652,6 @@ class Engine
         if ($response->sent() === false) {
             if ($code !== null) {
                 $response->status($code);
-            }
-
-            if ($response->v2_output_buffering === true && ob_get_length() > 0) {
-                $response->write(ob_get_clean());
             }
 
             $response->send();
@@ -903,9 +878,6 @@ class Engine
             ->status($code)
             ->header('Content-Type', 'application/json')
             ->write($json);
-        if ($this->response()->v2_output_buffering === true) {
-            $this->response()->send();
-        }
     }
 
     /**
@@ -928,10 +900,8 @@ class Engine
     ): void {
         $this->json($data, $code, $encode, $charset, $option);
         $jsonBody = $this->response()->getBody();
-        if ($this->response()->v2_output_buffering === false) {
-            $this->response()->clearBody();
-            $this->response()->send();
-        }
+        $this->response()->clearBody();
+        $this->response()->send();
         $this->halt($code, $jsonBody, empty(getenv('PHPUNIT_TEST')));
     }
 
@@ -962,9 +932,6 @@ class Engine
             ->status($code)
             ->header('Content-Type', 'application/javascript; charset=' . $charset)
             ->write($callback . '(' . $json . ');');
-        if ($this->response()->v2_output_buffering === true) {
-            $this->response()->send();
-        }
     }
 
     /**

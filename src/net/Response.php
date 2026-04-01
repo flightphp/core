@@ -23,15 +23,6 @@ class Response
     public bool $content_length = true;
 
     /**
-     * This is to maintain legacy handling of output buffering
-     * which causes a lot of problems. This will be removed
-     * in v4
-     *
-     * @var boolean
-     */
-    public bool $v2_output_buffering = false;
-
-    /**
      * HTTP status codes
      *
      * @var array<int, ?string> $codes
@@ -271,7 +262,7 @@ class Response
         $this->clearBody();
 
         // This needs to clear the output buffer if it's on
-        if ($this->v2_output_buffering === false && ob_get_length() > 0) {
+        if (ob_get_length() > 0) {
             ob_clean();
         }
 
@@ -421,18 +412,8 @@ class Response
      */
     public function send(): void
     {
-        // legacy way of handling this
-        if ($this->v2_output_buffering === true) {
-            if (ob_get_length() > 0) {
-                ob_end_clean(); // @codeCoverageIgnore
-            }
-        }
-
         $start = microtime(true);
-        // Only for the v3 output buffering.
-        if ($this->v2_output_buffering === false) {
-            $this->processResponseCallbacks();
-        }
+        $this->processResponseCallbacks();
 
         if ($this->headersSent() === false) {
             $this->sendHeaders();
