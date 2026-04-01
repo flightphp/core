@@ -90,39 +90,15 @@ class Flight
     private static Engine $engine;
 
     /**
-     * Don't allow object instantiation
-     *
-     * @codeCoverageIgnore
-     * @return void
-     */
-    private function __construct()
-    {
-        //
-    }
-
-    /**
-     * Forbid cloning the class
-     *
-     * @codeCoverageIgnore
-     * @return void
-     */
-    private function __clone()
-    {
-        //
-    }
-
-    /**
      * Handles calls to static methods.
      *
-     * @param string $name Method name
-     * @param array<int, mixed> $params Method parameters
-     *
+     * @param array<int, mixed> $arguments Method parameters
      * @return mixed Callback results
-     * @throws Exception
+     * @throws Throwable
      */
-    public static function __callStatic(string $name, array $params)
+    public static function __callStatic(string $name, array $arguments)
     {
-        return self::app()->{$name}(...$params);
+        return self::app()->{$name}(...$arguments);
     }
 
     /** @return Engine<FlightTemplate> Application instance */
@@ -132,7 +108,7 @@ class Flight
     }
 
     /**
-     * Set the engine instance
+     * Set the engine instance.
      *
      * @param Engine<FlightTemplate> $engine Vroom vroom!
      */
