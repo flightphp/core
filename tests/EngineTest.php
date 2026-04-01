@@ -32,13 +32,7 @@ class EngineTest extends TestCase
 
     public function testInitBeforeStart(): void
     {
-        $engine = new class extends Engine {
-            public function getInitializedVar()
-            {
-                return $this->initialized;
-            }
-        };
-        $this->assertTrue($engine->getInitializedVar());
+        $engine = new Engine;
 
         // we need to setup a dummy route
         $engine->route('/someRoute', function () {});

@@ -103,9 +103,6 @@ class Engine
     protected Dispatcher $dispatcher;
     protected EventDispatcher $eventDispatcher;
 
-    /** If the framework has been initialized or not */
-    protected bool $initialized = true;
-
     /** If the request has been handled or not */
     private bool $requestHandled = false;
 
@@ -123,12 +120,12 @@ class Engine
         });
 
         $this->loader->register('router', Router::class, [], function (Router $router): void {
-            $router->caseSensitive = $this->get('flight.case_sensitive');
+            $router->caseSensitive = $this->vars['flight.case_sensitive'];
         });
 
         $this->loader->register('view', View::class, [], function (View $view): void {
-            $view->path = $this->get('flight.views.path');
-            $view->extension = $this->get('flight.views.extension');
+            $view->path = $this->vars['flight.views.path'];
+            $view->extension = $this->vars['flight.views.extension'];
         });
 
         foreach (self::MAPPABLE_METHODS as $name) {
