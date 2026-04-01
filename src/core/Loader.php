@@ -22,79 +22,52 @@ class Loader
     protected array $instances = [];
 
     /**
-     * Registers a class.
      * @template T of object
-     * @param string $name Registry name
      * @param class-string<T>|callable(): T $class Class name or function to instantiate class
      * @param array<int, mixed> $params Class initialization parameters
      * @param ?callable(T): void $callback $callback Function to call after object instantiation
      */
     public function register(
-        string $name,
+        string $alias,
         $class,
         array $params = [],
         ?callable $callback = null
     ): void {
-        unset($this->instances[$name]);
-        $this->classes[$name] = [$class, $params, $callback];
+        $this->classes[$alias] = [$class, $params, $callback];
+        unset($this->instances[$alias]);
     }
 
-    /**
-     * Unregisters a class.
-     * @param string $name Registry name
-     */
-    public function unregister(string $name): void
+    public function unregister(string $alias): void
     {
-        unset($this->classes[$name]);
+        unset($this->classes[$alias]);
     }
 
     /**
-     * Loads a registered class.
-     * @param string $name Method name
-     * @param bool $shared Shared instance
      * @throws Throwable
      * @return ?object Class instance
      */
-    public function load(string $name, bool $shared = true): ?object
+    public function load(string $alias, bool $shared = true): ?object
     {
-        $obj = null;
+        if (!key_exists($alias, $this->classes)) {
+            return null;
+        }
 
-        if (isset($this->classes[$name])) {
-            [$class, $params, $callback] = $this->classes[$name];
-            $exists = isset($this->instances[$name]);
+        [$class, $params, $callback] = $this->classes[$alias];
+        $instanceExists = key_exists($alias, $this->instances);
 
-            if ($shared) {
-                $obj = $exists
-                    ? $this->getInstance($name)
-                    : $this->newInstance($class, $params);
+        $obj = $shared && $instanceExists
+            ? $this->instances[$alias] ?? null
+            : $this->instances[$alias] = $this->newInstance($class, $params);
 
-                if (!$exists) {
-                    $this->instances[$name] = $obj;
-                }
-            } else {
-                $obj = $this->newInstance($class, $params);
-            }
-
-            if ($callback && (!$shared || !$exists)) {
-                call_user_func_array($callback, [$obj]);
-            }
+        if ($callback && (!$shared || !$instanceExists)) {
+            $callback($obj);
         }
 
         return $obj;
     }
 
     /**
-     * Gets a single instance of a class.
-     * @param string $name Instance name
-     * @return ?object Class instance
-     */
-    public function getInstance(string $name): ?object
-    {
-        return $this->instances[$name] ?? null;
-    }
-
-    /**
-     * Gets a new instance of a class.
+     * Gets a new instance of a class
      * @template T of object
      * @param class-string<T>|callable(): T $class Class name or callback function to instantiate class
      * @param array<int, string> $params Class initialization parameters
@@ -103,22 +76,18 @@ class Loader
      */
     public function newInstance($class, array $params = []): object
     {
-        if (is_callable($class)) {
-            return call_user_func_array($class, $params);
-        }
-
-        return new $class(...$params);
+        return is_callable($class) ? $class(...$params) : new $class(...$params);
     }
 
+
     /**
-     * Gets a registered callable.
-     * @param string $name Registry name
+     * Gets a registered callable
      * @return ?array{class-string|callable(): object, array<int, mixed>, ?callable(object): void}
      * Class information or null if not registered
      */
-    public function get(string $name): ?array
+    public function get(string $alias): ?array
     {
-        return $this->classes[$name] ?? null;
+        return $this->classes[$alias] ?? null;
     }
 
     /** Resets the object to the initial state */
