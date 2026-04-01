@@ -89,7 +89,7 @@ class Engine
     ];
 
     /** @var array<string, mixed> */
-    protected array $vars = [
+    private array $vars = [
         'flight.base_url' => null,
         'flight.case_sensitive' => false,
         'flight.handle_errors' => true,
@@ -107,7 +107,7 @@ class Engine
     protected bool $initialized = true;
 
     /** If the request has been handled or not */
-    protected bool $requestHandled = false;
+    private bool $requestHandled = false;
 
     public function __construct()
     {
@@ -342,7 +342,7 @@ class Engine
      * @param Route $route The route to process the middleware for.
      * @param string $eventName If this is the before or after method.
      */
-    protected function processMiddleware(Route $route, string $eventName): bool
+    private function processMiddleware(Route $route, string $eventName): bool
     {
         $atLeastOneMiddlewareFailed = false;
 
@@ -358,7 +358,7 @@ class Engine
             $middlewareObject = false;
 
             // Closure functions can only run on the before event
-            if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) && ($middleware instanceof Closure)) {
+            if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) && $middleware instanceof Closure) {
                 $middlewareObject = $middleware;
 
                 // If the object has already been created, we can just use it if the event name exists.
