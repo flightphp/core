@@ -153,7 +153,7 @@ class Engine
         $this->loader->register('response', Response::class);
         $this->loader->register('router', Router::class);
 
-        $this->loader->register('view', View::class, [], function (View $view) {
+        $this->loader->register('view', View::class, [], function (View $view): void {
             $view->path = $this->get('flight.views.path');
             $view->extension = $this->get('flight.views.extension');
         });
@@ -173,7 +173,7 @@ class Engine
         $this->set('flight.v2.output_buffering', false);
 
         // Startup configuration
-        $this->before('start', function () {
+        $this->before('start', function (): void {
             // Enable error handling
             if ($this->get('flight.handle_errors')) {
                 set_error_handler([$this, 'handleError']);
