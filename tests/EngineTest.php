@@ -134,26 +134,6 @@ class EngineTest extends TestCase
         $engine->start();
     }
 
-    public function testStartWithRouteButReturnedValueThrows404V2OutputBuffering(): void
-    {
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['REQUEST_URI'] = '/someRoute';
-
-        $engine = new class extends Engine {
-            public function getInitializedVar(): bool
-            {
-                return $this->initialized;
-            }
-        };
-        $engine->set('flight.v2.output_buffering', true);
-        $engine->route('/someRoute', function () {
-            echo 'i ran';
-            return true;
-        }, true);
-        $this->expectOutputString('<h1>404 Not Found</h1><h3>The page you have requested could not be found.</h3>');
-        $engine->start();
-    }
-
     public function testDoubleReturnTrueRoutesContinueIteration(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';

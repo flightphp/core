@@ -89,14 +89,22 @@ class Engine
     ];
 
     /** @var array<string, mixed> */
-    protected array $vars = [];
+    protected array $vars = [
+        'flight.base_url' => null,
+        'flight.case_sensitive' => false,
+        'flight.handle_errors' => true,
+        'flight.log_errors' => false,
+        'flight.views.path' => './views',
+        'flight.views.extension' => '.php',
+        'flight.content_length' => true,
+    ];
 
     protected Loader $loader;
     protected Dispatcher $dispatcher;
     protected EventDispatcher $eventDispatcher;
 
     /** If the framework has been initialized or not */
-    protected bool $initialized = false;
+    protected bool $initialized = true;
 
     /** If the request has been handled or not */
     protected bool $requestHandled = false;
@@ -138,20 +146,17 @@ class Engine
     /** Initializes the framework */
     public function init(): void
     {
-        if ($this->initialized) {
-            $this->vars = [];
-            $this->loader->reset();
-            $this->dispatcher->reset();
-        }
-
-        // Add this class to Dispatcher
-        $this->dispatcher->setEngine($this);
-
         // Register default components
         $this->loader->register('eventDispatcher', EventDispatcher::class);
         $this->loader->register('request', Request::class);
-        $this->loader->register('response', Response::class);
-        $this->loader->register('router', Router::class);
+
+        $this->loader->register('response', Response::class, [], function (Response $response): void {
+            $response->content_length = $this->get('flight.content_length');
+        });
+
+        $this->loader->register('router', Router::class, [], function (Router $router): void {
+            $router->caseSensitive = $this->get('flight.case_sensitive');
+        });
 
         $this->loader->register('view', View::class, [], function (View $view): void {
             $view->path = $this->get('flight.views.path');
@@ -162,43 +167,22 @@ class Engine
             $this->dispatcher->set($name, [$this, "_$name"]);
         }
 
-        // Default configuration settings
-        $this->set('flight.base_url');
-        $this->set('flight.case_sensitive', false);
-        $this->set('flight.handle_errors', true);
-        $this->set('flight.log_errors', false);
-        $this->set('flight.views.path', './views');
-        $this->set('flight.views.extension', '.php');
-        $this->set('flight.content_length', true);
-
-        // Startup configuration
-        $this->before('start', function (): void {
-            // Enable error handling
-            if ($this->get('flight.handle_errors')) {
-                set_error_handler([$this, 'handleError']);
-                set_exception_handler([$this, 'handleException']);
-            }
-
-            // Set case-sensitivity
-            $this->router()->caseSensitive = $this->get('flight.case_sensitive');
-
-            // Set Content-Length
-            $this->response()->content_length = $this->get('flight.content_length');
-        });
-
-        $this->initialized = true;
+        // Enable error handling
+        if ($this->get('flight.handle_errors')) {
+            set_error_handler([$this, 'handleError']);
+            set_exception_handler([$this, 'handleException']);
+        }
     }
 
     /**
      * Custom error handler. Converts errors into exceptions.
      *
-     * @param int $errno Error number
-     * @param string $errstr Error string
-     * @param string $errfile Error file name
-     * @param int $errline Error file line number
-     *
-     * @return false
+     * @param int $errno Level of the error raised.
+     * @param string $errstr Error message.
+     * @param string $errfile Filename that the error was raised in.
+     * @param int $errline Line number where the error was raised.
      * @throws ErrorException
+     * @return false
      */
     public function handleError(int $errno, string $errstr, string $errfile, int $errline): bool
     {
@@ -209,24 +193,20 @@ class Engine
         return false;
     }
 
-    /**
-     * Custom exception handler. Logs exceptions.
-     *
-     * @param Throwable $e Thrown exception
-     */
-    public function handleException(Throwable $e): void
+    /** Custom exception handler. Logs exceptions */
+    public function handleException(Throwable $ex): void
     {
         if ($this->get('flight.log_errors')) {
-            error_log($e->getMessage()); // @codeCoverageIgnore
+            error_log($ex->getMessage());
         }
 
-        $this->error($e);
+        $this->error($ex);
     }
 
     /**
      * Registers the container handler
      * @template T of object
-     * @param ContainerInterface|callable(class-string<T>, array<int|string, mixed>): ?T $containerHandler
+     * @param ContainerInterface|callable(class-string<T>): T $containerHandler
      * Callback function or PSR-11 Container object that sets the container and how it will inject classes
      */
     public function registerContainerHandler($containerHandler): void
@@ -240,11 +220,17 @@ class Engine
      */
     public function map(string $name, callable $callback): void
     {
-        if (method_exists($this, $name)) {
+        $this->ensureMethodNotExists($name)->dispatcher->set($name, $callback);
+    }
+
+    /** @throws Exception */
+    private function ensureMethodNotExists(string $method): self
+    {
+        if (method_exists($this, $method)) {
             throw new Exception('Cannot override an existing framework method.');
         }
 
-        $this->dispatcher->set($name, $callback);
+        return $this;
     }
 
     /**
@@ -265,11 +251,7 @@ class Engine
      */
     public function register(string $name, string $class, array $params = [], ?callable $callback = null): void
     {
-        if (method_exists($this, $name)) {
-            throw new Exception('Cannot override an existing framework method.');
-        }
-
-        $this->loader->register($name, $class, $params, $callback);
+        $this->ensureMethodNotExists($name)->loader->register($name, $class, $params, $callback);
     }
 
     /** Unregisters a class to a framework method */

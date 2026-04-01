@@ -62,12 +62,9 @@ class DocExamplesTest extends TestCase
         Flight::request()->method = 'GET';
         Flight::request()->url = '/';
 
-        $router->get(
-            '/',
-            function () {
-                Flight::response()->write('from resp ');
-            }
-        );
+        $router->get('/', static function () {
+            Flight::response()->write('from resp ');
+        });
 
         Flight::start();
 
