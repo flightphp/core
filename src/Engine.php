@@ -148,7 +148,7 @@ class Engine
         $this->dispatcher->setEngine($this);
 
         // Register default components
-        $this->map('eventDispatcher', static fn (): EventDispatcher => EventDispatcher::getInstance());
+        $this->map('eventDispatcher', static fn(): EventDispatcher => EventDispatcher::getInstance());
         $this->loader->register('request', Request::class);
         $this->loader->register('response', Response::class);
         $this->loader->register('router', Router::class);
