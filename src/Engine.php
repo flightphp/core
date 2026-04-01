@@ -225,11 +225,9 @@ class Engine
 
     /**
      * Registers the container handler
-     *
-     * @param ContainerInterface|callable(class-string<T> $id, array<int|string, mixed> $params): ?T $containerHandler
-     * Callback function or PSR-11 Container object that sets the container and how it will inject classes
-     *
      * @template T of object
+     * @param ContainerInterface|callable(class-string<T>, array<int|string, mixed>): ?T $containerHandler
+     * Callback function or PSR-11 Container object that sets the container and how it will inject classes
      */
     public function registerContainerHandler($containerHandler): void
     {
@@ -237,11 +235,7 @@ class Engine
     }
 
     /**
-     * Maps a callback to a framework method.
-     *
-     * @param string $name Method name
-     * @param callable $callback Callback function
-     *
+     * Maps a callback to a framework method
      * @throws Exception If trying to map over a framework method
      */
     public function map(string $name, callable $callback): void
@@ -255,7 +249,6 @@ class Engine
 
     /**
      * Registers a class to a framework method.
-     *
      * # Usage example:
      * ```
      * $app = new Engine;
@@ -263,13 +256,11 @@ class Engine
      *
      * $app->user(); # <- Return a User instance
      * ```
-     *
+     * @template T of object
      * @param string $name Method name
      * @param class-string<T> $class Class name
      * @param array<int, mixed> $params Class initialization parameters
-     * @param ?Closure(T $instance): void $callback Function to call after object instantiation
-     *
-     * @template T of object
+     * @param ?callable(T): void $callback Function to call after object instantiation
      * @throws Exception If trying to map over a framework method
      */
     public function register(string $name, string $class, array $params = [], ?callable $callback = null): void
@@ -281,39 +272,35 @@ class Engine
         $this->loader->register($name, $class, $params, $callback);
     }
 
-    /** Unregisters a class to a framework method. */
+    /** Unregisters a class to a framework method */
     public function unregister(string $methodName): void
     {
         $this->loader->unregister($methodName);
     }
 
     /**
-     * Adds a pre-filter to a method.
-     *
+     * Adds a pre-filter to a method
      * @param string $name Method name
-     * @param Closure(array<int, mixed> &$params, string &$output): (void|false) $callback
+     * @param callable(array<int, mixed> &$params, string &$output): (void|false) $callback
      */
     public function before(string $name, callable $callback): void
     {
-        $this->dispatcher->hook($name, 'before', $callback);
+        $this->dispatcher->hook($name, Dispatcher::FILTER_BEFORE, $callback);
     }
 
     /**
-     * Adds a post-filter to a method.
-     *
+     * Adds a post-filter to a method
      * @param string $name Method name
-     * @param Closure(array<int, mixed> &$params, string &$output): (void|false) $callback
+     * @param callable(array<int, mixed> &$params, string &$output): (void|false) $callback
      */
     public function after(string $name, callable $callback): void
     {
-        $this->dispatcher->hook($name, 'after', $callback);
+        $this->dispatcher->hook($name, Dispatcher::FILTER_AFTER, $callback);
     }
 
     /**
-     * Gets a variable.
-     *
+     * Gets a variable
      * @param ?string $key Variable name
-     *
      * @return mixed Variable value or `null` if `$key` doesn't exists.
      */
     public function get(?string $key = null)
@@ -326,15 +313,14 @@ class Engine
     }
 
     /**
-     * Sets a variable.
-     *
+     * Sets a variable
      * @param string|iterable<string, mixed> $key
      * Variable name as `string` or an iterable of `'varName' => $varValue`
-     * @param ?mixed $value Ignored if `$key` is an `iterable`
+     * @param mixed $value Ignored if `$key` is an `iterable`
      */
     public function set($key, $value = null): void
     {
-        if (\is_iterable($key)) {
+        if (is_iterable($key)) {
             foreach ($key as $k => $v) {
                 $this->vars[$k] = $v;
             }
@@ -346,10 +332,8 @@ class Engine
     }
 
     /**
-     * Checks if a variable has been set.
-     *
+     * Checks if a variable has been set
      * @param string $key Variable name
-     *
      * @return bool Variable status
      */
     public function has(string $key): bool
@@ -358,8 +342,7 @@ class Engine
     }
 
     /**
-     * Unsets a variable. If no key is passed in, clear all variables.
-     *
+     * Unsets a variable. If no key is passed in, clear all variables
      * @param ?string $key Variable name, if `$key` isn't provided, it clear all variables.
      */
     public function clear(?string $key = null): void
@@ -373,8 +356,7 @@ class Engine
     }
 
     /**
-     * Processes each routes middleware.
-     *
+     * Processes each routes middleware
      * @param Route $route The route to process the middleware for.
      * @param string $eventName If this is the before or after method.
      */
@@ -386,6 +368,7 @@ class Engine
         $middlewares = $eventName === Dispatcher::FILTER_BEFORE
             ? $route->middleware
             : array_reverse($route->middleware);
+
         $params = $route->params;
 
         foreach ($middlewares as $middleware) {
@@ -393,23 +376,23 @@ class Engine
             $middlewareObject = false;
 
             // Closure functions can only run on the before event
-            if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) === true && ($middleware instanceof Closure)) {
+            if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) && ($middleware instanceof Closure)) {
                 $middlewareObject = $middleware;
 
                 // If the object has already been created, we can just use it if the event name exists.
-            } elseif (is_object($middleware) === true) {
-                $middlewareObject = method_exists($middleware, $eventName) === true ? [$middleware, $eventName] : false;
+            } elseif (is_object($middleware)) {
+                $middlewareObject = method_exists($middleware, $eventName) ? [$middleware, $eventName] : false;
 
                 // If the middleware is a string, we need to create the object and then call the event.
-            } elseif (is_string($middleware) === true && method_exists($middleware, $eventName) === true) {
+            } elseif (is_string($middleware) && method_exists($middleware, $eventName)) {
                 $resolvedClass = null;
 
                 // if there's a container assigned, we should use it to create the object
-                if ($this->dispatcher->mustUseContainer($middleware) === true) {
+                if ($this->dispatcher->mustUseContainer($middleware)) {
                     $resolvedClass = $this->dispatcher->resolveContainerClass($middleware, $params);
                     // otherwise just assume it's a plain jane class, so inject the engine
                     // just like in Dispatcher::invokeCallable()
-                } elseif (class_exists($middleware) === true) {
+                } elseif (class_exists($middleware)) {
                     $resolvedClass = new $middleware($this);
                 }
 
@@ -420,14 +403,14 @@ class Engine
             }
 
             // If nothing was resolved, go to the next thing
-            if ($middlewareObject === false) {
+            if (!$middlewareObject) {
                 continue;
             }
 
             // This is the way that v3 handles output buffering (which captures output correctly)
             $useV3OutputBuffering = !$route->is_streamed;
 
-            if ($useV3OutputBuffering === true) {
+            if ($useV3OutputBuffering) {
                 ob_start();
             }
 
@@ -445,7 +428,7 @@ class Engine
                 microtime(true) - $start
             );
 
-            if ($useV3OutputBuffering === true) {
+            if ($useV3OutputBuffering) {
                 $this->response()->write(ob_get_clean());
             }
 
@@ -548,18 +531,16 @@ class Engine
 
             $useV3OutputBuffering = !$route->is_streamed;
 
-            if ($useV3OutputBuffering === true) {
+            if ($useV3OutputBuffering) {
                 ob_start();
             }
 
             // Call route handler
             $routeStart = microtime(true);
-            $continue = $this->dispatcher->execute(
-                $route->callback,
-                $params
-            );
+            $continue = $this->dispatcher->execute($route->callback, $params);
             $this->triggerEvent('flight.route.executed', $route, microtime(true) - $routeStart);
-            if ($useV3OutputBuffering === true) {
+
+            if ($useV3OutputBuffering) {
                 $response->write(ob_get_clean());
             }
 
@@ -572,6 +553,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
+
                 $this->triggerEvent('flight.middleware.after', $route);
             }
 
@@ -582,7 +564,6 @@ class Engine
             }
 
             $router->next();
-
             $dispatched = false;
         }
 
@@ -596,7 +577,7 @@ class Engine
         } elseif ($dispatched === false) {
             // Get the previous route and check if the method failed, but the URL was good.
             $lastRouteExecuted = $router->executedRoute;
-            if ($lastRouteExecuted !== null && $lastRouteExecuted->matchUrl($request->url) === true && $lastRouteExecuted->matchMethod($request->method) === false) {
+            if ($lastRouteExecuted !== null && $lastRouteExecuted->matchUrl($request->url) && !$lastRouteExecuted->matchMethod($request->method)) {
                 $this->methodNotFound($lastRouteExecuted);
             } else {
                 $this->notFound();
