@@ -25,7 +25,8 @@ use Psr\Container\ContainerInterface;
  * and generating an HTTP response.
  *
  * @license MIT, https://docs.flightphp.com/license
- * @copyright Copyright (c) 2011-2025, Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>
+ * @copyright Copyright (c) 2011-2026,
+ * Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>, fadrian06 <https://github.com/fadrian06>
  *
  * @method void start()
  * @method void stop(?int $code = null)
@@ -56,35 +57,10 @@ use Psr\Container\ContainerInterface;
  * @method void etag(string $id, string $type = 'strong')
  * @method void lastModified(int $time)
  * @method void download(string $filePath)
- *
- * @phpstan-template EngineTemplate of object
- * @phpstan-method void registerContainerHandler(ContainerInterface|callable(class-string<EngineTemplate> $id, array<int|string, mixed> $params): ?EngineTemplate $containerHandler)
- * @phpstan-method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
- * @phpstan-method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
- * @phpstan-method string getUrl(string $alias, array<string, mixed> $params = [])
- * @phpstan-method void before(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
- * @phpstan-method void after(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
- * @phpstan-method void set(string|iterable<string, mixed> $key, ?mixed $value = null)
- * @phpstan-method mixed get(?string $key)
- * @phpstan-method void render(string $file, ?array<string, mixed> $data = null, ?string $key = null)
- * @phpstan-method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- * @phpstan-method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
- * @phpstan-method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- *
- * Note: IDEs will use standard @method tags for autocompletion, while PHPStan will use @phpstan-* tags for advanced type checking.
- *
- * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class Engine
 {
-    /**
-     * @var array<string> List of methods that can be extended in the Engine class.
-     */
+    /** @var array<int, string> List of methods that can be extended in the Engine class */
     private const MAPPABLE_METHODS = [
         'start',
         'stop',
@@ -112,22 +88,17 @@ class Engine
         'triggerEvent'
     ];
 
-    /** @var array<string, mixed> Stored variables. */
+    /** @var array<string, mixed> */
     protected array $vars = [];
 
-    /** Class loader. */
     protected Loader $loader;
-
-    /** @var Dispatcher<EngineTemplate> Method and class dispatcher. */
     protected Dispatcher $dispatcher;
-
-    /** Event dispatcher. */
     protected EventDispatcher $eventDispatcher;
 
-    /** If the framework has been initialized or not. */
+    /** If the framework has been initialized or not */
     protected bool $initialized = false;
 
-    /** If the request has been handled or not. */
+    /** If the request has been handled or not */
     protected bool $requestHandled = false;
 
     public function __construct()
@@ -138,27 +109,24 @@ class Engine
     }
 
     /**
-     * Handles calls to class methods.
-     *
      * @param string $name Method name
-     * @param array<int, mixed> $params Method parameters
-     *
-     * @throws Exception
-     * @return mixed Callback results
+     * @param array<int, mixed> $arguments Method parameters
+     * @throws Throwable
+     * @return mixed
      */
-    public function __call(string $name, array $params)
+    public function __call(string $name, array $arguments)
     {
         $callback = $this->dispatcher->get($name);
 
-        if (\is_callable($callback)) {
-            return $this->dispatcher->run($name, $params);
+        if (is_callable($callback)) {
+            return $this->dispatcher->run($name, $arguments);
         }
 
         if (!$this->loader->get($name)) {
             throw new Exception("$name must be a mapped method.");
         }
 
-        $shared = empty($params) || $params[0];
+        $shared = empty($arguments) || $arguments[0];
 
         return $this->loader->load($name, $shared);
     }
@@ -167,13 +135,10 @@ class Engine
     // Core Methods //
     //////////////////
 
-    /** Initializes the framework. */
+    /** Initializes the framework */
     public function init(): void
     {
-        $initialized = $this->initialized;
-        $self = $this;
-
-        if ($initialized) {
+        if ($this->initialized) {
             $this->vars = [];
             $this->loader->reset();
             $this->dispatcher->reset();
@@ -183,16 +148,14 @@ class Engine
         $this->dispatcher->setEngine($this);
 
         // Register default components
-        $this->map('eventDispatcher', function () {
-            return EventDispatcher::getInstance();
-        });
+        $this->map('eventDispatcher', static fn (): EventDispatcher => EventDispatcher::getInstance());
         $this->loader->register('request', Request::class);
         $this->loader->register('response', Response::class);
         $this->loader->register('router', Router::class);
 
-        $this->loader->register('view', View::class, [], function (View $view) use ($self) {
-            $view->path = $self->get('flight.views.path');
-            $view->extension = $self->get('flight.views.extension');
+        $this->loader->register('view', View::class, [], function (View $view) {
+            $view->path = $this->get('flight.views.path');
+            $view->extension = $this->get('flight.views.extension');
         });
 
         foreach (self::MAPPABLE_METHODS as $name) {
@@ -210,21 +173,23 @@ class Engine
         $this->set('flight.v2.output_buffering', false);
 
         // Startup configuration
-        $this->before('start', function () use ($self) {
+        $this->before('start', function () {
             // Enable error handling
-            if ($self->get('flight.handle_errors')) {
-                set_error_handler([$self, 'handleError']);
-                set_exception_handler([$self, 'handleException']);
+            if ($this->get('flight.handle_errors')) {
+                set_error_handler([$this, 'handleError']);
+                set_exception_handler([$this, 'handleException']);
             }
 
             // Set case-sensitivity
-            $self->router()->caseSensitive = $self->get('flight.case_sensitive');
+            $this->router()->caseSensitive = $this->get('flight.case_sensitive');
+
             // Set Content-Length
-            $self->response()->content_length = $self->get('flight.content_length');
+            $this->response()->content_length = $this->get('flight.content_length');
+
             // This is to maintain legacy handling of output buffering
             // which causes a lot of problems. This will be removed
             // in v4
-            $self->response()->v2_output_buffering = $this->get('flight.v2.output_buffering');
+            $this->response()->v2_output_buffering = $this->get('flight.v2.output_buffering');
         });
 
         $this->initialized = true;

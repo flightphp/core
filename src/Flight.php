@@ -21,16 +21,11 @@ use Psr\Container\ContainerInterface;
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 class Flight
 {
-    /**
-     * @var Engine<FlightTemplate>
-     */
     private static Engine $engine;
 
     /**
-     * Handles calls to static methods.
-     *
-     * @param array<int, mixed> $arguments Method parameters
-     * @return mixed Callback results
+     * @param array<int, mixed> $arguments
+     * @return mixed
      * @throws Throwable
      */
     public static function __callStatic(string $name, array $arguments)
@@ -38,17 +33,11 @@ class Flight
         return self::app()->{$name}(...$arguments);
     }
 
-    /** @return Engine<FlightTemplate> Application instance */
     public static function app(): Engine
     {
         return self::$engine ?? self::$engine = new Engine();
     }
 
-    /**
-     * Set the engine instance.
-     *
-     * @param Engine<FlightTemplate> $engine Vroom vroom!
-     */
     public static function setEngine(Engine $engine): void
     {
         self::$engine = $engine;
