@@ -75,7 +75,7 @@ class Flight
      * @param mixed[] $params
      * @param ?callable(T): void $callback
      */
-    public static function register(string $name, string $class, array $params = [], callable $callback = null): void
+    public static function register(string $name, string $class, array $params = [], ?callable $callback = null): void
     {
         self::app()->register($name, $class, $params, $callback);
     }
