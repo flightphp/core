@@ -20,7 +20,7 @@ class FlightTest extends TestCase
     {
         $_SERVER = [];
         $_REQUEST = [];
-        Flight::init();
+        Flight::app();
         Flight::setEngine(new Engine());
         Flight::set('flight.views.path', __DIR__ . '/views');
     }
@@ -71,8 +71,6 @@ class FlightTest extends TestCase
     // Register a class
     public function testRegister(): void
     {
-        Flight::path(__DIR__ . '/classes');
-
         Flight::register('user', User::class);
         $user = Flight::user();
 
@@ -275,25 +273,6 @@ class FlightTest extends TestCase
         $this->expectOutputString('hooked before starttest');
         Flight::start();
         $this->assertEquals('test', Flight::response()->getBody());
-    }
-
-    public function testHookOutputBufferingV2OutputBuffering(): void
-    {
-        Flight::route('/test', function () {
-            echo 'test';
-        });
-
-        Flight::before('start', function ($output) {
-            echo 'hooked before start';
-        });
-
-        Flight::set('flight.v2.output_buffering', true);
-        Flight::request()->url = '/test';
-
-        $this->expectOutputString('hooked before starttest');
-        ob_start();
-        Flight::start();
-        $this->assertEquals('hooked before starttest', Flight::response()->getBody());
     }
 
     public function testStreamRoute(): void

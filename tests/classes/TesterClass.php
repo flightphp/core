@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace tests\classes;
 
-class TesterClass
+final class TesterClass
 {
-    public $param1;
-    public $param2;
-    public $param3;
-    public $param4;
-    public $param5;
-    public $param6;
+    public ?string $param1;
+    public ?string $param2;
+    public ?string $param3;
+    public ?string $param4;
+    public ?string $param5;
+    public ?string $param6;
 
-    public function __construct($param1, $param2, $param3, $param4, $param5, $param6)
-    {
+    public function __construct(
+        ?string $param1,
+        ?string $param2,
+        ?string $param3,
+        ?string $param4,
+        ?string $param5,
+        ?string $param6
+    ) {
         $this->param1 = $param1;
         $this->param2 = $param2;
         $this->param3 = $param3;

@@ -15,7 +15,7 @@ class EventSystemTest extends TestCase
     {
         // Reset the Flight engine before each test to ensure a clean state
         Flight::setEngine(new Engine());
-        Flight::app()->init();
+        Flight::app();
         Flight::eventDispatcher()->resetInstance(); // Clear any existing listeners
     }
 

@@ -11,7 +11,7 @@ Flight aims to be simple and fast. Anything that compromises either of those two
 
 * **Coding Standards** - We use PSR1 coding standards enforced by PHPCS. Some standards that either need additional configuration or need to be manually done are:
   *  PHPStan is at level 6.
-  *  `===` instead of truthy or falsey statements like `==` or `!is_array()`.
+  *  `===` instead of truthy or falsey statements like `==`.
  
 * **PHP 7.4 Focused** - We do not make PHP 8+ focused enhancements on the framework as the focus is maintaining PHP 7.4.
 

@@ -1,19 +1,19 @@
 {
     "name": "flightphp/core",
     "description": "Flight is a fast, simple, extensible framework for PHP. Flight enables you to quickly and easily build RESTful web applications. This is the maintained fork of mikecao/flight",
-    "homepage": "http://flightphp.com",
+    "homepage": "https://docs.flightphp.com/",
     "license": "MIT",
     "authors": [
         {
             "name": "Mike Cao",
             "email": "mike@mikecao.com",
-            "homepage": "http://www.mikecao.com/",
+            "homepage": "https://mikecao.com/",
             "role": "Original Developer"
         },
         {
             "name": "Franyer Sánchez",
             "email": "franyeradriansanchez@gmail.com",
-            "homepage": "https://faslatam.42web.io",
+            "homepage": "https://faslatam.42web.io/",
             "role": "Maintainer"
         },
         {
@@ -27,21 +27,16 @@
         "ext-json": "*"
     },
     "autoload": {
-        "files": [
-            "flight/autoload.php"
-        ]
-    },
-    "autoload-dev": {
         "classmap": [
-            "tests/classes/"
+            "src/Flight.php"
         ],
         "psr-4": {
-            "Tests\\PHP8\\": [
-                "tests/named-arguments"
-            ],
-            "Tests\\Server\\": "tests/server",
-            "Tests\\ServerV2\\": "tests/server-v2",
-            "tests\\groupcompactsyntax\\": "tests/groupcompactsyntax"
+            "flight\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\": "tests"
         }
     },
     "require-dev": {
@@ -54,7 +49,9 @@
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6",
         "rregeer/phpunit-coverage-check": "^0.3.1",
-        "squizlabs/php_codesniffer": "^4.0"
+        "spatie/phpunit-watcher": "^1.23",
+        "squizlabs/php_codesniffer": "^4.0",
+        "symfony/var-dumper": "^5.4"
     },
     "config": {
         "allow-plugins": {
@@ -65,15 +62,12 @@
     },
     "scripts": {
         "test": "phpunit",
-        "test-watcher": [
-            "phpunit-watcher || composer global require spatie/phpunit-watcher --dev",
-            "phpunit-watcher watch"
-        ],
+        "test-watcher": "phpunit-watcher watch",
         "test-coverage": [
-            "rm -f clover.xml",
+            "rm -rf coverage",
             "@putenv XDEBUG_MODE=coverage",
-            "phpunit --coverage-html=coverage --coverage-clover=clover.xml",
-            "coverage-check clover.xml 100"
+            "phpunit --coverage-html coverage --coverage-clover coverage/clover.xml",
+            "coverage-check coverage/clover.xml 100"
         ],
         "test-server": [
             "echo \"Running Test Server\"",
@@ -81,12 +75,7 @@
         ],
         "test-server-v2": [
             "echo \"Running Test Server\"",
-            "@php -S localhost:8000 -t tests/server-v2"
-        ],
-        "test-coverage:win": [
-            "del clover.xml",
-            "phpunit --coverage-html=coverage --coverage-clover=clover.xml",
-            "coverage-check clover.xml 100"
+            "@php -S localhost:8000 -t tests/server_v2"
         ],
         "test-performance": [
             "echo \"Running Performance Tests...\"",
@@ -97,13 +86,18 @@
             "rm server.pid",
             "echo \"Performance Tests Completed.\""
         ],
-        "lint": "phpstan --no-progress --memory-limit=256M",
-        "beautify": "phpcbf",
-        "phpcs": "phpcs",
+        "lint": [
+            "phpstan --no-progress --memory-limit=256M",
+            "phpcs"
+        ],
+        "format": [
+            "phpcbf"
+        ],
         "post-install-cmd": [
             "@php -r \"if (!file_exists('phpcs.xml')) copy('phpcs.xml.dist', 'phpcs.xml');\"",
             "@php -r \"if (!file_exists('phpstan.neon')) copy('phpstan.dist.neon', 'phpstan.neon');\"",
-            "@php -r \"if (!file_exists('phpunit.xml')) copy('phpunit.xml.dist', 'phpunit.xml');\""
+            "@php -r \"if (!file_exists('phpunit.xml')) copy('phpunit.xml.dist', 'phpunit.xml');\"",
+            "@php -r \"if (!file_exists('phpunit-watcher.yml')) copy('phpunit-watcher.yml.dist', 'phpunit-watcher.yml');\""
         ]
     },
     "suggest": {

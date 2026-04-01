@@ -21,7 +21,6 @@ class RenderTest extends TestCase
     public function testRenderView(): void
     {
         $this->app->render('hello', ['name' => 'Bob']);
-
         $this->expectOutputString('Hello, Bob!');
     }
 

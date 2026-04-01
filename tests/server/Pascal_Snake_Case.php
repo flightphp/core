@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Server;
+namespace tests\server;
 
 class Pascal_Snake_Case // phpcs:ignore
 {

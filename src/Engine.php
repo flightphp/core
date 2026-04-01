@@ -25,22 +25,23 @@ use Psr\Container\ContainerInterface;
  * and generating an HTTP response.
  *
  * @license MIT, https://docs.flightphp.com/license
- * @copyright Copyright (c) 2011-2025, Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>
+ * @copyright Copyright (c) 2011-2026,
+ * Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>, fadrian06 <https://github.com/fadrian06>
  *
  * @method void start()
- * @method void stop()
+ * @method void stop(?int $code = null)
  * @method void halt(int $code = 200, string $message = '', bool $actuallyExit = true)
  * @method EventDispatcher eventDispatcher()
- * @method Route route(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
- * @method void group(string $pattern, callable $callback, array $group_middlewares = [])
- * @method Route post(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
- * @method Route put(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
- * @method Route patch(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
- * @method Route delete(string $pattern, callable|string|array $callback, bool $pass_route = false, string $alias = '')
- * @method void resource(string $pattern, string $controllerClass, array $methods = [])
+ * @method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @method void group(string $pattern, callable $callback, array<int, class-string|callable|array{0: class-string, 1: string}> $group_middlewares = [])
+ * @method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @method Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @method Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @method Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
+ * @method void resource(string $pattern, class-string $controllerClass, array<string, string|array<int, string>> $methods = [])
  * @method Router router()
- * @method string getUrl(string $alias)
- * @method void render(string $file, array $data = null, string $key = null)
+ * @method string getUrl(string $alias, array<string, mixed> $params)
+ * @method void render(string $file, ?array<string, mixed> $data, string $key = null)
  * @method View view()
  * @method void onEvent(string $event, callable $callback)
  * @method void triggerEvent(string $event, ...$args)
@@ -56,35 +57,10 @@ use Psr\Container\ContainerInterface;
  * @method void etag(string $id, string $type = 'strong')
  * @method void lastModified(int $time)
  * @method void download(string $filePath)
- *
- * @phpstan-template EngineTemplate of object
- * @phpstan-method void registerContainerHandler(ContainerInterface|callable(class-string<EngineTemplate> $id, array<int|string, mixed> $params): ?EngineTemplate $containerHandler)
- * @phpstan-method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
- * @phpstan-method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method Route put(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method Route patch(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method Route delete(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
- * @phpstan-method void resource(string $pattern, class-string $controllerClass, array<string, string|array<string>> $methods = [])
- * @phpstan-method string getUrl(string $alias, array<string, mixed> $params = [])
- * @phpstan-method void before(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
- * @phpstan-method void after(string $name, Closure(array<int, mixed> &$params, string &$output): (void|false) $callback)
- * @phpstan-method void set(string|iterable<string, mixed> $key, ?mixed $value = null)
- * @phpstan-method mixed get(?string $key)
- * @phpstan-method void render(string $file, ?array<string, mixed> $data = null, ?string $key = null)
- * @phpstan-method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- * @phpstan-method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
- * @phpstan-method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- *
- * Note: IDEs will use standard @method tags for autocompletion, while PHPStan will use @phpstan-* tags for advanced type checking.
- *
- * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
  */
 class Engine
 {
-    /**
-     * @var array<string> List of methods that can be extended in the Engine class.
-     */
+    /** @var array<int, string> List of methods that can be extended in the Engine class */
     private const MAPPABLE_METHODS = [
         'start',
         'stop',
@@ -112,53 +88,76 @@ class Engine
         'triggerEvent'
     ];
 
-    /** @var array<string, mixed> Stored variables. */
-    protected array $vars = [];
+    /** @var array<string, mixed> */
+    private array $vars = [
+        'flight.base_url' => null,
+        'flight.case_sensitive' => false,
+        'flight.handle_errors' => true,
+        'flight.log_errors' => false,
+        'flight.views.path' => './views',
+        'flight.views.extension' => '.php',
+        'flight.content_length' => true,
+    ];
 
-    /** Class loader. */
     protected Loader $loader;
-
-    /** @var Dispatcher<EngineTemplate> Method and class dispatcher. */
     protected Dispatcher $dispatcher;
-
-    /** Event dispatcher. */
     protected EventDispatcher $eventDispatcher;
 
-    /** If the framework has been initialized or not. */
-    protected bool $initialized = false;
-
-    /** If the request has been handled or not. */
-    protected bool $requestHandled = false;
+    /** If the request has been handled or not */
+    private bool $requestHandled = false;
 
     public function __construct()
     {
         $this->loader = new Loader();
         $this->dispatcher = new Dispatcher();
-        $this->init();
+
+        // Register default components
+        $this->loader->register('eventDispatcher', EventDispatcher::class);
+        $this->loader->register('request', Request::class);
+
+        $this->loader->register('response', Response::class, [], function (Response $response): void {
+            $response->content_length = $this->get('flight.content_length');
+        });
+
+        $this->loader->register('router', Router::class, [], function (Router $router): void {
+            $router->caseSensitive = $this->vars['flight.case_sensitive'];
+        });
+
+        $this->loader->register('view', View::class, [], function (View $view): void {
+            $view->path = $this->vars['flight.views.path'];
+            $view->extension = $this->vars['flight.views.extension'];
+        });
+
+        foreach (self::MAPPABLE_METHODS as $name) {
+            $this->dispatcher->set($name, [$this, "_$name"]);
+        }
+
+        // Enable error handling
+        if ($this->get('flight.handle_errors')) {
+            set_error_handler([$this, 'handleError']);
+            set_exception_handler([$this, 'handleException']);
+        }
     }
 
     /**
-     * Handles calls to class methods.
-     *
      * @param string $name Method name
-     * @param array<int, mixed> $params Method parameters
-     *
-     * @throws Exception
-     * @return mixed Callback results
+     * @param array<int, mixed> $arguments Method parameters
+     * @throws Throwable
+     * @return mixed
      */
-    public function __call(string $name, array $params)
+    public function __call(string $name, array $arguments)
     {
         $callback = $this->dispatcher->get($name);
 
-        if (\is_callable($callback)) {
-            return $this->dispatcher->run($name, $params);
+        if (is_callable($callback)) {
+            return $this->dispatcher->run($name, $arguments);
         }
 
         if (!$this->loader->get($name)) {
             throw new Exception("$name must be a mapped method.");
         }
 
-        $shared = empty($params) || $params[0];
+        $shared = empty($arguments) || $arguments[0];
 
         return $this->loader->load($name, $shared);
     }
@@ -167,79 +166,14 @@ class Engine
     // Core Methods //
     //////////////////
 
-    /** Initializes the framework. */
-    public function init(): void
-    {
-        $initialized = $this->initialized;
-        $self = $this;
-
-        if ($initialized) {
-            $this->vars = [];
-            $this->loader->reset();
-            $this->dispatcher->reset();
-        }
-
-        // Add this class to Dispatcher
-        $this->dispatcher->setEngine($this);
-
-        // Register default components
-        $this->map('eventDispatcher', function () {
-            return EventDispatcher::getInstance();
-        });
-        $this->loader->register('request', Request::class);
-        $this->loader->register('response', Response::class);
-        $this->loader->register('router', Router::class);
-
-        $this->loader->register('view', View::class, [], function (View $view) use ($self) {
-            $view->path = $self->get('flight.views.path');
-            $view->extension = $self->get('flight.views.extension');
-        });
-
-        foreach (self::MAPPABLE_METHODS as $name) {
-            $this->dispatcher->set($name, [$this, "_$name"]);
-        }
-
-        // Default configuration settings
-        $this->set('flight.base_url');
-        $this->set('flight.case_sensitive', false);
-        $this->set('flight.handle_errors', true);
-        $this->set('flight.log_errors', false);
-        $this->set('flight.views.path', './views');
-        $this->set('flight.views.extension', '.php');
-        $this->set('flight.content_length', true);
-        $this->set('flight.v2.output_buffering', false);
-
-        // Startup configuration
-        $this->before('start', function () use ($self) {
-            // Enable error handling
-            if ($self->get('flight.handle_errors')) {
-                set_error_handler([$self, 'handleError']);
-                set_exception_handler([$self, 'handleException']);
-            }
-
-            // Set case-sensitivity
-            $self->router()->caseSensitive = $self->get('flight.case_sensitive');
-            // Set Content-Length
-            $self->response()->content_length = $self->get('flight.content_length');
-            // This is to maintain legacy handling of output buffering
-            // which causes a lot of problems. This will be removed
-            // in v4
-            $self->response()->v2_output_buffering = $this->get('flight.v2.output_buffering');
-        });
-
-        $this->initialized = true;
-    }
-
     /**
-     * Custom error handler. Converts errors into exceptions.
-     *
-     * @param int $errno Error number
-     * @param string $errstr Error string
-     * @param string $errfile Error file name
-     * @param int $errline Error file line number
-     *
-     * @return false
+     * Converts errors into exceptions
+     * @param int $errno Level of the error raised.
+     * @param string $errstr Error message.
+     * @param string $errfile Filename that the error was raised in.
+     * @param int $errline Line number where the error was raised.
      * @throws ErrorException
+     * @return false
      */
     public function handleError(int $errno, string $errstr, string $errfile, int $errline): bool
     {
@@ -250,27 +184,21 @@ class Engine
         return false;
     }
 
-    /**
-     * Custom exception handler. Logs exceptions.
-     *
-     * @param Throwable $e Thrown exception
-     */
-    public function handleException(Throwable $e): void
+    /** Logs exceptions */
+    public function handleException(Throwable $ex): void
     {
         if ($this->get('flight.log_errors')) {
-            error_log($e->getMessage()); // @codeCoverageIgnore
+            error_log($ex->getMessage());
         }
 
-        $this->error($e);
+        $this->error($ex);
     }
 
     /**
      * Registers the container handler
-     *
-     * @param ContainerInterface|callable(class-string<T> $id, array<int|string, mixed> $params): ?T $containerHandler
-     * Callback function or PSR-11 Container object that sets the container and how it will inject classes
-     *
      * @template T of object
+     * @param ContainerInterface|callable(class-string<T>): T $containerHandler
+     * Callback function or PSR-11 Container object that sets the container and how it will inject classes
      */
     public function registerContainerHandler($containerHandler): void
     {
@@ -278,25 +206,26 @@ class Engine
     }
 
     /**
-     * Maps a callback to a framework method.
-     *
-     * @param string $name Method name
-     * @param callable $callback Callback function
-     *
+     * Maps a callback to a framework method
      * @throws Exception If trying to map over a framework method
      */
     public function map(string $name, callable $callback): void
     {
-        if (method_exists($this, $name)) {
+        $this->ensureMethodNotExists($name)->dispatcher->set($name, $callback);
+    }
+
+    /** @throws Exception */
+    private function ensureMethodNotExists(string $method): self
+    {
+        if (method_exists($this, $method)) {
             throw new Exception('Cannot override an existing framework method.');
         }
 
-        $this->dispatcher->set($name, $callback);
+        return $this;
     }
 
     /**
      * Registers a class to a framework method.
-     *
      * # Usage example:
      * ```
      * $app = new Engine;
@@ -304,57 +233,47 @@ class Engine
      *
      * $app->user(); # <- Return a User instance
      * ```
-     *
+     * @template T of object
      * @param string $name Method name
      * @param class-string<T> $class Class name
      * @param array<int, mixed> $params Class initialization parameters
-     * @param ?Closure(T $instance): void $callback Function to call after object instantiation
-     *
-     * @template T of object
+     * @param ?callable(T): void $callback Function to call after object instantiation
      * @throws Exception If trying to map over a framework method
      */
     public function register(string $name, string $class, array $params = [], ?callable $callback = null): void
     {
-        if (method_exists($this, $name)) {
-            throw new Exception('Cannot override an existing framework method.');
-        }
-
-        $this->loader->register($name, $class, $params, $callback);
+        $this->ensureMethodNotExists($name)->loader->register($name, $class, $params, $callback);
     }
 
-    /** Unregisters a class to a framework method. */
+    /** Unregisters a class to a framework method */
     public function unregister(string $methodName): void
     {
         $this->loader->unregister($methodName);
     }
 
     /**
-     * Adds a pre-filter to a method.
-     *
+     * Adds a pre-filter to a method
      * @param string $name Method name
-     * @param Closure(array<int, mixed> &$params, string &$output): (void|false) $callback
+     * @param callable(array<int, mixed> &$params, string &$output): (void|false) $callback
      */
     public function before(string $name, callable $callback): void
     {
-        $this->dispatcher->hook($name, 'before', $callback);
+        $this->dispatcher->hook($name, Dispatcher::FILTER_BEFORE, $callback);
     }
 
     /**
-     * Adds a post-filter to a method.
-     *
+     * Adds a post-filter to a method
      * @param string $name Method name
-     * @param Closure(array<int, mixed> &$params, string &$output): (void|false) $callback
+     * @param callable(array<int, mixed> &$params, string &$output): (void|false) $callback
      */
     public function after(string $name, callable $callback): void
     {
-        $this->dispatcher->hook($name, 'after', $callback);
+        $this->dispatcher->hook($name, Dispatcher::FILTER_AFTER, $callback);
     }
 
     /**
-     * Gets a variable.
-     *
+     * Gets a variable
      * @param ?string $key Variable name
-     *
      * @return mixed Variable value or `null` if `$key` doesn't exists.
      */
     public function get(?string $key = null)
@@ -367,15 +286,14 @@ class Engine
     }
 
     /**
-     * Sets a variable.
-     *
+     * Sets a variable
      * @param string|iterable<string, mixed> $key
      * Variable name as `string` or an iterable of `'varName' => $varValue`
-     * @param ?mixed $value Ignored if `$key` is an `iterable`
+     * @param mixed $value Ignored if `$key` is an `iterable`
      */
     public function set($key, $value = null): void
     {
-        if (\is_iterable($key)) {
+        if (is_iterable($key)) {
             foreach ($key as $k => $v) {
                 $this->vars[$k] = $v;
             }
@@ -387,10 +305,8 @@ class Engine
     }
 
     /**
-     * Checks if a variable has been set.
-     *
+     * Checks if a variable has been set
      * @param string $key Variable name
-     *
      * @return bool Variable status
      */
     public function has(string $key): bool
@@ -399,8 +315,7 @@ class Engine
     }
 
     /**
-     * Unsets a variable. If no key is passed in, clear all variables.
-     *
+     * Unsets a variable. If no key is passed in, clear all variables
      * @param ?string $key Variable name, if `$key` isn't provided, it clear all variables.
      */
     public function clear(?string $key = null): void
@@ -414,22 +329,11 @@ class Engine
     }
 
     /**
-     * Adds a path for class autoloading.
-     *
-     * @param string $dir Directory path
-     */
-    public function path(string $dir): void
-    {
-        $this->loader->addDirectory($dir);
-    }
-
-    /**
-     * Processes each routes middleware.
-     *
+     * Processes each routes middleware
      * @param Route $route The route to process the middleware for.
      * @param string $eventName If this is the before or after method.
      */
-    protected function processMiddleware(Route $route, string $eventName): bool
+    private function processMiddleware(Route $route, string $eventName): bool
     {
         $atLeastOneMiddlewareFailed = false;
 
@@ -437,6 +341,7 @@ class Engine
         $middlewares = $eventName === Dispatcher::FILTER_BEFORE
             ? $route->middleware
             : array_reverse($route->middleware);
+
         $params = $route->params;
 
         foreach ($middlewares as $middleware) {
@@ -444,23 +349,23 @@ class Engine
             $middlewareObject = false;
 
             // Closure functions can only run on the before event
-            if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) === true && ($middleware instanceof Closure)) {
+            if ($eventName === Dispatcher::FILTER_BEFORE && is_object($middleware) && $middleware instanceof Closure) {
                 $middlewareObject = $middleware;
 
                 // If the object has already been created, we can just use it if the event name exists.
-            } elseif (is_object($middleware) === true) {
-                $middlewareObject = method_exists($middleware, $eventName) === true ? [$middleware, $eventName] : false;
+            } elseif (is_object($middleware)) {
+                $middlewareObject = method_exists($middleware, $eventName) ? [$middleware, $eventName] : false;
 
                 // If the middleware is a string, we need to create the object and then call the event.
-            } elseif (is_string($middleware) === true && method_exists($middleware, $eventName) === true) {
+            } elseif (is_string($middleware) && method_exists($middleware, $eventName)) {
                 $resolvedClass = null;
 
                 // if there's a container assigned, we should use it to create the object
-                if ($this->dispatcher->mustUseContainer($middleware) === true) {
+                if ($this->dispatcher->mustUseContainer($middleware)) {
                     $resolvedClass = $this->dispatcher->resolveContainerClass($middleware, $params);
                     // otherwise just assume it's a plain jane class, so inject the engine
                     // just like in Dispatcher::invokeCallable()
-                } elseif (class_exists($middleware) === true) {
+                } elseif (class_exists($middleware)) {
                     $resolvedClass = new $middleware($this);
                 }
 
@@ -471,16 +376,14 @@ class Engine
             }
 
             // If nothing was resolved, go to the next thing
-            if ($middlewareObject === false) {
+            if (!$middlewareObject) {
                 continue;
             }
 
             // This is the way that v3 handles output buffering (which captures output correctly)
-            $useV3OutputBuffering =
-                $this->response()->v2_output_buffering === false &&
-                $route->is_streamed === false;
+            $useV3OutputBuffering = !$route->is_streamed;
 
-            if ($useV3OutputBuffering === true) {
+            if ($useV3OutputBuffering) {
                 ob_start();
             }
 
@@ -498,7 +401,7 @@ class Engine
                 microtime(true) - $start
             );
 
-            if ($useV3OutputBuffering === true) {
+            if ($useV3OutputBuffering) {
                 $this->response()->write(ob_get_clean());
             }
 
@@ -550,17 +453,6 @@ class Engine
         $response = $this->response();
         $router = $this->router();
 
-        if ($response->v2_output_buffering === true) {
-            // Flush any existing output
-            if (ob_get_length() > 0) {
-                $response->write(ob_get_clean()); // @codeCoverageIgnore
-            }
-
-            // Enable output buffering
-            // This is closed in the Engine->_stop() method
-            ob_start();
-        }
-
         // Route the request
         $failedMiddlewareCheck = false;
         while ($route = $router->route($request)) {
@@ -610,22 +502,18 @@ class Engine
                 $this->triggerEvent('flight.middleware.before', $route);
             }
 
-            $useV3OutputBuffering =
-                $this->response()->v2_output_buffering === false &&
-                $route->is_streamed === false;
+            $useV3OutputBuffering = !$route->is_streamed;
 
-            if ($useV3OutputBuffering === true) {
+            if ($useV3OutputBuffering) {
                 ob_start();
             }
 
             // Call route handler
             $routeStart = microtime(true);
-            $continue = $this->dispatcher->execute(
-                $route->callback,
-                $params
-            );
+            $continue = $this->dispatcher->execute($route->callback, $params);
             $this->triggerEvent('flight.route.executed', $route, microtime(true) - $routeStart);
-            if ($useV3OutputBuffering === true) {
+
+            if ($useV3OutputBuffering) {
                 $response->write(ob_get_clean());
             }
 
@@ -638,6 +526,7 @@ class Engine
                     $failedMiddlewareCheck = true;
                     break;
                 }
+
                 $this->triggerEvent('flight.middleware.after', $route);
             }
 
@@ -648,7 +537,6 @@ class Engine
             }
 
             $router->next();
-
             $dispatched = false;
         }
 
@@ -662,7 +550,7 @@ class Engine
         } elseif ($dispatched === false) {
             // Get the previous route and check if the method failed, but the URL was good.
             $lastRouteExecuted = $router->executedRoute;
-            if ($lastRouteExecuted !== null && $lastRouteExecuted->matchUrl($request->url) === true && $lastRouteExecuted->matchMethod($request->method) === false) {
+            if ($lastRouteExecuted !== null && $lastRouteExecuted->matchUrl($request->url) && !$lastRouteExecuted->matchMethod($request->method)) {
                 $this->methodNotFound($lastRouteExecuted);
             } else {
                 $this->notFound();
@@ -718,10 +606,6 @@ class Engine
         if ($response->sent() === false) {
             if ($code !== null) {
                 $response->status($code);
-            }
-
-            if ($response->v2_output_buffering === true && ob_get_length() > 0) {
-                $response->write(ob_get_clean());
             }
 
             $response->send();
@@ -948,9 +832,6 @@ class Engine
             ->status($code)
             ->header('Content-Type', 'application/json')
             ->write($json);
-        if ($this->response()->v2_output_buffering === true) {
-            $this->response()->send();
-        }
     }
 
     /**
@@ -973,10 +854,8 @@ class Engine
     ): void {
         $this->json($data, $code, $encode, $charset, $option);
         $jsonBody = $this->response()->getBody();
-        if ($this->response()->v2_output_buffering === false) {
-            $this->response()->clearBody();
-            $this->response()->send();
-        }
+        $this->response()->clearBody();
+        $this->response()->send();
         $this->halt($code, $jsonBody, empty(getenv('PHPUNIT_TEST')));
     }
 
@@ -1007,9 +886,6 @@ class Engine
             ->status($code)
             ->header('Content-Type', 'application/javascript; charset=' . $charset)
             ->write($callback . '(' . $json . ');');
-        if ($this->response()->v2_output_buffering === true) {
-            $this->response()->send();
-        }
     }
 
     /**

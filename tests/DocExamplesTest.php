@@ -16,7 +16,7 @@ class DocExamplesTest extends TestCase
     {
         $_SERVER = [];
         $_REQUEST = [];
-        Flight::init();
+        Flight::app();
         Flight::setEngine(new Engine());
     }
 
@@ -45,25 +45,6 @@ class DocExamplesTest extends TestCase
         $this->assertEquals('[]', Flight::response()->getBody());
     }
 
-    public function testMapNotFoundMethodV2OutputBuffering(): void
-    {
-        Flight::map('notFound', function () {
-            Flight::json([], 404);
-        });
-
-        Flight::request()->url = '/not-found';
-
-        Flight::route('/', function () {
-            echo 'hello world!';
-        });
-
-        Flight::set('flight.v2.output_buffering', true);
-        Flight::start();
-        ob_get_clean();
-        $this->assertEquals(404, Flight::response()->status());
-        $this->assertEquals('[]', Flight::response()->getBody());
-    }
-
     public function testMapErrorMethod(): void
     {
         Flight::map('error', function (Throwable $error) {
@@ -81,12 +62,9 @@ class DocExamplesTest extends TestCase
         Flight::request()->method = 'GET';
         Flight::request()->url = '/';
 
-        $router->get(
-            '/',
-            function () {
-                Flight::response()->write('from resp ');
-            }
-        );
+        $router->get('/', static function () {
+            Flight::response()->write('from resp ');
+        });
 
         Flight::start();
 

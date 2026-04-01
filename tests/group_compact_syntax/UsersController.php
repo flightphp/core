@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace tests\groupcompactsyntax;
+namespace tests\group_compact_syntax;
 
 final class UsersController
 {

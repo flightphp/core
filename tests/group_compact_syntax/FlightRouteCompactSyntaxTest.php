@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-namespace tests\groupcompactsyntax;
+namespace tests\group_compact_syntax;
 
 use Flight;
 use PHPUnit\Framework\TestCase;
-use tests\groupcompactsyntax\PostsController;
-use tests\groupcompactsyntax\TodosController;
-use tests\groupcompactsyntax\UsersController;
 
 final class FlightRouteCompactSyntaxTest extends TestCase
 {

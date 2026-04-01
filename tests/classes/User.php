@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace tests\classes;
 
-class User
+final class User
 {
     public string $name;
 
