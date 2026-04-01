@@ -122,9 +122,11 @@ class Loader
     }
 
     /** Resets the object to the initial state */
-    public function reset(): void
+    public function reset(): self
     {
         $this->classes = [];
         $this->instances = [];
+
+        return $this;
     }
 }
