@@ -414,16 +414,6 @@ class Engine
     }
 
     /**
-     * Adds a path for class autoloading.
-     *
-     * @param string $dir Directory path
-     */
-    public function path(string $dir): void
-    {
-        $this->loader->addDirectory($dir);
-    }
-
-    /**
      * Processes each routes middleware.
      *
      * @param Route $route The route to process the middleware for.
