@@ -18,9 +18,8 @@ use TypeError;
  * allows you to hook other functions to an event that can modify the
  * input parameters and/or the output.
  *
- * @license MIT, http://flightphp.com/license
+ * @license MIT, https://docs.flightphp.com/license/
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @phpstan-template EngineTemplate of object
  */
 class Dispatcher
 {
@@ -30,7 +29,6 @@ class Dispatcher
     /** Exception message if thrown by setting the container as a callable method. */
     protected ?Throwable $containerException = null;
 
-    /** @var ?Engine<EngineTemplate> $engine Engine instance. */
     protected ?Engine $engine = null;
 
     /** @var array<string, callable(): (void|mixed)> Mapped events. */

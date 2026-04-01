@@ -206,7 +206,7 @@ class Flight
         self::app()->clear($key);
     }
 
-    /** @param array<string, mixed> $data */
+    /** @param ?array<string, mixed> $data */
     public static function render(string $file, ?array $data = null, ?string $key = null): void
     {
         self::app()->render($file, $data, $key);
@@ -222,7 +222,7 @@ class Flight
         self::app()->onEvent($event, $callback);
     }
 
-    /** @param ...mixed $args */
+    /** @param mixed ...$args */
     public static function triggerEvent(string $event, ...$args): void
     {
         self::app()->triggerEvent($event, ...$args);
@@ -249,10 +249,9 @@ class Flight
         int $code = 200,
         bool $encode = true,
         string $charset = 'utf8',
-        int $encodeOption = 0,
-        int $encodeDepth = 512
+        int $encodeOption = 0
     ): void {
-        self::app()->json($data, $code, $encode, $charset, $encodeOption, $encodeDepth);
+        self::app()->json($data, $code, $encode, $charset, $encodeOption);
     }
 
     /** @param mixed $data */
@@ -261,10 +260,9 @@ class Flight
         int $code = 200,
         bool $encode = true,
         string $charset = 'utf8',
-        int $encodeOption = 0,
-        int $encodeDepth = 512
+        int $encodeOption = 0
     ): void {
-        self::app()->jsonHalt($data, $code, $encode, $charset, $encodeOption, $encodeDepth);
+        self::app()->jsonHalt($data, $code, $encode, $charset, $encodeOption);
     }
 
     /** @param mixed $data */
@@ -274,10 +272,9 @@ class Flight
         int $code = 200,
         bool $encode = true,
         string $charset = 'utf8',
-        int $encodeOption = 0,
-        int $encodeDepth = 512
+        int $encodeOption = 0
     ): void {
-        self::app()->jsonp($data, $param, $code, $encode, $charset, $encodeOption, $encodeDepth);
+        self::app()->jsonp($data, $param, $code, $encode, $charset, $encodeOption);
     }
 
     public static function error(Throwable $exception): void
