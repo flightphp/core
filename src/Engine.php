@@ -170,8 +170,7 @@ class Engine
     //////////////////
 
     /**
-     * Custom error handler. Converts errors into exceptions.
-     *
+     * Converts errors into exceptions
      * @param int $errno Level of the error raised.
      * @param string $errstr Error message.
      * @param string $errfile Filename that the error was raised in.
@@ -188,7 +187,7 @@ class Engine
         return false;
     }
 
-    /** Custom exception handler. Logs exceptions */
+    /** Logs exceptions */
     public function handleException(Throwable $ex): void
     {
         if ($this->get('flight.log_errors')) {
