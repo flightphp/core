@@ -12,7 +12,7 @@ class EventDispatcher
     /** @var array<string, array<int, callable(): mixed>> */
     protected array $listeners = [];
 
-    /** Singleton instance of the EventDispatcher. */
+    /** Singleton instance of the EventDispatcher */
     public static function getInstance(): self
     {
         if (!self::$instance) {

@@ -74,13 +74,6 @@ class Dispatcher
         );
     }
 
-    /**
-     * Sets the engine instance
-     *
-     * @param Engine<EngineTemplate> $engine Flight instance
-     *
-     * @return void
-     */
     public function setEngine(Engine $engine): void
     {
         $this->engine = $engine;
@@ -158,14 +151,7 @@ class Dispatcher
         return $output;
     }
 
-    /**
-     * Assigns a callback to an event.
-     *
-     * @param string $name Event name.
-     * @param callable(): (void|mixed) $callback Callback function.
-     *
-     * @return $this
-     */
+    /** Assigns a callback to an event */
     public function set(string $name, callable $callback): self
     {
         $this->events[$name] = $callback;
@@ -173,13 +159,7 @@ class Dispatcher
         return $this;
     }
 
-    /**
-     * Gets an assigned callback.
-     *
-     * @param string $name Event name.
-     *
-     * @return null|(callable(): (void|mixed)) $callback Callback function.
-     */
+    /** Gets an assigned callback */
     public function get(string $name): ?callable
     {
         return $this->events[$name] ?? null;
@@ -498,11 +478,7 @@ class Dispatcher
         }
     }
 
-    /**
-     * Resets the object to the initial state.
-     *
-     * @return $this
-     */
+    /** Resets the object to the initial state */
     public function reset(): self
     {
         $this->events = [];
