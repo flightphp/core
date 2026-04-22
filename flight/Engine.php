@@ -204,10 +204,12 @@ class Engine
         $this->set('flight.case_sensitive', false);
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
+        $this->set('flight.debug', false);
         $this->set('flight.views.path', './views');
         $this->set('flight.views.extension', '.php');
         $this->set('flight.content_length', true);
         $this->set('flight.v2.output_buffering', false);
+        $this->set('flight.allow_method_override', true);
 
         // Startup configuration
         $this->before('start', function () use ($self) {
@@ -225,6 +227,8 @@ class Engine
             // which causes a lot of problems. This will be removed
             // in v4
             $self->response()->v2_output_buffering = $this->get('flight.v2.output_buffering');
+            // Propagate method override setting to Request
+            $self->request()::$allowMethodOverride = (bool) $self->get('flight.allow_method_override');
         });
 
         $this->initialized = true;
@@ -678,16 +682,24 @@ class Engine
     public function _error(Throwable $e): void
     {
         $this->triggerEvent('flight.error', $e);
-        $msg = sprintf(
-            <<<'HTML'
-            <h1>500 Internal Server Error</h1>
-                <h3>%s (%s)</h3>
-                <pre>%s</pre>
-            HTML, // phpcs:ignore
-            $e->getMessage(),
-            $e->getCode(),
-            $e->getTraceAsString()
-        );
+
+        if ($this->get('flight.debug') === true) {
+            $msg = sprintf(
+                <<<'HTML'
+                <h1>500 Internal Server Error</h1>
+                    <h3>%s (%s)</h3>
+                    <pre>%s</pre>
+                HTML, // phpcs:ignore
+                htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'),
+                $e->getCode(),
+                htmlspecialchars($e->getTraceAsString(), ENT_QUOTES, 'UTF-8')
+            );
+        } else {
+            if ($this->get('flight.log_errors') === true) {
+                error_log($e->getMessage() . "\n" . $e->getTraceAsString());
+            }
+            $msg = '<h1>500 Internal Server Error</h1>';
+        }
 
         try {
             $this->response()
@@ -890,7 +902,7 @@ class Engine
         }
 
         // Append base url to redirect url
-        if ($base !== '/'   && strpos($url, '://') === false) {
+        if ($base !== '/' && strpos($url, '://') === false) {
             $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
@@ -1001,7 +1013,11 @@ class Engine
         int $option = 0
     ): void {
         $json = $encode ? Json::encode($data, $option) : $data;
-        $callback = $this->request()->query[$param];
+        $callback = (string) $this->request()->query[$param];
+
+        if ($callback !== '' && !preg_match('/^[A-Za-z_$][\w$.]{0,127}$/', $callback)) {
+            throw new Exception('Invalid JSONP callback name.');
+        }
 
         $this->response()
             ->status($code)

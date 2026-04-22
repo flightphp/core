@@ -50,6 +50,13 @@ class ControllerCommand extends AbstractBaseCommand
             return;
         }
 
+        $controller = basename($controller);
+
+        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', str_replace('Controller', '', $controller))) {
+            $io->error('Controller name must contain only letters, numbers, and underscores.', true);
+            return;
+        }
+
         if (!preg_match('/Controller$/', $controller)) {
             $controller .= 'Controller';
         }

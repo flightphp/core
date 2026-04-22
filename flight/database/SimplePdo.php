@@ -56,6 +56,17 @@ class SimplePdo extends PdoWrapper
     }
 
     /**
+     * Validates that an SQL identifier (table or column name) is safe for interpolation.
+     * Throws PDOException on invalid identifier to prevent SQL injection.
+     */
+    protected function requireSafeIdentifier(string $identifier): void
+    {
+        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $identifier)) {
+            throw new PDOException("Unsafe SQL identifier: '$identifier'");
+        }
+    }
+
+    /**
      * Pulls one row from the query
      *
      * Ex: $row = $db->fetchRow("SELECT * FROM table WHERE something = ?", [ $something ]);
@@ -319,6 +330,8 @@ class SimplePdo extends PdoWrapper
      */
     public function insert(string $table, array $data): string
     {
+        $this->requireSafeIdentifier($table);
+
         // Detect if this is a bulk insert (array of arrays)
         $isBulk = isset($data[0]) && is_array($data[0]);
 
@@ -332,6 +345,10 @@ class SimplePdo extends PdoWrapper
             $firstRow = $data[0];
             $columns = array_keys($firstRow);
             $columnCount = count($columns);
+
+            foreach ($columns as $col) {
+                $this->requireSafeIdentifier((string) $col);
+            }
 
             // Validate all rows have same columns
             foreach ($data as $index => $row) {
@@ -363,6 +380,11 @@ class SimplePdo extends PdoWrapper
         } else {
             // Single insert
             $columns = array_keys($data);
+
+            foreach ($columns as $col) {
+                $this->requireSafeIdentifier((string) $col);
+            }
+
             $placeholders = array_fill(0, count($data), '?');
 
             $sql = sprintf(
@@ -396,8 +418,11 @@ class SimplePdo extends PdoWrapper
      */
     public function update(string $table, array $data, string $where, array $whereParams = []): int
     {
+        $this->requireSafeIdentifier($table);
+
         $sets = [];
         foreach (array_keys($data) as $column) {
+            $this->requireSafeIdentifier((string) $column);
             $sets[] = "$column = ?";
         }
 
@@ -426,6 +451,7 @@ class SimplePdo extends PdoWrapper
      */
     public function delete(string $table, string $where, array $whereParams = []): int
     {
+        $this->requireSafeIdentifier($table);
         $sql = "DELETE FROM $table WHERE $where";
         $stmt = $this->runQuery($sql, $whereParams);
         return $stmt->rowCount();
