@@ -138,6 +138,12 @@ class Request
     public string $servername;
 
     /**
+     * Whether to allow HTTP method override via X-HTTP-Method-Override header or _method POST field.
+     * Controlled by the flight.allow_method_override engine setting.
+     */
+    public static bool $allowMethodOverride = true;
+
+    /**
      * Stream path for where to pull the request body from
      */
     private string $stream_path = 'php://input';
@@ -282,10 +288,12 @@ class Request
     {
         $method = self::getVar('REQUEST_METHOD', 'GET');
 
-        if (self::getVar('HTTP_X_HTTP_METHOD_OVERRIDE') !== '') {
-            $method = self::getVar('HTTP_X_HTTP_METHOD_OVERRIDE');
-        } elseif (isset($_REQUEST['_method']) === true) {
-            $method = $_REQUEST['_method'];
+        if (self::$allowMethodOverride === true) {
+            if (self::getVar('HTTP_X_HTTP_METHOD_OVERRIDE') !== '') {
+                $method = self::getVar('HTTP_X_HTTP_METHOD_OVERRIDE');
+            } elseif (isset($_REQUEST['_method']) === true) {
+                $method = $_REQUEST['_method'];
+            }
         }
 
         return strtoupper($method);
