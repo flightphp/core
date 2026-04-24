@@ -780,4 +780,21 @@ class RouterTest extends TestCase
         $this->request->method = 'GET';
         $this->check('OK');
     }
+    
+    public function testWildcardPassthroughRouteBeforeSpecificGetRoute(): void
+    {
+        $this->router->map('/@par/[^\/]+/*', function (string $par): bool {
+            echo "Passthrough (Par = $par)";
+            return true;
+        });
+
+        $this->router->map('GET /[^\/]+/target', function (): void {
+            echo ' Target';
+        });
+
+        $this->request->url = '/foobar/target/';
+        $this->request->method = 'GET';
+
+        $this->check('Passthrough (Par = foobar) Target');
+    }
 }
