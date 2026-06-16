@@ -899,6 +899,40 @@ class EngineTest extends TestCase
         $this->expectOutputString('before456before123OKafter123456after123');
     }
 
+    public function testMiddlewareMissingClassThrowsException(): void
+    {
+        $engine = new Engine();
+        $engine->route('/path1', function () {
+            echo 'OK';
+        })->addMiddleware('TotallyMissingMiddlewareClass');
+
+        $engine->request()->url = '/path1';
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "Middleware class 'TotallyMissingMiddlewareClass' not found. "
+                . "Is it being correctly autoloaded with Flight::path()?"
+        );
+        $engine->start();
+    }
+
+    public function testMiddlewareMissingClassInGroupThrowsException(): void
+    {
+        $engine = new Engine();
+        $engine->group('', function ($router) {
+            $router->get('/path1', function () {
+                echo 'OK';
+            });
+        }, ['TotallyMissingMiddlewareClass']);
+
+        $engine->request()->url = '/path1';
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            "Middleware class 'TotallyMissingMiddlewareClass' not found. "
+                . "Is it being correctly autoloaded with Flight::path()?"
+        );
+        $engine->start();
+    }
+
     public function testContainerBadClass()
     {
         $engine = new Engine();

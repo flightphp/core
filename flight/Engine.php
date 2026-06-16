@@ -456,7 +456,22 @@ class Engine
                 $middlewareObject = method_exists($middleware, $eventName) === true ? [$middleware, $eventName] : false;
 
                 // If the middleware is a string, we need to create the object and then call the event.
-            } elseif (is_string($middleware) === true && method_exists($middleware, $eventName) === true) {
+            } elseif (is_string($middleware) === true) {
+                if (class_exists($middleware) === false) {
+                    if (ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
+                        ob_end_clean();
+                    }
+
+                    throw new Exception(
+                        "Middleware class '$middleware' not found. "
+                            . "Is it being correctly autoloaded with Flight::path()?"
+                    );
+                }
+
+                if (method_exists($middleware, $eventName) === false) {
+                    continue;
+                }
+
                 $resolvedClass = null;
 
                 // if there's a container assigned, we should use it to create the object
@@ -464,14 +479,19 @@ class Engine
                     $resolvedClass = $this->dispatcher->resolveContainerClass($middleware, $params);
                     // otherwise just assume it's a plain jane class, so inject the engine
                     // just like in Dispatcher::invokeCallable()
-                } elseif (class_exists($middleware) === true) {
+                } else {
                     $resolvedClass = new $middleware($this);
                 }
 
-                // If something was resolved, create an array callable that will be passed in later.
-                if ($resolvedClass !== null) {
-                    $middlewareObject = [$resolvedClass, $eventName];
+                if ($resolvedClass === null) {
+                    if (ob_get_level() > (getenv('PHPUNIT_TEST') ? 1 : 0)) {
+                        ob_end_clean();
+                    }
+
+                    throw new Exception("Middleware class '$middleware' could not be resolved.");
                 }
+
+                $middlewareObject = [$resolvedClass, $eventName];
             }
 
             // If nothing was resolved, go to the next thing
