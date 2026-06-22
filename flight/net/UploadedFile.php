@@ -131,14 +131,15 @@ class UploadedFile
             throw new Exception($this->getUploadErrorMessage($this->error));
         }
 
-        if (is_writeable(dirname($targetPath)) === false) {
-            throw new Exception('Target directory is not writable');
-        }
-
         // Prevent path traversal attacks
         if (strpos($targetPath, '..') !== false) {
             throw new Exception('Invalid target path: contains directory traversal');
         }
+
+        if (is_writeable(dirname($targetPath)) === false) {
+            throw new Exception('Target directory is not writable');
+        }
+
         // Prevent absolute paths (basic check for Unix/Windows)
         if ($targetPath[0] === '/' || (strlen($targetPath) > 1 && $targetPath[1] === ':')) {
             throw new Exception('Invalid target path: absolute paths not allowed');
