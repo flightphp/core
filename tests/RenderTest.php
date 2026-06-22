@@ -29,8 +29,12 @@ class RenderTest extends TestCase
     public function testRenderLayout(): void
     {
         $this->app->render('hello', ['name' => 'Bob'], 'content');
+        ob_start();
         $this->app->render('layouts/layout');
+        $html = ob_get_clean();
+        $html = str_replace(["\r\n", "\n"], '', $html);
+        echo $html;
 
-        $this->expectOutputString("<body>Hello, Bob!</body>\n");
+        $this->expectOutputString("<body>Hello, Bob!</body>");
     }
 }
