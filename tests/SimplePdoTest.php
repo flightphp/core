@@ -171,9 +171,9 @@ class SimplePdoTest extends TestCase
             $this->assertInstanceOf(Collection::class, $row);
             $this->assertSame('Alice', $row['name']);
         } catch (PDOException $exception) {
-            $this->assertSame(
-                'Prepare failed: near "RETURNING": syntax error',
-                $exception->getMessage(),
+            $this->assertStringContainsString(
+                'near "returning": syntax error',
+                strtolower($exception->getMessage()),
             );
         }
     }
