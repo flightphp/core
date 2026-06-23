@@ -21,6 +21,11 @@ class LoaderTest extends TestCase
         $this->loader = new Loader();
     }
 
+    protected function tearDown(): void
+    {
+        Loader::setV2ClassLoading(true);
+    }
+
     // Autoload a class
     public function testAutoload(): void
     {
