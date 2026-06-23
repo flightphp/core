@@ -114,6 +114,10 @@ class UploadedFileTest extends TestCase
 
     public function testMoveToSymlinkNonPost(): void
     {
+        if (PHP_OS === 'WINNT') {
+            $this->markTestSkipped('Symbolic links require special privileges on Windows.');
+        }
+
         file_put_contents('real_file', 'test');
         if (file_exists('tmp_symlink')) {
             unlink('tmp_symlink');

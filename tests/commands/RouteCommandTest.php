@@ -123,8 +123,8 @@ PHP;
         output; // phpcs:ignore
 
         $this->assertStringContainsString(
-            str_replace(PHP_EOL, '', $expected),
-            str_replace(PHP_EOL, '', $this->removeColors(file_get_contents(static::$ou))),
+            str_replace(["\r\n", "\n"], '', $expected),
+            str_replace(["\r\n", "\n"], '', $this->removeColors(file_get_contents(static::$ou))),
         );
     }
 

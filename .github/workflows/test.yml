@@ -1,23 +1,27 @@
-name: Pull Request Check
+name: 🚀 Pull Request Check 🔍
 on: [pull_request]
 
 jobs:
     unit-test:
-        name: Unit testing
+        name: 🧪 Unit Testing - PHP ${{ matrix.php }} on ${{ matrix.os }}
         strategy:
             fail-fast: false
             matrix:
-                php: [7.4, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5]
-        runs-on: ubuntu-latest
+                php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+                os: [ubuntu-latest, windows-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - name: 📂 Checkout repository
+              uses: actions/checkout@v6
               with:
                   fetch-depth: 0
-            - uses: shivammathur/setup-php@v2
+            - name: 🐘 Setup PHP ${{ matrix.php }}
+              uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
-                  extensions: curl, mbstring
+                  extensions: mbstring, pdo_sqlite, fileinfo
                   tools: composer:v2
-            - run: composer install
-            - run: composer test
+            - name: 📦 Install dependencies and 🧪 Run tests
+              run: |
+                composer install --no-progress --no-ansi -n
+                composer test -- --colors=never --no-interaction

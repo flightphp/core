@@ -102,9 +102,13 @@ class ViewTest extends TestCase
         $this->view->set('name', 'Bob');
         $this->view->extension = '.html';
 
+        ob_start();
         $this->view->render('world');
+        $html = ob_get_clean();
+        $html = str_replace(["\r\n", "\n"], '', $html);
+        echo $html;
 
-        $this->expectOutputString("Hello world, Bob!\n");
+        $this->expectOutputString("Hello world, Bob!");
     }
 
     public function testGetTemplateAbsolutePath(): void
