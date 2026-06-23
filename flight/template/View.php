@@ -96,9 +96,7 @@ class View
         $template = $this->getTemplate($file);
 
         if (!$this->exists($file)) {
-            $normalized_path = $this::normalizePath($template);
-
-            throw new Exception("Template file not found: $normalized_path.");
+            throw new Exception("Template file not found: $template.");
         }
 
         extract($this->vars);
@@ -156,7 +154,7 @@ class View
             return $file;
         }
 
-        return $this->path . DIRECTORY_SEPARATOR . $file;
+        return $this::normalizePath("$this->path/$file");
     }
 
     /**
