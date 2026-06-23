@@ -16,37 +16,28 @@ use Exception;
  */
 class View
 {
-    /** Location of view templates. */
+    /** Location of view templates */
     public string $path;
 
-    /** File extension. */
+    /** File extension */
     public string $extension = '.php';
 
     public bool $preserveVars = true;
 
-    /**
-     * View variables.
-     *
-     * @var array<string, mixed> $vars
-     */
+    /** @var array<string, mixed> View variables */
     protected array $vars = [];
 
     /** Template file. */
     private string $template;
 
-    /**
-     * Constructor.
-     *
-     * @param string $path Path to templates directory
-     */
+    /** @param string $path Path to templates directory */
     public function __construct(string $path = '.')
     {
         $this->path = $path;
     }
 
     /**
-     * Gets a template variable.
-     *
+     * Gets a template variable
      * @return mixed Variable value or `null` if doesn't exists
      */
     public function get(string $key)
@@ -76,8 +67,7 @@ class View
     }
 
     /**
-     * Checks if a template variable is set.
-     *
+     * Checks if a template variable is set
      * @return bool If key exists
      */
     public function has(string $key): bool
@@ -86,8 +76,7 @@ class View
     }
 
     /**
-     * Unsets a template variable. If no key is passed in, clear all variables.
-     *
+     * Unsets a template variable. If no key is passed in, clear all variables
      * @return $this
      */
     public function clear(?string $key = null): self
@@ -102,11 +91,9 @@ class View
     }
 
     /**
-     * Renders a template.
-     *
+     * Renders a template
      * @param string $file Template file
      * @param ?array<string, mixed> $templateData Template data
-     *
      * @throws Exception If template not found
      */
     public function render(string $file, ?array $templateData = null): void
@@ -132,11 +119,9 @@ class View
     }
 
     /**
-     * Gets the output of a template.
-     *
+     * Gets the output of a template
      * @param string $file Template file
      * @param ?array<string, mixed> $data Template data
-     *
      * @return string Output of template
      */
     public function fetch(string $file, ?array $data = null): string
@@ -149,10 +134,8 @@ class View
     }
 
     /**
-     * Checks if a template file exists.
-     *
+     * Checks if a template file exists
      * @param string $file Template file
-     *
      * @return bool Template file exists
      */
     public function exists(string $file): bool
@@ -161,10 +144,8 @@ class View
     }
 
     /**
-     * Gets the full path to a template file.
-     *
+     * Gets the full path to a template file
      * @param string $file Template file
-     *
      * @return string Template file location
      */
     public function getTemplate(string $file): string
@@ -185,10 +166,8 @@ class View
     }
 
     /**
-     * Displays escaped output.
-     *
+     * Displays escaped output
      * @param string $str String to escape
-     *
      * @return string Escaped string
      */
     public function e(string $str): string
