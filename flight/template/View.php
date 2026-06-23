@@ -27,9 +27,6 @@ class View
     /** @var array<string, mixed> View variables */
     protected array $vars = [];
 
-    /** Template file. */
-    private string $template;
-
     /** @param string $path Path to templates directory */
     public function __construct(string $path = '.')
     {
@@ -96,24 +93,25 @@ class View
      */
     public function render(string $file, ?array $templateData = null): void
     {
-        $this->template = $this->getTemplate($file);
+        $template = $this->getTemplate($file);
 
-        if (!\file_exists($this->template)) {
-            $normalized_path = self::normalizePath($this->template);
+        if (!$this->exists($file)) {
+            $normalized_path = $this::normalizePath($template);
+
             throw new Exception("Template file not found: $normalized_path.");
         }
 
-        \extract($this->vars);
+        extract($this->vars);
 
-        if (\is_array($templateData) === true) {
-            \extract($templateData);
+        if (is_array($templateData)) {
+            extract($templateData);
 
-            if ($this->preserveVars === true) {
-                $this->vars = \array_merge($this->vars, $templateData);
+            if ($this->preserveVars) {
+                $this->vars += $templateData;
             }
         }
 
-        include $this->template;
+        include $template;
     }
 
     /**
