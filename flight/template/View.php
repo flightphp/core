@@ -50,10 +50,9 @@ class View
      *
      * @param string|iterable<string, mixed> $key
      * @param mixed $value Value
-     *
-     * @return self
+     * @return $this
      */
-    public function set($key, $value = null): self
+    public function set($key, $value = null)
     {
         if (\is_iterable($key)) {
             foreach ($key as $k => $v) {
@@ -79,7 +78,7 @@ class View
      * Unsets a template variable. If no key is passed in, clear all variables
      * @return $this
      */
-    public function clear(?string $key = null): self
+    public function clear(?string $key = null)
     {
         if ($key === null) {
             $this->vars = [];
