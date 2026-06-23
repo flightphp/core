@@ -146,15 +146,13 @@ class View
      */
     public function getTemplate(string $file): string
     {
-        $ext = $this->extension;
-
-        if (!empty($ext) && (\substr($file, -1 * \strlen($ext)) != $ext)) {
-            $file .= $ext;
+        if (!empty($this->extension) && (substr($file, -1 * strlen($this->extension)) !== $this->extension)) {
+            $file .= $this->extension;
         }
 
-        $is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
+        $is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-        if ((\substr($file, 0, 1) === '/') || ($is_windows && \substr($file, 1, 1) === ':')) {
+        if ((substr($file, 0, 1) === '/') || ($is_windows && substr($file, 1, 1) === ':')) {
             return $file;
         }
 
