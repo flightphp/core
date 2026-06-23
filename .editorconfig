@@ -11,5 +11,5 @@ insert_final_newline = true
 [*.md]
 indent_size = 2
 
-[tests/views/*.php]
+[tests/views/*]
 insert_final_newline = false
