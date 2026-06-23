@@ -46,15 +46,14 @@ class View
     }
 
     /**
-     * Sets a template variable.
-     *
-     * @param string|iterable<string, mixed> $key
+     * Sets a template variable
+     * @param string|array<string, mixed> $key
      * @param mixed $value Value
      * @return $this
      */
     public function set($key, $value = null)
     {
-        if (\is_iterable($key)) {
+        if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->vars[$k] = $v;
             }
