@@ -8,4 +8,3 @@ parameters:
     level: 6
     paths:
         - flight
-    treatPhpDocTypesAsCertain: false
