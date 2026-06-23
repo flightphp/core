@@ -16,7 +16,7 @@ This is the main FlightPHP core library for building fast, simple, and extensibl
 - Run tests: `composer test` (uses phpunit/phpunit and spatie/phpunit-watcher)
 - Run test server: `composer test-server` or `composer test-server-v2`
 - Lint code: `composer lint` (uses phpstan/phpstan, level 6)
-- Beautify code: `composer beautify` (uses squizlabs/php_codesniffer, PSR1)
+- Format code: `composer format` (uses squizlabs/php_codesniffer, PSR1)
 - Check code style: `composer phpcs`
 - Test coverage: `composer test-coverage`
 
