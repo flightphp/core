@@ -145,7 +145,11 @@ class LoaderTest extends TestCase
         $loader::addDirectory([__DIR__ . '/classes']);
 
         $dirsProperty = (new ReflectionClass(Loader::class))->getProperty('dirs');
-        $dirsProperty->setAccessible(true);
+
+        if (PHP_VERSION_ID < 80100) {
+            $dirsProperty->setAccessible(true);
+        }
+
         $dirs = $dirsProperty->getValue($loader);
 
         self::assertEquals([__DIR__ . DIRECTORY_SEPARATOR . 'classes'], $dirs);
@@ -156,7 +160,10 @@ class LoaderTest extends TestCase
         $loader = new Loader();
 
         $v2ClassLoadingProperty = (new ReflectionClass(Loader::class))->getProperty('v2ClassLoading');
-        $v2ClassLoadingProperty->setAccessible(true);
+
+        if (PHP_VERSION_ID < 80100) {
+            $v2ClassLoadingProperty->setAccessible(true);
+        }
 
         $this->assertTrue($v2ClassLoadingProperty->getValue($loader));
         $loader::setV2ClassLoading(false);
