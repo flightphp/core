@@ -17,7 +17,6 @@ class ViewTest extends TestCase
         $this->view = new View(__DIR__ . '/views');
     }
 
-    // Set template variables
     public function testVariables(): void
     {
         $this->view->set('test', 123);
@@ -48,14 +47,12 @@ class ViewTest extends TestCase
         $this->assertNull($this->view->get('foo'));
     }
 
-    // Check if template files exist
     public function testTemplateExists(): void
     {
         $this->assertTrue($this->view->exists('hello.php'));
         $this->assertTrue(!$this->view->exists('unknown.php'));
     }
 
-    // Render a template
     public function testRender(): void
     {
         $this->view->render('hello', ['name' => 'Bob']);
@@ -77,7 +74,6 @@ class ViewTest extends TestCase
         $this->view->render('badfile');
     }
 
-    // Fetch template output
     public function testFetch(): void
     {
         $output = $this->view->fetch('hello', ['name' => 'Bob']);
@@ -85,7 +81,6 @@ class ViewTest extends TestCase
         $this->assertEquals('Hello, Bob!', $output);
     }
 
-    // Default extension
     public function testTemplateWithExtension(): void
     {
         $this->view->set('name', 'Bob');
@@ -95,7 +90,6 @@ class ViewTest extends TestCase
         $this->expectOutputString('Hello, Bob!');
     }
 
-    // Custom extension
     public function testTemplateWithCustomExtension(): void
     {
         $this->view->set('name', 'Bob');
