@@ -29,7 +29,7 @@ Flight::route('/', function () {
 });
 
 Flight::route('/querytestpath', function () {
-    echo '<span id="infotext">Route text:</span> This ir query route<br>';
+    echo '<span id="infotext">Route text:</span> This is query route<br>';
     echo 'I got such query parameters:<pre>';
     print_r(Flight::request()->query);
     echo '</pre>';
