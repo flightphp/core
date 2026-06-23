@@ -45,8 +45,8 @@
         }
     },
     "require-dev": {
-        "ext-mbstring": "*",
         "ext-fileinfo": "*",
+        "ext-mbstring": "*",
         "ext-pdo_sqlite": "*",
         "flightphp/container": "^1.3",
         "flightphp/runway": "^1.2",
