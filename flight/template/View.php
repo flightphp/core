@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace flight\template;
 
+use Exception;
+
 /**
  * The View class represents output to be displayed. It provides
  * methods for managing view data and inserts the data into
@@ -105,7 +107,7 @@ class View
      * @param string $file Template file
      * @param ?array<string, mixed> $templateData Template data
      *
-     * @throws \Exception If template not found
+     * @throws Exception If template not found
      */
     public function render(string $file, ?array $templateData = null): void
     {
@@ -113,7 +115,7 @@ class View
 
         if (!\file_exists($this->template)) {
             $normalized_path = self::normalizePath($this->template);
-            throw new \Exception("Template file not found: {$normalized_path}.");
+            throw new Exception("Template file not found: $normalized_path.");
         }
 
         \extract($this->vars);
