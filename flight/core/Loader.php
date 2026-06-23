@@ -218,8 +218,10 @@ class Loader
             foreach ($dir as $value) {
                 self::addDirectory($value);
             }
-        } elseif (\is_string($dir)) {
-            if (!\in_array($dir, self::$dirs, true)) {
+        } elseif (is_string($dir)) {
+            $dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $dir);
+
+            if (!in_array($dir, self::$dirs, true)) {
                 self::$dirs[] = $dir;
             }
         }
