@@ -1,1 +1,1 @@
-Hello, <?php echo $name; ?>!
+Hello, <?= $name ?>!
