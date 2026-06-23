@@ -21,55 +21,52 @@ class ViewTest extends TestCase
     {
         $this->view->set('test', 123);
 
-        $this->assertEquals(123, $this->view->get('test'));
-
-        $this->assertTrue($this->view->has('test'));
-        $this->assertTrue(!$this->view->has('unknown'));
+        self::assertSame(123, $this->view->get('test'));
+        self::assertTrue($this->view->has('test'));
+        self::assertFalse($this->view->has('unknown'));
 
         $this->view->clear('test');
 
-        $this->assertNull($this->view->get('test'));
+        self::assertNull($this->view->get('test'));
     }
 
     public function testMultipleVariables(): void
     {
-        $this->view->set([
-            'test' => 123,
-            'foo' => 'bar'
-        ]);
+        $this->view->set(['test' => 123, 'foo' => 'bar']);
 
-        $this->assertEquals(123, $this->view->get('test'));
-        $this->assertEquals('bar', $this->view->get('foo'));
+        self::assertSame(123, $this->view->get('test'));
+        self::assertSame('bar', $this->view->get('foo'));
 
         $this->view->clear();
 
-        $this->assertNull($this->view->get('test'));
-        $this->assertNull($this->view->get('foo'));
+        self::assertNull($this->view->get('test'));
+        self::assertNull($this->view->get('foo'));
     }
 
     public function testTemplateExists(): void
     {
-        $this->assertTrue($this->view->exists('hello.php'));
-        $this->assertTrue(!$this->view->exists('unknown.php'));
+        self::assertTrue($this->view->exists('hello.php'));
+        self::assertFalse($this->view->exists('unknown.php'));
     }
 
     public function testRender(): void
     {
         $this->view->render('hello', ['name' => 'Bob']);
 
-        $this->expectOutputString('Hello, Bob!');
+        self::expectOutputString('Hello, Bob!');
     }
 
     public function testRenderBadFilePath(): void
     {
-        $this->expectException(Exception::class);
         $exception_message = sprintf(
             'Template file not found: %s%sviews%sbadfile.php',
             __DIR__,
             DIRECTORY_SEPARATOR,
-            DIRECTORY_SEPARATOR
+            DIRECTORY_SEPARATOR,
         );
-        $this->expectExceptionMessage($exception_message);
+
+        self::expectException(Exception::class);
+        self::expectExceptionMessage($exception_message);
 
         $this->view->render('badfile');
     }
@@ -78,30 +75,22 @@ class ViewTest extends TestCase
     {
         $output = $this->view->fetch('hello', ['name' => 'Bob']);
 
-        $this->assertEquals('Hello, Bob!', $output);
+        self::assertSame('Hello, Bob!', $output);
     }
 
     public function testTemplateWithExtension(): void
     {
-        $this->view->set('name', 'Bob');
+        $this->view->render('hello.php', ['name' => 'Bob']);
 
-        $this->view->render('hello.php');
-
-        $this->expectOutputString('Hello, Bob!');
+        self::expectOutputString('Hello, Bob!');
     }
 
     public function testTemplateWithCustomExtension(): void
     {
-        $this->view->set('name', 'Bob');
+        self::expectOutputString('Hello world, Bob!');
+
         $this->view->extension = '.html';
-
-        ob_start();
-        $this->view->render('world');
-        $html = ob_get_clean();
-        $html = str_replace(["\r\n", "\n"], '', $html);
-        echo $html;
-
-        $this->expectOutputString("Hello world, Bob!");
+        $this->view->render('world', ['name' => 'Bob']);
     }
 
     public function testGetTemplateAbsolutePath(): void
@@ -109,48 +98,64 @@ class ViewTest extends TestCase
         $tmpfile = tmpfile();
         $this->view->extension = '';
         $file_path = stream_get_meta_data($tmpfile)['uri'];
-        $this->assertEquals($file_path, $this->view->getTemplate($file_path));
+
+        self::assertSame($file_path, $this->view->getTemplate($file_path));
     }
 
     public function testE(): void
     {
-        $this->expectOutputString('&lt;script&gt;');
+        $expectedString = '&lt;script&gt;';
+
+        self::expectOutputString($expectedString);
+
         $result = $this->view->e('<script>');
-        $this->assertEquals('&lt;script&gt;', $result);
+
+        self::assertSame($expectedString, $result);
     }
 
     public function testeNoNeedToEscape(): void
     {
-        $this->expectOutputString('script');
-        $result = $this->view->e('script');
-        $this->assertEquals('script', $result);
+        $expectedString = 'script';
+
+        self::expectOutputString($expectedString);
+
+        $result = $this->view->e($expectedString);
+
+        self::assertSame($expectedString, $result);
     }
 
     public function testNormalizePath(): void
     {
         $viewMock = new class extends View
         {
-            public static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
-            {
+            public static function normalizePath(
+                string $path,
+                string $separator = DIRECTORY_SEPARATOR
+            ): string {
                 return parent::normalizePath($path, $separator);
             }
         };
 
-        $this->assertSame(
+        self::assertSame(
             'C:/xampp/htdocs/libs/Flight/core/index.php',
             $viewMock::normalizePath('C:\xampp\htdocs\libs\Flight/core/index.php', '/')
         );
-        $this->assertSame(
+
+        self::assertSame(
             'C:\xampp\htdocs\libs\Flight\core\index.php',
             $viewMock::normalizePath('C:/xampp/htdocs/libs/Flight\core\index.php', '\\')
         );
-        $this->assertSame(
+
+        self::assertSame(
             'C:°xampp°htdocs°libs°Flight°core°index.php',
             $viewMock::normalizePath('C:/xampp/htdocs/libs/Flight\core\index.php', '°')
         );
     }
 
-    /** @dataProvider renderDataProvider */
+    /**
+     * @dataProvider renderDataProvider
+     * @param array{string, array<string, mixed>} $renderParams
+     */
     public function testDoesNotPreserveVarsWhenFlagIsDisabled(
         string $output,
         array $renderParams,
@@ -158,11 +163,11 @@ class ViewTest extends TestCase
     ): void {
         $this->view->preserveVars = false;
 
-        $this->expectOutputString($output);
+        self::expectOutputString($output);
         $this->view->render(...$renderParams);
 
-        set_error_handler(function (int $code, string $message) use ($regexp): void {
-            $this->assertMatchesRegularExpression($regexp, $message);
+        set_error_handler(static function (int $code, string $message) use ($regexp): void {
+            self::assertMatchesRegularExpression($regexp, $message);
         });
 
         $this->view->render($renderParams[0]);
@@ -172,17 +177,14 @@ class ViewTest extends TestCase
 
     public function testKeepThePreviousStateOfOneViewComponentByDefault(): void
     {
-        $html = <<<'html'
+        $html = self::removeLineEndings(<<<'html'
         <div>Hi</div>
         <div>Hi</div>
         <input type="number" />
         <input type="number" />
-        html; // phpcs:ignore
+        html);
 
-        // if windows replace \n with \r\n
-        $html = str_replace(["\n", "\r"], '', $html);
-
-        $this->expectOutputString($html);
+        self::expectOutputString($html);
 
         $this->view->render('myComponent', ['prop' => 'Hi']);
         $this->view->render('myComponent');
@@ -193,17 +195,14 @@ class ViewTest extends TestCase
     public function testKeepThePreviousStateOfDataSettedBySetMethod(): void
     {
         $this->view->preserveVars = false;
-
         $this->view->set('prop', 'bar');
 
-        $html = <<<'html'
+        $html = self::removeLineEndings(<<<'html'
         <div>qux</div>
         <div>bar</div>
-        html; // phpcs:ignore
+        html);
 
-        $html = str_replace(["\n", "\r"], '', $html);
-
-        $this->expectOutputString($html);
+        self::expectOutputString($html);
 
         $this->view->render('myComponent', ['prop' => 'qux']);
         $this->view->render('myComponent');
@@ -211,18 +210,15 @@ class ViewTest extends TestCase
 
     public static function renderDataProvider(): array
     {
-        $html1 = <<<'html'
+        $html1 = self::removeLineEndings(<<<'html'
         <div>Hi</div>
         <div></div>
-        html; // phpcs:ignore
+        html);
 
-        $html2 = <<<'html'
+        $html2 = self::removeLineEndings(<<<'html'
         <input type="number" />
         <input type="text" />
-        html; // phpcs:ignore
-
-        $html1 = str_replace(["\n", "\r"], '', $html1);
-        $html2 = str_replace(["\n", "\r"], '', $html2);
+        html);
 
         return [
             [
@@ -236,5 +232,10 @@ class ViewTest extends TestCase
                 '/^.*$/'
             ],
         ];
+    }
+
+    private static function removeLineEndings(string $subject): string
+    {
+        return str_replace(["\r", "\n"], '', $subject);
     }
 }
