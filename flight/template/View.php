@@ -9,8 +9,8 @@ namespace flight\template;
  * methods for managing view data and inserts the data into
  * view templates upon rendering.
  *
- * @license MIT, http://flightphp.com/license
- * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @license MIT, https://docs.flightphp.com/license
+ * @copyright 2011 [Mike Cao](https://mikecao.com)
  */
 class View
 {
