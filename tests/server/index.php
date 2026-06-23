@@ -7,10 +7,12 @@ use flight\core\Loader;
 use flight\database\PdoWrapper;
 use tests\classes\Container;
 use tests\classes\ContainerDefault;
-use Tests\Server\AuthCheck;
-use Tests\Server\LayoutMiddleware;
-use Tests\Server\OverwriteBodyMiddleware;
-use Tests\Server\Pascal_Snake_Case;
+use tests\server\AuthCheck;
+use tests\server\LayoutMiddleware;
+use tests\server\OverwriteBodyMiddleware;
+use tests\server\Pascal_Snake_Case;
+
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 /*
  * This is the test file where we can open up a quick test server and make
@@ -18,8 +20,6 @@ use Tests\Server\Pascal_Snake_Case;
  *
  * @author Kristaps Muižnieks https://github.com/krmu
  */
-
-require_once __DIR__ . '/../phpunit_autoload.php';
 
 Flight::set('flight.content_length', false);
 Flight::set('flight.views.path', './');

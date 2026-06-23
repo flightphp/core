@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace flight\tests;
+namespace tests;
 
 use Flight;
 use PHPUnit\Framework\TestCase;
