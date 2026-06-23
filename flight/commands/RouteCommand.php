@@ -99,7 +99,7 @@ class RouteCommand extends AbstractBaseCommand
                 $arrayOfRoutes[] = [
                     'Pattern' => $route->pattern,
                     'Methods' => implode(', ', $route->methods),
-                    'Alias' => $route->alias ?? '',
+                    'Alias' => $route->alias,
                     'Streamed' => $route->is_streamed ? 'Yes' : 'No',
                     'Middleware' => !empty($middlewares) ? implode(",", $middlewares) : '-'
                 ];
