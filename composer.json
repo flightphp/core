@@ -30,9 +30,6 @@
         "classmap": [
             "flight/Flight.php"
         ],
-        "files": [
-            "flight/autoload.php"
-        ],
         "psr-4": {
             "flight\\": "flight"
         }

@@ -14,9 +14,6 @@
         <include>
             <directory suffix=".php">flight/</directory>
         </include>
-		<exclude>
-			<file>flight/autoload.php</file>
-		</exclude>
     </coverage>
     <testsuites>
         <testsuite name="default">
