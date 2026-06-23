@@ -122,11 +122,11 @@ class View
      */
     public function fetch(string $file, ?array $data = null): string
     {
-        \ob_start();
+        ob_start();
 
         $this->render($file, $data);
 
-        return \ob_get_clean();
+        return ob_get_clean();
     }
 
     /**
@@ -136,7 +136,7 @@ class View
      */
     public function exists(string $file): bool
     {
-        return \file_exists($this->getTemplate($file));
+        return file_exists($this->getTemplate($file));
     }
 
     /**
@@ -166,13 +166,16 @@ class View
      */
     public function e(string $str): string
     {
-        $value = \htmlentities($str);
+        $value = htmlentities($str);
         echo $value;
+
         return $value;
     }
 
-    protected static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
-    {
-        return \str_replace(['\\', '/'], $separator, $path);
+    protected static function normalizePath(
+        string $path,
+        string $separator = DIRECTORY_SEPARATOR
+    ): string {
+        return str_replace(['\\', '/'], $separator, $path);
     }
 }
