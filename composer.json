@@ -32,7 +32,10 @@
         ],
         "files": [
             "flight/autoload.php"
-        ]
+        ],
+        "psr-4": {
+            "flight\\": "flight"
+        }
     },
     "autoload-dev": {
         "psr-4": {
