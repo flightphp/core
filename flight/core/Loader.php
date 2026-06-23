@@ -215,7 +215,7 @@ class Loader
      */
     public static function addDirectory($dir): void
     {
-        if (\is_array($dir) || \is_object($dir)) {
+        if (is_iterable($dir)) {
             foreach ($dir as $value) {
                 self::addDirectory($value);
             }
