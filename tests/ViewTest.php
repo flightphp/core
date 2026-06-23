@@ -14,8 +14,7 @@ class ViewTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->view = new View();
-        $this->view->path = __DIR__ . '/views';
+        $this->view = new View(__DIR__ . '/views');
     }
 
     // Set template variables
