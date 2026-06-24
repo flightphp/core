@@ -157,11 +157,28 @@ class View
                 $view = ob_get_clean();
         }
 
-        preg_match('/<f-(?<component>[a-z-]+)\s*\/>/', $view, $matches);
+        preg_match(
+            '/<f-(?<component>[a-z-]+)\s*(?<props>[a-z]+="[a-z-A-Z]+")*\s*\/>/',
+            $view,
+            $matches,
+        );
 
         if ($matches) {
             $tag = $matches[0];
-            $component = $this->fetch("components/{$matches['component']}");
+            $component = $matches['component'];
+            $props = $matches['props'] ?? '';
+
+            preg_match(
+                '/^(?<name>[a-z]+)="(?<value>[a-zA-Z]+)"$/',
+                $props,
+                $matches,
+            );
+
+            $props = $matches
+                ? [$matches['name'] => $matches['value']]
+                : [];
+
+            $component = $this->fetch("components/$component", $props);
             $view = str_replace($tag, $component, $view);
         }
 

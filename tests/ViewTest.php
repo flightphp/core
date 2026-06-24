@@ -320,6 +320,16 @@ class ViewTest extends TestCase
                 another-class-component extended by my-class-component-that-extends-another-class-component
                 html,
             ],
+            [
+                'page-with-component-with-one-prop',
+                <<<'html'
+                <html>
+                    <body>
+                        <h1>Hello, James</h1>
+                    </body>
+                </html>
+                html,
+            ],
         ];
     }
 
