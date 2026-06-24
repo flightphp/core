@@ -1,5 +1,5 @@
 <html>
     <body>
-        <f-greeting name="James" />
+        <f-greeting name="<?= $name ?>" />
     </body>
 </html>

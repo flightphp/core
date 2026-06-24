@@ -235,11 +235,14 @@ class ViewTest extends TestCase
     }
 
     /** @dataProvider pagesDataProvider */
-    public function testItRendersComponent(string $page, string $expected): void
-    {
+    public function testItRendersComponent(
+        string $page,
+        string $expected,
+        array $props = []
+    ): void {
         $view = new View(__DIR__ . '/views');
         $view->preserveVars = false;
-        $actual = $view->fetch("pages/$page");
+        $actual = $view->fetch("pages/$page", $props);
 
         self::assertSame(
             self::removeIndentation(self::removeLineEndings($expected)),
@@ -329,7 +332,20 @@ class ViewTest extends TestCase
                     </body>
                 </html>
                 html,
+                ['name' => 'James'],
             ],
+            [
+                'page-with-component-with-one-prop',
+                <<<'html'
+                <html>
+                    <body>
+                        <h1>Hello, Victoria</h1>
+                    </body>
+                </html>
+                html,
+                ['name' => 'Victoria'],
+            ],
+
         ];
     }
 
