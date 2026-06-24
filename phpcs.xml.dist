@@ -2,26 +2,10 @@
 <ruleset
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
-    <!-- <arg name="report" value="source" /> -->
-    <!-- <arg name="report" value="summary" /> -->
-    <!-- <arg name="report" value="diff" /> -->
-    <arg name="report" value="full" />
-    <arg name="report-width" value="80" />
     <arg name="colors" />
-    <arg name="encoding" value="utf-8" />
-    <arg name="tab-width" value="4" />
-
-    <rule ref="PSR1">
-    </rule>
-
-    <rule ref="PSR2">
-    </rule>
-
-    <rule ref="PSR12">
-        <exclude name="PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword"/>
-    </rule>
-
-    <file>index.php</file>
     <file>flight</file>
     <file>tests</file>
+    <rule ref="PSR1" />
+    <rule ref="PSR2" />
+    <rule ref="PSR12" />
 </ruleset>
