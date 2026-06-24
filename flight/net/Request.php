@@ -348,10 +348,8 @@ class Request
      *
      * @param string $header  Header name. Can be caps, lowercase, or mixed.
      * @param string $default Default value if the header does not exist
-     *
-     * @return string
      */
-    public static function getHeader(string $header, $default = ''): string
+    public static function getHeader(string $header, string $default = ''): string
     {
         $header = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
         return self::getVar($header, $default);
@@ -380,10 +378,8 @@ class Request
      *
      * @param string $header  Header name. Can be caps, lowercase, or mixed.
      * @param string $default Default value if the header does not exist
-     *
-     * @return string
      */
-    public static function header(string $header, $default = ''): string
+    public static function header(string $header, string $default = ''): string
     {
         return self::getHeader($header, $default);
     }

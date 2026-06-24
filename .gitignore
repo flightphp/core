@@ -13,3 +13,6 @@ composer.phar
 phpcs.xml
 phpstan.neon
 phpunit.xml
+.runway-config.json
+.runway-creds.json
+.phpunit-watcher.yml
