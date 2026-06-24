@@ -13,3 +13,4 @@ phpunit.xml
 .runway-config.json
 .runway-creds.json
 .DS_Store
+.phpunit-watcher.yml

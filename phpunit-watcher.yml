@@ -1,13 +1,13 @@
 hideManual: true
+notifications:
+  failingTests: false
+  passingTests: false
+phpunit:
+  arguments: '--stop-on-failure'
+  binaryPath: ./vendor/bin/phpunit
+  timeout: 180
 watch:
   directories:
     - tests
     - flight
   fileMask: '*.php'
-notifications:
-  passingTests: false
-  failingTests: false
-phpunit:
-  binaryPath: ./vendor/bin/phpunit
-  arguments: '--stop-on-failure'
-  timeout: 180
