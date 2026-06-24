@@ -93,23 +93,7 @@ class View
      */
     public function render(string $file, ?array $templateData = null): void
     {
-        $template = $this->getTemplate($file);
-
-        if (!$this->exists($file)) {
-            throw new Exception("Template file not found: $template.");
-        }
-
-        extract($this->vars);
-
-        if (is_array($templateData)) {
-            extract($templateData);
-
-            if ($this->preserveVars) {
-                $this->vars += $templateData;
-            }
-        }
-
-        include $template;
+        echo $this->fetch($file, $templateData);
     }
 
     /**
@@ -120,11 +104,34 @@ class View
      */
     public function fetch(string $file, ?array $data = null): string
     {
+        $template = $this->getTemplate($file);
+
+        if (!$this->exists($file)) {
+            throw new Exception("Template file not found: $template.");
+        }
+
+        extract($this->vars);
+
+        if (is_array($data)) {
+            extract($data);
+
+            if ($this->preserveVars) {
+                $this->vars += $data;
+            }
+        }
+
         ob_start();
+        include $template;
+        $view = ob_get_clean();
+        preg_match('/<f-(?<component>[a-z-]+)\s*\/>/', $view, $matches);
 
-        $this->render($file, $data);
+        if ($matches) {
+            $tag = $matches[0];
+            $component = $this->fetch("components/{$matches['component']}");
+            $view = str_replace($tag, $component, $view);
+        }
 
-        return ob_get_clean();
+        return $view;
     }
 
     /**

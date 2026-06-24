@@ -234,6 +234,32 @@ class ViewTest extends TestCase
         ];
     }
 
+    /** @dataProvider pagesDataProvider */
+    public function testItRendersComponent(string $page, string $expected): void
+    {
+        $view = new View(__DIR__ . '/views');
+        $view->preserveVars = false;
+        $actual = $view->fetch($page);
+
+        self::assertSame(self::removeLineEndings($expected), self::removeLineEndings($actual));
+    }
+
+    public static function pagesDataProvider(): array
+    {
+        return [
+            ['pages/page-with-component-with-old-syntax', <<<'html'
+            <body>
+                value
+            </body>
+            html],
+            ['pages/page-with-component-with-new-syntax', <<<'html'
+            <body>
+                value
+            </body>
+            html],
+        ];
+    }
+
     private static function removeLineEndings(string $subject): string
     {
         return str_replace(["\r", "\n"], '', $subject);
