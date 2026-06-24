@@ -345,7 +345,17 @@ class ViewTest extends TestCase
                 html,
                 ['name' => 'Victoria'],
             ],
-
+            [
+                'page-with-component-with-two-props',
+                <<<'html'
+                <html>
+                    <body>
+                        <h1>Hello, Astronaut Victoria</h1>
+                    </body>
+                </html>
+                html,
+                ['name' => 'Victoria', 'occupation' => 'Astronaut'],
+            ],
         ];
     }
 

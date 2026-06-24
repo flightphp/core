@@ -158,7 +158,7 @@ class View
         }
 
         preg_match(
-            '/<f-(?<component>[a-z-]+)\s*(?<props>[a-z]+="[a-z-A-Z]+")*\s*\/>/',
+            '/<f-(?<component>[a-z-]+)\s*(?<props>([a-z]+="[a-zA-Z]+"\s*)*)?\s*\/>/',
             $view,
             $matches,
         );
@@ -168,15 +168,25 @@ class View
             $component = $matches['component'];
             $props = $matches['props'] ?? '';
 
-            preg_match(
-                '/^(?<name>[a-z]+)="(?<value>[a-zA-Z]+)"$/',
+            preg_match_all(
+                '/(?<name>[a-z]+)="(?<value>[a-zA-Z]+)"/',
                 $props,
                 $matches,
             );
 
-            $props = $matches
-                ? [$matches['name'] => $matches['value']]
-                : [];
+            $matches = array_filter($matches);
+
+            if ($matches) {
+                $props = [];
+
+                foreach (array_keys($matches[0]) as $index) {
+                    $name = $matches['name'][$index];
+                    $value = $matches['value'][$index];
+                    $props[$name] = $value;
+                }
+            } else {
+                $props = [];
+            }
 
             $component = $this->fetch("components/$component", $props);
             $view = str_replace($tag, $component, $view);
