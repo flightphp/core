@@ -239,29 +239,92 @@ class ViewTest extends TestCase
     {
         $view = new View(__DIR__ . '/views');
         $view->preserveVars = false;
-        $actual = $view->fetch($page);
+        $actual = $view->fetch("pages/$page");
 
-        self::assertSame(self::removeLineEndings($expected), self::removeLineEndings($actual));
+        self::assertSame(
+            self::removeIndentation(self::removeLineEndings($expected)),
+            self::removeIndentation(self::removeLineEndings($actual)),
+        );
     }
 
     public static function pagesDataProvider(): array
     {
         return [
-            ['pages/page-with-component-with-old-syntax', <<<'html'
-            <body>
-                value
-            </body>
-            html],
-            ['pages/page-with-component-with-new-syntax', <<<'html'
-            <body>
-                value
-            </body>
-            html],
+            [
+                'page-with-component-with-old-syntax',
+                <<<'html'
+                my-component
+                html,
+            ],
+            [
+                'page-with-component-with-new-syntax',
+                <<<'html'
+                my-component
+                html,
+            ],
+            [
+                'page-with-component-with-subcomponent',
+                <<<'html'
+                <div>
+                    my-component-with-subcomponent
+                    subcomponent
+                </div>
+                html,
+            ],
+            [
+                'page-with-multiple-components',
+                <<<'html'
+                <ul>
+                    <li>my-component</li>
+                    <li>my-component</li>
+                </ul>
+                html,
+            ],
+            [
+                'page-with-functional-component',
+                <<<'html'
+                my-functional-component
+                html,
+            ],
+            [
+                'page-with-class-component',
+                <<<'html'
+                my-class-component
+                html,
+            ],
+            [
+                'page-with-class-component-with-styles',
+                <<<'html'
+                <span class="my-class-component-with-styles">
+                    my-class-component-with-styles
+                </span>
+
+                <style>
+                    .my-class-component-with-styles {
+                        color: red;
+                    }
+                </style>
+                html,
+            ],
+            [
+                'page-with-class-component-with-scripts',
+                <<<'html'
+                my-class-component-with-scripts
+
+                <script>console.log('my-class-component-with-scripts')</script>
+                html,
+            ],
+
         ];
     }
 
     private static function removeLineEndings(string $subject): string
     {
         return str_replace(["\r", "\n"], '', $subject);
+    }
+
+    private static function removeIndentation(string $subject): string
+    {
+        return str_replace('    ', '', $subject);
     }
 }

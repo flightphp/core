@@ -1,1 +1,1 @@
-value
+my-component

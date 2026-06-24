@@ -121,8 +121,42 @@ class View
         }
 
         ob_start();
-        include $template;
-        $view = ob_get_clean();
+        $component = include $template;
+
+        switch (true) {
+            case is_callable($component):
+                $view = $component();
+                ob_end_clean();
+
+                break;
+            case $component instanceof Component:
+                $view = $component->html();
+                $css = $component->css();
+                $js = $component->js();
+
+                if ($css) {
+                    $view .= <<<html
+                    <style>
+                        $css
+                    </style>
+                    html;
+                }
+
+                if ($js) {
+                    $view .= <<<html
+                    <script>
+                        $js
+                    </script>
+                    html;
+                }
+
+                ob_end_clean();
+
+                break;
+            default:
+                $view = ob_get_clean();
+        }
+
         preg_match('/<f-(?<component>[a-z-]+)\s*\/>/', $view, $matches);
 
         if ($matches) {

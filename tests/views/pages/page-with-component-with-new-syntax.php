@@ -1,3 +1,1 @@
-<body>
-    <f-my-component />
-</body>
+<f-my-component />

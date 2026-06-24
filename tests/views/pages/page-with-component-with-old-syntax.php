@@ -1,3 +1,1 @@
-<body>
-    <?php $this->render('components/my-component') ?>
-</body>
+<?php $this->render('components/my-component') ?>
