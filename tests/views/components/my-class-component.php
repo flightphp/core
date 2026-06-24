@@ -9,8 +9,6 @@ return new class extends Component
     #[Override]
     public function html(): string
     {
-        return <<<'html'
-        my-class-component
-        html;
+        return 'my-class-component';
     }
 };

@@ -314,7 +314,12 @@ class ViewTest extends TestCase
                 <script>console.log('my-class-component-with-scripts')</script>
                 html,
             ],
-
+            [
+                'page-with-class-component-that-extends-another-class-component',
+                <<<'html'
+                another-class-component extended by my-class-component-that-extends-another-class-component
+                html,
+            ],
         ];
     }
 
