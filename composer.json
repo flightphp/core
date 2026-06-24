@@ -45,17 +45,18 @@
         }
     },
     "require-dev": {
-        "ext-mbstring": "*",
         "ext-fileinfo": "*",
+        "ext-mbstring": "*",
         "ext-pdo_sqlite": "*",
         "flightphp/container": "^1.3",
         "flightphp/runway": "^1.2",
         "league/container": "^4.2",
         "level-2/dice": "^4.0",
         "phpstan/extension-installer": "^1.4",
-        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^9.6",
         "rregeer/phpunit-coverage-check": "^0.3.1",
+        "spatie/phpunit-watcher": "^1.23",
         "squizlabs/php_codesniffer": "^4.0"
     },
     "config": {
@@ -67,10 +68,7 @@
     },
     "scripts": {
         "test": "phpunit",
-        "test-watcher": [
-            "phpunit-watcher || composer global require spatie/phpunit-watcher --dev",
-            "phpunit-watcher watch"
-        ],
+        "test-watcher": "phpunit-watcher watch",
         "test-coverage": [
             "rm -f clover.xml",
             "@putenv XDEBUG_MODE=coverage",
@@ -103,11 +101,12 @@
             "phpstan --no-progress --memory-limit=256M -n",
             "phpcs"
         ],
-        "beautify": "phpcbf",
+        "format": "phpcbf -q",
         "post-install-cmd": [
             "@php -r \"if (!file_exists('phpcs.xml')) copy('phpcs.xml.dist', 'phpcs.xml');\"",
             "@php -r \"if (!file_exists('phpstan.neon')) copy('phpstan.dist.neon', 'phpstan.neon');\"",
-            "@php -r \"if (!file_exists('phpunit.xml')) copy('phpunit.xml.dist', 'phpunit.xml');\""
+            "@php -r \"if (!file_exists('phpunit.xml')) copy('phpunit.xml.dist', 'phpunit.xml');\"",
+            "@php -r \"if (!file_exists('.phpunit-watcher.yml')) copy('phpunit-watcher.yml', '.phpunit-watcher.yml');\""
         ]
     },
     "suggest": {

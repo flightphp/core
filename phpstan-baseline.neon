@@ -1,0 +1,7 @@
+parameters:
+	ignoreErrors:
+		-
+			rawMessage: 'Method flight\core\Dispatcher::parseStringClassAndMethod() should return array{class-string|object, string} but returns non-empty-list<string>.'
+			identifier: return.type
+			count: 1
+			path: flight/core/Dispatcher.php
