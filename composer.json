@@ -70,7 +70,6 @@
         "test": "phpunit",
         "test-watcher": "phpunit-watcher watch",
         "test-coverage": [
-            "rm -f clover.xml",
             "@putenv XDEBUG_MODE=coverage",
             "phpunit --coverage-html=coverage --coverage-clover=clover.xml",
             "coverage-check clover.xml 100"
@@ -82,11 +81,6 @@
         "test-server-v2": [
             "echo \"Running Test Server\"",
             "@php -S localhost:8000 -t tests/server-v2"
-        ],
-        "test-coverage:win": [
-            "del clover.xml",
-            "phpunit --coverage-html=coverage --coverage-clover=clover.xml",
-            "coverage-check clover.xml 100"
         ],
         "test-performance": [
             "echo \"Running Performance Tests...\"",
