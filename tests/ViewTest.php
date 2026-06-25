@@ -250,6 +250,19 @@ class ViewTest extends TestCase
         );
     }
 
+    public function testItRendersComponentFromAnotherPath(): void
+    {
+        $view = new View(__DIR__ . '/views', 'f', __DIR__ . '/components');
+        $view->preserveVars = false;
+        $actual = $view->fetch('pages/page-with-component-from-another-path');
+        $expected = 'my-component-from-another-path';
+
+        self::assertSame(
+            self::removeIndentation(self::removeLineEndings($expected)),
+            self::removeIndentation(self::removeLineEndings($actual)),
+        );
+    }
+
     public static function pagesDataProvider(): array
     {
         return [

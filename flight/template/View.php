@@ -28,14 +28,24 @@ class View
     protected array $vars = [];
 
     private string $componentPrefix;
+    private string $componentsPath;
 
-    /** @param string $path Path to templates directory */
+    /**
+     * @param string $path Path to templates directory
+     * @param string $componentPrefix Prefix for component tags.
+     * For example, if the prefix is `f`, then a component tag would look like `<f-component-name />`
+     * @param string $componentsPath Path to components directory.
+     * If is a relative path, it will be relative to the `$path` property.
+     * **We recomment that you always use absolute paths for explicitness**.
+     */
     public function __construct(
         string $path = ".",
-        string $componentPrefix = 'f'
+        string $componentPrefix = 'f',
+        string $componentsPath = 'components'
     ) {
         $this->path = $path;
         $this->componentPrefix = $componentPrefix;
+        $this->componentsPath = $componentsPath;
     }
 
     /**
@@ -68,7 +78,7 @@ class View
 
     /**
      * Checks if a template variable is set
-     * @return bool If key exists
+     * @return bool If key exists and is not `null`
      */
     public function has(string $key): bool
     {
@@ -193,7 +203,7 @@ class View
                 $props = [];
             }
 
-            $component = $this->fetch("components/$component", $props);
+            $component = $this->fetch("$this->componentsPath/$component", $props);
             $view = str_replace($tag, $component, $view);
         }
 
@@ -217,14 +227,17 @@ class View
      */
     public function getTemplate(string $file): string
     {
-        if (!empty($this->extension) && (substr($file, -1 * strlen($this->extension)) !== $this->extension)) {
+        $fileDoesNotHaveExtension = substr($file, -strlen($this->extension)) !== $this->extension;
+
+        if ($fileDoesNotHaveExtension) {
             $file .= $this->extension;
         }
 
-        $is_windows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+        $isLinuxAbsolutePath = $file[0] === '/';
+        $isWindowsAbsolutePath = PHP_OS === 'WINNT' && $file[1] === ':';
 
-        if ((substr($file, 0, 1) === '/') || ($is_windows && substr($file, 1, 1) === ':')) {
-            return $file;
+        if ($isLinuxAbsolutePath || $isWindowsAbsolutePath) {
+            return $this::normalizePath($file);
         }
 
         return $this::normalizePath("$this->path/$file");
