@@ -309,6 +309,27 @@ class ViewTest extends TestCase
                 html,
             ],
             [
+                'page-with-functional-component-with-props',
+                <<<'html'
+                functional-component-with-props: Astronaut Victoria
+                html,
+                ['name' => 'Victoria', 'occupation' => 'Astronaut'],
+            ],
+            [
+                'page-with-functional-component-with-individual-props',
+                <<<'html'
+                functional-component-with-individual-props: Astronaut Victoria
+                html,
+                ['name' => 'Victoria', 'occupation' => 'Astronaut'],
+            ],
+            [
+                'page-with-class-component-with-props',
+                <<<'html'
+                class-component-with-props: Astronaut Victoria
+                html,
+                ['name' => 'Victoria', 'occupation' => 'Astronaut'],
+            ],
+            [
                 'page-with-class-component-with-styles',
                 <<<'html'
                 <span class="my-class-component-with-styles">

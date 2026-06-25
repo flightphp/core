@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace flight\template;
 
+use Closure;
 use Exception;
+use ReflectionFunction;
 
 /**
  * The View class represents output to be displayed. It provides
@@ -153,7 +155,8 @@ class View
 
             switch (true) {
                 case is_callable($component):
-                    $view = $component();
+                    $arguments = $this->getCallableArguments($component, $data);
+                    $view = $component(...$arguments);
                     ob_end_clean();
 
                     break;
@@ -289,5 +292,40 @@ class View
         string $separator = DIRECTORY_SEPARATOR
     ): string {
         return str_replace(['\\', '/'], $separator, $path);
+    }
+
+    /**
+     * @param callable $component
+     * @param ?array<string, mixed> $data
+     * @return array<int, mixed>
+     */
+    private function getCallableArguments(callable $component, ?array $data): array
+    {
+        if (!is_array($data) || !$data) {
+            return [];
+        }
+
+        $arguments = [];
+        $remainingData = $data;
+        $reflection = new ReflectionFunction(Closure::fromCallable($component));
+
+        foreach ($reflection->getParameters() as $parameter) {
+            if ($parameter->isVariadic()) {
+                foreach ($remainingData as $value) {
+                    $arguments[] = $value;
+                }
+
+                break;
+            }
+
+            $name = $parameter->getName();
+
+            if (array_key_exists($name, $remainingData)) {
+                $arguments[] = $remainingData[$name];
+                unset($remainingData[$name]);
+            }
+        }
+
+        return $arguments;
     }
 }
