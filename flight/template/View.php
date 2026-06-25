@@ -149,20 +149,27 @@ class View
                 $css = $component->css();
                 $js = $component->js();
 
-                if ($css) {
+                static $styles = [];
+                static $scripts = [];
+
+                if ($css && !array_key_exists($template, $styles)) {
                     $view .= <<<html
                     <style>
                         $css
                     </style>
                     html;
+
+                    $styles[$template] = true;
                 }
 
-                if ($js) {
+                if ($js && !array_key_exists($template, $scripts)) {
                     $view .= <<<html
                     <script>
                         $js
                     </script>
                     html;
+
+                    $scripts[$template] = true;
                 }
 
                 ob_end_clean();
@@ -206,7 +213,13 @@ class View
             }
 
             $component = $this->fetch("$this->componentsPath/$component", $props);
-            $view = str_replace($tag, $component, $view);
+            $tagPosition = strpos($view, $tag);
+
+            if ($tagPosition === false) {
+                continue;
+            }
+
+            $view = substr_replace($view, $component, $tagPosition, strlen($tag));
         }
 
         return $view;

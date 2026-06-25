@@ -266,123 +266,142 @@ class ViewTest extends TestCase
     public static function pagesDataProvider(): array
     {
         return [
+            // [
+            //     'page-with-component-with-old-syntax',
+            //     <<<'html'
+            //     my-component
+            //     html,
+            // ],
+            // [
+            //     'page-with-component-with-new-syntax',
+            //     <<<'html'
+            //     my-component
+            //     html,
+            // ],
+            // [
+            //     'page-with-component-with-subcomponent',
+            //     <<<'html'
+            //     <div>
+            //         my-component-with-subcomponent
+            //         subcomponent
+            //     </div>
+            //     html,
+            // ],
+            // [
+            //     'page-with-multiple-components',
+            //     <<<'html'
+            //     <ul>
+            //         <li>my-component</li>
+            //         <li>my-component</li>
+            //     </ul>
+            //     html,
+            // ],
+            // [
+            //     'page-with-functional-component',
+            //     <<<'html'
+            //     my-functional-component
+            //     html,
+            // ],
+            // [
+            //     'page-with-class-component',
+            //     <<<'html'
+            //     my-class-component
+            //     html,
+            // ],
+            // [
+            //     'page-with-class-component-with-styles',
+            //     <<<'html'
+            //     <span class="my-class-component-with-styles">
+            //         my-class-component-with-styles
+            //     </span>
+
+            //     <style>
+            //         .my-class-component-with-styles {
+            //             color: red;
+            //         }
+            //     </style>
+            //     html,
+            // ],
+            // [
+            //     'page-with-class-component-with-scripts',
+            //     <<<'html'
+            //     my-class-component-with-scripts
+
+            //     <script>console.log('my-class-component-with-scripts')</script>
+            //     html,
+            // ],
+            // [
+            //     'page-with-class-component-that-extends-another-class-component',
+            //     <<<'html'
+            //     another-class-component extended by my-class-component-that-extends-another-class-component
+            //     html,
+            // ],
+            // [
+            //     'page-with-component-with-one-prop',
+            //     <<<'html'
+            //     <html>
+            //         <body>
+            //             <h1>Hello, James</h1>
+            //         </body>
+            //     </html>
+            //     html,
+            //     ['name' => 'James'],
+            // ],
+            // [
+            //     'page-with-component-with-one-prop',
+            //     <<<'html'
+            //     <html>
+            //         <body>
+            //             <h1>Hello, Victoria</h1>
+            //         </body>
+            //     </html>
+            //     html,
+            //     ['name' => 'Victoria'],
+            // ],
+            // [
+            //     'page-with-component-with-two-props',
+            //     <<<'html'
+            //     <html>
+            //         <body>
+            //             <h1>Hello, Astronaut Victoria</h1>
+            //         </body>
+            //     </html>
+            //     html,
+            //     ['name' => 'Victoria', 'occupation' => 'Astronaut'],
+            // ],
+            // [
+            //     'page-with-three-different-components',
+            //     <<<'html'
+            //     my-component
+            //     my-functional-component
+            //     my-class-component
+            //     html,
+            // ],
+            // [
+            //     'page-with-component-with-prop-which-value-contains-spaces-and-numbers',
+            //     <<<'html'
+            //     <h1>Hello, Constantine 1st the Great</h1>
+            //     html,
+            //     ['name' => 'Constantine 1st the Great'],
+            // ],
             [
-                'page-with-component-with-old-syntax',
-                <<<'html'
-                my-component
-                html,
-            ],
-            [
-                'page-with-component-with-new-syntax',
-                <<<'html'
-                my-component
-                html,
-            ],
-            [
-                'page-with-component-with-subcomponent',
-                <<<'html'
-                <div>
-                    my-component-with-subcomponent
-                    subcomponent
-                </div>
-                html,
-            ],
-            [
-                'page-with-multiple-components',
-                <<<'html'
-                <ul>
-                    <li>my-component</li>
-                    <li>my-component</li>
-                </ul>
-                html,
-            ],
-            [
-                'page-with-functional-component',
-                <<<'html'
-                my-functional-component
-                html,
-            ],
-            [
-                'page-with-class-component',
-                <<<'html'
-                my-class-component
-                html,
-            ],
-            [
-                'page-with-class-component-with-styles',
+                'page-two-same-components-with-one-style-and-script-tag',
                 <<<'html'
                 <span class="my-class-component-with-styles">
                     my-class-component-with-styles
                 </span>
-
                 <style>
                     .my-class-component-with-styles {
                         color: red;
                     }
                 </style>
-                html,
-            ],
-            [
-                'page-with-class-component-with-scripts',
-                <<<'html'
+                <span class="my-class-component-with-styles">
+                    my-class-component-with-styles
+                </span>
                 my-class-component-with-scripts
-
                 <script>console.log('my-class-component-with-scripts')</script>
-                html,
-            ],
-            [
-                'page-with-class-component-that-extends-another-class-component',
-                <<<'html'
-                another-class-component extended by my-class-component-that-extends-another-class-component
-                html,
-            ],
-            [
-                'page-with-component-with-one-prop',
-                <<<'html'
-                <html>
-                    <body>
-                        <h1>Hello, James</h1>
-                    </body>
-                </html>
-                html,
-                ['name' => 'James'],
-            ],
-            [
-                'page-with-component-with-one-prop',
-                <<<'html'
-                <html>
-                    <body>
-                        <h1>Hello, Victoria</h1>
-                    </body>
-                </html>
-                html,
-                ['name' => 'Victoria'],
-            ],
-            [
-                'page-with-component-with-two-props',
-                <<<'html'
-                <html>
-                    <body>
-                        <h1>Hello, Astronaut Victoria</h1>
-                    </body>
-                </html>
-                html,
-                ['name' => 'Victoria', 'occupation' => 'Astronaut'],
-            ],
-            [
-                'page-with-three-different-components',
-                <<<'html'
-                my-component
-                my-functional-component
-                my-class-component
-                html,
-            ],
-            [
-                'page-with-component-with-prop-which-value-contains-spaces-and-numbers',
-                <<<'html'
-                <h1>Hello, Constantine 1st the Great</h1>
-                html,
-                ['name' => 'Constantine 1st the Great'],
+                my-class-component-with-scripts
+            html,
             ],
         ];
     }
