@@ -359,6 +359,27 @@ class ViewTest extends TestCase
         ];
     }
 
+    /** @dataProvider prefixesDataProvider */
+    public function testRenderComponentsWithDifferentPrefixes(string $prefix): void
+    {
+        $view = new View(__DIR__ . '/views', $prefix);
+        $view->preserveVars = false;
+        $actual = $view->fetch('pages/page-with-component-with-custom-prefix', compact('prefix'));
+        $expected = 'my-component';
+
+        self::assertSame(
+            self::removeIndentation(self::removeLineEndings($expected)),
+            self::removeIndentation(self::removeLineEndings($actual)),
+        );
+    }
+
+    public static function prefixesDataProvider(): array
+    {
+        return [
+            ['x'],
+        ];
+    }
+
     private static function removeLineEndings(string $subject): string
     {
         return str_replace(["\r", "\n"], '', $subject);

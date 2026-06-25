@@ -27,10 +27,15 @@ class View
     /** @var array<string, mixed> View variables */
     protected array $vars = [];
 
+    private string $componentPrefix;
+
     /** @param string $path Path to templates directory */
-    public function __construct(string $path = '.')
-    {
+    public function __construct(
+        string $path = ".",
+        string $componentPrefix = 'f'
+    ) {
         $this->path = $path;
+        $this->componentPrefix = $componentPrefix;
     }
 
     /**
@@ -158,7 +163,7 @@ class View
         }
 
         preg_match(
-            '/<f-(?<component>[a-z-]+)\s*(?<props>([a-z]+="[a-zA-Z]+"\s*)*)?\s*\/>/',
+            "/<$this->componentPrefix-(?<component>[a-z-]+)\s*(?<props>([a-z]+=\"[a-zA-Z]+\"\s*)*)?\s*\/>/",
             $view,
             $matches,
         );
