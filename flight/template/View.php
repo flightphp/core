@@ -172,31 +172,33 @@ class View
                 $view = ob_get_clean();
         }
 
-        preg_match(
+        preg_match_all(
             "/<$this->componentPrefix-(?<component>[a-z-]+)\s*(?<props>([a-z]+=\"[a-zA-Z]+\"\s*)*)?\s*\/>/",
             $view,
-            $matches,
+            $tagsMatches,
         );
 
-        if ($matches) {
-            $tag = $matches[0];
-            $component = $matches['component'];
-            $props = $matches['props'] ?? '';
+        $tagsMatches = array_filter($tagsMatches);
+
+        foreach ($tagsMatches[0] ?? [] as $tagIndex => $match) {
+            $tag = $match;
+            $component = $tagsMatches['component'][$tagIndex];
+            $props = $tagsMatches['props'][$tagIndex] ?? '';
 
             preg_match_all(
                 '/(?<name>[a-z]+)="(?<value>[a-zA-Z]+)"/',
                 $props,
-                $matches,
+                $propsMatches,
             );
 
-            $matches = array_filter($matches);
+            $propsMatches = array_filter($propsMatches);
 
-            if ($matches) {
+            if ($propsMatches) {
                 $props = [];
 
-                foreach (array_keys($matches[0]) as $index) {
-                    $name = $matches['name'][$index];
-                    $value = $matches['value'][$index];
+                foreach (array_keys($propsMatches[0]) as $propIndex) {
+                    $name = $propsMatches['name'][$propIndex];
+                    $value = $propsMatches['value'][$propIndex];
                     $props[$name] = $value;
                 }
             } else {

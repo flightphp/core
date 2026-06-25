@@ -369,6 +369,14 @@ class ViewTest extends TestCase
                 html,
                 ['name' => 'Victoria', 'occupation' => 'Astronaut'],
             ],
+            [
+                'page-with-three-different-components',
+                <<<'html'
+                my-component
+                my-functional-component
+                my-class-component
+                html,
+            ],
         ];
     }
 
