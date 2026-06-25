@@ -400,6 +400,6 @@ class ViewTest extends TestCase
 
     private static function removeIndentation(string $subject): string
     {
-        return str_replace('    ', '', $subject);
+        return preg_replace('/\s{2,}/', '', $subject);
     }
 }
