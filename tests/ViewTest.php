@@ -344,11 +344,33 @@ class ViewTest extends TestCase
                 html,
             ],
             [
+                'page-with-class-component-with-custom-style-tag',
+                <<<'html'
+                <span class="my-class-component-with-custom-style-tag">
+                    my-class-component-with-custom-style-tag
+                </span>
+                <style media="print" data-component="my-class-component-with-custom-style-tag">
+                    .my-class-component-with-custom-style-tag {
+                        color: purple;
+                    }
+                </style>
+                html,
+            ],
+            [
                 'page-with-class-component-with-scripts',
                 <<<'html'
                 my-class-component-with-scripts
 
                 <script>console.log('my-class-component-with-scripts')</script>
+                html,
+            ],
+            [
+                'page-with-class-component-with-custom-script-tag',
+                <<<'html'
+                my-class-component-with-custom-script-tag
+                <script type="module" data-component="my-class-component-with-custom-script-tag">
+                    console.log('my-class-component-with-custom-script-tag')
+                </script>
                 html,
             ],
             [

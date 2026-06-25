@@ -166,21 +166,13 @@ class View
                     $js = $component->js();
 
                     if ($css && !array_key_exists($template, $this->styles)) {
-                        $view .= <<<html
-                        <style>
-                            $css
-                        </style>
-                        html;
+                        $view .= $this->renderComponentStyle($css);
 
                         $this->styles[$template] = true;
                     }
 
                     if ($js && !array_key_exists($template, $this->scripts)) {
-                        $view .= <<<html
-                        <script>
-                            $js
-                        </script>
-                        html;
+                        $view .= $this->renderComponentScript($js);
 
                         $this->scripts[$template] = true;
                     }
@@ -327,5 +319,31 @@ class View
         }
 
         return $arguments;
+    }
+
+    private function renderComponentStyle(string $css): string
+    {
+        if (preg_match('/^\s*<style\b[^>]*>.*<\/style>\s*$/is', $css) === 1) {
+            return $css;
+        }
+
+        return <<<html
+        <style>
+            $css
+        </style>
+        html;
+    }
+
+    private function renderComponentScript(string $js): string
+    {
+        if (preg_match('/^\s*<script\b[^>]*>.*<\/script>\s*$/is', $js) === 1) {
+            return $js;
+        }
+
+        return <<<html
+        <script>
+            $js
+        </script>
+        html;
     }
 }
