@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace tests\server;
+namespace tests\server_v2;
 
 class AuthCheck
 {

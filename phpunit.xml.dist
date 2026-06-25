@@ -2,7 +2,6 @@
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
-    bootstrap="tests/phpunit_autoload.php"
     executionOrder="random"
     beStrictAboutOutputDuringTests="true"
     beStrictAboutTodoAnnotatedTests="true"
@@ -15,14 +14,11 @@
         <include>
             <directory suffix=".php">flight/</directory>
         </include>
-		<exclude>
-			<file>flight/autoload.php</file>
-		</exclude>
     </coverage>
     <testsuites>
         <testsuite name="default">
             <directory>tests/</directory>
-            <exclude>tests/named-arguments/</exclude>
+            <exclude>tests/named_arguments/</exclude>
         </testsuite>
     </testsuites>
     <logging />

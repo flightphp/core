@@ -48,10 +48,9 @@ class Loader
      * Registers a class.
      *
      * @param string $name Registry name
-     * @param class-string<T>|Closure(): T $class Class name or function to instantiate class
+     * @param class-string<T>|(Closure(): T) $class Class name or function to instantiate class
      * @param array<int, mixed> $params Class initialization parameters
-     * @param ?Closure(T $instance): void $callback $callback Function to call after object instantiation
-     *
+     * @param null|(Closure(T $instance): void) $callback $callback Function to call after object instantiation
      * @template T of object
      */
     public function register(string $name, $class, array $params = [], ?callable $callback = null): void
@@ -215,12 +214,14 @@ class Loader
      */
     public static function addDirectory($dir): void
     {
-        if (\is_array($dir) || \is_object($dir)) {
+        if (is_iterable($dir)) {
             foreach ($dir as $value) {
                 self::addDirectory($value);
             }
-        } elseif (\is_string($dir)) {
-            if (!\in_array($dir, self::$dirs, true)) {
+        } elseif (is_string($dir)) {
+            $dir = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $dir);
+
+            if (!in_array($dir, self::$dirs, true)) {
                 self::$dirs[] = $dir;
             }
         }

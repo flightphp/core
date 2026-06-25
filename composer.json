@@ -27,21 +27,16 @@
         "ext-json": "*"
     },
     "autoload": {
-        "files": [
-            "flight/autoload.php"
-        ]
-    },
-    "autoload-dev": {
         "classmap": [
-            "tests/classes/"
+            "flight/Flight.php"
         ],
         "psr-4": {
-            "Tests\\PHP8\\": [
-                "tests/named-arguments"
-            ],
-            "Tests\\Server\\": "tests/server",
-            "Tests\\ServerV2\\": "tests/server-v2",
-            "tests\\groupcompactsyntax\\": "tests/groupcompactsyntax"
+            "flight\\": "flight"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\": "tests"
         }
     },
     "require-dev": {
@@ -80,7 +75,7 @@
         ],
         "test-server-v2": [
             "echo \"Running Test Server\"",
-            "@php -S localhost:8000 -t tests/server-v2"
+            "@php -S localhost:8000 -t tests/server_v2"
         ],
         "test-performance": [
             "echo \"Running Performance Tests...\"",

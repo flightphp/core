@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace tests;
 
+use Closure;
 use flight\core\Loader;
 use tests\classes\Factory;
 use tests\classes\User;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use tests\classes\TesterClass;
 
 class LoaderTest extends TestCase
@@ -17,7 +19,11 @@ class LoaderTest extends TestCase
     protected function setUp(): void
     {
         $this->loader = new Loader();
-        $this->loader->autoload(true, __DIR__ . '/classes');
+    }
+
+    protected function tearDown(): void
+    {
+        Loader::setV2ClassLoading(true);
     }
 
     // Autoload a class
@@ -85,7 +91,7 @@ class LoaderTest extends TestCase
     // Gets an object from a factory method
     public function testRegisterUsingCallable(): void
     {
-        $this->loader->register('e', ['\tests\classes\Factory', 'create']);
+        $this->loader->register('e', Closure::fromCallable([Factory::class, 'create']));
 
         $obj = $this->loader->load('e');
 
@@ -140,29 +146,32 @@ class LoaderTest extends TestCase
 
     public function testAddDirectoryAsArray(): void
     {
-        $loader = new class extends Loader {
-            public function getDirectories()
-            {
-                return self::$dirs;
-            }
-        };
-        $loader->addDirectory([__DIR__ . '/classes']);
-        self::assertEquals([
-            dirname(__DIR__),
-            __DIR__ . '/classes'
-        ], $loader->getDirectories());
+        $loader = new Loader();
+        $loader::addDirectory([__DIR__ . '/classes']);
+
+        $dirsProperty = (new ReflectionClass(Loader::class))->getProperty('dirs');
+
+        if (PHP_VERSION_ID < 80100) {
+            $dirsProperty->setAccessible(true);
+        }
+
+        $dirs = $dirsProperty->getValue($loader);
+
+        self::assertEquals([__DIR__ . DIRECTORY_SEPARATOR . 'classes'], $dirs);
     }
 
     public function testV2ClassLoading(): void
     {
-        $loader = new class extends Loader {
-            public static function getV2ClassLoading()
-            {
-                return self::$v2ClassLoading;
-            }
-        };
-        $this->assertTrue($loader::getV2ClassLoading());
+        $loader = new Loader();
+
+        $v2ClassLoadingProperty = (new ReflectionClass(Loader::class))->getProperty('v2ClassLoading');
+
+        if (PHP_VERSION_ID < 80100) {
+            $v2ClassLoadingProperty->setAccessible(true);
+        }
+
+        $this->assertTrue($v2ClassLoadingProperty->getValue($loader));
         $loader::setV2ClassLoading(false);
-        $this->assertFalse($loader::getV2ClassLoading());
+        $this->assertFalse($v2ClassLoadingProperty->getValue($loader));
     }
 }
