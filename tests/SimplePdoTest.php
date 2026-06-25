@@ -88,7 +88,7 @@ class SimplePdoTest extends TestCase
 
     public function testRunQueryWithoutParamsWithMaxQueryMetrics(): void
     {
-        $db = new class(
+        $db = new class (
             'sqlite::memory:',
             null,
             null,
