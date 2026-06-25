@@ -29,6 +29,11 @@ class View
 
     private string $componentPrefix;
     private string $componentsPath;
+    private int $fetchDepth = 0;
+    /** @var array<string, bool> */
+    private array $styles = [];
+    /** @var array<string, bool> */
+    private array $scripts = [];
 
     /**
      * @param string $path Path to templates directory
@@ -119,110 +124,118 @@ class View
      */
     public function fetch(string $file, ?array $data = null): string
     {
-        $template = $this->getTemplate($file);
-
-        if (!$this->exists($file)) {
-            throw new Exception("Template file not found: $template.");
+        if ($this->fetchDepth === 0) {
+            $this->styles = [];
+            $this->scripts = [];
         }
 
-        extract($this->vars);
+        $this->fetchDepth++;
 
-        if (is_array($data)) {
-            extract($data);
+        try {
+            $template = $this->getTemplate($file);
 
-            if ($this->preserveVars) {
-                $this->vars += $data;
+            if (!$this->exists($file)) {
+                throw new Exception("Template file not found: $template.");
             }
-        }
 
-        ob_start();
-        $component = include $template;
+            extract($this->vars);
 
-        switch (true) {
-            case is_callable($component):
-                $view = $component();
-                ob_end_clean();
+            if (is_array($data)) {
+                extract($data);
 
-                break;
-            case $component instanceof Component:
-                $view = $component->html();
-                $css = $component->css();
-                $js = $component->js();
-
-                static $styles = [];
-                static $scripts = [];
-
-                if ($css && !array_key_exists($template, $styles)) {
-                    $view .= <<<html
-                    <style>
-                        $css
-                    </style>
-                    html;
-
-                    $styles[$template] = true;
+                if ($this->preserveVars) {
+                    $this->vars += $data;
                 }
+            }
 
-                if ($js && !array_key_exists($template, $scripts)) {
-                    $view .= <<<html
-                    <script>
-                        $js
-                    </script>
-                    html;
+            ob_start();
+            $component = include $template;
 
-                    $scripts[$template] = true;
-                }
+            switch (true) {
+                case is_callable($component):
+                    $view = $component();
+                    ob_end_clean();
 
-                ob_end_clean();
+                    break;
+                case $component instanceof Component:
+                    $view = $component->html();
+                    $css = $component->css();
+                    $js = $component->js();
 
-                break;
-            default:
-                $view = ob_get_clean();
-        }
+                    if ($css && !array_key_exists($template, $this->styles)) {
+                        $view .= <<<html
+                        <style>
+                            $css
+                        </style>
+                        html;
 
-        preg_match_all(
-            "/<$this->componentPrefix-(?<component>[a-z-]+)\s*(?<props>([a-z]+=\"[^\"]+\"\s*)*)?\s*\/>/",
-            $view,
-            $tagsMatches,
-        );
+                        $this->styles[$template] = true;
+                    }
 
-        $tagsMatches = array_filter($tagsMatches);
+                    if ($js && !array_key_exists($template, $this->scripts)) {
+                        $view .= <<<html
+                        <script>
+                            $js
+                        </script>
+                        html;
 
-        foreach ($tagsMatches[0] ?? [] as $tagIndex => $match) {
-            $tag = $match;
-            $component = $tagsMatches['component'][$tagIndex];
-            $props = $tagsMatches['props'][$tagIndex] ?? '';
+                        $this->scripts[$template] = true;
+                    }
+
+                    ob_end_clean();
+
+                    break;
+                default:
+                    $view = ob_get_clean();
+            }
 
             preg_match_all(
-                '/(?<name>[a-z]+)="(?<value>[^"]+)"/',
-                $props,
-                $propsMatches,
+                "/<$this->componentPrefix-(?<component>[a-z-]+)\s*(?<props>([a-z]+=\"[^\"]+\"\s*)*)?\s*\/>/",
+                $view,
+                $tagsMatches,
             );
 
-            $propsMatches = array_filter($propsMatches);
+            $tagsMatches = array_filter($tagsMatches);
 
-            if ($propsMatches) {
-                $props = [];
+            foreach ($tagsMatches[0] ?? [] as $tagIndex => $match) {
+                $tag = $match;
+                $component = $tagsMatches['component'][$tagIndex];
+                $props = $tagsMatches['props'][$tagIndex] ?? '';
 
-                foreach (array_keys($propsMatches[0]) as $propIndex) {
-                    $name = $propsMatches['name'][$propIndex];
-                    $value = $propsMatches['value'][$propIndex];
-                    $props[$name] = $value;
+                preg_match_all(
+                    '/(?<name>[a-z]+)="(?<value>[^"]+)"/',
+                    $props,
+                    $propsMatches,
+                );
+
+                $propsMatches = array_filter($propsMatches);
+
+                if ($propsMatches) {
+                    $props = [];
+
+                    foreach (array_keys($propsMatches[0]) as $propIndex) {
+                        $name = $propsMatches['name'][$propIndex];
+                        $value = $propsMatches['value'][$propIndex];
+                        $props[$name] = $value;
+                    }
+                } else {
+                    $props = [];
                 }
-            } else {
-                $props = [];
+
+                $component = $this->fetch("$this->componentsPath/$component", $props);
+                $tagPosition = strpos($view, $tag);
+
+                if ($tagPosition === false) {
+                    continue;
+                }
+
+                $view = substr_replace($view, $component, $tagPosition, strlen($tag));
             }
 
-            $component = $this->fetch("$this->componentsPath/$component", $props);
-            $tagPosition = strpos($view, $tag);
-
-            if ($tagPosition === false) {
-                continue;
-            }
-
-            $view = substr_replace($view, $component, $tagPosition, strlen($tag));
+            return $view;
+        } finally {
+            $this->fetchDepth--;
         }
-
-        return $view;
     }
 
     /**
