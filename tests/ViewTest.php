@@ -377,6 +377,13 @@ class ViewTest extends TestCase
                 my-class-component
                 html,
             ],
+            [
+                'page-with-component-with-prop-which-value-contains-spaces-and-numbers',
+                <<<'html'
+                <h1>Hello, Constantine 1st the Great</h1>
+                html,
+                ['name' => 'Constantine 1st the Great'],
+            ],
         ];
     }
 

@@ -173,7 +173,7 @@ class View
         }
 
         preg_match_all(
-            "/<$this->componentPrefix-(?<component>[a-z-]+)\s*(?<props>([a-z]+=\"[a-zA-Z]+\"\s*)*)?\s*\/>/",
+            "/<$this->componentPrefix-(?<component>[a-z-]+)\s*(?<props>([a-z]+=\"[^\"]+\"\s*)*)?\s*\/>/",
             $view,
             $tagsMatches,
         );
@@ -186,7 +186,7 @@ class View
             $props = $tagsMatches['props'][$tagIndex] ?? '';
 
             preg_match_all(
-                '/(?<name>[a-z]+)="(?<value>[a-zA-Z]+)"/',
+                '/(?<name>[a-z]+)="(?<value>[^"]+)"/',
                 $props,
                 $propsMatches,
             );
