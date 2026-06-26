@@ -167,7 +167,7 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
         $io->info(
             'Updating .github/copilot-instructions.md, '
                 . '.cursor/rules/project-overview.mdc, '
-                . '.gemini/GEMINI.md and .windsurfrules...',
+                . '.gemini/GEMINI.md, .windsurfrules and AGENTS.md...',
             true
         );
 
@@ -184,6 +184,7 @@ class AiGenerateInstructionsCommand extends AbstractBaseCommand
         file_put_contents($this->projectRoot . '.cursor/rules/project-overview.mdc', $instructions);
         file_put_contents($this->projectRoot . '.gemini/GEMINI.md', $instructions);
         file_put_contents($this->projectRoot . '.windsurfrules', $instructions);
+        file_put_contents($this->projectRoot . 'AGENTS.md', $instructions);
         $io->ok('AI instructions updated successfully.', true);
         return 0;
     }
