@@ -167,6 +167,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->assertFileExists($this->baseDir . '.cursor/rules/project-overview.mdc');
         $this->assertFileExists($this->baseDir . '.gemini/GEMINI.md');
         $this->assertFileExists($this->baseDir . '.windsurfrules');
+        $this->assertFileExists($this->baseDir . 'AGENTS.md');
     }
 
     public function testNoInstructionsReturnedFromLlm()
