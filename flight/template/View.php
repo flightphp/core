@@ -4,47 +4,59 @@ declare(strict_types=1);
 
 namespace flight\template;
 
+use Closure;
+use Exception;
+use ReflectionFunction;
+
 /**
  * The View class represents output to be displayed. It provides
  * methods for managing view data and inserts the data into
  * view templates upon rendering.
  *
- * @license MIT, http://flightphp.com/license
- * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @license [MIT](https://docs.flightphp.com/license)
+ * @copyright 2011 [Mike Cao](https://mikecao.com)
  */
 class View
 {
-    /** Location of view templates. */
+    /** Location of view templates */
     public string $path;
 
-    /** File extension. */
+    /** File extension */
     public string $extension = '.php';
 
     public bool $preserveVars = true;
 
-    /**
-     * View variables.
-     *
-     * @var array<string, mixed> $vars
-     */
+    /** @var array<string, mixed> View variables */
     protected array $vars = [];
 
-    /** Template file. */
-    private string $template;
+    private string $componentPrefix;
+    private string $componentsPath;
+    private int $fetchDepth = 0;
+    /** @var array<string, bool> */
+    private array $styles = [];
+    /** @var array<string, bool> */
+    private array $scripts = [];
 
     /**
-     * Constructor.
-     *
      * @param string $path Path to templates directory
+     * @param string $componentPrefix Prefix for component tags.
+     * For example, if the prefix is `f`, then a component tag would look like `<f-component-name />`
+     * @param string $componentsPath Path to components directory.
+     * If is a relative path, it will be relative to the `$path` property.
+     * **We recomment that you always use absolute paths for explicitness**.
      */
-    public function __construct(string $path = '.')
-    {
+    public function __construct(
+        string $path = ".",
+        string $componentPrefix = 'f',
+        string $componentsPath = 'components'
+    ) {
         $this->path = $path;
+        $this->componentPrefix = $componentPrefix;
+        $this->componentsPath = $componentsPath;
     }
 
     /**
-     * Gets a template variable.
-     *
+     * Gets a template variable
      * @return mixed Variable value or `null` if doesn't exists
      */
     public function get(string $key)
@@ -53,16 +65,14 @@ class View
     }
 
     /**
-     * Sets a template variable.
-     *
-     * @param string|iterable<string, mixed> $key
+     * Sets a template variable
+     * @param string|array<string, mixed> $key
      * @param mixed $value Value
-     *
-     * @return self
+     * @return $this
      */
-    public function set($key, $value = null): self
+    public function set($key, $value = null)
     {
-        if (\is_iterable($key)) {
+        if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->vars[$k] = $v;
             }
@@ -74,9 +84,8 @@ class View
     }
 
     /**
-     * Checks if a template variable is set.
-     *
-     * @return bool If key exists
+     * Checks if a template variable is set
+     * @return bool If key exists and is not `null`
      */
     public function has(string $key): bool
     {
@@ -84,11 +93,10 @@ class View
     }
 
     /**
-     * Unsets a template variable. If no key is passed in, clear all variables.
-     *
+     * Unsets a template variable. If no key is passed in, clear all variables
      * @return $this
      */
-    public function clear(?string $key = null): self
+    public function clear(?string $key = null)
     {
         if ($key === null) {
             $this->vars = [];
@@ -100,104 +108,242 @@ class View
     }
 
     /**
-     * Renders a template.
-     *
+     * Renders a template
      * @param string $file Template file
      * @param ?array<string, mixed> $templateData Template data
-     *
-     * @throws \Exception If template not found
+     * @throws Exception If template not found
      */
     public function render(string $file, ?array $templateData = null): void
     {
-        $this->template = $this->getTemplate($file);
-
-        if (!\file_exists($this->template)) {
-            $normalized_path = self::normalizePath($this->template);
-            throw new \Exception("Template file not found: {$normalized_path}.");
-        }
-
-        \extract($this->vars);
-
-        if (\is_array($templateData) === true) {
-            \extract($templateData);
-
-            if ($this->preserveVars === true) {
-                $this->vars = \array_merge($this->vars, $templateData);
-            }
-        }
-
-        include $this->template;
+        echo $this->fetch($file, $templateData);
     }
 
     /**
-     * Gets the output of a template.
-     *
+     * Gets the output of a template
      * @param string $file Template file
      * @param ?array<string, mixed> $data Template data
-     *
      * @return string Output of template
      */
     public function fetch(string $file, ?array $data = null): string
     {
-        \ob_start();
+        if ($this->fetchDepth === 0) {
+            $this->styles = [];
+            $this->scripts = [];
+        }
 
-        $this->render($file, $data);
+        $this->fetchDepth++;
 
-        return \ob_get_clean();
+        try {
+            $template = $this->getTemplate($file);
+
+            if (!$this->exists($file)) {
+                throw new Exception("Template file not found: $template.");
+            }
+
+            extract($this->vars);
+
+            if (is_array($data)) {
+                extract($data);
+
+                if ($this->preserveVars) {
+                    $this->vars += $data;
+                }
+            }
+
+            ob_start();
+            $component = include $template;
+
+            switch (true) {
+                case is_callable($component):
+                    $arguments = $this->getCallableArguments($component, $data);
+                    $view = $component(...$arguments);
+                    ob_end_clean();
+
+                    break;
+                case $component instanceof Component:
+                    $view = $component->html();
+                    $css = $component->css();
+                    $js = $component->js();
+
+                    if ($css && !array_key_exists($template, $this->styles)) {
+                        $view .= $this->renderComponentStyle($css);
+
+                        $this->styles[$template] = true;
+                    }
+
+                    if ($js && !array_key_exists($template, $this->scripts)) {
+                        $view .= $this->renderComponentScript($js);
+
+                        $this->scripts[$template] = true;
+                    }
+
+                    ob_end_clean();
+
+                    break;
+                default:
+                    $view = ob_get_clean();
+            }
+
+            preg_match_all(
+                "/<$this->componentPrefix-(?<component>[a-z-]+)\s*(?<props>([a-z]+=\"[^\"]+\"\s*)*)?\s*\/>/",
+                $view,
+                $tagsMatches,
+            );
+
+            $tagsMatches = array_filter($tagsMatches);
+
+            foreach ($tagsMatches[0] ?? [] as $tagIndex => $match) {
+                $tag = $match;
+                $component = $tagsMatches['component'][$tagIndex];
+                $props = $tagsMatches['props'][$tagIndex] ?? '';
+
+                preg_match_all(
+                    '/(?<name>[a-z]+)="(?<value>[^"]+)"/',
+                    $props,
+                    $propsMatches,
+                );
+
+                $propsMatches = array_filter($propsMatches);
+
+                if ($propsMatches) {
+                    $props = [];
+
+                    foreach (array_keys($propsMatches[0]) as $propIndex) {
+                        $name = $propsMatches['name'][$propIndex];
+                        $value = $propsMatches['value'][$propIndex];
+                        $props[$name] = $value;
+                    }
+                } else {
+                    $props = [];
+                }
+
+                $component = $this->fetch("$this->componentsPath/$component", $props);
+                $tagPosition = strpos($view, $tag);
+
+                if ($tagPosition === false) {
+                    continue;
+                }
+
+                $view = substr_replace($view, $component, $tagPosition, strlen($tag));
+            }
+
+            return $view;
+        } finally {
+            $this->fetchDepth--;
+        }
     }
 
     /**
-     * Checks if a template file exists.
-     *
+     * Checks if a template file exists
      * @param string $file Template file
-     *
      * @return bool Template file exists
      */
     public function exists(string $file): bool
     {
-        return \file_exists($this->getTemplate($file));
+        return file_exists($this->getTemplate($file));
     }
 
     /**
-     * Gets the full path to a template file.
-     *
+     * Gets the full path to a template file
      * @param string $file Template file
-     *
      * @return string Template file location
      */
     public function getTemplate(string $file): string
     {
-        $ext = $this->extension;
+        $fileDoesNotHaveExtension = substr($file, -strlen($this->extension)) !== $this->extension;
 
-        if (!empty($ext) && (\substr($file, -1 * \strlen($ext)) != $ext)) {
-            $file .= $ext;
+        if ($fileDoesNotHaveExtension) {
+            $file .= $this->extension;
         }
 
-        $is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
+        $isLinuxAbsolutePath = $file[0] === '/';
+        $isWindowsAbsolutePath = PHP_OS === 'WINNT' && $file[1] === ':';
 
-        if ((\substr($file, 0, 1) === '/') || ($is_windows && \substr($file, 1, 1) === ':')) {
-            return $file;
+        if ($isLinuxAbsolutePath || $isWindowsAbsolutePath) {
+            return $this::normalizePath($file);
         }
 
-        return $this->path . DIRECTORY_SEPARATOR . $file;
+        return $this::normalizePath("$this->path/$file");
     }
 
     /**
-     * Displays escaped output.
-     *
+     * Displays escaped output
      * @param string $str String to escape
-     *
      * @return string Escaped string
      */
     public function e(string $str): string
     {
-        $value = \htmlentities($str);
+        $value = htmlentities($str);
         echo $value;
+
         return $value;
     }
 
-    protected static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
+    protected static function normalizePath(
+        string $path,
+        string $separator = DIRECTORY_SEPARATOR
+    ): string {
+        return str_replace(['\\', '/'], $separator, $path);
+    }
+
+    /**
+     * @param callable $component
+     * @param ?array<string, mixed> $data
+     * @return array<int, mixed>
+     */
+    private function getCallableArguments(callable $component, ?array $data): array
     {
-        return \str_replace(['\\', '/'], $separator, $path);
+        if (!is_array($data) || !$data) {
+            return [];
+        }
+
+        $arguments = [];
+        $remainingData = $data;
+        $reflection = new ReflectionFunction(Closure::fromCallable($component));
+
+        foreach ($reflection->getParameters() as $parameter) {
+            if ($parameter->isVariadic()) {
+                foreach ($remainingData as $value) {
+                    $arguments[] = $value;
+                }
+
+                break;
+            }
+
+            $name = $parameter->getName();
+
+            if (array_key_exists($name, $remainingData)) {
+                $arguments[] = $remainingData[$name];
+                unset($remainingData[$name]);
+            }
+        }
+
+        return $arguments;
+    }
+
+    private function renderComponentStyle(string $css): string
+    {
+        if (preg_match('/^\s*<style\b[^>]*>.*<\/style>\s*$/is', $css) === 1) {
+            return $css;
+        }
+
+        return <<<html
+        <style>
+            $css
+        </style>
+        html;
+    }
+
+    private function renderComponentScript(string $js): string
+    {
+        if (preg_match('/^\s*<script\b[^>]*>.*<\/script>\s*$/is', $js) === 1) {
+            return $js;
+        }
+
+        return <<<html
+        <script>
+            $js
+        </script>
+        html;
     }
 }

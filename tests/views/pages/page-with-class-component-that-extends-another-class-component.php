@@ -1,0 +1,1 @@
+<f-my-class-component-that-extends-another-class-component />

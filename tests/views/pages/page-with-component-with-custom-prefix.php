@@ -1,0 +1,1 @@
+<<?= $prefix ?>-my-component />
