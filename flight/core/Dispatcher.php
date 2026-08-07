@@ -415,8 +415,7 @@ class Dispatcher
         // Final check to make sure it's actually a class and a method, or throw an error
         if (is_object($class) === false && class_exists($class) === false) {
             $exception = new Exception(
-                "Class '$class' not found. "
-                    . "Is it being correctly autoloaded with Flight::path()?"
+                "Class '$class' not found. Is it being correctly autoloaded with Flight::path()?"
             );
 
             // If this tried to resolve a class in a container and failed somehow, throw the exception

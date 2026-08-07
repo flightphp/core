@@ -43,8 +43,7 @@ class RouteCommand extends AbstractBaseCommand
 
         if (empty($this->config['runway'])) {
             $io->warn(
-                'Using a .runway-config.json file is deprecated. '
-                    . 'Move your config values to app/config/config.php with `php runway config:migrate`.',
+                'Using a .runway-config.json file is deprecated. Move your config values to app/config/config.php with `php runway config:migrate`.', // phpcs:ignore
                 true
             ); // @codeCoverageIgnore
 

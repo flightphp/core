@@ -99,7 +99,8 @@
         ]
     },
     "suggest": {
-        "latte/latte": "Latte template engine",
+        "twig/twig": "Twig template engine (recommended for apps, e.g. flightphp/skeleton)",
+        "latte/latte": "Latte template engine (optional alternative to Twig)",
         "tracy/tracy": "Tracy debugger",
         "phpstan/phpstan": "PHP Static Analyzer"
     },

@@ -11,6 +11,16 @@ use Nette\PhpGenerator\PhpNamespace;
 class ControllerCommand extends AbstractBaseCommand
 {
     /**
+     * Relative directory under app_root for controllers (skeleton: App\Controller).
+     */
+    private const CONTROLLER_DIR = 'Controller';
+
+    /**
+     * PSR-4 namespace for generated controllers.
+     */
+    private const CONTROLLER_NAMESPACE = 'App\\Controller';
+
+    /**
      * Construct
      *
      * @param array<string,mixed> $config JSON config from .runway-config.json
@@ -32,8 +42,7 @@ class ControllerCommand extends AbstractBaseCommand
 
         if (empty($this->config['runway'])) {
             $io->warn(
-                'Using a .runway-config.json file is deprecated. '
-                    . 'Move your config values to app/config/config.php with `php runway config:migrate`.',
+                'Using a .runway-config.json file is deprecated. Move your config values to app/config/config.php with `php runway config:migrate`.', // phpcs:ignore
                 true
             ); // @codeCoverageIgnore
 
@@ -61,7 +70,8 @@ class ControllerCommand extends AbstractBaseCommand
             $controller .= 'Controller';
         }
 
-        $controllerPath = $this->projectRoot . '/' . $runwayConfig['app_root'] . 'controllers/' . $controller . '.php';
+        $appRoot = rtrim(str_replace('\\', '/', $runwayConfig['app_root']), '/') . '/';
+        $controllerPath = $this->projectRoot . '/' . $appRoot . self::CONTROLLER_DIR . '/' . $controller . '.php';
         if (file_exists($controllerPath) === true) {
             $io->error($controller . ' already exists.', true);
             return;
@@ -75,12 +85,12 @@ class ControllerCommand extends AbstractBaseCommand
         $file = new PhpFile();
         $file->setStrictTypes();
 
-        $namespace = new PhpNamespace('app\\controllers');
+        $namespace = new PhpNamespace(self::CONTROLLER_NAMESPACE);
         $namespace->addUse('flight\\Engine');
 
         $class = new ClassType($controller);
         $class->addProperty('app')
-            ->setVisibility('protected')
+            ->setVisibility('private')
             ->setType('flight\\Engine')
             ->addComment('@var Engine');
         $method = $class->addMethod('__construct')
@@ -93,7 +103,7 @@ class ControllerCommand extends AbstractBaseCommand
         $namespace->add($class);
         $file->addNamespace($namespace);
 
-        $this->persistClass($controller, $file, $runwayConfig['app_root']);
+        $this->persistClass($controller, $file, $appRoot);
 
         $io->ok('Controller successfully created at ' . $controllerPath, true);
     }
@@ -111,7 +121,7 @@ class ControllerCommand extends AbstractBaseCommand
     {
         $printer = new \Nette\PhpGenerator\PsrPrinter();
         file_put_contents(
-            $this->projectRoot . '/' . $appRoot . 'controllers/' . $controllerName . '.php',
+            $this->projectRoot . '/' . $appRoot . self::CONTROLLER_DIR . '/' . $controllerName . '.php',
             $printer->printFile($file)
         );
     }

@@ -463,8 +463,7 @@ class Engine
                     }
 
                     throw new Exception(
-                        "Middleware class '$middleware' not found. "
-                            . "Is it being correctly autoloaded with Flight::path()?"
+                        "Middleware class '$middleware' not found. Is it being correctly autoloaded with Flight::path()?"
                     );
                 }
 

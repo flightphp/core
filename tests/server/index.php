@@ -153,20 +153,20 @@ Flight::group('', function () {
 
     // Test 14: Overwrite the body with a middleware
     Flight::route('/overwrite', function () {
-        echo <<<'html'
-            <span id="infotext">Route text:</span>
-            This route status is that it
-            <span style="color:red; font-weight: bold;">failed</span>
-        html;
+        echo <<<'HTML'
+<span id="infotext">Route text:</span>
+This route status is that it
+<span style="color:red; font-weight: bold;">failed</span>
+HTML;
     })->addMiddleware([new OverwriteBodyMiddleware()]);
 
     // Test 15: UTF8 Chars in url
     Flight::route('/わたしはひとです', function () {
-        echo <<<'html'
-            <span id="infotext">Route text:</span>
-            This route status is that it
-            <span style="color:green; font-weight: bold;">succeeded はい!!!</span>
-        html;
+        echo <<<'HTML'
+<span id="infotext">Route text:</span>
+This route status is that it
+<span style="color:green; font-weight: bold;">succeeded はい!!!</span>
+HTML;
     });
 
     // Test 16: UTF8 Chars in url with utf8 params

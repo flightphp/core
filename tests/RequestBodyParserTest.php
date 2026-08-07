@@ -336,23 +336,15 @@ class RequestBodyParserTest extends TestCase
         $parts[] = "Content-Disposition: form-data; name=\"\"; filename=\"empty.txt\"\r\n\r\nemptyNameValue";
 
         // G: invalid filename triggers sanitized fallback
-        $parts[] = "Content-Disposition: form-data; "
-            . "name=\"filebad\"; "
-            . "filename=\"a*b?.txt\"\r\nContent-Type: text/plain\r\n\r\nFILEBAD";
+        $parts[] = "Content-Disposition: form-data; name=\"filebad\"; filename=\"a*b?.txt\"\r\nContent-Type: text/plain\r\n\r\nFILEBAD";
 
         // H1 & H2: two files same key for aggregation logic (arrays)
-        $parts[] = "Content-Disposition: form-data; "
-            . "name=\"filemulti\"; "
-            . "filename=\"one.txt\"\r\nContent-Type: text/plain\r\n\r\nONE";
+        $parts[] = "Content-Disposition: form-data; name=\"filemulti\"; filename=\"one.txt\"\r\nContent-Type: text/plain\r\n\r\nONE";
 
-        $parts[] = "Content-Disposition: form-data; "
-            . "name=\"filemulti\"; "
-            . "filename=\"two.txt\"\r\nContent-Type: text/plain\r\n\r\nTWO";
+        $parts[] = "Content-Disposition: form-data; name=\"filemulti\"; filename=\"two.txt\"\r\nContent-Type: text/plain\r\n\r\nTWO";
 
         // I: file exceeding total bytes triggers UPLOAD_ERR_INI_SIZE
-        $parts[] = "Content-Disposition: form-data; "
-            . "name=\"filebig\"; "
-            . "filename=\"big.txt\"\r\nContent-Type: text/plain\r\n\r\n"
+        $parts[] = "Content-Disposition: form-data; name=\"filebig\"; filename=\"big.txt\"\r\nContent-Type: text/plain\r\n\r\n"
             . str_repeat('A', 10);
 
         // Build full body
@@ -410,13 +402,9 @@ class RequestBodyParserTest extends TestCase
         // and header param extraction (preg_match_all)
         $boundary = 'BOUNDARYEMPTY';
 
-        $validFilePart = "Content-Disposition: form-data; "
-            . "name=\"fileok\"; "
-            . "filename=\"ok.txt\"\r\nContent-Type: text/plain\r\n\r\nOK";
+        $validFilePart = "Content-Disposition: form-data; name=\"fileok\"; filename=\"ok.txt\"\r\nContent-Type: text/plain\r\n\r\nOK";
 
-        $emptyNameFilePart = "Content-Disposition: form-data; "
-            . "name=\"[]\"; "
-            . "filename=\"empty.txt\"\r\nContent-Type: text/plain\r\n\r\nSHOULD_SKIP";
+        $emptyNameFilePart = "Content-Disposition: form-data; name=\"[]\"; filename=\"empty.txt\"\r\nContent-Type: text/plain\r\n\r\nSHOULD_SKIP";
 
         $body = '--'
             . $boundary

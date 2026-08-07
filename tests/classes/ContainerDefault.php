@@ -33,8 +33,7 @@ class ContainerDefault
 
     public function testUi(): void
     {
-        echo '<span id="infotext">Route text:</span> '
-            . 'The container successfully injected a value into the engine! Engine class: <b>'
+        echo '<span id="infotext">Route text:</span> The container successfully injected a value into the engine! Engine class: <b>'
             . get_class($this->app)
             . '</b>  test_me_out Value: <b>'
             . $this->app->get('test_me_out')

@@ -347,7 +347,8 @@ class SimplePdo extends PdoWrapper
             $columnCount = count($columns);
 
             foreach ($columns as $col) {
-                $this->requireSafeIdentifier((string) $col);
+                $columnName = (string) $col;
+                $this->requireSafeIdentifier($columnName);
             }
 
             // Validate all rows have same columns
@@ -382,7 +383,8 @@ class SimplePdo extends PdoWrapper
             $columns = array_keys($data);
 
             foreach ($columns as $col) {
-                $this->requireSafeIdentifier((string) $col);
+                $columnName = (string) $col;
+                $this->requireSafeIdentifier($columnName);
             }
 
             $placeholders = array_fill(0, count($data), '?');
@@ -422,8 +424,9 @@ class SimplePdo extends PdoWrapper
 
         $sets = [];
         foreach (array_keys($data) as $column) {
-            $this->requireSafeIdentifier((string) $column);
-            $sets[] = "$column = ?";
+            $columnName = (string) $column;
+            $this->requireSafeIdentifier($columnName);
+            $sets[] = "$columnName = ?";
         }
 
         $sql = sprintf(

@@ -33,12 +33,14 @@ class ControllerCommandTest extends TestCase
             unlink(static::$ou);
         }
 
-        if (file_exists(__DIR__ . '/controllers/TestController.php')) {
-            unlink(__DIR__ . '/controllers/TestController.php');
+        $controllerFile = __DIR__ . '/Controller/TestController.php';
+        if (file_exists($controllerFile)) {
+            unlink($controllerFile);
         }
 
-        if (file_exists(__DIR__ . '/controllers/')) {
-            rmdir(__DIR__ . '/controllers/');
+        $controllerDir = __DIR__ . '/Controller/';
+        if (is_dir($controllerDir)) {
+            rmdir($controllerDir);
         }
 
         // Thanks Windows
@@ -65,8 +67,8 @@ class ControllerCommandTest extends TestCase
     public function testControllerAlreadyExists(): void
     {
         $app = $this->newApp('test', '0.0.1');
-        mkdir(__DIR__ . '/controllers/');
-        file_put_contents(__DIR__ . '/controllers/TestController.php', '<?php class TestController {}');
+        mkdir(__DIR__ . '/Controller/');
+        file_put_contents(__DIR__ . '/Controller/TestController.php', '<?php class TestController {}');
         $app->add(new ControllerCommand(['runway' => ['app_root' => 'tests/commands/']]));
         $app->handle(['runway', 'make:controller', 'Test']);
 
@@ -79,6 +81,10 @@ class ControllerCommandTest extends TestCase
         $app->add(new ControllerCommand(['runway' => ['app_root' => 'tests/commands/']]));
         $app->handle(['runway', 'make:controller', 'Test']);
 
-        $this->assertFileExists(__DIR__ . '/controllers/TestController.php');
+        $controllerFile = __DIR__ . '/Controller/TestController.php';
+        $this->assertFileExists($controllerFile);
+        $contents = file_get_contents($controllerFile);
+        $this->assertStringContainsString('namespace App\\Controller;', $contents);
+        $this->assertStringContainsString('class TestController', $contents);
     }
 }
