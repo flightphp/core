@@ -154,8 +154,7 @@ class DispatcherTest extends TestCase
         $this->expectException(Exception::class);
 
         $this->expectExceptionMessage(
-            "Class 'NonExistentClass' not found. "
-                . "Is it being correctly autoloaded with Flight::path()?"
+            "Class 'NonExistentClass' not found. Is it being correctly autoloaded with Flight::path()?"
         );
 
         $this->dispatcher->execute(['NonExistentClass', 'nonExistentMethod']);
@@ -285,8 +284,7 @@ class DispatcherTest extends TestCase
         $this->expectException(ArgumentCountError::class);
 
         $this->expectExceptionMessageMatches(
-            '#Too few arguments to function tests\\\\classes\\\\TesterClass::__construct\(\), 1 passed'
-                . ' .+ and exactly 6 expected#'
+            '#Too few arguments to function tests\\\\classes\\\\TesterClass::__construct\(\), 1 passed .+ and exactly 6 expected#'
         );
 
         $this->dispatcher->execute(TesterClass::class . '->instanceMethod');

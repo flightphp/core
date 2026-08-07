@@ -71,6 +71,27 @@ class AiGenerateInstructionsCommandTest extends TestCase
         file_put_contents(self::$in, implode("\n", $lines) . "\n");
     }
 
+    /**
+     * Default interactive answers (templating default is twig).
+     *
+     * @return array<int,string>
+     */
+    protected function defaultAnswers(): array
+    {
+        return [
+            'desc',
+            'mysql',
+            'twig',
+            'y',
+            'y',
+            'flight/lib',
+            'Docker',
+            '2',
+            'y',
+            'context info',
+        ];
+    }
+
     protected function setProjectRoot($command, $path)
     {
         $reflection = new \ReflectionClass(get_class($command));
@@ -97,7 +118,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->setInput([
             'desc',
             'none',
-            'latte',
+            'twig',
             'y',
             'y',
             'none',
@@ -121,26 +142,15 @@ class AiGenerateInstructionsCommandTest extends TestCase
         $this->assertStringContainsString('Missing AI configuration', file_get_contents(self::$ou));
     }
 
-    public function testWritesInstructionsToFiles()
+    public function testWritesInstructionsToAgentsMdOnly()
     {
         $creds = [
             'api_key' => 'key',
             'model' => 'gpt-4o',
             'base_url' => 'https://api.openai.com',
         ];
-        $this->setInput([
-            'desc',
-            'mysql',
-            'latte',
-            'y',
-            'y',
-            'flight/lib',
-            'Docker',
-            '2',
-            'y',
-            'context info'
-        ]);
-        $mockInstructions = "# Project Instructions\n\nUse MySQL, Latte, Docker.";
+        $this->setInput($this->defaultAnswers());
+        $mockInstructions = "# Project Instructions\n\nUse MySQL, Twig, Docker.";
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
             ->setConstructorArgs([
                 [
@@ -163,11 +173,107 @@ class AiGenerateInstructionsCommandTest extends TestCase
             'ai:generate-instructions',
         ]);
         $this->assertSame(0, $result);
-        $this->assertFileExists($this->baseDir . '.github/copilot-instructions.md');
-        $this->assertFileExists($this->baseDir . '.cursor/rules/project-overview.mdc');
-        $this->assertFileExists($this->baseDir . '.gemini/GEMINI.md');
-        $this->assertFileExists($this->baseDir . '.windsurfrules');
         $this->assertFileExists($this->baseDir . 'AGENTS.md');
+        $this->assertSame($mockInstructions, file_get_contents($this->baseDir . 'AGENTS.md'));
+        $this->assertFileDoesNotExist($this->baseDir . '.github/copilot-instructions.md');
+        $this->assertFileDoesNotExist($this->baseDir . '.cursor/rules/project-overview.mdc');
+        $this->assertFileDoesNotExist($this->baseDir . '.gemini/GEMINI.md');
+        $this->assertFileDoesNotExist($this->baseDir . '.windsurfrules');
+        $this->assertStringContainsString('Updating AGENTS.md', file_get_contents(self::$ou));
+    }
+
+    public function testUsesExistingAgentsMdAsContext()
+    {
+        $creds = [
+            'api_key' => 'key',
+            'model' => 'gpt-4o',
+            'base_url' => 'https://api.openai.com',
+        ];
+        $existing = "# Existing AGENTS\n\nKeep this context.";
+        file_put_contents($this->baseDir . 'AGENTS.md', $existing);
+        $this->setInput($this->defaultAnswers());
+
+        $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
+            ->setConstructorArgs([
+                [
+                    'runway' => ['ai' => $creds]
+                ]
+            ])
+            ->onlyMethods(['callLlmApi'])
+            ->getMock();
+        $this->setProjectRoot($cmd, $this->baseDir);
+        $cmd->expects($this->once())
+            ->method('callLlmApi')
+            ->with(
+                $this->anything(),
+                $this->anything(),
+                $this->callback(function ($jsonData) use ($existing) {
+                    $data = json_decode($jsonData, true);
+                    $userContent = $data['messages'][1]['content'] ?? '';
+                    return strpos($userContent, $existing) !== false;
+                }),
+                $this->anything()
+            )
+            ->willReturn(json_encode([
+                'choices' => [
+                    ['message' => ['content' => "# Updated\n\nDone."]]
+                ]
+            ]));
+        $app = $this->newApp($cmd);
+        $result = $app->handle([
+            'runway',
+            'ai:generate-instructions',
+        ]);
+        $this->assertSame(0, $result);
+    }
+
+    public function testFallsBackToLegacyCopilotInstructionsForContext()
+    {
+        $creds = [
+            'api_key' => 'key',
+            'model' => 'gpt-4o',
+            'base_url' => 'https://api.openai.com',
+        ];
+        $legacy = "# Legacy copilot instructions\n\nOld layout.";
+        mkdir($this->baseDir . '.github', 0777, true);
+        file_put_contents($this->baseDir . '.github/copilot-instructions.md', $legacy);
+        $this->setInput($this->defaultAnswers());
+
+        $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
+            ->setConstructorArgs([
+                [
+                    'runway' => ['ai' => $creds]
+                ]
+            ])
+            ->onlyMethods(['callLlmApi'])
+            ->getMock();
+        $this->setProjectRoot($cmd, $this->baseDir);
+        $cmd->expects($this->once())
+            ->method('callLlmApi')
+            ->with(
+                $this->anything(),
+                $this->anything(),
+                $this->callback(function ($jsonData) use ($legacy) {
+                    $data = json_decode($jsonData, true);
+                    $userContent = $data['messages'][1]['content'] ?? '';
+                    return strpos($userContent, $legacy) !== false;
+                }),
+                $this->anything()
+            )
+            ->willReturn(json_encode([
+                'choices' => [
+                    ['message' => ['content' => "# New AGENTS.md\n\nMigrated."]]
+                ]
+            ]));
+        $app = $this->newApp($cmd);
+        $result = $app->handle([
+            'runway',
+            'ai:generate-instructions',
+        ]);
+        $this->assertSame(0, $result);
+        $this->assertFileExists($this->baseDir . 'AGENTS.md');
+        // Legacy file is left alone; only AGENTS.md is written
+        $this->assertSame($legacy, file_get_contents($this->baseDir . '.github/copilot-instructions.md'));
     }
 
     public function testNoInstructionsReturnedFromLlm()
@@ -177,18 +283,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
             'model' => 'gpt-4o',
             'base_url' => 'https://api.openai.com',
         ];
-        $this->setInput([
-            'desc',
-            'mysql',
-            'latte',
-            'y',
-            'y',
-            'flight/lib',
-            'Docker',
-            '2',
-            'y',
-            'context info'
-        ]);
+        $this->setInput($this->defaultAnswers());
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
             ->setConstructorArgs([
                 [
@@ -220,18 +315,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
             'model' => 'gpt-4o',
             'base_url' => 'https://api.openai.com',
         ];
-        $this->setInput([
-            'desc',
-            'mysql',
-            'latte',
-            'y',
-            'y',
-            'flight/lib',
-            'Docker',
-            '2',
-            'y',
-            'context info'
-        ]);
+        $this->setInput($this->defaultAnswers());
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
             ->setConstructorArgs([
                 [
@@ -263,19 +347,8 @@ class AiGenerateInstructionsCommandTest extends TestCase
         ];
         $configFile = $this->baseDir . 'old-config.json';
         file_put_contents($configFile, json_encode($creds));
-        $this->setInput([
-            'desc',
-            'mysql',
-            'latte',
-            'y',
-            'y',
-            'flight/lib',
-            'Docker',
-            '2',
-            'y',
-            'context info'
-        ]);
-        $mockInstructions = "# Project Instructions\n\nUse MySQL, Latte, Docker.";
+        $this->setInput($this->defaultAnswers());
+        $mockInstructions = "# Project Instructions\n\nUse MySQL, Twig, Docker.";
         // runway key is MISSING from config to trigger deprecated logic
         $cmd = $this->getMockBuilder(AiGenerateInstructionsCommand::class)
             ->setConstructorArgs([[]])
@@ -297,6 +370,7 @@ class AiGenerateInstructionsCommandTest extends TestCase
         ]);
         $this->assertSame(0, $result);
         $this->assertStringContainsString('The --config-file option is deprecated', file_get_contents(self::$ou));
-        $this->assertFileExists($this->baseDir . '.github/copilot-instructions.md');
+        $this->assertFileExists($this->baseDir . 'AGENTS.md');
+        $this->assertFileDoesNotExist($this->baseDir . '.github/copilot-instructions.md');
     }
 }
