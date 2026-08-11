@@ -1,0 +1,1 @@
+<?php $this->render('components/my-component') ?>

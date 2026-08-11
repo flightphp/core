@@ -1,0 +1,1 @@
+<f-greeting name="<?= $name ?>" />
