@@ -44,15 +44,15 @@ See the benchmark below with some other popular PHP frameworks. This is measured
 ---
 config:
   xyChart:
-    xAxis:
-    yAxis:
     showDataLabel: true
 ---
-xychart
-  title "Rendimiento de Frameworks PHP (miles de solicitudes/seg)"
+xychart-beta
+  title "PHP Framework Performance (TechEmpower, requests/sec)"
   x-axis "Framework" ["Flight", "Yii", "Fat-Free", "Slim", "Phalcon", "Symfony", "Lumen", "Laravel", "CodeIgniter"]
-  y-axis "Solicitudes (x1000)" 0 --> 200
+  y-axis "Requests/sec (x1000)" 0 --> 200
+  %% Series 1: Plaintext, Series 2: JSON
   bar [190.4, 145.7, 139.2, 89.6, 95.9, 65.1, 40.6, 26.7, 20.6]
+  bar [182.5, 131.4, 134.0, 87.3, 87.7, 63.2, 39.7, 26.9, 19.9]
 ```
 
 ## Skeleton App
