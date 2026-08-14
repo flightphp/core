@@ -12,7 +12,7 @@ Flight aims to be simple and fast. Anything that compromises either of those two
 * **Coding Standards** - We use PSR12 coding standards enforced by PHPCS. Some standards that either need additional configuration or need to be manually done are:
   *  PHPStan is at level 6.
   *  `===` instead of truthy or falsey statements like `==`.
- 
+
 * **PHP 7.4 Focused** - We do not make PHP 8+ focused enhancements on the framework as the focus is maintaining PHP 7.4.
 
 * **Core functionality vs Plugin** - Have a conversation with us in the [chatroom](https://matrix.to/#/!cTfwPXhpkTXPXwVmxY:matrix.org?via=matrix.org&via=leitstelle511.net&via=integrations.ems.host) to know if your idea is worth makes sense in the framework or in a plugin.
@@ -21,7 +21,7 @@ Flight aims to be simple and fast. Anything that compromises either of those two
 
 #### **Did you find a bug?**
 
-* **Do not open up a GitHub issue if the bug is a security vulnerability**. Instead contact maintainers directly via email to safely pass in the information related to the security vuln.
+* **Do not open up a GitHub issue if the bug is a security vulnerability**. Instead contact maintainers directly via email to safely pass in the information related to the security vulnerability.
 
 * **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/flightphp/core/issues).
 
