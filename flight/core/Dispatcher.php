@@ -26,12 +26,10 @@ class Dispatcher
     public const FILTER_BEFORE = 'before';
     public const FILTER_AFTER = 'after';
 
-    /** Exception message if thrown by setting the container as a callable method. */
     protected ?Throwable $containerException = null;
-
     protected ?Engine $engine = null;
 
-    /** @var array<string, callable(): (void|mixed)> Mapped events. */
+    /** @var array<string, callable(): (void|mixed)> */
     protected array $events = [];
 
     /**
