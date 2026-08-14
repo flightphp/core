@@ -13,10 +13,10 @@ use JsonSerializable;
  * The Collection class allows you to access a set of data
  * using both array and object notation.
  *
- * @license MIT, http://flightphp.com/license
- * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @copyright 2011 [Mike Cao](https://mikecao.com)
  * @implements ArrayAccess<string, mixed>
  * @implements Iterator<string, mixed>
+ * @license https://docs.flightphp.com/license MIT
  */
 class Collection implements ArrayAccess, Iterator, Countable, JsonSerializable
 {

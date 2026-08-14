@@ -13,8 +13,8 @@ use Exception;
  * instances with custom initialization parameters. It also performs
  * class autoloading.
  *
- * @license MIT, http://flightphp.com/license
- * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @copyright 2011 [Mike Cao](https://mikecao.com)
+ * @license https://docs.flightphp.com/license MIT
  */
 class Loader
 {
