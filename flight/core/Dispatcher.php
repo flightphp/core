@@ -33,9 +33,10 @@ class Dispatcher
     protected array $events = [];
 
     /**
-     * Method filters.
-     *
-     * @var array<string, array<'before'|'after', array<int, callable(array<int, mixed> &$params, mixed &$output): (void|false)>>>
+     * @var array<string, array{
+     *   before?: (callable(mixed[] &$params, mixed &$output): (void|false))[],
+     *   after?: (callable(mixed[] &$params, mixed &$output): (void|false))[],
+     * }>
      */
     protected array $filters = [];
 
