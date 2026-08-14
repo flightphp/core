@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github.com/flightphp/docs/blob/redesigned-logos/public/images/redesign/logo+icon+slogan@dark.jpg?raw=true" />
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/flightphp/docs/refs/heads/redesigned-logos/public/images/redesign/logo%2Bicon%2Bslogan%40light.jpg" />
-  <img alt="Flight PHP Logo" src="https://raw.githubusercontent.com/flightphp/docs/refs/heads/redesigned-logos/public/images/redesign/logo%2Bicon%2Bslogan%40light.jpg" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/flightphp/docs/redesigned-logos/public/images/redesign/logo%2Bicon%2Bslogan%40dark.jpg" />
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/flightphp/docs/redesigned-logos/public/images/redesign/logo%2Bicon%2Bslogan%40light.jpg" />
+  <img alt="Flight PHP Logo" src="https://raw.githubusercontent.com/flightphp/docs/redesigned-logos/public/images/redesign/logo%2Bicon%2Bslogan%40light.jpg" width="100%" />
 </picture>
 
 [![Version](https://poser.pugx.org/flightphp/core/version)](https://packagist.org/packages/flightphp/core)
