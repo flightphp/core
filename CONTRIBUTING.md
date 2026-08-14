@@ -17,7 +17,7 @@ Flight aims to be simple and fast. Anything that compromises either of those two
 
 * **Core functionality vs Plugin** - Have a conversation with us in the [chatroom](https://matrix.to/#/!cTfwPXhpkTXPXwVmxY:matrix.org?via=matrix.org&via=leitstelle511.net&via=integrations.ems.host) to know if your idea is worth makes sense in the framework or in a plugin.
 
-* **Testing** - Until automated testing is put into place, any PRs must pass unit testing in PHP 7.4 to PHP 8.5+. Additionally you need to run `composer test-server` and `composer test-server-v2` and ensure all the header links work correctly.
+* **Testing** - PRs must pass unit tests on PHP 7.4 through PHP 8.5+. Additionally you need to run `composer test-server` and `composer test-server-v2` and ensure all the header links work correctly.
 
 #### **Did you find a bug?**
 
