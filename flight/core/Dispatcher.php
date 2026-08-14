@@ -50,17 +50,17 @@ class Dispatcher
      */
     public function setContainerHandler($containerHandler): void
     {
-        $containerInterfaceNS = '\Psr\Container\ContainerInterface';
+        $containerFQCN = '\\' . Container::class;
 
-        if (is_a($containerHandler, $containerInterfaceNS) || is_callable($containerHandler)) {
+        if (is_a($containerHandler, $containerFQCN) || is_callable($containerHandler)) {
             $this->containerHandler = $containerHandler;
 
             return;
         }
 
-        throw new InvalidArgumentException(
-            "\$containerHandler must be of type callable or instance $containerInterfaceNS"
-        );
+        $message = "\$containerHandler must be of type callable or instance $containerFQCN";
+
+        throw new InvalidArgumentException($message);
     }
 
     public function setEngine(Engine $engine): void
