@@ -20,7 +20,6 @@ use TypeError;
  *
  * @license MIT, http://flightphp.com/license
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
- * @phpstan-template EngineTemplate of object
  */
 class Dispatcher
 {
@@ -30,7 +29,6 @@ class Dispatcher
     /** Exception message if thrown by setting the container as a callable method. */
     protected ?Throwable $containerException = null;
 
-    /** @var ?Engine<EngineTemplate> $engine Engine instance. */
     protected ?Engine $engine = null;
 
     /** @var array<string, callable(): (void|mixed)> Mapped events. */
@@ -76,13 +74,6 @@ class Dispatcher
         );
     }
 
-    /**
-     * Sets the engine instance
-     *
-     * @param Engine<EngineTemplate> $engine Flight instance
-     *
-     * @return void
-     */
     public function setEngine(Engine $engine): void
     {
         $this->engine = $engine;
