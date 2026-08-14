@@ -9,7 +9,7 @@ Flight aims to be simple and fast. Anything that compromises either of those two
 
 * **Dependencies** - We strive to be dependency free in Flight. Yes even polyfills, yes even `Interface` only repos like `psr/container`. The fewer dependencies, the fewer your exposed attack vectors.
 
-* **Coding Standards** - We use PSR1 coding standards enforced by PHPCS. Some standards that either need additional configuration or need to be manually done are:
+* **Coding Standards** - We use PSR12 coding standards enforced by PHPCS. Some standards that either need additional configuration or need to be manually done are:
   *  PHPStan is at level 6.
   *  `===` instead of truthy or falsey statements like `==` or `!is_array()`.
  
