@@ -7,7 +7,7 @@ namespace flight\core;
 use Exception;
 use flight\Engine;
 use InvalidArgumentException;
-use Psr\Container\ContainerInterface;
+use Psr\Container\ContainerInterface as Container;
 use ReflectionFunction;
 use Throwable;
 use TypeError;
@@ -41,21 +41,11 @@ class Dispatcher
      */
     protected array $filters = [];
 
-    /**
-     * This is a container for the dependency injection.
-     *
-     * @var null|ContainerInterface|(callable(string $classString, array<int, mixed> $params): (null|object))
-     */
+    /** @var null|Container|(callable(class-string<object> $classString, mixed[] $params): ?object) */
     protected $containerHandler = null;
 
     /**
-     * Sets the dependency injection container handler.
-     *
-     * @param ContainerInterface|(callable(class-string<T> $classString, array<int, mixed> $params): ?T) $containerHandler
-     * Dependency injection container.
-     *
-     * @template T of object
-     *
+     * @param Container|(callable(class-string<object> $classString, mixed[] $params): ?object) $containerHandler
      * @throws InvalidArgumentException
      * If $containerHandler is not a `callable` or instance of `Psr\Container\ContainerInterface`.
      */
