@@ -21,7 +21,7 @@ Flight aims to be simple and fast. Anything that compromises either of those two
 
 #### **Did you find a bug?**
 
-* **Do not open up a GitHub issue if the bug is a security vulnerability**. Instead contact maintainers directly via email to safely pass in the information related to the security vulnerability.
+* **Do not open up a GitHub issue if the bug is a security vulnerability**. Instead contact maintainers directly via email to safely share details about the security vulnerability.
 
 * **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/flightphp/core/issues).
 
