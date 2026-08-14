@@ -90,8 +90,6 @@ class Dispatcher
      * @param array<int, mixed> &$params
      *
      * @throws Exception
-     *
-     * @return $this
      */
     protected function runPreFilters(string $eventName, array &$params): self
     {
@@ -145,8 +143,6 @@ class Dispatcher
      *
      * @param string $name Event name.
      * @param callable(): (void|mixed) $callback Callback function.
-     *
-     * @return $this
      */
     public function set(string $name, callable $callback): self
     {
@@ -202,8 +198,6 @@ class Dispatcher
      * @param string $name Event name
      * @param 'before'|'after' $type Filter type.
      * @param callable(array<int, mixed> &$params, mixed &$output): (void|false)|callable(mixed &$output): (void|false) $callback
-     *
-     * @return $this
      */
     public function hook(string $name, string $type, callable $callback): self
     {
@@ -481,8 +475,6 @@ class Dispatcher
 
     /**
      * Resets the object to the initial state.
-     *
-     * @return $this
      */
     public function reset(): self
     {
