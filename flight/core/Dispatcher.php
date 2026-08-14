@@ -72,11 +72,9 @@ class Dispatcher
      * Dispatches an event.
      *
      * @param string $name Event name.
-     * @param array<int, mixed> $params Callback parameters.
-     *
-     * @throws Exception If event name isn't found or if event throws an `Exception`.
-     *
-     * @return mixed Output of callback
+     * @param mixed[] $params Event callable parameters.
+     * @return mixed Output of event callable.
+     * @throws Throwable If event name isn't found or if event throws an `Throwable`.
      */
     public function run(string $name, array $params = [])
     {
