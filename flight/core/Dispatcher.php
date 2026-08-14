@@ -18,7 +18,7 @@ use TypeError;
  * allows you to hook other functions to an event that can modify the
  * input parameters and/or the output.
  *
- * @copyright 2011 [Mike Cao](https://mikecao.com)
+ * @copyright 2011 Mike Cao https://mikecao.com
  * @license https://docs.flightphp.com/license MIT
  * @phpstan-template EngineTemplate of object
  */

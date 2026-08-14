@@ -12,7 +12,7 @@ use flight\core\EventDispatcher;
  * contains the response headers, HTTP status code, and response
  * body.
  *
- * @copyright 2011 [Mike Cao](https://mikecao.com)
+ * @copyright 2011 Mike Cao https://mikecao.com
  * @license https://docs.flightphp.com/license MIT
  */
 class Response

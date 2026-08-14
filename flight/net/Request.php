@@ -11,7 +11,7 @@ use flight\util\Collection;
  * all the super globals $_GET, $_POST, $_COOKIE, and $_FILES
  * are stored and accessible via the Request object.
  *
- * @copyright 2011 [Mike Cao](https://mikecao.com)
+ * @copyright 2011 Mike Cao https://mikecao.com
  * @license https://docs.flightphp.com/license MIT
  *
  * The default request properties are:

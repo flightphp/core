@@ -9,7 +9,7 @@ namespace flight\net;
  * an assigned callback function. The Router tries to match the
  * requested URL against a series of URL patterns.
  *
- * @copyright 2011 [Mike Cao](https://mikecao.com)
+ * @copyright 2011 Mike Cao https://mikecao.com
  * @license https://docs.flightphp.com/license MIT
  */
 class Route
