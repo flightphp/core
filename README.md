@@ -22,13 +22,10 @@ composer require flightphp/core
 or you can download a zip of this repo. Then you would have a basic `index.php` file like the following:
 
 ```php
-// if installed with composer
-require 'vendor/autoload.php';
-// or if installed manually by zip file
-// require 'flight/Flight.php';
+require 'flight/autoload.php';
 
 Flight::route('/', function () {
-  echo 'hello world!';
+    echo 'hello world!';
 });
 
 Flight::start();
@@ -38,17 +35,17 @@ Flight::start();
 
 Yes! Flight is fast. It is one of the fastest PHP frameworks available. You can see all the benchmarks at [TechEmpower](https://www.techempower.com/benchmarks/#section=data-r18&hw=ph&test=frameworks)
 
-See the benchmark below with some other popular PHP frameworks. This is measured in requests processed within the same timeframe. 
+See the benchmark below with some other popular PHP frameworks. This is measured in requests processed within the same timeframe.
 
 | Framework | Plaintext Requests| JSON Requests|
 | --------- | ------------ | ------------ |
 | Flight      | 190,421    | 182,491 |
 | Yii         | 145,749    | 131,434 |
-| Fat-Free    | 139,238	   | 133,952 |
+| Fat-Free    | 139,238    | 133,952 |
 | Slim        | 89,588     | 87,348  |
 | Phalcon     | 95,911     | 87,675  |
 | Symfony     | 65,053     | 63,237  |
-| Lumen	      | 40,572     | 39,700  |
+| Lumen       | 40,572     | 39,700  |
 | Laravel     | 26,657     | 26,901  |
 | CodeIgniter | 20,628     | 19,901  |
 
@@ -75,9 +72,10 @@ If you have a current project on v2, you should be able to upgrade to v3 with no
 > [!IMPORTANT]
 > Flight requires `PHP 7.4` or greater.
 
-**Note:** PHP 7.4 is supported because at the current time of writing (2024) PHP 7.4 is the default version for some LTS Linux distributions. Forcing a move to PHP >8 would cause a lot of heartburn for those users.
-
-The framework also supports PHP >8.
+> [!NOTE]
+> PHP 7.4 is supported because at the current time of writing (2024) PHP 7.4 is the default version for some LTS Linux distributions.
+> Forcing a move to PHP 8 would cause a lot of heartburn for those users.
+> The framework also supports PHP 8.
 
 # Roadmap
 
