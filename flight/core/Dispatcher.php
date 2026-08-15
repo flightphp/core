@@ -7,6 +7,7 @@ namespace flight\core;
 use Exception;
 use flight\Engine;
 use InvalidArgumentException;
+use OutOfBoundsException;
 use Psr\Container\ContainerInterface as Container;
 use ReflectionFunction;
 use Throwable;
@@ -74,7 +75,8 @@ class Dispatcher
      * @param string $name Event name.
      * @param mixed[] $params Event callable parameters.
      * @return mixed Output of event callable.
-     * @throws Throwable If event name isn't found or if event throws an `Throwable`.
+     * @throws Throwable If the callable or its filters throw an `Throwable`.
+     * @throws OutOfBoundsException If callable name is not found.
      */
     public function run(string $name, array $params = [])
     {
@@ -104,14 +106,15 @@ class Dispatcher
      * @param array<int, mixed> &$params
      *
      * @return void|mixed
-     * @throws Exception
+     * @throws Throwable If the callable or its filters throw an `Throwable`.
+     * @throws OutOfBoundsException If callable name is not found.
      */
     protected function runEvent(string $eventName, array &$params)
     {
         $requestedMethod = $this->get($eventName);
 
         if ($requestedMethod === null) {
-            throw new Exception("Event '$eventName' isn't found.");
+            throw new OutOfBoundsException("Event '$eventName' isn't found.");
         }
 
         return $this->execute($requestedMethod, $params);
