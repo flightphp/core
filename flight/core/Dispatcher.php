@@ -106,9 +106,10 @@ class Dispatcher
     }
 
     /**
-     * @param array<int, mixed> &$params
-     *
-     * @throws Exception
+     * @deprecated Don't override this method.
+     * @param string $eventName Callable name.
+     * @param mixed[] &$params Callable input.
+     * @throws Throwable If any of the callable filters throw an `Throwable`.
      */
     protected function runPreFilters(string $eventName, array &$params): self
     {
@@ -122,9 +123,10 @@ class Dispatcher
     }
 
     /**
-     * @param array<int, mixed> &$params
-     *
-     * @return void|mixed
+     * @deprecated Don't override this method.
+     * @param string $eventName Callable name.
+     * @param mixed[] &$params Callable input.
+     * @return void|never|mixed
      * @throws Throwable If the callable or its filters throw an `Throwable`.
      * @throws OutOfBoundsException If callable name is not found.
      */
@@ -140,10 +142,11 @@ class Dispatcher
     }
 
     /**
-     * @param mixed &$output
-     *
-     * @return mixed
-     * @throws Exception
+     * @deprecated Don't override this method.
+     * @template Output of mixed
+     * @param Output &$output Callable output.
+     * @return Output Callable output.
+     * @throws Throwable If any of the callable filters throw an `Throwable`.
      */
     protected function runPostFilters(string $eventName, &$output)
     {
@@ -258,23 +261,23 @@ class Dispatcher
     }
 
     /**
-     * Executes a chain of method filters.
+     * Executes a list of callable filters.
      *
-     * @param array<int, callable(array<int, mixed> &$params, mixed &$output): (void|false)> $filters
-     * Chain of filters.
-     * @param array<int, mixed> $params Method parameters.
-     * @param mixed $output Method output.
-     *
-     * @throws Exception If an event throws an `Exception` or if `$filters` contains an invalid filter.
+     * @deprecated This method will be removed.
+     * @param (callable(mixed[] &$params, mixed &$output): (void|never|false))[] $filters Callable filters.
+     * @param mixed[] $params Callable input.
+     * @param mixed $output Callable output.
+     * @throws Throwable If any of the callable filters throw an `Throwable`.
+     * @throws InvalidArgumentException If any of the callable filters is not a `callable`.
      */
     public function filter(array $filters, array &$params, &$output): void
     {
-        foreach ($filters as $key => $callback) {
-            if (!is_callable($callback)) {
+        foreach ($filters as $key => $filter) {
+            if (!is_callable($filter)) {
                 throw new InvalidArgumentException("Invalid callable \$filters[$key].");
             }
 
-            $continue = $callback($params, $output);
+            $continue = $filter($params, $output);
 
             if ($continue === false) {
                 break;
