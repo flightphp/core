@@ -16,8 +16,11 @@ use TypeError;
 /**
  * Responsible for dispatching named callables.
  *
- * The Dispatcher allows you to hook others callables that can modify the named
- * callable arguments and/or its return value.
+ * The Dispatcher allows you to add filters to a named callable that can modify
+ * the named callable `input` and/or `output`.
+ *
+ * - The `input` is the arguments passed to the named callable.
+ * - The `output` is the return value of the named callable.
  *
  * @license MIT, http://flightphp.com/license
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
