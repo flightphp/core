@@ -29,7 +29,10 @@ class Dispatcher
     protected ?Throwable $containerException = null;
     protected ?Engine $engine = null;
 
-    /** @var array<string, callable(): (void|mixed)> */
+    /**
+     * @deprecated Don't use this property directly, use `set()`, `get()` and `has()` instead.
+     * @var array<string, callable(): (void|mixed)>
+     */
     protected array $events = [];
 
     /**
