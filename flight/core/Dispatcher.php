@@ -13,10 +13,10 @@ use Throwable;
 use TypeError;
 
 /**
- * The Dispatcher class is responsible for dispatching events. Events
- * are simply aliases for class methods or functions. The Dispatcher
- * allows you to hook other functions to an event that can modify the
- * input parameters and/or the output.
+ * Responsible for dispatching named callables.
+ *
+ * The Dispatcher allows you to hook others callables that can modify the named
+ * callable arguments and/or its return value.
  *
  * @license MIT, http://flightphp.com/license
  * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
