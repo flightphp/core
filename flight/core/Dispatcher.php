@@ -31,7 +31,7 @@ class Dispatcher
 
     /**
      * @deprecated Don't use this property directly, use `set()`, `get()` and `has()` instead.
-     * @var array<string, callable(): (void|mixed)>
+     * @var array<string, callable>
      */
     protected array $events = [];
 
