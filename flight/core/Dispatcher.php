@@ -42,8 +42,8 @@ class Dispatcher
     /**
      * @deprecated Don't use this property, use `hook()` instead.
      * @var array<string, array{
-     *   before?: (callable(mixed[] &$params, mixed &$output): (void|never|false))[],
-     *   after?: (callable(mixed[] &$params, mixed &$output): (void|never|false))[],
+     *   before?: (callable(mixed[] &$params): (void|never|false))[],
+     *   after?: (callable(mixed &$output): (void|never|false))[],
      * }>
      */
     protected array $filters = [];
