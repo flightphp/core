@@ -9,8 +9,8 @@ use ReflectionFunction;
 use Throwable;
 
 /**
- * @template CallableWithoutFilters of Closure
- * @template Output of mixed
+ * @template CallableWithoutFilters of Closure = Closure
+ * @template Output = mixed
  */
 final class FilteredCallable
 {
