@@ -36,6 +36,9 @@ class Dispatcher
      */
     protected array $events = [];
 
+    /** @var array<string, FilteredCallable> */
+    private array $namedFilteredCallables = [];
+
     /**
      * @deprecated Don't use this property, use `hook()` instead.
      * @var array<string, array{
