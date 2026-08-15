@@ -76,20 +76,33 @@ class Dispatcher
     }
 
     /**
-     * Dispatches an event.
+     * Runs a named callable and its filters.
      *
-     * @param string $name Event name.
-     * @param mixed[] $params Event callable parameters.
-     * @return mixed Output of event callable.
+     * @param string $name Callable name.
+     * @param mixed[] $params Callable input.
+     * @return void|never|mixed Callable output.
      * @throws Throwable If the callable or its filters throw an `Throwable`.
      * @throws OutOfBoundsException If callable name is not found.
      */
     public function run(string $name, array $params = [])
     {
-        $this->runPreFilters($name, $params);
+        if (get_called_class() !== self::class) {
+            /* If dispatcher was extended, use the possibly overridden methods
+            for pre/post filters and event execution. */
+            $this->runPreFilters($name, $params);
         $output = $this->runEvent($name, $params);
 
         return $this->runPostFilters($name, $output);
+    }
+
+        // Executes the FilteredCallable, responsible of running its filters.
+        $filteredCallable = $this->get($name);
+
+        if (!$filteredCallable) {
+            throw new OutOfBoundsException("Event '$name' isn't found.");
+        }
+
+        return $filteredCallable(...$params);
     }
 
     /**
@@ -146,36 +159,34 @@ class Dispatcher
     }
 
     /**
-     * Assigns a callback to an event.
+     * Assigns a name to a callable.
      *
-     * @param string $name Event name.
-     * @param callable(): (void|mixed) $callback Callback function.
+     * @param string $name Callable name.
+     * @param callable $callback Callable.
      */
     public function set(string $name, callable $callback): self
     {
         $this->events[$name] = $callback;
+        $this->namedFilteredCallables[$name] = new FilteredCallable($callback);
 
         return $this;
     }
 
     /**
-     * Gets an assigned callback.
+     * Returns a callable by its name.
      *
-     * @param string $name Event name.
-     *
-     * @return null|(callable(): (void|mixed)) $callback Callback function.
+     * @param string $name Callable name.
+     * @return ?FilteredCallable
      */
     public function get(string $name): ?callable
     {
-        return $this->events[$name] ?? null;
+        return $this->namedFilteredCallables[$name] ?? $this->events[$name] ?? null;
     }
 
     /**
-     * Checks if an event has been set.
+     * Checks if a callable exists by its name.
      *
-     * @param string $name Event name.
-     *
-     * @return bool If event exists or doesn't exists.
+     * @param string $name Callable name.
      */
     public function has(string $name): bool
     {
@@ -183,15 +194,18 @@ class Dispatcher
     }
 
     /**
-     * Clears an event. If no name is given, all events will be removed.
+     * Clears a callable and its filters by its name.
      *
-     * @param ?string $name Event name.
+     * If no name is provided, clears all callables names and theirs filters.
+     *
+     * @param ?string $name Callable name.
      */
     public function clear(?string $name = null): void
     {
         if ($name !== null) {
             unset($this->events[$name]);
             unset($this->filters[$name]);
+            unset($this->namedFilteredCallables[$name]);
 
             return;
         }
@@ -200,11 +214,11 @@ class Dispatcher
     }
 
     /**
-     * Hooks a callback to an event.
+     * Adds a filter to a callable.
      *
-     * @param string $name Event name
+     * @param string $name Callable name.
      * @param 'before'|'after' $type Filter type.
-     * @param callable(array<int, mixed> &$params, mixed &$output): (void|false)|callable(mixed &$output): (void|false) $callback
+     * @param callable(mixed[] &$params): (void|never|false)|callable(mixed &$output): (void|never|false) $callback
      */
     public function hook(string $name, string $type, callable $callback): self
     {
@@ -227,6 +241,18 @@ class Dispatcher
         }
 
         $this->filters[$name][$type][] = $callback;
+
+        $filteredCallable = $this->get($name);
+
+        if ($filteredCallable) {
+            if ($type === self::FILTER_BEFORE) {
+                $filteredCallable->pushBeforeFilter($callback);
+            }
+
+            if ($type === self::FILTER_AFTER) {
+                $filteredCallable->pushAfterFilter($callback);
+            }
+        }
 
         return $this;
     }
@@ -480,13 +506,12 @@ class Dispatcher
         }
     }
 
-    /**
-     * Resets the object to the initial state.
-     */
+    /** Resets the dispatcher state by clearing all events, filters, and named filtered callables. */
     public function reset(): self
     {
         $this->events = [];
         $this->filters = [];
+        $this->namedFilteredCallables = [];
 
         return $this;
     }
