@@ -170,7 +170,7 @@ class Dispatcher
      */
     public function has(string $name): bool
     {
-        return isset($this->events[$name]);
+        return $this->get($name) !== null;
     }
 
     /**
