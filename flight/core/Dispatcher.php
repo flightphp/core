@@ -509,7 +509,7 @@ class Dispatcher
         );
     }
 
-    /** Because this could throw an exception in the middle of an output buffer, */
+    /** Fixes output buffering issues when an exception is thrown. */
     protected function fixOutputBuffering(): void
     {
         // Cause PHPUnit has 1 level of output buffering by default
