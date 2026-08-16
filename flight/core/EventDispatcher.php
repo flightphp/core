@@ -60,11 +60,7 @@ class EventDispatcher
         return $this->listeners[$event] ?? [];
     }
 
-    /**
-     * Get a list of all events that have registered listeners.
-     *
-     * @return array<int, string> Array of event names
-     */
+    /** @return string[] */
     public function getAllRegisteredEvents(): array
     {
         return array_keys($this->listeners);
