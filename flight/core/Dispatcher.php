@@ -324,12 +324,11 @@ class Dispatcher
 
         $this->verifyValidClassCallable($class, $method, $object);
 
-        // Class is a string, and method exists, create the object by hand and inject only the Engine
         if (is_string($class)) {
             $class = new $class($this->engine);
         }
 
-        return call_user_func_array([$class, $method], $params);
+        return $class->$method(...$params);
     }
 
     /**
