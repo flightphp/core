@@ -34,11 +34,7 @@ class EventDispatcher
     {
         $listenerReturnValue = null;
 
-        if (!$this->hasListeners($event)) {
-            return null;
-        }
-
-        foreach ($this->listeners[$event] as $listener) {
+        foreach ($this->getListeners($event) as $listener) {
             $listenerReturnValue = $listener(...$args);
 
             if ($listenerReturnValue === false) {
@@ -58,13 +54,7 @@ class EventDispatcher
         );
     }
 
-    /**
-     * Get all listeners registered for a specific event.
-     *
-     * @param string $event Event name
-     *
-     * @return array<int, callable> Array of callbacks registered for the event
-     */
+    /** @return callable[] */
     public function getListeners(string $event): array
     {
         return $this->listeners[$event] ?? [];
