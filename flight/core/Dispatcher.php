@@ -295,8 +295,6 @@ class Dispatcher
      */
     public function execute($callback, array $params = [])
     {
-        $container = $this->containerHandler;
-
         $this->verifyValidFunction($callback);
 
         if (is_string($callback)) {
