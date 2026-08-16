@@ -40,7 +40,7 @@ class Dispatcher
     protected array $events = [];
 
     /** @var array<string, FilteredCallable> */
-    private array $namedFilteredCallables = [];
+    private array $namedCallables = [];
 
     /**
      * @deprecated Don't use this property, use `hook()` instead.
@@ -170,7 +170,7 @@ class Dispatcher
     public function set(string $name, callable $callback): self
     {
         $this->events[$name] = $callback;
-        $this->namedFilteredCallables[$name] = new FilteredCallable($callback);
+        $this->namedCallables[$name] = new FilteredCallable($callback);
 
         return $this;
     }
@@ -183,7 +183,7 @@ class Dispatcher
      */
     public function get(string $name): ?callable
     {
-        return $this->namedFilteredCallables[$name] ?? $this->events[$name] ?? null;
+        return $this->namedCallables[$name] ?? $this->events[$name] ?? null;
     }
 
     /**
@@ -208,7 +208,7 @@ class Dispatcher
         if ($name !== null) {
             unset($this->events[$name]);
             unset($this->filters[$name]);
-            unset($this->namedFilteredCallables[$name]);
+            unset($this->namedCallables[$name]);
 
             return;
         }
@@ -561,7 +561,7 @@ class Dispatcher
     {
         $this->events = [];
         $this->filters = [];
-        $this->namedFilteredCallables = [];
+        $this->namedCallables = [];
 
         return $this;
     }
