@@ -265,8 +265,8 @@ class Dispatcher
      *
      * @deprecated This method will be removed.
      * @param (callable(mixed[] &$params, mixed &$output): (void|never|false))[] $filters Callable filters.
-     * @param mixed[] $params Callable input.
-     * @param mixed $output Callable output.
+     * @param mixed[] &$params Callable input.
+     * @param mixed &$output Callable output.
      * @throws Throwable If any of the callable filters throw an `Throwable`.
      * @throws InvalidArgumentException If any of the callable filters is not a `callable`.
      */
