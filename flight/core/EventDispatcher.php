@@ -34,13 +34,15 @@ class EventDispatcher
     {
         $listenerReturnValue = null;
 
-        if (isset($this->listeners[$event])) {
-            foreach ($this->listeners[$event] as $listener) {
-                $listenerReturnValue = $listener(...$args);
+        if (!isset($this->listeners[$event])) {
+            return null;
+        }
 
-                if ($listenerReturnValue === false) {
-                    break;
-                }
+        foreach ($this->listeners[$event] as $listener) {
+            $listenerReturnValue = $listener(...$args);
+
+            if ($listenerReturnValue === false) {
+                break;
             }
         }
 
