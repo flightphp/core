@@ -49,16 +49,13 @@ class EventDispatcher
         return $listenerReturnValue;
     }
 
-    /**
-     * Check if an event has any registered listeners.
-     *
-     * @param string $event Event name
-     *
-     * @return bool True if the event has listeners, false otherwise
-     */
     public function hasListeners(string $event): bool
     {
-        return isset($this->listeners[$event]) === true && count($this->listeners[$event]) > 0;
+        return (
+            isset($this->listeners[$event])
+            && is_array($this->listeners[$event])
+            && count($this->listeners[$event])
+        );
     }
 
     /**
