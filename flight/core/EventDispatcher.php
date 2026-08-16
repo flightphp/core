@@ -6,7 +6,6 @@ namespace flight\core;
 
 class EventDispatcher
 {
-    /** @var self|null Singleton instance of the EventDispatcher */
     private static ?self $instance = null;
 
     /** @var array<string, array<int, callable>> */
