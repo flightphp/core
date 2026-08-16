@@ -34,7 +34,7 @@ class EventDispatcher
     {
         $listenerReturnValue = null;
 
-        if (!isset($this->listeners[$event])) {
+        if (!$this->hasListeners($event)) {
             return null;
         }
 
