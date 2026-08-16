@@ -78,25 +78,11 @@ class EventDispatcher
         ));
     }
 
-    /**
-     * Remove all listeners for a specific event.
-     *
-     * @param string $event the event name
-     *
-     * @return void
-     */
     public function removeAllListeners(string $event): void
     {
-        if (isset($this->listeners[$event]) === true) {
-            unset($this->listeners[$event]);
-        }
+        unset($this->listeners[$event]);
     }
 
-    /**
-     * Remove the current singleton instance of the EventDispatcher.
-     *
-     * @return void
-     */
     public static function resetInstance(): void
     {
         self::$instance = null;
