@@ -57,7 +57,7 @@ use Psr\Container\ContainerInterface;
  * @method void lastModified(int $time)
  * @method void download(string $filePath)
  *
- * @phpstan-method void registerContainerHandler(ContainerInterface|callable(class-string<EngineTemplate> $id, array<int|string, mixed> $params): ?EngineTemplate $containerHandler)
+ * @phpstan-method void registerContainerHandler(ContainerInterface|callable(class-string<object> $id, array<int|string, mixed> $params): ?object $containerHandler)
  * @phpstan-method Route route(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
  * @phpstan-method void group(string $pattern, callable $callback, (class-string|callable|array{0: class-string, 1: string})[] $group_middlewares = [])
  * @phpstan-method Route post(string $pattern, callable|string|array{0: class-string, 1: string} $callback, bool $pass_route = false, string $alias = '')
@@ -117,7 +117,7 @@ class Engine
     /** Class loader. */
     protected Loader $loader;
 
-    /** @var Dispatcher<EngineTemplate> Method and class dispatcher. */
+    /** Method and class dispatcher. */
     protected Dispatcher $dispatcher;
 
     /** Event dispatcher. */
