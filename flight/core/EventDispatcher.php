@@ -20,17 +20,9 @@ class EventDispatcher
         return self::$instance;
     }
 
-    /**
-     * Register a callback for an event.
-     *
-     * @param string $event Event name
-     * @param callable $callback Callback function
-     */
     public function on(string $event, callable $callback): void
     {
-        if (isset($this->listeners[$event]) === false) {
-            $this->listeners[$event] = [];
-        }
+        $this->listeners[$event] ??= [];
         $this->listeners[$event][] = $callback;
     }
 
