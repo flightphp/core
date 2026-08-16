@@ -179,7 +179,7 @@ class Dispatcher
      * Returns a callable by its name.
      *
      * @param string $name Callable name.
-     * @return ?FilteredCallable
+     * @return ?callable
      */
     public function get(string $name): ?callable
     {
