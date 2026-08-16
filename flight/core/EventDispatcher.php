@@ -66,22 +66,16 @@ class EventDispatcher
         return array_keys($this->listeners);
     }
 
-    /**
-     * Remove a specific listener for an event.
-     *
-     * @param string   $event    the event name
-     * @param callable $callback the exact callback to remove
-     *
-     * @return void
-     */
     public function removeListener(string $event, callable $callback): void
     {
-        if (isset($this->listeners[$event]) === true && count($this->listeners[$event]) > 0) {
-            $this->listeners[$event] = array_filter($this->listeners[$event], function ($listener) use ($callback) {
-                return $listener !== $callback;
-            });
-            $this->listeners[$event] = array_values($this->listeners[$event]); // Re-index the array
+        if (!$this->hasListeners($event)) {
+            return;
         }
+
+        $this->listeners[$event] = array_values(array_filter(
+            $this->getListeners($event),
+            static fn(callable $listener): bool => $listener !== $callback,
+        ));
     }
 
     /**
