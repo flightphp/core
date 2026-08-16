@@ -8,7 +8,7 @@ class EventDispatcher
 {
     private static ?self $instance = null;
 
-    /** @var array<string, array<int, callable>> */
+    /** @var array<string, callable[]> */
     protected array $listeners = [];
 
     /**
