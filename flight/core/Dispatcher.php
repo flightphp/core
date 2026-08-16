@@ -29,6 +29,7 @@ class Dispatcher
 {
     public const FILTER_BEFORE = 'before';
     public const FILTER_AFTER = 'after';
+    private const CALLABLE_STRING_OPERATORS = ['->', '::'];
 
     protected ?Throwable $containerException = null;
     protected ?Engine $engine = null;
@@ -305,21 +306,29 @@ class Dispatcher
     }
 
     /**
-     * Parses a string into a class and method.
+     * Parses a string with an unloaded class and method into an array.
      *
-     * @param string $classAndMethod Class and method
-     *
-     * @return array{0: class-string|object, 1: string} Class and method
+     * @deprecated Use `execute()` instead.
+     * @param string $classAndMethod An string with an unloaded class and method,
+     * like `ClassName::method` or `ClassName->method`.
+     * @return array{class-string<object>, string}
+     * @throws InvalidArgumentException If the string is not in a valid format.
      */
     public function parseStringClassAndMethod(string $classAndMethod): array
     {
-        $classParts = explode('->', $classAndMethod);
+        foreach (self::CALLABLE_STRING_OPERATORS as $operator) {
+            $classAndMethod = explode($operator, $classAndMethod);
 
-        if (count($classParts) === 1) {
-            $classParts = explode('::', $classParts[0]);
+            if (count($classAndMethod) === 2) {
+                return [$classAndMethod[0], $classAndMethod[1]];
+            }
+
+            [$classAndMethod] = $classAndMethod;
         }
 
-        return $classParts;
+        $message = "Invalid string format '$classAndMethod', use 'ClassName::method' or 'ClassName->method'.";
+
+        throw new InvalidArgumentException($message);
     }
 
     /**
