@@ -288,7 +288,8 @@ class Dispatcher
     /**
      * Executes a callable.
      *
-     * @param callable|array{class-string<object>|object, string}|string $callback Callable.
+     * @template T of object
+     * @param callable|array{class-string<T>|T, string}|string $callback Callable.
      * @param mixed[] $params Callable input.
      * @return mixed Callable output.
      * @throws Throwable If the callable throws an `Throwable`.
@@ -373,7 +374,8 @@ class Dispatcher
      * Executes a callable.
      *
      * @deprecated Use execute instead.
-     * @param array{class-string<object>|object, string} $func Callable.
+     * @template T of object
+     * @param array{class-string<T>|T, string} $func Callable.
      * @param mixed[] $params Callable input.
      * @return mixed Callable output.
      * @throws Throwable If the callable throws an `Throwable`.
@@ -387,7 +389,8 @@ class Dispatcher
      * Executes a callable.
      *
      * @deprecated Use execute instead.
-     * @param callable|array{class-string<object>|object, string}|string $func Callable.
+     * @template T of object
+     * @param callable|array{class-string<T>|T, string}|string $func Callable.
      * @param mixed[] $params Callable input.
      * @return mixed Callable output.
      * @throws Throwable If the callable throws an `Throwable`.
@@ -401,7 +404,8 @@ class Dispatcher
      * Verifies if the provided function is valid callable.
      *
      * @deprecated This method will be removed.
-     * @param callable|array{class-string<object>|object, string}|string $callback Callable.
+     * @template T of object
+     * @param callable|array{class-string<T>|T, string}|string $callback Callable.
      * @throws InvalidArgumentException If the function is not valid callable.
      */
     protected function verifyValidFunction($callback): void
@@ -527,7 +531,8 @@ class Dispatcher
      * Checks if the class must be resolved by the container.
      *
      * @deprecated This method will be removed.
-     * @param class-string<object>|object $class Class name or object.
+     * @template T of object
+     * @param class-string<T>|T $class Class name or object.
      */
     public function mustUseContainer($class): bool
     {
