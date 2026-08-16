@@ -247,7 +247,7 @@ class Dispatcher
 
         $filteredCallable = $this->get($name);
 
-        if ($filteredCallable) {
+        if ($filteredCallable instanceof FilteredCallable) {
             if ($type === self::FILTER_BEFORE) {
                 $filteredCallable->pushBeforeFilter($callback);
             }
