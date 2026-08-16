@@ -495,18 +495,24 @@ class Dispatcher
     }
 
     /**
-     * Checks to see if a container should be used or not.
+     * Checks if the class must be resolved by the container.
      *
-     * @param string|object $class the class to verify
-     *
-     * @return boolean
+     * @deprecated This method will be removed.
+     * @param class-string<object>|object $class Class name or object.
      */
     public function mustUseContainer($class): bool
     {
-        return $this->containerHandler !== null && (
-            (is_object($class) === true && strpos(get_class($class), 'flight\\') === false)
-            || is_string($class)
-        );
+        $container = $this->containerHandler;
+
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
+
+        if ($container instanceof Container && $container->has($class)) {
+            return true;
+        }
+
+        return is_callable($container);
     }
 
     /** Fixes output buffering issues when an exception is thrown. */
