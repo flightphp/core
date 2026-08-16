@@ -11,16 +11,12 @@ class EventDispatcher
     /** @var array<string, callable[]> */
     protected array $listeners = [];
 
-    /**
-     * Singleton instance of the EventDispatcher.
-     *
-     * @return self
-     */
     public static function getInstance(): self
     {
         if (self::$instance === null) {
             self::$instance = new self();
         }
+
         return self::$instance;
     }
 
