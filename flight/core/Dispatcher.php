@@ -57,7 +57,7 @@ class Dispatcher
     /**
      * @param Container|(callable(class-string<object> $classString, mixed[] $params): ?object) $containerHandler
      * @throws InvalidArgumentException
-     * If $containerHandler is not a `callable` or instance of `Psr\Container\ContainerInterface`.
+     * If $containerHandler is not a `callable` or instance of `\Psr\Container\ContainerInterface`.
      */
     public function setContainerHandler($containerHandler): void
     {
