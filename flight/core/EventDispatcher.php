@@ -27,27 +27,24 @@ class EventDispatcher
     }
 
     /**
-     * Trigger an event with optional arguments.
-     *
-     * @param string $event Event name
-     * @param mixed ...$args Arguments to pass to the callbacks
-     *
+     * @param mixed ...$args Arguments to pass to the listeners.
      * @return mixed
      */
     public function trigger(string $event, ...$args)
     {
-        $result = null;
-        if (isset($this->listeners[$event]) === true) {
-            foreach ($this->listeners[$event] as $callback) {
-                $result = call_user_func_array($callback, $args);
+        $listenerReturnValue = null;
 
-                // If you return false, it will break the loop and stop the other event listeners.
-                if ($result === false) {
-                    break; // Stop executing further listeners
+        if (isset($this->listeners[$event])) {
+            foreach ($this->listeners[$event] as $listener) {
+                $listenerReturnValue = $listener(...$args);
+
+                if ($listenerReturnValue === false) {
+                    break;
                 }
             }
         }
-        return $result;
+
+        return $listenerReturnValue;
     }
 
     /**
