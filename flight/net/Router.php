@@ -12,8 +12,8 @@ use flight\net\Route;
  * an assigned callback function. The Router tries to match the
  * requested URL against a series of URL patterns.
  *
- * @license MIT, http://flightphp.com/license
- * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @copyright 2011 Mike Cao https://mikecao.com
+ * @license https://docs.flightphp.com/license MIT
  */
 class Router
 {

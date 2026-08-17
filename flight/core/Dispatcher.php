@@ -18,8 +18,8 @@ use TypeError;
  * allows you to hook other functions to an event that can modify the
  * input parameters and/or the output.
  *
- * @license MIT, http://flightphp.com/license
- * @copyright Copyright (c) 2011, Mike Cao <mike@mikecao.com>
+ * @copyright 2011 Mike Cao https://mikecao.com
+ * @license https://docs.flightphp.com/license MIT
  * @phpstan-template EngineTemplate of object
  */
 class Dispatcher
