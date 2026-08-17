@@ -24,8 +24,7 @@ use Psr\Container\ContainerInterface;
  * It is responsible for loading an HTTP request, running the assigned services,
  * and generating an HTTP response.
  *
- * @license MIT, https://docs.flightphp.com/license
- * @copyright Copyright (c) 2011-2025, Mike Cao <mike@mikecao.com>, n0nag0n <n0nag0n@sky-9.com>
+ * @copyright 2011-2026, Mike Cao https://mikecao.com, n0nag0n <n0nag0n@sky-9.com>
  *
  * @method void start()
  * @method void stop()
@@ -75,10 +74,7 @@ use Psr\Container\ContainerInterface;
  * @phpstan-method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
  * @phpstan-method void jsonHalt(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0)
  * @phpstan-method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = "utf8", int $encodeOption = 0, int $encodeDepth = 512)
- *
- * Note: IDEs will use standard @method tags for autocompletion, while PHPStan will use @phpstan-* tags for advanced type checking.
- *
- * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
+ * @license https://docs.flightphp.com/license MIT
  */
 class Engine
 {
@@ -227,8 +223,24 @@ class Engine
             // which causes a lot of problems. This will be removed
             // in v4
             $self->response()->v2_output_buffering = $this->get('flight.v2.output_buffering');
-            // Propagate method override setting to Request
-            $self->request()::$allowMethodOverride = (bool) $self->get('flight.allow_method_override');
+
+            // Propagate method override setting to Request.
+            // Assign the static on the class first — do not call request() before this,
+            // or Request's constructor caches the method while the flag is still the default (true).
+            Request::$allowMethodOverride = (bool) $self->get('flight.allow_method_override');
+
+            // If a Request was already built earlier (common: apps touch request() before start)
+            // while override was still enabled, refresh the cached verb when override is off
+            // and an override input is present. When no override input exists, leave any
+            // intentional manual method assignment alone.
+            if (Request::$allowMethodOverride === false) {
+                $hasOverrideInput = Request::getVar('HTTP_X_HTTP_METHOD_OVERRIDE') !== ''
+                    || isset($_REQUEST['_method']);
+                if ($hasOverrideInput === true) {
+                    $request = $self->request();
+                    $request->method = Request::getMethod();
+                }
+            }
         });
 
         $this->initialized = true;

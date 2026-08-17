@@ -9,19 +9,19 @@ Flight aims to be simple and fast. Anything that compromises either of those two
 
 * **Dependencies** - We strive to be dependency free in Flight. Yes even polyfills, yes even `Interface` only repos like `psr/container`. The fewer dependencies, the fewer your exposed attack vectors.
 
-* **Coding Standards** - We use PSR1 coding standards enforced by PHPCS. Some standards that either need additional configuration or need to be manually done are:
+* **Coding Standards** - We use PSR-12 coding standards enforced by PHPCS. Some standards that either need additional configuration or need to be manually done are:
   *  PHPStan is at level 6.
-  *  `===` instead of truthy or falsey statements like `==` or `!is_array()`.
- 
+  *  `===` instead of truthy or falsy statements like `==`.
+
 * **PHP 7.4 Focused** - We do not make PHP 8+ focused enhancements on the framework as the focus is maintaining PHP 7.4.
 
 * **Core functionality vs Plugin** - Have a conversation with us in the [chatroom](https://matrix.to/#/!cTfwPXhpkTXPXwVmxY:matrix.org?via=matrix.org&via=leitstelle511.net&via=integrations.ems.host) to know if your idea is worth makes sense in the framework or in a plugin.
 
-* **Testing** - Until automated testing is put into place, any PRs must pass unit testing in PHP 7.4 and PHP 8.2+. Additionally you need to run `composer test-server` and `composer test-server-v2` and ensure all the header links work correctly.
+* **Testing** - PRs must pass unit tests on PHP 7.4 through PHP 8.5+. Additionally you need to run `composer test-server` and `composer test-server-v2` and ensure all the header links work correctly.
 
 #### **Did you find a bug?**
 
-* **Do not open up a GitHub issue if the bug is a security vulnerability**. Instead contact maintainers directly via email to safely pass in the information related to the security vuln.
+* **Do not open up a GitHub issue if the bug is a security vulnerability**. Instead contact maintainers directly via email to safely share details about the security vulnerability.
 
 * **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/flightphp/core/issues).
 

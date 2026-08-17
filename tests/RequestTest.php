@@ -31,11 +31,15 @@ class RequestTest extends TestCase
         $_COOKIE = [];
         $_FILES = [];
 
+        // Static flag leaks across tests; always restore the framework default.
+        Request::$allowMethodOverride = true;
+
         $this->request = new Request();
     }
 
     protected function tearDown(): void
     {
+        Request::$allowMethodOverride = true;
         unset($_REQUEST);
         unset($_SERVER);
     }
@@ -125,6 +129,49 @@ class RequestTest extends TestCase
         $request = new Request();
 
         $this->assertEquals('PUT', $request->method);
+    }
+
+    public function testMethodOverrideDisabledIgnoresHeader(): void
+    {
+        Request::$allowMethodOverride = false;
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+
+        $request = new Request();
+
+        $this->assertSame('GET', $request->method);
+        $this->assertSame('GET', Request::getMethod());
+    }
+
+    public function testMethodOverrideDisabledIgnoresPostField(): void
+    {
+        Request::$allowMethodOverride = false;
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_REQUEST['_method'] = 'PUT';
+
+        $request = new Request();
+
+        $this->assertSame('POST', $request->method);
+        $this->assertSame('POST', Request::getMethod());
+    }
+
+    public function testMethodOverrideFlagMustBeSetBeforeConstruction(): void
+    {
+        // Documents the caching behavior: flipping the static after construct
+        // does not rewrite the already-cached $request->method.
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+
+        Request::$allowMethodOverride = true;
+        $request = new Request();
+        $this->assertSame('DELETE', $request->method);
+
+        Request::$allowMethodOverride = false;
+        $this->assertSame('DELETE', $request->method, 'cached method is not auto-refreshed');
+        $this->assertSame('GET', Request::getMethod(), 'getMethod() respects the new flag');
+
+        $request->method = Request::getMethod();
+        $this->assertSame('GET', $request->method);
     }
 
     public function testHttps(): void

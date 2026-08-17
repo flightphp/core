@@ -23,11 +23,18 @@ class EngineTest extends TestCase
     public function setUp(): void
     {
         $_SERVER = [];
+        $_REQUEST = [];
+        $_GET = [];
+        $_POST = [];
+        // Static flag leaks across tests (and across Engine instances).
+        Request::$allowMethodOverride = true;
     }
 
     public function tearDown(): void
     {
         $_SERVER = [];
+        $_REQUEST = [];
+        Request::$allowMethodOverride = true;
     }
 
     public function testInitBeforeStart(): void
@@ -1206,5 +1213,171 @@ class EngineTest extends TestCase
         $this->expectException(Exception::class);
         $this->expectExceptionMessage("/path/to/nowhere cannot be found.");
         $engine->download('/path/to/nowhere');
+    }
+
+    /**
+     * Regression for GHSA method-override opt-out: setting the flag to false must
+     * prevent X-HTTP-Method-Override from selecting a different route.
+     *
+     * The original mitigation assigned Request::$allowMethodOverride via
+     * $self->request()::$allowMethodOverride, which built Request (and cached the
+     * overridden verb) before the static was set.
+     */
+    public function testAllowMethodOverrideFalseBlocksHeaderOverrideOnStart(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/test';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+
+        $engine = new Engine();
+        $engine->set('flight.allow_method_override', false);
+
+        $hit = null;
+        $engine->route('GET /test', function () use (&$hit) {
+            $hit = 'get';
+            echo 'get';
+        });
+        $engine->route('DELETE /test', function () use (&$hit) {
+            $hit = 'delete';
+            echo 'delete';
+        });
+
+        $this->expectOutputString('get');
+        $engine->start();
+
+        $this->assertSame('get', $hit);
+        $this->assertFalse(Request::$allowMethodOverride);
+        $this->assertSame('GET', $engine->request()->method);
+    }
+
+    public function testAllowMethodOverrideFalseBlocksPostMethodFieldOnStart(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI'] = '/test';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_REQUEST['_method'] = 'PUT';
+
+        $engine = new Engine();
+        $engine->set('flight.allow_method_override', false);
+
+        $hit = null;
+        $engine->route('POST /test', function () use (&$hit) {
+            $hit = 'post';
+            echo 'post';
+        });
+        $engine->route('PUT /test', function () use (&$hit) {
+            $hit = 'put';
+            echo 'put';
+        });
+
+        $this->expectOutputString('post');
+        $engine->start();
+
+        $this->assertSame('post', $hit);
+        $this->assertSame('POST', $engine->request()->method);
+    }
+
+    public function testAllowMethodOverrideTrueStillHonorsHeaderOnStart(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/test';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+
+        $engine = new Engine();
+        // default is true; set explicitly for clarity
+        $engine->set('flight.allow_method_override', true);
+
+        $hit = null;
+        $engine->route('GET /test', function () use (&$hit) {
+            $hit = 'get';
+            echo 'get';
+        });
+        $engine->route('DELETE /test', function () use (&$hit) {
+            $hit = 'delete';
+            echo 'delete';
+        });
+
+        $this->expectOutputString('delete');
+        $engine->start();
+
+        $this->assertSame('delete', $hit);
+        $this->assertTrue(Request::$allowMethodOverride);
+        $this->assertSame('DELETE', $engine->request()->method);
+    }
+
+    /**
+     * App code often touches request() before start() (set url, inspect headers, etc.).
+     * The flag must still win even when Request was constructed early under the default.
+     */
+    public function testAllowMethodOverrideFalseRefreshesMethodIfRequestBuiltEarly(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/test';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+
+        $engine = new Engine();
+        $engine->set('flight.allow_method_override', false);
+
+        // Construct Request while static is still the default (true)
+        $this->assertTrue(Request::$allowMethodOverride);
+        $early = $engine->request();
+        $this->assertSame('DELETE', $early->method, 'pre-start construction still sees default override=on');
+
+        $hit = null;
+        $engine->route('GET /test', function () use (&$hit) {
+            $hit = 'get';
+            echo 'get';
+        });
+        $engine->route('DELETE /test', function () use (&$hit) {
+            $hit = 'delete';
+            echo 'delete';
+        });
+
+        $this->expectOutputString('get');
+        $engine->start();
+
+        $this->assertSame('get', $hit);
+        $this->assertFalse(Request::$allowMethodOverride);
+        $this->assertSame('GET', $engine->request()->method);
+        $this->assertSame($early, $engine->request(), 'same Request instance is refreshed, not replaced');
+    }
+
+    public function testAllowMethodOverrideFalseDoesNotClobberManualMethodWithoutOverrideInput(): void
+    {
+        // No X-HTTP-Method-Override / _method — manual method assignment must survive start().
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/someRoute';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+
+        $engine = new Engine();
+        $engine->set('flight.allow_method_override', false);
+        $engine->route('GET /someRoute', function () {
+            echo 'i ran';
+        }, true);
+        $engine->request()->method = 'HEAD';
+        $engine->request()->url = '/someRoute';
+
+        $this->expectOutputString('');
+        $engine->start();
+
+        $this->assertSame('HEAD', $engine->request()->method);
     }
 }
