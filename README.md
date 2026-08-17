@@ -37,17 +37,20 @@ Yes! Flight is fast. It is one of the fastest PHP frameworks available. You can 
 
 See the benchmark below with some other popular PHP frameworks. This is measured in requests processed within the same timeframe.
 
-| Framework | Plaintext Requests| JSON Requests|
-| --------- | ------------ | ------------ |
-| Flight      | 190,421    | 182,491 |
-| Yii         | 145,749    | 131,434 |
-| Fat-Free    | 139,238    | 133,952 |
-| Slim        | 89,588     | 87,348  |
-| Phalcon     | 95,911     | 87,675  |
-| Symfony     | 65,053     | 63,237  |
-| Lumen       | 40,572     | 39,700  |
-| Laravel     | 26,657     | 26,901  |
-| CodeIgniter | 20,628     | 19,901  |
+```mermaid
+---
+config:
+  xyChart:
+    showDataLabel: true
+---
+xychart-beta
+  title "PHP Framework Performance (TechEmpower, requests/sec)"
+  x-axis "Framework" ["Flight", "Yii", "Fat-Free", "Slim", "Phalcon", "Symfony", "Lumen", "Laravel", "CodeIgniter"]
+  y-axis "Requests/sec (x1000)" 0 --> 200
+  %% Series 1: Plaintext, Series 2: JSON
+  bar [190.4, 145.7, 139.2, 89.6, 95.9, 65.1, 40.6, 26.7, 20.6]
+  bar [182.5, 131.4, 134.0, 87.3, 87.7, 63.2, 39.7, 26.9, 19.9]
+```
 
 ## Skeleton App
 
