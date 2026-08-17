@@ -16,11 +16,11 @@ This is the main FlightPHP core library for building fast, simple, and extensibl
 - Run tests: `composer test` (uses phpunit/phpunit and spatie/phpunit-watcher)
 - Run test server: `composer test-server` or `composer test-server-v2`
 - Lint code & Check code style: `composer lint` (uses phpstan/phpstan, level 6)
-- Beautify code: `composer format` (uses squizlabs/php_codesniffer, PSR1)
+- Beautify code: `composer format` (uses squizlabs/php_codesniffer, PSR12)
 - Test coverage: `composer test-coverage`
 
 ## Coding Standards
-- Follow PSR1 coding standards (enforced by PHPCS)
+- Follow PSR12 coding standards (enforced by PHPCS)
 - Use strict comparisons (`===`, `!==`)
 - PHPStan level 6 compliance
 - Focus on PHP 7.4 compatibility (avoid PHP 8+ only features)
