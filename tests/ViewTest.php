@@ -111,12 +111,128 @@ class ViewTest extends TestCase
         $this->expectOutputString("Hello world, Bob!");
     }
 
+    public function testRenderRelativePathThatStaysInsideViews(): void
+    {
+        $this->view->render('layouts/../hello', ['name' => 'Bob']);
+
+        $this->expectOutputString('Hello, Bob!');
+    }
+
     public function testGetTemplateAbsolutePath(): void
     {
         $tmpfile = tmpfile();
         $this->view->extension = '';
         $file_path = stream_get_meta_data($tmpfile)['uri'];
-        $this->assertEquals($file_path, $this->view->getTemplate($file_path));
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Template path is not allowed.');
+        $this->view->getTemplate($file_path);
+    }
+
+    public function testRejectsDriveLetterTemplatePath(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Template path is not allowed.');
+        $this->view->getTemplate('C:' . DIRECTORY_SEPARATOR . 'outside.php');
+    }
+
+    public function testRejectsTemplateThatLeavesViewsDirectory(): void
+    {
+        $outside = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-view-outside-' . uniqid();
+        mkdir($outside);
+        $note = $outside . DIRECTORY_SEPARATOR . 'note.php';
+        file_put_contents($note, '<?php echo "blocked";');
+
+        $views = realpath($this->view->path);
+        $relative = $this->relativePathFrom($views, $note);
+        $relative = preg_replace('/\.php$/', '', $relative);
+
+        try {
+            $this->expectException(Exception::class);
+            $this->expectExceptionMessage('Template path is not allowed.');
+            $this->view->render($relative);
+        } finally {
+            unlink($note);
+            rmdir($outside);
+        }
+    }
+
+    public function testRejectsTemplateThatResolvesOutsideViewsDirectory(): void
+    {
+        $root = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-view-root-' . uniqid();
+        $views = $root . DIRECTORY_SEPARATOR . 'views';
+        $outside = $root . DIRECTORY_SEPARATOR . 'outside';
+        mkdir($root);
+        mkdir($views);
+        mkdir($outside);
+        $note = $outside . DIRECTORY_SEPARATOR . 'note.php';
+        file_put_contents($note, '<?php echo "blocked";');
+        $link = $views . DIRECTORY_SEPARATOR . 'alias.php';
+
+        if (!@symlink($note, $link)) {
+            $this->removeDir($root);
+            $this->markTestSkipped('Symlink not available');
+        }
+
+        $view = new View($views);
+
+        try {
+            $this->expectException(Exception::class);
+            $this->expectExceptionMessage('Template path is not allowed.');
+            $view->render('alias');
+        } finally {
+            $this->removeDir($root);
+        }
+    }
+
+    public function testRejectsMissingViewsDirectory(): void
+    {
+        $view = new View(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-missing-views-' . uniqid());
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Template path is not allowed.');
+        $view->render('hello');
+    }
+
+    private function relativePathFrom(string $fromDir, string $toFile): string
+    {
+        $from = explode(DIRECTORY_SEPARATOR, rtrim($fromDir, DIRECTORY_SEPARATOR));
+        $to = explode(DIRECTORY_SEPARATOR, $toFile);
+        $file = array_pop($to);
+
+        while ($from !== [] && $to !== [] && $from[0] === $to[0]) {
+            array_shift($from);
+            array_shift($to);
+        }
+
+        $up = array_fill(0, count($from), '..');
+        return implode(DIRECTORY_SEPARATOR, array_merge($up, $to, [$file]));
+    }
+
+    private function removeDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $items = scandir($dir);
+        if ($items === false) {
+            return;
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_link($path) || is_file($path)) {
+                unlink($path);
+                continue;
+            }
+            $this->removeDir($path);
+        }
+
+        rmdir($dir);
     }
 
     public function testE(): void

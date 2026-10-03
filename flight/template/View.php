@@ -161,9 +161,14 @@ class View
     /**
      * Gets the full path to a template file.
      *
+     * Absolute paths are rejected. The resolved file must stay inside the
+     * configured views directory. If that cannot be shown, this fails closed.
+     *
      * @param string $file Template file
      *
      * @return string Template file location
+     *
+     * @throws \Exception When the path is absolute or resolves outside the views directory.
      */
     public function getTemplate(string $file): string
     {
@@ -173,13 +178,74 @@ class View
             $file .= $ext;
         }
 
-        $is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
-
-        if ((\substr($file, 0, 1) === '/') || ($is_windows && \substr($file, 1, 1) === ':')) {
-            return $file;
+        if ($this->isAbsolutePath($file)) {
+            throw new \Exception('Template path is not allowed.');
         }
 
-        return $this->path . DIRECTORY_SEPARATOR . $file;
+        $viewsPath = \realpath($this->path);
+        if ($viewsPath === false || !$this->relativeStaysInside($file)) {
+            throw new \Exception('Template path is not allowed.');
+        }
+
+        $candidate = $this->path . \DIRECTORY_SEPARATOR . $file;
+        $resolved = \realpath($candidate);
+        if ($resolved === false) {
+            return $candidate;
+        }
+
+        $root = \rtrim($viewsPath, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR;
+        if (\strpos($resolved, $root) !== 0) {
+            throw new \Exception('Template path is not allowed.');
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * True when $file is an absolute filesystem path.
+     */
+    private function isAbsolutePath(string $file): bool
+    {
+        if ($file === '') {
+            return false;
+        }
+
+        if ($file[0] === '/' || $file[0] === '\\') {
+            return true;
+        }
+
+        return \strlen($file) > 1 && \ctype_alpha($file[0]) && $file[1] === ':';
+    }
+
+    /**
+     * True when relative segments in $file do not climb out of the views directory.
+     */
+    private function relativeStaysInside(string $file): bool
+    {
+        $segments = \preg_split('#[\\/]+#', $file, -1, \PREG_SPLIT_NO_EMPTY);
+        if ($segments === false) {
+            return false;
+        }
+
+        $depth = 0;
+        foreach ($segments as $segment) {
+            if ($segment === '.') {
+                continue;
+            }
+
+            if ($segment === '..') {
+                if ($depth === 0) {
+                    return false;
+                }
+
+                $depth--;
+                continue;
+            }
+
+            $depth++;
+        }
+
+        return true;
     }
 
     /**
