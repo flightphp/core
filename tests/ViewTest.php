@@ -138,14 +138,11 @@ class ViewTest extends TestCase
 
     public function testRejectsTemplateThatLeavesViewsDirectory(): void
     {
-        $outside = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-view-outside-' . uniqid();
+        $outside = dirname($this->view->path) . DIRECTORY_SEPARATOR . 'flight-view-outside-' . uniqid();
         mkdir($outside);
         $note = $outside . DIRECTORY_SEPARATOR . 'note.php';
         file_put_contents($note, '<?php echo "blocked";');
-
-        $views = realpath($this->view->path);
-        $relative = $this->relativePathFrom($views, $note);
-        $relative = preg_replace('/\.php$/', '', $relative);
+        $relative = '..' . DIRECTORY_SEPARATOR . basename($outside) . DIRECTORY_SEPARATOR . 'note';
 
         try {
             $this->expectException(Exception::class);
@@ -155,6 +152,13 @@ class ViewTest extends TestCase
             unlink($note);
             rmdir($outside);
         }
+    }
+
+    public function testRejectsEmbeddedDriveLetter(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Template path is not allowed.');
+        $this->view->getTemplate('layouts' . DIRECTORY_SEPARATOR . 'C:' . DIRECTORY_SEPARATOR . 'outside');
     }
 
     public function testRejectsTemplateThatResolvesOutsideViewsDirectory(): void
@@ -194,20 +198,6 @@ class ViewTest extends TestCase
         $view->render('hello');
     }
 
-    private function relativePathFrom(string $fromDir, string $toFile): string
-    {
-        $from = explode(DIRECTORY_SEPARATOR, rtrim($fromDir, DIRECTORY_SEPARATOR));
-        $to = explode(DIRECTORY_SEPARATOR, $toFile);
-        $file = array_pop($to);
-
-        while ($from !== [] && $to !== [] && $from[0] === $to[0]) {
-            array_shift($from);
-            array_shift($to);
-        }
-
-        $up = array_fill(0, count($from), '..');
-        return implode(DIRECTORY_SEPARATOR, array_merge($up, $to, [$file]));
-    }
 
     private function removeDir(string $dir): void
     {

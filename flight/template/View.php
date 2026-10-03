@@ -222,15 +222,17 @@ class View
      */
     private function relativeStaysInside(string $file): bool
     {
-        $segments = \preg_split('#[\\/]+#', $file, -1, \PREG_SPLIT_NO_EMPTY);
-        if ($segments === false) {
-            return false;
-        }
-
+        $segments = \explode('/', \str_replace('\\', '/', $file));
         $depth = 0;
+
         foreach ($segments as $segment) {
-            if ($segment === '.') {
+            if ($segment === '' || $segment === '.') {
                 continue;
+            }
+
+            // A drive letter or colon is an absolute jump, not a view name.
+            if (\strpos($segment, ':') !== false) {
+                return false;
             }
 
             if ($segment === '..') {
