@@ -188,6 +188,7 @@ class Engine
         $this->loader->register('view', View::class, [], function (View $view) use ($self) {
             $view->path = $self->get('flight.views.path');
             $view->extension = $self->get('flight.views.extension');
+            $view->restrictToPath = (bool) $self->get('flight.views.restrict_to_path');
         });
 
         foreach (self::MAPPABLE_METHODS as $name) {
@@ -202,6 +203,7 @@ class Engine
         $this->set('flight.debug', false);
         $this->set('flight.views.path', './views');
         $this->set('flight.views.extension', '.php');
+        $this->set('flight.views.restrict_to_path', false);
         $this->set('flight.content_length', true);
         $this->set('flight.v2.output_buffering', false);
         $this->set('flight.allow_method_override', true);

@@ -1380,4 +1380,15 @@ class EngineTest extends TestCase
 
         $this->assertSame('HEAD', $engine->request()->method);
     }
+
+    public function testViewsRestrictToPathConfigIsAppliedToView(): void
+    {
+        $engine = new Engine();
+        $this->assertFalse($engine->view()->restrictToPath);
+
+        $engine = new Engine();
+        $engine->set('flight.views.restrict_to_path', true);
+        $this->assertTrue($engine->view()->restrictToPath);
+    }
+
 }

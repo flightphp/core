@@ -25,6 +25,7 @@ class View
     /**
      * When true, render(), fetch() and exists() only accept template files
      * that resolve inside $path. Off by default so existing behavior holds.
+     * Prefer Flight::set('flight.views.restrict_to_path', true); Engine applies it.
      */
     public bool $restrictToPath = false;
 
