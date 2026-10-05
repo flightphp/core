@@ -111,118 +111,12 @@ class ViewTest extends TestCase
         $this->expectOutputString("Hello world, Bob!");
     }
 
-    public function testRenderRelativePathThatStaysInsideViews(): void
-    {
-        $this->view->render('layouts/../hello', ['name' => 'Bob']);
-
-        $this->expectOutputString('Hello, Bob!');
-    }
-
     public function testGetTemplateAbsolutePath(): void
     {
         $tmpfile = tmpfile();
         $this->view->extension = '';
         $file_path = stream_get_meta_data($tmpfile)['uri'];
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Template path is not allowed.');
-        $this->view->getTemplate($file_path);
-    }
-
-    public function testRejectsDriveLetterTemplatePath(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Template path is not allowed.');
-        $this->view->getTemplate('C:' . DIRECTORY_SEPARATOR . 'outside.php');
-    }
-
-    public function testRejectsTemplateThatLeavesViewsDirectory(): void
-    {
-        $outside = dirname($this->view->path) . DIRECTORY_SEPARATOR . 'flight-view-outside-' . uniqid();
-        mkdir($outside);
-        $note = $outside . DIRECTORY_SEPARATOR . 'note.php';
-        file_put_contents($note, '<?php echo "blocked";');
-        $relative = '..' . DIRECTORY_SEPARATOR . basename($outside) . DIRECTORY_SEPARATOR . 'note';
-
-        try {
-            $this->expectException(Exception::class);
-            $this->expectExceptionMessage('Template path is not allowed.');
-            $this->view->render($relative);
-        } finally {
-            unlink($note);
-            rmdir($outside);
-        }
-    }
-
-    public function testRejectsEmbeddedDriveLetter(): void
-    {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Template path is not allowed.');
-        $this->view->getTemplate('layouts' . DIRECTORY_SEPARATOR . 'C:' . DIRECTORY_SEPARATOR . 'outside');
-    }
-
-    public function testRejectsTemplateThatResolvesOutsideViewsDirectory(): void
-    {
-        $root = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-view-root-' . uniqid();
-        $views = $root . DIRECTORY_SEPARATOR . 'views';
-        $outside = $root . DIRECTORY_SEPARATOR . 'outside';
-        mkdir($root);
-        mkdir($views);
-        mkdir($outside);
-        $note = $outside . DIRECTORY_SEPARATOR . 'note.php';
-        file_put_contents($note, '<?php echo "blocked";');
-        $link = $views . DIRECTORY_SEPARATOR . 'alias.php';
-
-        if (!@symlink($note, $link)) {
-            $this->removeDir($root);
-            $this->markTestSkipped('Symlink not available');
-        }
-
-        $view = new View($views);
-
-        try {
-            $this->expectException(Exception::class);
-            $this->expectExceptionMessage('Template path is not allowed.');
-            $view->render('alias');
-        } finally {
-            $this->removeDir($root);
-        }
-    }
-
-    public function testRejectsMissingViewsDirectory(): void
-    {
-        $view = new View(sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-missing-views-' . uniqid());
-
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Template path is not allowed.');
-        $view->render('hello');
-    }
-
-
-    private function removeDir(string $dir): void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $items = scandir($dir);
-        if ($items === false) {
-            return;
-        }
-
-        foreach ($items as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            $path = $dir . DIRECTORY_SEPARATOR . $item;
-            if (is_link($path) || is_file($path)) {
-                unlink($path);
-                continue;
-            }
-            $this->removeDir($path);
-        }
-
-        rmdir($dir);
+        $this->assertEquals($file_path, $this->view->getTemplate($file_path));
     }
 
     public function testE(): void
@@ -360,5 +254,140 @@ class ViewTest extends TestCase
                 '/^.*$/'
             ],
         ];
+    }
+
+    public function testAbsolutePathStillRendersByDefault(): void
+    {
+        $file = $this->makeOutsideTemplate('outside');
+
+        try {
+            $this->expectOutputString('outside');
+            $this->view->render($file);
+            $this->assertTrue($this->view->exists($file));
+        } finally {
+            $this->removeDir(dirname($file));
+        }
+    }
+
+    public function testRestrictToPathIsOffByDefault(): void
+    {
+        $this->assertFalse((new View())->restrictToPath);
+    }
+
+    public function testRestrictToPathRendersViewInsidePath(): void
+    {
+        $this->view->restrictToPath = true;
+
+        $this->expectOutputString('Hello, Bob!');
+        $this->view->render('hello', ['name' => 'Bob']);
+        $this->assertTrue($this->view->exists('hello'));
+        $this->assertTrue($this->view->exists('layouts/layout'));
+    }
+
+    public function testRestrictToPathAllowsAbsolutePathInsidePath(): void
+    {
+        $this->view->restrictToPath = true;
+        $file = (string) realpath(__DIR__ . '/views/hello.php');
+
+        $this->expectOutputString('Hello, Bob!');
+        $this->view->render($file, ['name' => 'Bob']);
+    }
+
+    public function testRestrictToPathRejectsRelativePathOutsidePath(): void
+    {
+        $this->view->restrictToPath = true;
+        $dir = __DIR__ . DIRECTORY_SEPARATOR . 'restrict-' . uniqid();
+        mkdir($dir);
+        file_put_contents($dir . DIRECTORY_SEPARATOR . 'note.php', 'outside');
+        $name = '..' . DIRECTORY_SEPARATOR . basename($dir) . DIRECTORY_SEPARATOR . 'note';
+
+        try {
+            $this->assertFalse($this->view->exists($name));
+            $this->expectException(Exception::class);
+            $this->expectExceptionMessage('Template file is outside the views path.');
+            $this->view->render($name);
+        } finally {
+            $this->removeDir($dir);
+        }
+    }
+
+    public function testRestrictToPathRejectsAbsolutePathOutsidePath(): void
+    {
+        $this->view->restrictToPath = true;
+        $file = $this->makeOutsideTemplate('outside');
+
+        try {
+            $this->assertFalse($this->view->exists($file));
+            $this->expectException(Exception::class);
+            $this->expectExceptionMessage('Template file is outside the views path.');
+            $this->view->render($file);
+        } finally {
+            $this->removeDir(dirname($file));
+        }
+    }
+
+    public function testRestrictToPathRejectsSymlinkOutsidePath(): void
+    {
+        $root = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-view-' . uniqid();
+        mkdir($root . DIRECTORY_SEPARATOR . 'views', 0777, true);
+        mkdir($root . DIRECTORY_SEPARATOR . 'outside');
+        $target = $root . DIRECTORY_SEPARATOR . 'outside' . DIRECTORY_SEPARATOR . 'note.php';
+        file_put_contents($target, 'outside');
+
+        if (!@symlink($target, $root . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'alias.php')) {
+            $this->removeDir($root);
+            $this->markTestSkipped('Symlinks are not available.');
+        }
+
+        $view = new View($root . DIRECTORY_SEPARATOR . 'views');
+        $view->restrictToPath = true;
+
+        try {
+            $this->assertFalse($view->exists('alias'));
+            $this->expectException(Exception::class);
+            $this->expectExceptionMessage('Template file is outside the views path.');
+            $view->render('alias');
+        } finally {
+            $this->removeDir($root);
+        }
+    }
+
+    public function testRestrictToPathKeepsNotFoundMessage(): void
+    {
+        $this->view->restrictToPath = true;
+
+        $this->assertFalse($this->view->exists('badfile'));
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Template file not found:');
+        $this->view->render('badfile');
+    }
+
+    private function makeOutsideTemplate(string $content): string
+    {
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'flight-view-' . uniqid();
+        mkdir($dir);
+        $file = $dir . DIRECTORY_SEPARATOR . 'note.php';
+        file_put_contents($file, $content);
+
+        return $file;
+    }
+
+    private function removeDir(string $dir): void
+    {
+        foreach ((array) scandir($dir) as $item) {
+            if ($item === '.' || $item === '..' || $item === false) {
+                continue;
+            }
+
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+
+            if (is_dir($path) && !is_link($path)) {
+                $this->removeDir($path);
+            } else {
+                unlink($path);
+            }
+        }
+
+        rmdir($dir);
     }
 }

@@ -23,6 +23,12 @@ class View
     public bool $preserveVars = true;
 
     /**
+     * When true, render(), fetch() and exists() only accept template files
+     * that resolve inside $path. Off by default so existing behavior holds.
+     */
+    public bool $restrictToPath = false;
+
+    /**
      * View variables.
      *
      * @var array<string, mixed> $vars
@@ -116,6 +122,10 @@ class View
             throw new \Exception("Template file not found: {$normalized_path}.");
         }
 
+        if (!$this->isInsidePath($this->template)) {
+            throw new \Exception('Template file is outside the views path.');
+        }
+
         \extract($this->vars);
 
         if (\is_array($templateData) === true) {
@@ -155,20 +165,17 @@ class View
      */
     public function exists(string $file): bool
     {
-        return \file_exists($this->getTemplate($file));
+        $template = $this->getTemplate($file);
+
+        return \file_exists($template) && $this->isInsidePath($template);
     }
 
     /**
      * Gets the full path to a template file.
      *
-     * Absolute paths are rejected. The resolved file must stay inside the
-     * configured views directory. If that cannot be shown, this fails closed.
-     *
      * @param string $file Template file
      *
      * @return string Template file location
-     *
-     * @throws \Exception When the path is absolute or resolves outside the views directory.
      */
     public function getTemplate(string $file): string
     {
@@ -178,76 +185,13 @@ class View
             $file .= $ext;
         }
 
-        if ($this->isAbsolutePath($file)) {
-            throw new \Exception('Template path is not allowed.');
+        $is_windows = \strtoupper(\substr(PHP_OS, 0, 3)) === 'WIN';
+
+        if ((\substr($file, 0, 1) === '/') || ($is_windows && \substr($file, 1, 1) === ':')) {
+            return $file;
         }
 
-        $viewsPath = \realpath($this->path);
-        if ($viewsPath === false || !$this->relativeStaysInside($file)) {
-            throw new \Exception('Template path is not allowed.');
-        }
-
-        $candidate = $this->path . \DIRECTORY_SEPARATOR . $file;
-        $resolved = \realpath($candidate);
-        if ($resolved === false) {
-            return $candidate;
-        }
-
-        $root = \rtrim($viewsPath, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR;
-        if (\strpos($resolved, $root) !== 0) {
-            throw new \Exception('Template path is not allowed.');
-        }
-
-        return $resolved;
-    }
-
-    /**
-     * True when $file is an absolute filesystem path.
-     */
-    private function isAbsolutePath(string $file): bool
-    {
-        if ($file === '') {
-            return false;
-        }
-
-        if ($file[0] === '/' || $file[0] === '\\') {
-            return true;
-        }
-
-        return \strlen($file) > 1 && \ctype_alpha($file[0]) && $file[1] === ':';
-    }
-
-    /**
-     * True when relative segments in $file do not climb out of the views directory.
-     */
-    private function relativeStaysInside(string $file): bool
-    {
-        $segments = \explode('/', \str_replace('\\', '/', $file));
-        $depth = 0;
-
-        foreach ($segments as $segment) {
-            if ($segment === '' || $segment === '.') {
-                continue;
-            }
-
-            // A drive letter or colon is an absolute jump, not a view name.
-            if (\strpos($segment, ':') !== false) {
-                return false;
-            }
-
-            if ($segment === '..') {
-                if ($depth === 0) {
-                    return false;
-                }
-
-                $depth--;
-                continue;
-            }
-
-            $depth++;
-        }
-
-        return true;
+        return $this->path . DIRECTORY_SEPARATOR . $file;
     }
 
     /**
@@ -262,6 +206,29 @@ class View
         $value = \htmlentities($str, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         echo $value;
         return $value;
+    }
+
+    /**
+     * Checks that an existing template file resolves inside the views path.
+     * Always true while $restrictToPath is off. Fails closed when either
+     * path cannot be resolved.
+     */
+    protected function isInsidePath(string $template): bool
+    {
+        if ($this->restrictToPath === false) {
+            return true;
+        }
+
+        $root = \realpath($this->path);
+        $resolved = \realpath($template);
+
+        if ($root === false || $resolved === false) {
+            return false;
+        }
+
+        $root = \rtrim($root, '\\/') . DIRECTORY_SEPARATOR;
+
+        return \strpos($resolved, $root) === 0;
     }
 
     protected static function normalizePath(string $path, string $separator = DIRECTORY_SEPARATOR): string
