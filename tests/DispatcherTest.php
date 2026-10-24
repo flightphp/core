@@ -168,6 +168,11 @@ class DispatcherTest extends TestCase
         $this->dispatcher->execute('nonexistentGlobalFunction');
     }
 
+    public function testExecuteGlobalFunctionString(): void
+    {
+        $this->assertSame('HELLO', $this->dispatcher->execute('strtoupper', ['hello']));
+    }
+
     // It will be useful for executing instance Controller methods statically
     public function testCanExecuteAnNonStaticMethodStatically(): void
     {

@@ -299,6 +299,10 @@ class Dispatcher
         $this->verifyValidFunction($callback);
 
         if (is_string($callback)) {
+            if (function_exists($callback)) {
+                return $callback(...$params);
+            }
+
             $callback = $this->parseStringClassAndMethod($callback);
         }
 
