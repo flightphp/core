@@ -170,7 +170,17 @@ class Dispatcher
     public function set(string $name, callable $callback): self
     {
         $this->events[$name] = $callback;
-        $this->namedCallables[$name] = new FilteredCallable($callback);
+        $filteredCallable = new FilteredCallable($callback);
+
+        foreach ($this->filters[$name][self::FILTER_BEFORE] ?? [] as $filter) {
+            $filteredCallable->pushBeforeFilter($filter);
+        }
+
+        foreach ($this->filters[$name][self::FILTER_AFTER] ?? [] as $filter) {
+            $filteredCallable->pushAfterFilter($filter);
+        }
+
+        $this->namedCallables[$name] = $filteredCallable;
 
         return $this;
     }
