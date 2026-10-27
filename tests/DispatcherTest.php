@@ -130,6 +130,75 @@ class DispatcherTest extends TestCase
         $this->assertSame('Hello, Fred! Have a nice day!', $result);
     }
 
+    public function testSetKeepsFiltersHookedBeforeIt(): void
+    {
+        $calls = [];
+
+        $this->dispatcher->set('hello', function () use (&$calls): string {
+            $calls[] = 'original';
+
+            return 'original';
+        });
+
+        $this->dispatcher
+            ->hook('hello', Dispatcher::FILTER_BEFORE, function () use (&$calls): void {
+                $calls[] = 'before';
+            })
+            ->hook('hello', Dispatcher::FILTER_AFTER, function (array &$params, &$output) use (&$calls): void {
+                $calls[] = 'after';
+            });
+
+        // Re-mapping the same name must keep the filters that were already registered.
+        $this->dispatcher->set('hello', function () use (&$calls): string {
+            $calls[] = 'replacement';
+
+            return 'replacement';
+        });
+
+        $result = $this->dispatcher->run('hello');
+
+        $this->assertSame('replacement', $result);
+        $this->assertSame(['before', 'replacement', 'after'], $calls);
+    }
+
+    public function testSetKeepsFiltersInRegistrationOrder(): void
+    {
+        $calls = [];
+
+        $this->dispatcher->set('hello', fn(): string => 'original');
+
+        $this->dispatcher
+            ->hook('hello', Dispatcher::FILTER_BEFORE, function () use (&$calls): void {
+                $calls[] = 'before1';
+            })
+            ->hook('hello', Dispatcher::FILTER_BEFORE, function () use (&$calls): void {
+                $calls[] = 'before2';
+            })
+            ->hook('hello', Dispatcher::FILTER_AFTER, function (array &$params, &$output) use (&$calls): void {
+                $calls[] = 'after1';
+            })
+            ->hook('hello', Dispatcher::FILTER_AFTER, function (&$output) use (&$calls): void {
+                $calls[] = 'after2';
+            });
+
+        $this->dispatcher->set('hello', fn(): string => 'replacement');
+
+        $this->assertSame('replacement', $this->dispatcher->run('hello'));
+        $this->assertSame(['before1', 'before2', 'after1', 'after2'], $calls);
+    }
+
+    public function testSetKeepsAfterFilterHookedBeforeIt(): void
+    {
+        $this->dispatcher->set('hello', fn(): string => 'Hello');
+        $this->dispatcher->hook('hello', Dispatcher::FILTER_AFTER, function (array &$params, &$output): void {
+            $output .= ' there';
+        });
+
+        $this->dispatcher->set('hello', fn(): string => 'Hi');
+
+        $this->assertSame('Hi there', $this->dispatcher->run('hello'));
+    }
+
     public function testBeforeAndAfterWithShortAfterFilterSyntax(): void
     {
         $this->dispatcher->set('hello', fn(string $name): string => "Hello, $name!");

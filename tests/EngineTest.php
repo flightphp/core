@@ -1381,6 +1381,74 @@ class EngineTest extends TestCase
         $this->assertSame('HEAD', $engine->request()->method);
     }
 
+    /**
+     * The startup configuration is registered as a "before" filter on start. Remapping
+     * start after construction must not drop it.
+     */
+    public function testMapStartKeepsStartupConfiguration(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/test';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = 'localhost';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+
+        $engine = new Engine();
+        $engine->set('flight.allow_method_override', false);
+        $engine->set('flight.case_sensitive', true);
+
+        $ran = false;
+        $engine->map('start', function () use (&$ran) {
+            $ran = true;
+        });
+
+        $engine->start();
+
+        // set_*_handler() returns the handler that was installed before the call.
+        $errorHandler = set_error_handler(null);
+        restore_error_handler();
+        $exceptionHandler = set_exception_handler(null);
+        restore_exception_handler();
+
+        // Remove the handlers installed by the startup filter so they do not leak into other tests.
+        if ($errorHandler === [$engine, 'handleError']) {
+            restore_error_handler();
+        }
+        if ($exceptionHandler === [$engine, 'handleException']) {
+            restore_exception_handler();
+        }
+
+        $this->assertTrue($ran);
+        $this->assertFalse(Request::$allowMethodOverride);
+        $this->assertSame('GET', $engine->request()->method);
+        $this->assertTrue($engine->router()->caseSensitive);
+        $this->assertSame([$engine, 'handleError'], $errorHandler);
+        $this->assertSame([$engine, 'handleException'], $exceptionHandler);
+    }
+
+    public function testMapStartKeepsUserFiltersRegisteredBeforeIt(): void
+    {
+        $engine = new Engine();
+        $engine->set('flight.handle_errors', false);
+
+        $calls = [];
+        $engine->before('start', function () use (&$calls) {
+            $calls[] = 'before';
+        });
+        $engine->after('start', function () use (&$calls) {
+            $calls[] = 'after';
+        });
+
+        $engine->map('start', function () use (&$calls) {
+            $calls[] = 'start';
+        });
+        $engine->start();
+
+        $this->assertSame(['before', 'start', 'after'], $calls);
+    }
+
     public function testViewsRestrictToPathConfigIsAppliedToView(): void
     {
         $engine = new Engine();
