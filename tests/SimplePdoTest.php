@@ -203,6 +203,12 @@ class SimplePdoTest extends TestCase
         $this->assertCount(2, $rows); // John and Jane
     }
 
+    public function testFetchAllWithNamedParams(): void
+    {
+        $rows = $this->db->fetchAll('SELECT * FROM users WHERE name LIKE :name', [ 'name' => 'J%']);
+        $this->assertCount(2, $rows); // John and Jane
+    }
+
     // =========================================================================
     // fetchColumn Tests
     // =========================================================================
@@ -258,9 +264,21 @@ class SimplePdoTest extends TestCase
         $this->assertCount(2, $rows);
     }
 
+    public function testInStatementWithNamedArrayOfIntegers(): void
+    {
+        $rows = $this->db->fetchAll('SELECT * FROM users WHERE id IN(:ids)', [ 'ids' => [1, 2]]);
+        $this->assertCount(2, $rows);
+    }
+
     public function testInStatementWithArrayOfStrings(): void
     {
         $rows = $this->db->fetchAll('SELECT * FROM users WHERE name IN(?)', [['John', 'Jane']]);
+        $this->assertCount(2, $rows);
+    }
+
+    public function testInStatementWithNamedArrayOfStrings(): void
+    {
+        $rows = $this->db->fetchAll('SELECT * FROM users WHERE name IN(:names)', ['names' => ['John', 'Jane']]);
         $this->assertCount(2, $rows);
     }
 
@@ -270,17 +288,54 @@ class SimplePdoTest extends TestCase
         $this->assertCount(0, $rows); // IN(NULL) matches nothing
     }
 
+    public function testInStatementWithNamedEmptyArray(): void
+    {
+        $rows = $this->db->fetchAll('SELECT * FROM users WHERE id IN(:empty)', [ 'empty' => []]);
+        $this->assertCount(0, $rows); // IN(NULL) matches nothing
+    }
+
     public function testInStatementWithSingleValue(): void
     {
         $rows = $this->db->fetchAll('SELECT * FROM users WHERE id IN(?)', [1]);
         $this->assertCount(1, $rows);
     }
 
+    public function testInStatementWithSingleNamedValue(): void
+    {
+        $rows = $this->db->fetchAll('SELECT * FROM users WHERE id IN(:ids)', ['ids' => 1]);
+        $this->assertCount(1, $rows);
+    }
+
+    public function testInStatementWithNamedSingleValue(): void
+    {
+        $rows = $this->db->fetchAll('SELECT * FROM users WHERE id IN(:val)', ['val' => 1]);
+        $this->assertCount(1, $rows);
+    }
+
+
     public function testMultipleInStatements(): void
     {
         $rows = $this->db->fetchAll(
             'SELECT * FROM users WHERE id IN(?) AND name IN(?)',
             [[1, 2, 3], ['John', 'Bob']]
+        );
+        $this->assertCount(2, $rows); // John (id=1) and Bob (id=3)
+    }
+
+    public function testMultipleInStatementsNamed(): void
+    {
+        $rows = $this->db->fetchAll(
+            'SELECT * FROM users WHERE id IN(:ids) AND name IN(:names)',
+            ['ids' => [1, 2, 3], 'names' => ['John', 'Bob']]
+        );
+        $this->assertCount(2, $rows); // John (id=1) and Bob (id=3)
+    }
+
+    public function testMultipleInStatementsMixed(): void
+    {
+        $rows = $this->db->fetchAll(
+            'SELECT * FROM users WHERE id IN(?) AND name IN(:names)',
+            [[1, 2, 3], 'names' => ['John', 'Bob']]
         );
         $this->assertCount(2, $rows); // John (id=1) and Bob (id=3)
     }
@@ -293,6 +348,35 @@ class SimplePdoTest extends TestCase
         );
         $this->assertCount(2, $rows);
     }
+
+    public function testInStatementWithOtherNamedParams(): void
+    {
+        $rows = $this->db->fetchAll(
+            'SELECT * FROM users WHERE id > :id AND name IN(:names)',
+            ['id' => 0, 'names' => ['John', 'Jane']]
+        );
+        $this->assertCount(2, $rows);
+    }
+
+    
+    public function testInStatementWithMixedParams1(): void
+    {
+        $rows = $this->db->fetchAll(
+            'SELECT * FROM users WHERE id > ? AND name IN(:names)',
+            ['id' => 0, 'names' => ['John', 'Jane']]
+        );
+        $this->assertCount(2, $rows);
+    }
+
+    public function testInStatementWithMixedParams2(): void
+    {
+        $rows = $this->db->fetchAll(
+            'SELECT * FROM users WHERE id > :id AND name IN(?)',
+            ['id' => 0, ['John', 'Jane']]
+        );
+        $this->assertCount(2, $rows);
+    }
+
 
     // =========================================================================
     // insert() Tests
