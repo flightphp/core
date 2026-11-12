@@ -101,11 +101,44 @@ class SimplePdo extends PdoWrapper
      */
     protected function processInStatementSql(string $sql, array $params = []): array
     {
-        // First, find all placeholders (?) in the original SQL and their positions
-        // We need to track which are IN(?) patterns vs regular ?
-        $originalSql = $sql;
+        $originalSql_ = $sql;
+        $params_ = $params;
         $newParams = [];
-        $paramIndex = 0;
+
+        // First, find all placeholders with named parameter inside IN pattern
+        $pattern = '/IN\s*\(\s*(:[a-zA-Z][a-zA-Z0-9]*)\s*\)/i';
+        $inPositions = [];
+        if (preg_match_all($pattern, $originalSql_, $matches, PREG_OFFSET_CAPTURE)) {
+            foreach ($matches[1] as $k => $match)
+                $inPositions[$match[0]] = $matches[0][$k];
+        }
+        // and process each param
+        foreach($inPositions as $param => $match) {
+            $param_key = substr($param, 1);
+            if (!isset($params[$param_key])
+                || !is_array($params[$param_key])) // Not defined param or single value, keep as-is
+                continue;
+            if (empty($params[$param_key]))
+                // Empty array
+                $originalSql_ = str_replace($match, 'IN (NULL)', $originalSql_);
+            else {
+                $i = 0;
+                $keys = [];
+                foreach($params[$param_key] as $val) {
+                    $keys[] = "{$param}{$i}";
+                    $newParams["{$param_key}{$i}"] = $val;
+                    $i++;
+                }
+                $originalSql_ = str_replace($match, "IN (". implode(", ", $keys) . ")", $originalSql_);
+            }
+            unset($params_[$param_key]);
+        }
+        $params_ = array_merge($params_, $newParams);
+
+        // Then, find all placeholders (?) in the original SQL and their positions
+        // We need to track which are IN(?) patterns vs regular ?
+        $originalSql = $originalSql_;
+        $newParams = [];
 
         // Find all ? positions and whether they're part of IN(?)
         $pattern = '/IN\s*\(\s*\?\s*\)/i';
@@ -144,9 +177,10 @@ class SimplePdo extends PdoWrapper
         $offset = 0;
 
         // Process each param
-        for ($i = 0; $i < count($params); $i++) {
+        $i = 0;
+        foreach($params_ as $key => $val) {
             if (isset($inParamIndices[$i])) {
-                $value = $params[$i];
+                $value = $params_[$i];
 
                 // Find the next IN(?) in the remaining SQL
                 if (preg_match($pattern, $newSql, $match, PREG_OFFSET_CAPTURE, $offset)) {
@@ -172,8 +206,12 @@ class SimplePdo extends PdoWrapper
                     }
                 }
             } else {
-                $newParams[] = $params[$i];
+                if (is_numeric($key))
+                    $newParams[] = $params_[$i];
+                else 
+                    $newParams[$key] = $val;
             }
+            $i++;
         }
 
         return ['sql' => $newSql, 'params' => $newParams];
