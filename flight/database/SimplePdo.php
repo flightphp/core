@@ -90,10 +90,14 @@ class SimplePdo extends PdoWrapper
 
     /**
      * Don't worry about this guy. Converts stuff for IN statements
+     * either named or unamed parameters
      *
      * Ex: $row = $db->fetchAll("SELECT * FROM table WHERE id = ? AND something IN(?), [ $id, [1,2,3] ]);
      *      Converts this to "SELECT * FROM table WHERE id = ? AND something IN(?,?,?)"
-     *
+     * 
+     * Ex: $row = $db->fetchAll("SELECT * FROM table WHERE id = :id AND something IN(:something), [ 'id' => $id, 'something' => [1,2,3] ]);
+     *      Converts this to "SELECT * FROM table WHERE id = :id AND something IN(:something0 , :something1 , :something2)"
+     * 
      * @param string $sql    the sql statement
      * @param array<int|string,mixed>  $params the params for the sql statement
      *
@@ -101,11 +105,62 @@ class SimplePdo extends PdoWrapper
      */
     protected function processInStatementSql(string $sql, array $params = []): array
     {
+        // 1. throw an exception if mixed parameters are found in sql
+        $pattern = '/(:[a-zA-Z][a-zA-Z0-9]*)/i';
+        $named_params_nb = preg_match_all($pattern, $sql, $matches_named, PREG_OFFSET_CAPTURE);
+
+        $pattern = '/(\?)/i';
+        $unnamed_params_nb = preg_match_all($pattern, $sql, $matches_unnamed, PREG_OFFSET_CAPTURE);
+
+        if (($named_params_nb === false)
+            || ($unnamed_params_nb === false)
+            || (($named_params_nb != 0) && ($unnamed_params_nb != 0))) 
+        {
+            throw new PDOException(
+                "processInStatementSql failed: mixed named and unamed parameters found."
+            );
+        }
+        
+        // 2. handle named parameters        
+        if ($named_params_nb > 0) 
+        {
+            $newSql = $sql;
+            $newParams = $params;
+
+            // Find all placeholders with named parameter inside IN pattern
+            $pattern = '/IN\s*\(\s*(:[a-zA-Z][a-zA-Z0-9]*)\s*\)/i';
+            if (preg_match_all($pattern, $sql, $matches, PREG_OFFSET_CAPTURE)) {
+                // Then process each param
+                foreach ($matches[1] as $k => $match) {
+                    $param_key = substr($match[0], 1);
+                    $inStatement = $matches[0][$k];
+                    if (!isset($params[$param_key]) 
+                        || !is_array($params[$param_key])) // Not defined param or single value, keep as-is
+                        continue;
+                    if (empty($params[$param_key])) // Empty array
+                        $newSql = str_replace($inStatement, 'IN (NULL)', $newSql);
+                    else { // replace IN parameters
+                        $i = 0;
+                        $keys = [];
+                        foreach($params[$param_key] as $val) {
+                            $keys[] = ":{$param_key}{$i}";
+                            $newParams["{$param_key}{$i}"] = $val;
+                            $i++;
+                        }
+                        $newSql = str_replace($inStatement, "IN (". implode(", ", $keys) . ")", $newSql);
+                    }
+                    unset($newParams[$param_key]);
+                }
+            }
+
+            return ['sql' => $newSql, 'params' => $newParams];
+        }
+
+        // 3. handle unnamed parameters
         // First, find all placeholders (?) in the original SQL and their positions
         // We need to track which are IN(?) patterns vs regular ?
         $originalSql = $sql;
         $newParams = [];
-        $paramIndex = 0;
 
         // Find all ? positions and whether they're part of IN(?)
         $pattern = '/IN\s*\(\s*\?\s*\)/i';
