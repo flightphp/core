@@ -333,11 +333,11 @@ class SimplePdoTest extends TestCase
 
     public function testMultipleInStatementsMixed(): void
     {
+        $this->expectException(PDOException::class);
         $rows = $this->db->fetchAll(
             'SELECT * FROM users WHERE id IN(?) AND name IN(:names)',
             [[1, 2, 3], 'names' => ['John', 'Bob']]
         );
-        $this->assertCount(2, $rows); // John (id=1) and Bob (id=3)
     }
 
     public function testInStatementWithOtherParams(): void
@@ -361,20 +361,20 @@ class SimplePdoTest extends TestCase
     
     public function testInStatementWithMixedParams1(): void
     {
+        $this->expectException(PDOException::class);
         $rows = $this->db->fetchAll(
             'SELECT * FROM users WHERE id > ? AND name IN(:names)',
-            ['id' => 0, 'names' => ['John', 'Jane']]
+            [0, 'names' => ['John', 'Jane']]
         );
-        $this->assertCount(2, $rows);
     }
 
     public function testInStatementWithMixedParams2(): void
     {
+        $this->expectException(PDOException::class);
         $rows = $this->db->fetchAll(
             'SELECT * FROM users WHERE id > :id AND name IN(?)',
             ['id' => 0, ['John', 'Jane']]
         );
-        $this->assertCount(2, $rows);
     }
 
 
